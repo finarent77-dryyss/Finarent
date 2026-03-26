@@ -22,27 +22,18 @@ export default async function DossierDetailPage({ params }) {
   const { id } = await params;
   const session = await getSession();
   if (!session?.user) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] pt-32 flex items-center justify-center">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-gray-600 mb-4">Connectez-vous pour accéder à ce dossier.</p>
-          <a
-            href={`/api/auth/login?returnTo=/espace/${id}`}
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            <i className="fa-solid fa-right-to-bracket"></i>
-            Se connecter
-          </a>
-        </div>
-      </div>
-    );
+    const EspaceLoginPrompt = (await import('@/components/espace/EspaceLoginPrompt')).default;
+    return <EspaceLoginPrompt returnTo={`/espace/${id}`} />;
   }
 
   const dbUser = await syncUser(session.user);
 
   const application = await prisma.application.findUnique({
     where: { id },
-    include: { documents: true },
+    include: {
+      documents: true,
+      statusHistory: { orderBy: { createdAt: 'asc' } },
+    },
   });
 
   if (!application || application.userId !== dbUser?.id) {
@@ -58,12 +49,18 @@ export default async function DossierDetailPage({ params }) {
       path: d.fileUrl,
       originalName: d.fileName,
     })),
+    statusHistory: (application.statusHistory || []).map(h => ({
+      ...h,
+      fromStatus: STATUS_TO_LEGACY[h.fromStatus] || h.fromStatus,
+      toStatus: STATUS_TO_LEGACY[h.toStatus] || h.toStatus,
+      createdAt: h.createdAt.toISOString(),
+    })),
   };
 
   return (
     <DossierDetailClient
       dossier={dossier}
-      user={session.user}
+      user={{ ...session.user, id: dbUser.id }}
     />
   );
 }

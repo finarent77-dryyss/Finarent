@@ -1,42 +1,29 @@
 import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { isAdmin, syncUser } from '@/lib/users';
+import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminMobileNav from '@/components/admin/AdminMobileNav';
 
 export default async function AdminLayout({ children }) {
   const session = await getSession();
   if (!session?.user) {
-    redirect('/api/auth/login?returnTo=/admin/demandes');
+    redirect('/api/auth/login?returnTo=/admin');
   }
 
-  // Synchronisation et vérification du rôle admin
   await syncUser(session.user);
   const adminAccess = await isAdmin(session.user);
 
   if (!adminAccess) {
-    redirect('/espace'); // Rediriger les non-admins vers leur espace client
+    redirect('/espace');
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link href="/admin/demandes" className="text-primary font-bold text-xl">
-              Admin Finassur
-            </Link>
-            <span className="text-gray-500">|</span>
-            <span className="text-gray-600">{session.user.email || session.user.name}</span>
-          </div>
-          <a
-            href="/api/auth/logout?returnTo=/"
-            className="text-sm text-gray-600 hover:text-secondary"
-          >
-            Déconnexion
-          </a>
-        </div>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <AdminSidebar email={session.user.email || session.user.name} />
+      <AdminMobileNav />
+      <main className="lg:ml-64 pt-20 pb-12 px-4 sm:px-6 lg:px-8">
         {children}
-      </div>
+      </main>
     </div>
   );
 }

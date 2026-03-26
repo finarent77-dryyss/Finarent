@@ -30,10 +30,27 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: 'Aucune modification' }, { status: 400 });
     }
 
+    // Récupérer le statut actuel pour l'historique
+    const current = await prisma.application.findUnique({ where: { id }, select: { status: true } });
+    const dbUser = await prisma.user.findUnique({ where: { auth0Id: session.user.sub }, select: { id: true } });
+
     const application = await prisma.application.update({
       where: { id },
       data: updateData,
     });
+
+    // Enregistrer l'historique du changement de statut
+    if (updateData.status && current && current.status !== updateData.status && dbUser) {
+      await prisma.statusHistory.create({
+        data: {
+          applicationId: id,
+          changedById: dbUser.id,
+          fromStatus: current.status,
+          toStatus: updateData.status,
+          comment: adminNotes || null,
+        },
+      });
+    }
 
     const response = {
       ...application,

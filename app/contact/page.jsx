@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen pt-32 flex justify-center">Chargement...</div>}>
+    <Suspense fallback={<div className="min-h-screen pt-32 flex justify-center">...</div>}>
       <ContactClient />
     </Suspense>
   );

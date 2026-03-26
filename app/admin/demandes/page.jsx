@@ -8,7 +8,6 @@ export const metadata = {
 export default function AdminDemandesPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-primary mb-6">Demandes de financement</h1>
       <DemandesClient />
     </div>
   );

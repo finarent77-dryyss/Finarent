@@ -1,6 +1,11 @@
+'use client';
+
 import Link from 'next/link';
+import { useTranslation } from '@/lib/i18n';
 
 export default function FooterCompanyInfo() {
+  const { t } = useTranslation();
+
   return (
     <div>
       <div className="flex items-center space-x-3 mb-4">
@@ -10,16 +15,16 @@ export default function FooterCompanyInfo() {
         <span className="text-2xl font-bold">Finassur</span>
       </div>
       <p className="text-white/60 mb-6 text-sm leading-relaxed pr-4">
-        Leader du financement pro depuis 2009. +1200 entreprises accompagnées.
+        {t('footer.companyDesc')}
       </p>
       <div className="space-y-2 mb-6 text-sm">
         <div className="flex items-center space-x-3 text-white/80">
           <i className="fa-solid fa-phone text-accent w-5"></i>
-          <span>01 23 45 67 89</span>
+          <span>{t('common.phone')}</span>
         </div>
         <div className="flex items-center space-x-3 text-white/80">
           <i className="fa-solid fa-envelope text-accent w-5"></i>
-          <span>contact@finassur.fr</span>
+          <span>{t('common.email')}</span>
         </div>
       </div>
       <div className="flex space-x-2">

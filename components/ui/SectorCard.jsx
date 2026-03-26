@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function SectorCard({ sector }) {
   return (
-    <div id={sector.id} className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-secondary cursor-pointer">
+    <div id={sector.id} className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-secondary cursor-pointer h-full flex flex-col">
       <div className={`w-16 h-16 bg-gradient-to-br ${sector.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
         <i className={`fa-solid ${sector.icon} text-white text-3xl`}></i>
       </div>
@@ -18,10 +18,12 @@ export default function SectorCard({ sector }) {
           ))}
         </div>
       )}
-      <Link href={`/sectors/${sector.id}`} className="inline-flex items-center space-x-2 text-secondary font-semibold group-hover:gap-3 transition-all">
-        <span>En savoir plus</span>
-        <i className="fa-solid fa-arrow-right"></i>
-      </Link>
+      <div className="mt-auto">
+        <Link href={`/sectors/${sector.id}`} className="inline-flex items-center space-x-2 text-secondary font-semibold group-hover:gap-3 transition-all">
+          <span>En savoir plus</span>
+          <i className="fa-solid fa-arrow-right"></i>
+        </Link>
+      </div>
     </div>
   );
 }

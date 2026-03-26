@@ -20,7 +20,7 @@ export async function GET(request, { params }) {
 
     const document = await prisma.document.findUnique({
       where: { id },
-      include: { application: true },
+      include: { application: { select: { userId: true, partnerId: true, productType: true } } },
     });
 
     if (!document) {
@@ -30,7 +30,12 @@ export async function GET(request, { params }) {
     const dbUser = await syncUser(session.user);
     const adminAccess = await isAdmin(session.user);
 
-    if (document.application.userId !== dbUser?.id && !adminAccess) {
+    // Vérifier l'accès : propriétaire, admin, partenaire lié, ou assureur (pour RC_PRO)
+    const isOwner = document.application.userId === dbUser?.id;
+    const isPartnerLinked = dbUser?.role === 'PARTNER' && document.application.partnerId === dbUser?.partnerId;
+    const isInsurerAccess = dbUser?.role === 'INSURER' && document.application.productType === 'RC_PRO';
+
+    if (!isOwner && !adminAccess && !isPartnerLinked && !isInsurerAccess) {
       return new NextResponse('Accès non autorisé', { status: 403 });
     }
 

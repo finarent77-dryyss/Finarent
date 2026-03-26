@@ -14,6 +14,7 @@ enum Role {
   CLIENT
   ADMIN
   PARTNER
+  INSURER
 }
 
 enum ProductType {

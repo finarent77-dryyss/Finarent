@@ -48,6 +48,20 @@ export async function middleware(request: NextRequest) {
     return res;
   }
 
+  // ── /insurer : INSURER ou ADMIN ──────────────────────
+  if (pathname.startsWith('/insurer')) {
+    if (!session?.user) {
+      const loginUrl = new URL('/api/auth/login', request.url);
+      loginUrl.searchParams.set('returnTo', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    const role = (session.user as Record<string, unknown>)[ROLE_CLAIM];
+    if (role !== 'insurer' && role !== 'admin') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return res;
+  }
+
   // ── /dashboard + /espace : authentification requise ────
   if (pathname.startsWith('/dashboard') || pathname.startsWith('/espace')) {
     if (!session?.user) {
@@ -62,5 +76,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/partner/:path*', '/dashboard/:path*', '/espace/:path*'],
+  matcher: ['/admin/:path*', '/partner/:path*', '/insurer/:path*', '/dashboard/:path*', '/espace/:path*'],
 };

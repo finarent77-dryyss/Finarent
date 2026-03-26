@@ -5,7 +5,7 @@ async function promote(email) {
     try {
         const user = await prisma.user.update({
             where: { email },
-            data: { role: 'admin' },
+            data: { role: 'ADMIN' },
         });
         console.log(`L'utilisateur ${email} est maintenant ADMIN.`);
     } catch (error) {

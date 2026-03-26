@@ -1,25 +1,35 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n';
 
-const STATUS_LABELS = {
-  en_attente: { label: 'En attente', color: 'bg-amber-100 text-amber-800' },
-  en_cours: { label: 'En cours', color: 'bg-blue-100 text-blue-800' },
-  documents_manquants: { label: 'Documents manquants', color: 'bg-orange-100 text-orange-800' },
-  devis_envoye: { label: 'Devis envoyé', color: 'bg-cyan-100 text-cyan-800' },
-  devis_accepte: { label: 'Devis accepté', color: 'bg-indigo-100 text-indigo-800' },
-  signature_en_attente: { label: 'Signature en attente', color: 'bg-purple-100 text-purple-800' },
-  signe: { label: 'Signé', color: 'bg-teal-100 text-teal-800' },
-  transmis: { label: 'Transmis', color: 'bg-sky-100 text-sky-800' },
-  validee: { label: 'Validée', color: 'bg-green-100 text-green-800' },
-  refusee: { label: 'Refusée', color: 'bg-red-100 text-red-800' },
-  finalise: { label: 'Finalisé', color: 'bg-emerald-100 text-emerald-800' },
+const STATUS_COLORS = {
+  en_attente: { bg: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
+  en_cours: { bg: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500' },
+  documents_manquants: { bg: 'bg-orange-100 text-orange-800', dot: 'bg-orange-500' },
+  devis_envoye: { bg: 'bg-cyan-100 text-cyan-800', dot: 'bg-cyan-500' },
+  devis_accepte: { bg: 'bg-indigo-100 text-indigo-800', dot: 'bg-indigo-500' },
+  signature_en_attente: { bg: 'bg-purple-100 text-purple-800', dot: 'bg-purple-500' },
+  signe: { bg: 'bg-teal-100 text-teal-800', dot: 'bg-teal-500' },
+  transmis: { bg: 'bg-sky-100 text-sky-800', dot: 'bg-sky-500' },
+  validee: { bg: 'bg-green-100 text-green-800', dot: 'bg-green-500' },
+  refusee: { bg: 'bg-red-100 text-red-800', dot: 'bg-red-500' },
+  finalise: { bg: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500' },
 };
 
-const REQUEST_TYPE_LABELS = {
-  financement: 'Financement',
-  assurance: 'Assurance',
+const ALL_STATUSES = ['en_attente', 'en_cours', 'documents_manquants', 'devis_envoye', 'devis_accepte', 'signature_en_attente', 'signe', 'transmis', 'validee', 'refusee', 'finalise'];
+
+const STATUS_GROUPS = {
+  all: ALL_STATUSES,
+  pending: ['en_attente', 'documents_manquants'],
+  active: ['en_cours', 'devis_envoye', 'devis_accepte', 'signature_en_attente', 'signe'],
+  transmitted: ['transmis'],
+  done: ['validee', 'refusee', 'finalise'],
 };
+
+const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } };
+const itemVariants = { hidden: { y: 10, opacity: 0 }, visible: { y: 0, opacity: 1 } };
 
 export default function DemandesClient() {
   const [demandes, setDemandes] = useState([]);
@@ -27,18 +37,19 @@ export default function DemandesClient() {
   const [error, setError] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editNotes, setEditNotes] = useState('');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [expandedId, setExpandedId] = useState(null);
+  const { t, locale } = useTranslation();
 
-  useEffect(() => {
-    fetchDemandes();
-  }, []);
+  useEffect(() => { fetchDemandes(); }, []);
 
   const fetchDemandes = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/admin/demandes');
-      if (!res.ok) throw new Error('Erreur chargement');
-      const data = await res.json();
-      setDemandes(data);
+      if (!res.ok) throw new Error(t('admin.loadingError'));
+      setDemandes(await res.json());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -53,12 +64,10 @@ export default function DemandesClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
-      if (!res.ok) throw new Error('Erreur mise à jour');
+      if (!res.ok) throw new Error(t('admin.updateError'));
       const updated = await res.json();
-      setDemandes((prev) => prev.map((d) => (d.id === id ? updated : d)));
-    } catch (err) {
-      alert(err.message);
-    }
+      setDemandes(prev => prev.map(d => d.id === id ? updated : d));
+    } catch (err) { alert(err.message); }
   };
 
   const updateNotes = async (id) => {
@@ -68,191 +77,279 @@ export default function DemandesClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminNotes: editNotes }),
       });
-      if (!res.ok) throw new Error('Erreur mise à jour');
+      if (!res.ok) throw new Error(t('admin.updateError'));
       const updated = await res.json();
-      setDemandes((prev) => prev.map((d) => (d.id === id ? updated : d)));
+      setDemandes(prev => prev.map(d => d.id === id ? updated : d));
       setEditingId(null);
       setEditNotes('');
-    } catch (err) {
-      alert(err.message);
-    }
+    } catch (err) { alert(err.message); }
   };
 
-  const formatDate = (d) => new Date(d).toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  const formatDate = (d) => new Date(d).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+
+  const filtered = demandes.filter(d => {
+    const matchesStatus = statusFilter === 'all' || STATUS_GROUPS[statusFilter]?.includes(d.status);
+    if (!matchesStatus) return false;
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (d.companyName || '').toLowerCase().includes(s) ||
+           (d.firstName || '').toLowerCase().includes(s) ||
+           (d.lastName || '').toLowerCase().includes(s) ||
+           (d.email || '').toLowerCase().includes(s) ||
+           (d.reference || '').toLowerCase().includes(s) ||
+           (d.siren || '').includes(s);
   });
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <i className="fa-solid fa-spinner fa-spin text-4xl text-secondary"></i>
+      <div className="flex justify-center py-20">
+        <div className="flex flex-col items-center gap-3">
+          <i className="fa-solid fa-spinner fa-spin text-4xl text-secondary"></i>
+          <span className="text-sm text-gray-400">Chargement des demandes...</span>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-800">
-        {error}
+      <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-700 flex items-center gap-3">
+        <i className="fa-solid fa-circle-exclamation text-xl"></i>
+        <span className="font-medium">{error}</span>
       </div>
     );
   }
 
-  if (demandes.length === 0) {
-    return (
-      <div className="bg-white rounded-xl shadow p-8 text-center text-gray-500">
-        Aucune demande pour le moment.
-      </div>
-    );
-  }
+  const statusCounts = {
+    all: demandes.length,
+    pending: demandes.filter(d => STATUS_GROUPS.pending.includes(d.status)).length,
+    active: demandes.filter(d => STATUS_GROUPS.active.includes(d.status)).length,
+    transmitted: demandes.filter(d => STATUS_GROUPS.transmitted.includes(d.status)).length,
+    done: demandes.filter(d => STATUS_GROUPS.done.includes(d.status)).length,
+  };
 
   return (
-    <div className="space-y-4">
-      {demandes.map((d) => (
-        <div
-          key={d.id}
-          className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
-        >
-          <div className="p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-mono font-bold text-secondary">{d.reference}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${STATUS_LABELS[d.status]?.color || 'bg-gray-100'}`}>
-                    {STATUS_LABELS[d.status]?.label || d.status}
-                  </span>
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">
-                    {REQUEST_TYPE_LABELS[d.requestType] || d.requestType}
-                  </span>
-                </div>
-                <h3 className="text-lg font-black text-primary uppercase">{d.companyName}</h3>
-                <div className="flex flex-col gap-1 mt-1 text-sm text-gray-500 font-medium">
-                  <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-user-tie text-[10px] opacity-40"></i>
-                    {d.firstName} {d.lastName}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-envelope text-[10px] opacity-40"></i>
-                    {d.email}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-phone text-[10px] opacity-40"></i>
-                    {d.phone}
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-black text-primary">{formatDate(d.createdAt)}</div>
-                {d.user ? (
-                   <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-green-50 text-green-700 text-[10px] font-black rounded-lg border border-green-100 mt-2">
-                    <i className="fa-solid fa-circle-check"></i>
-                    CLIENT AUTHENTIFIÉ
-                   </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-50 text-gray-400 text-[10px] font-black rounded-lg border border-gray-100 mt-2">
-                    <i className="fa-solid fa-ghost"></i>
-                    PROSPECT ANONYME
-                   </span>
-                )}
-              </div>
-            </div>
+    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="max-w-7xl mx-auto">
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-primary">{t('admin.financingRequests')}</h1>
+          <p className="text-gray-400 text-sm mt-1">{demandes.length} demande{demandes.length > 1 ? 's' : ''} au total</p>
+        </div>
+      </motion.div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
-              <div><div className="text-[10px] font-black text-gray-400 uppercase">SIREN</div> <div className="font-bold text-primary">{d.siren}</div></div>
-              <div><div className="text-[10px] font-black text-gray-400 uppercase">Secteur</div> <div className="font-bold text-primary">{d.sector}</div></div>
-              <div><div className="text-[10px] font-black text-gray-400 uppercase">Montant</div> <div className="font-bold text-secondary italic">{d.amount}</div></div>
-              <div><div className="text-[10px] font-black text-gray-400 uppercase">Équipement</div> <div className="font-bold text-primary">{d.equipmentType || '-'}</div></div>
-            </div>
-
-            {/* Documents Section */}
-            {d.documents?.length > 0 && (
-              <div className="mb-6">
-                <div className="text-[10px] font-black text-gray-400 uppercase mb-3">Pièces jointes ({d.documents.length})</div>
-                <div className="flex flex-wrap gap-3">
-                  {d.documents.map(doc => (
-                    <a 
-                      key={doc.id} 
-                      href={doc.path} 
-                      target="_blank" 
-                      className="flex items-center gap-3 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-secondary hover:shadow-sm transition-all text-sm group"
-                    >
-                      <i className="fa-solid fa-file-pdf text-red-500 text-base"></i>
-                      <span className="font-bold text-primary group-hover:text-secondary">{doc.originalName}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {d.message && (
-              <div className="mb-6">
-                 <div className="text-[10px] font-black text-gray-400 uppercase mb-2">Message prospect</div>
-                 <p className="text-sm text-gray-600 p-4 bg-white border border-gray-100 rounded-2xl italic">"{d.message}"</p>
-              </div>
-            )}
-
-            <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-100">
-              <span className="text-sm font-medium text-gray-700">Changer le statut :</span>
-              {['en_attente', 'en_cours', 'documents_manquants', 'devis_envoye', 'devis_accepte', 'signature_en_attente', 'signe', 'transmis', 'validee', 'refusee', 'finalise'].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => updateStatus(d.id, s)}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                    d.status === s
-                      ? 'bg-secondary text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {STATUS_LABELS[s].label}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              {editingId === d.id ? (
-                <div>
-                  <textarea
-                    value={editNotes}
-                    onChange={(e) => setEditNotes(e.target.value)}
-                    placeholder="Notes internes..."
-                    className="input-field py-2 text-sm mb-2"
-                    rows="2"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => updateNotes(d.id)}
-                      className="btn-primary py-2 text-sm"
-                    >
-                      Enregistrer
-                    </button>
-                    <button
-                      onClick={() => { setEditingId(null); setEditNotes(''); }}
-                      className="btn-outline py-2 text-sm"
-                    >
-                      Annuler
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Notes : </span>
-                  <span className="text-sm text-gray-600">{d.adminNotes || 'Aucune'}</span>
-                  <button
-                    onClick={() => { setEditingId(d.id); setEditNotes(d.adminNotes || ''); }}
-                    className="ml-2 text-sm text-secondary hover:underline"
-                  >
-                    Modifier
-                  </button>
-                </div>
-              )}
-            </div>
+      {/* Filters */}
+      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm mb-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Search */}
+          <div className="relative flex-1">
+            <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-sm"></i>
+            <input
+              type="text"
+              placeholder="Rechercher par nom, email, SIREN, référence..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+            />
           </div>
         </div>
-      ))}
-    </div>
+
+        {/* Status tabs */}
+        <div className="flex items-center gap-1 mt-4 overflow-x-auto pb-1">
+          {Object.entries({ all: 'Tous', pending: 'En attente', active: 'En cours', transmitted: 'Transmis', done: 'Terminés' }).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setStatusFilter(key)}
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                statusFilter === key
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+              }`}
+            >
+              {label} ({statusCounts[key]})
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Results */}
+      <div className="space-y-4">
+        <AnimatePresence mode="popLayout">
+          {filtered.length === 0 ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center bg-white rounded-2xl border border-gray-100">
+              <i className="fa-solid fa-inbox text-4xl text-gray-200 mb-3 block"></i>
+              <p className="text-sm text-gray-400">{search ? 'Aucun résultat pour cette recherche' : t('admin.noRequests')}</p>
+            </motion.div>
+          ) : filtered.map((d) => {
+            const sc = STATUS_COLORS[d.status] || { bg: 'bg-gray-100 text-gray-600', dot: 'bg-gray-400' };
+            const isExpanded = expandedId === d.id;
+
+            return (
+              <motion.div
+                key={d.id}
+                layout
+                variants={itemVariants}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+              >
+                {/* Header row */}
+                <div
+                  className="p-4 sm:p-5 cursor-pointer"
+                  onClick={() => setExpandedId(isExpanded ? null : d.id)}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="font-mono text-xs font-bold text-secondary bg-secondary/5 px-2 py-0.5 rounded">{d.reference}</span>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${sc.bg}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`}></span>
+                          {t(`status.${d.status}`) || d.status}
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-300 uppercase">{t(`requestType.${d.requestType}`) || d.requestType}</span>
+                      </div>
+                      <h3 className="font-bold text-primary text-lg">{d.companyName}</h3>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
+                        <span><i className="fa-solid fa-user text-[10px] text-gray-300 mr-1.5"></i>{d.firstName} {d.lastName}</span>
+                        <span><i className="fa-solid fa-envelope text-[10px] text-gray-300 mr-1.5"></i>{d.email}</span>
+                      </div>
+                    </div>
+                    <div className="text-right flex flex-col items-end gap-2">
+                      <div className="text-lg font-black text-primary">{d.amount || '-'}</div>
+                      <div className="text-xs text-gray-400">{formatDate(d.createdAt)}</div>
+                      {d.user ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded-lg">
+                          <i className="fa-solid fa-circle-check"></i> Authentifié
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-400 text-[10px] font-bold rounded-lg">
+                          <i className="fa-solid fa-ghost"></i> Prospect
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center mt-3">
+                    <i className={`fa-solid fa-chevron-down text-xs text-gray-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`}></i>
+                  </div>
+                </div>
+
+                {/* Expanded content */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-4 sm:px-5 pb-5 space-y-4 border-t border-gray-50 pt-4">
+                        {/* Info grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {[
+                            { label: 'SIREN', value: d.siren },
+                            { label: t('contact.sector'), value: d.sector },
+                            { label: t('contact.amount'), value: d.amount },
+                            { label: t('contact.equipmentType'), value: d.equipmentType || '-' },
+                          ].map((item, i) => (
+                            <div key={i} className="bg-gray-50 rounded-xl p-3">
+                              <div className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">{item.label}</div>
+                              <div className="text-sm font-bold text-primary">{item.value}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {d.phone && (
+                          <div className="text-sm text-gray-500">
+                            <i className="fa-solid fa-phone text-gray-300 mr-2"></i>{d.phone}
+                          </div>
+                        )}
+
+                        {/* Documents */}
+                        {d.documents?.length > 0 && (
+                          <div>
+                            <div className="text-xs font-bold text-gray-400 uppercase mb-2">Pièces jointes ({d.documents.length})</div>
+                            <div className="flex flex-wrap gap-2">
+                              {d.documents.map(doc => (
+                                <a
+                                  key={doc.id}
+                                  href={doc.path}
+                                  target="_blank"
+                                  className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-xs hover:bg-secondary/10 hover:text-secondary transition-all group"
+                                >
+                                  <i className="fa-solid fa-file-pdf text-red-400 group-hover:text-secondary"></i>
+                                  <span className="font-medium truncate max-w-[140px]">{doc.originalName}</span>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Message */}
+                        {d.message && (
+                          <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4">
+                            <div className="text-[10px] font-bold text-blue-400 uppercase mb-1">Message du prospect</div>
+                            <p className="text-sm text-gray-600 italic">&ldquo;{d.message}&rdquo;</p>
+                          </div>
+                        )}
+
+                        {/* Status change */}
+                        <div>
+                          <div className="text-xs font-bold text-gray-400 uppercase mb-2">{t('admin.changeStatus')}</div>
+                          <select
+                            value={d.status}
+                            onChange={(e) => updateStatus(d.id, e.target.value)}
+                            className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all w-full sm:w-auto"
+                          >
+                            {ALL_STATUSES.map(s => (
+                              <option key={s} value={s}>{t(`status.${s}`)}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Admin notes */}
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <div className="text-xs font-bold text-gray-400 uppercase mb-2">{t('admin.notes')}</div>
+                          {editingId === d.id ? (
+                            <div>
+                              <textarea
+                                value={editNotes}
+                                onChange={(e) => setEditNotes(e.target.value)}
+                                placeholder={t('admin.internalNotes')}
+                                rows="3"
+                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 mb-2 resize-none"
+                              />
+                              <div className="flex gap-2">
+                                <button onClick={() => updateNotes(d.id)} className="px-4 py-2 bg-secondary text-white text-xs font-bold rounded-lg hover:bg-secondary/90 transition-all">
+                                  {t('admin.save')}
+                                </button>
+                                <button onClick={() => { setEditingId(null); setEditNotes(''); }} className="px-4 py-2 bg-white text-gray-500 text-xs font-bold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all">
+                                  {t('admin.cancel')}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-start justify-between gap-3">
+                              <p className="text-sm text-gray-600">{d.adminNotes || <span className="italic text-gray-400">{t('admin.none')}</span>}</p>
+                              <button
+                                onClick={() => { setEditingId(d.id); setEditNotes(d.adminNotes || ''); }}
+                                className="text-xs font-bold text-secondary hover:underline flex-shrink-0"
+                              >
+                                <i className="fa-solid fa-pen text-[10px] mr-1"></i>{t('admin.edit')}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+    </motion.div>
   );
 }

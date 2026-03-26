@@ -3,40 +3,76 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n';
 
-const STATUS_LABELS = {
-  en_attente: { label: 'Reçu', color: 'bg-amber-100 text-amber-800', icon: 'fa-regular fa-clock' },
-  en_cours: { label: 'Analyse', color: 'bg-blue-100 text-blue-800', icon: 'fa-solid fa-magnifying-glass' },
-  documents_manquants: { label: 'Documents', color: 'bg-orange-100 text-orange-800', icon: 'fa-solid fa-file' },
-  devis_envoye: { label: 'Devis envoyé', color: 'bg-cyan-100 text-cyan-800', icon: 'fa-solid fa-file-invoice' },
-  devis_accepte: { label: 'Devis accepté', color: 'bg-indigo-100 text-indigo-800', icon: 'fa-solid fa-check' },
-  signature_en_attente: { label: 'Signature', color: 'bg-purple-100 text-purple-800', icon: 'fa-solid fa-pen' },
-  signe: { label: 'Signé', color: 'bg-teal-100 text-teal-800', icon: 'fa-solid fa-signature' },
-  transmis: { label: 'Transmis', color: 'bg-sky-100 text-sky-800', icon: 'fa-solid fa-paper-plane' },
-  validee: { label: 'Accepté', color: 'bg-green-100 text-green-800', icon: 'fa-solid fa-check-circle' },
-  refusee: { label: 'Refusé', color: 'bg-red-100 text-red-800', icon: 'fa-solid fa-xmark-circle' },
-  finalise: { label: 'Finalisé', color: 'bg-emerald-100 text-emerald-800', icon: 'fa-solid fa-flag-checkered' },
+const STATUS_COLORS = {
+  en_attente: { color: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500', icon: 'fa-regular fa-clock' },
+  en_cours: { color: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500', icon: 'fa-solid fa-magnifying-glass' },
+  documents_manquants: { color: 'bg-orange-100 text-orange-800', dot: 'bg-orange-500', icon: 'fa-solid fa-file' },
+  devis_envoye: { color: 'bg-cyan-100 text-cyan-800', dot: 'bg-cyan-500', icon: 'fa-solid fa-file-invoice' },
+  devis_accepte: { color: 'bg-indigo-100 text-indigo-800', dot: 'bg-indigo-500', icon: 'fa-solid fa-check' },
+  signature_en_attente: { color: 'bg-purple-100 text-purple-800', dot: 'bg-purple-500', icon: 'fa-solid fa-pen' },
+  signe: { color: 'bg-teal-100 text-teal-800', dot: 'bg-teal-500', icon: 'fa-solid fa-signature' },
+  transmis: { color: 'bg-sky-100 text-sky-800', dot: 'bg-sky-500', icon: 'fa-solid fa-paper-plane' },
+  validee: { color: 'bg-green-100 text-green-800', dot: 'bg-green-500', icon: 'fa-solid fa-check-circle' },
+  refusee: { color: 'bg-red-100 text-red-800', dot: 'bg-red-500', icon: 'fa-solid fa-xmark-circle' },
+  finalise: { color: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500', icon: 'fa-solid fa-flag-checkered' },
 };
+
+const STAT_CARDS = [
+  { key: 'total', icon: 'fa-folder-open', gradient: 'from-blue-500 to-blue-700', shadow: 'shadow-blue-500/25' },
+  { key: 'pending', icon: 'fa-hourglass-half', gradient: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
+  { key: 'active', icon: 'fa-spinner', gradient: 'from-violet-500 to-purple-700', shadow: 'shadow-violet-500/25' },
+  { key: 'completed', icon: 'fa-circle-check', gradient: 'from-emerald-500 to-green-700', shadow: 'shadow-emerald-500/25' },
+];
+
+const QUICK_ACTIONS = [
+  { key: 'newRequest', icon: 'fa-plus', href: '/contact', color: 'bg-secondary text-white hover:bg-secondary/90' },
+  { key: 'simulate', icon: 'fa-calculator', href: '/simulator', color: 'bg-accent text-white hover:bg-accent/90' },
+  { key: 'contactAdvisor', icon: 'fa-headset', href: '/contact', color: 'bg-primary text-white hover:bg-primary/90' },
+];
 
 export default function DashboardClient({ user, dbUser, initialDemandes }) {
   const [demandes, setDemandes] = useState(initialDemandes);
   const [uploadingId, setUploadingId] = useState(null);
-  const [greeting, setGreeting] = useState('Bonjour');
+  const [activeTab, setActiveTab] = useState('all');
+  const { t, locale } = useTranslation();
+  const [greeting, setGreeting] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: dbUser.name || '',
+    phone: dbUser.phone || '',
+    company: dbUser.company || '',
+    legalForm: dbUser.legalForm || '',
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [currentDbUser, setCurrentDbUser] = useState(dbUser);
 
   useEffect(() => {
     const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Bonjour');
-    else if (hour < 18) setGreeting('Bon après-midi');
-    else setGreeting('Bonsoir');
-  }, []);
+    if (hour < 12) setGreeting(t('espace.greeting.morning'));
+    else if (hour < 18) setGreeting(t('espace.greeting.afternoon'));
+    else setGreeting(t('espace.greeting.evening'));
+  }, [t]);
 
-  // Score de complétion basé sur les données réelles du profil
+  const stats = {
+    total: demandes.length,
+    pending: demandes.filter(d => ['en_attente', 'documents_manquants'].includes(d.status)).length,
+    active: demandes.filter(d => ['en_cours', 'devis_envoye', 'devis_accepte', 'signature_en_attente', 'signe', 'transmis'].includes(d.status)).length,
+    completed: demandes.filter(d => ['validee', 'finalise'].includes(d.status)).length,
+  };
+
+  const filteredDemandes = activeTab === 'all' ? demandes :
+    activeTab === 'pending' ? demandes.filter(d => ['en_attente', 'documents_manquants'].includes(d.status)) :
+    activeTab === 'active' ? demandes.filter(d => ['en_cours', 'devis_envoye', 'devis_accepte', 'signature_en_attente', 'signe', 'transmis'].includes(d.status)) :
+    demandes.filter(d => ['validee', 'finalise', 'refusee'].includes(d.status));
+
   const completionScore = (() => {
-    let score = 30; // base : compte créé
-    if (dbUser.email) score += 20;
-    if (dbUser.name) score += 10;
-    if (dbUser.phone) score += 10;
-    if (dbUser.company) score += 10;
+    let score = 30;
+    if (currentDbUser.email) score += 20;
+    if (currentDbUser.name) score += 10;
+    if (currentDbUser.phone) score += 10;
+    if (currentDbUser.company) score += 10;
     const hasKbis = demandes.some(d => d.documents?.some(doc => doc.type === 'KBIS'));
     if (hasKbis) score += 20;
     return Math.min(score, 100);
@@ -44,7 +80,6 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
 
   const handleFileUpload = async (demandeId, file, type) => {
     if (!file) return;
-    
     setUploadingId(demandeId);
     const formData = new FormData();
     formData.append('file', file);
@@ -53,269 +88,493 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
     formData.append('type', type);
 
     try {
-      const res = await fetch('/api/documents/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch('/api/documents/upload', { method: 'POST', body: formData });
       const data = await res.json();
-      
       if (data.success) {
         setDemandes(prev => prev.map(d => {
-          if (d.id === demandeId) {
-            return { ...d, documents: [...(d.documents || []), data.document] };
-          }
+          if (d.id === demandeId) return { ...d, documents: [...(d.documents || []), data.document] };
           return d;
         }));
       } else {
-        alert(data.error || 'Erreur lors de l’envoi');
+        alert(data.error || t('espace.uploadError'));
       }
-    } catch (err) {
-      alert('Erreur technique lors de l’envoi');
+    } catch {
+      alert(t('espace.technicalError'));
     } finally {
       setUploadingId(null);
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
+  const handleProfileSave = async () => {
+    setSavingProfile(true);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCurrentDbUser(prev => ({ ...prev, ...data }));
+        setShowProfileModal(false);
+      } else {
+        alert(data.error || t('espace.technicalError'));
+      }
+    } catch {
+      alert(t('espace.technicalError'));
+    } finally {
+      setSavingProfile(false);
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
+  };
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
   };
 
+  const dateLocale = locale === 'fr' ? 'fr-FR' : 'en-US';
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20">
-      <motion.div 
-        initial="hidden" 
-        animate="visible" 
-        variants={containerVariants}
-        className="container mx-auto px-6"
-      >
+    <div className="min-h-screen bg-[#F8FAFC] pt-24 sm:pt-32 pb-12 sm:pb-20">
+      <motion.div initial="hidden" animate="visible" variants={containerVariants} className="container mx-auto px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-            <div className="flex items-center gap-6">
+
+          {/* ── Header ── */}
+          <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 mb-8 sm:mb-10">
+            <div className="flex items-center gap-4 sm:gap-5">
               <div className="relative group">
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-secondary via-accent to-secondary rounded-full blur opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-spin-slow"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-secondary via-accent to-secondary rounded-full blur opacity-40 group-hover:opacity-80 transition duration-500"></div>
                 <img
                   src={user.picture || '/Finassurs_logo.jpeg'}
                   alt={user.name}
-                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-2xl object-cover transform transition-transform group-hover:scale-105"
+                  className="relative w-14 h-14 sm:w-18 sm:h-18 rounded-full border-3 border-white shadow-xl object-cover"
                 />
-                <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 border-2 border-white rounded-full"></div>
               </div>
               <div>
-                <h1 className="text-4xl font-black text-primary tracking-tight">
-                  {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">{user.name?.split(' ')[0]}</span>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-primary tracking-tight">
+                  {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent">{user.name?.split(' ')[0]}</span>
                 </h1>
-                <p className="text-gray-400 font-bold uppercase text-xs tracking-widest mt-1">Espace Client • ID #{dbUser.id.slice(-4).toUpperCase()}</p>
+                <p className="text-gray-400 font-semibold text-[10px] sm:text-xs tracking-widest uppercase mt-0.5">
+                  {t('espace.clientSpace')} • ID #{dbUser.id.slice(-4).toUpperCase()}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Link href="/contact" className="px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-xl hover:shadow-[0_20px_40px_rgba(10,25,47,0.3)] hover:-translate-y-1 transition-all">
-                Nouvelle demande
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link href="/contact" className="px-5 sm:px-7 py-2.5 sm:py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm flex items-center gap-2">
+                <i className="fa-solid fa-plus text-xs"></i>
+                {t('espace.newRequest')}
               </Link>
-              <a href="/api/auth/logout?returnTo=/" className="w-14 h-14 flex items-center justify-center bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all duration-500 shadow-sm border border-red-100">
-                <i className="fa-solid fa-power-off text-xl"></i>
+              <a href="/api/auth/logout?returnTo=/" className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100">
+                <i className="fa-solid fa-power-off"></i>
               </a>
             </div>
           </motion.div>
 
-          <div className="grid lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-8 space-y-8">
-              {/* Quick Start if no demandes */}
+          {/* ── Stat Cards (Digital Nova style) ── */}
+          <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-10">
+            {STAT_CARDS.map((card, i) => (
+              <motion.div
+                key={card.key}
+                whileHover={{ y: -4, scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 400 }}
+                className={`relative bg-gradient-to-br ${card.gradient} rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white cursor-default overflow-hidden shadow-xl ${card.shadow}`}
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
+                <div className="relative z-10">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
+                    <i className={`fa-solid ${card.icon} text-lg sm:text-xl`}></i>
+                  </div>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">{stats[card.key]}</div>
+                  <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white/70 mt-1">
+                    {t(`espace.stats.${card.key}`)}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
+            {/* ── Main Content ── */}
+            <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+
+              {/* Quick Start Banner (only if no demandes) */}
               {demandes.length === 0 && (
-                <motion.div 
-                  variants={itemVariants} 
-                  className="bg-primary rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl group"
-                >
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:scale-110 transition-transform duration-1000"></div>
-                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#0A2540] rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl">
+                  <div className="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
                     <div className="flex-1">
-                      <h2 className="text-3xl font-black mb-4 leading-tight">Prêt à propulser vos projets ?</h2>
-                      <p className="text-white/70 mb-8 max-w-md font-light text-lg">Votre premier financement n'attend que vous. Réponse de principe immédiate via notre simulateur.</p>
-                      <Link href="/simulator" className="group/btn relative px-8 py-4 bg-accent text-white font-black rounded-2xl hover:scale-105 transition-all inline-flex items-center gap-3 overflow-hidden">
-                        <span className="relative z-10">Simuler mon projet</span>
-                        <i className="fa-solid fa-rocket relative z-10 animate-bounce-slow"></i>
-                        <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-black mb-3 leading-tight">{t('espace.readyToLaunch')}</h2>
+                      <p className="text-white/60 mb-6 max-w-md text-sm sm:text-base">{t('espace.readyToLaunchDesc')}</p>
+                      <Link href="/simulator" className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg">
+                        <i className="fa-solid fa-rocket"></i>
+                        {t('espace.simulateProject')}
                       </Link>
                     </div>
-                    <div className="hidden md:flex w-40 h-40 bg-white/10 rounded-[32px] items-center justify-center border border-white/20 animate-float">
-                      <i className="fa-solid fa-file-invoice-dollar text-7xl text-accent/50"></i>
+                    <div className="hidden md:flex w-32 h-32 bg-white/10 rounded-3xl items-center justify-center border border-white/10">
+                      <i className="fa-solid fa-file-invoice-dollar text-5xl text-accent/40"></i>
                     </div>
                   </div>
                 </motion.div>
               )}
 
-              {/* dossiers Section */}
-              <motion.div 
-                variants={itemVariants}
-                className="bg-white rounded-[40px] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100"
-              >
-                <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-2xl font-black text-primary flex items-center gap-4">
-                    <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary">
+              {/* Quick Actions */}
+              <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3 sm:gap-4">
+                {QUICK_ACTIONS.map(action => (
+                  <Link
+                    key={action.key}
+                    href={action.href}
+                    className={`${action.color} rounded-xl sm:rounded-2xl p-3 sm:p-5 text-center transition-all hover:-translate-y-1 hover:shadow-lg`}
+                  >
+                    <i className={`fa-solid ${action.icon} text-lg sm:text-2xl mb-1 sm:mb-2 block`}></i>
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wide block">{t(`espace.actions.${action.key}`)}</span>
+                  </Link>
+                ))}
+              </motion.div>
+
+              {/* Dossiers Section */}
+              <motion.div variants={itemVariants} className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm border border-gray-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                  <h2 className="text-lg sm:text-xl font-black text-primary flex items-center gap-3">
+                    <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary">
                       <i className="fa-solid fa-folder-tree"></i>
                     </div>
-                    Mes Dossiers en cours
+                    {t('espace.myOngoingFiles')}
                   </h2>
-                  <div className="px-4 py-2 bg-gray-50 rounded-xl text-xs font-black text-gray-400 uppercase tracking-widest">{demandes.length} Total</div>
                 </div>
 
-                <div className="space-y-6">
-                  {demandes.map(d => (
-                    <motion.div 
-                      key={d.id} 
-                      whileHover={{ scale: 1.01 }}
-                      className="group border border-gray-100 rounded-[32px] p-8 hover:shadow-2xl transition-all bg-gray-50/20 hover:bg-white relative overflow-hidden"
+                {/* Tabs */}
+                <div className="flex items-center gap-1 bg-gray-50 rounded-xl p-1 mb-6 overflow-x-auto">
+                  {['all', 'pending', 'active', 'completed'].map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`flex-1 min-w-0 px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
+                        activeTab === tab
+                          ? 'bg-white text-primary shadow-sm'
+                          : 'text-gray-400 hover:text-gray-600'
+                      }`}
                     >
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="flex flex-wrap items-start justify-between gap-6 relative z-10 mb-8">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] bg-secondary/5 px-2 py-1 rounded-md">{d.reference}</span>
-                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-2 ${STATUS_LABELS[d.status]?.color} ring-4 ring-white shadow-sm`}>
-                              <div className={`w-2 h-2 rounded-full animate-pulse ${STATUS_LABELS[d.status]?.color.replace('text-', 'bg-').replace('bg-', 'bg-')}`}></div>
-                              {STATUS_LABELS[d.status]?.label}
-                            </span>
-                          </div>
-                          <Link href={`/espace/${d.id}`} className="block group/link">
-                            <h3 className="font-black text-primary text-xl uppercase tracking-tight group-hover/link:text-secondary transition-colors">{d.equipmentType || d.companyName}</h3>
-                          </Link>
-                          <p className="text-gray-400 font-bold text-sm mt-1">{d.amount} • {new Date(d.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                          <Link href={`/espace/${d.id}`} className="inline-flex items-center gap-2 mt-3 text-sm font-bold text-secondary hover:underline">
-                            Voir le détail <i className="fa-solid fa-arrow-right text-xs"></i>
-                          </Link>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <label className={`cursor-pointer px-6 py-3 bg-white border-2 border-gray-100 text-primary text-xs font-black rounded-2xl hover:border-secondary hover:text-secondary hover:shadow-xl transition-all flex items-center gap-2 ${uploadingId === d.id ? 'opacity-50 pointer-events-none' : ''}`}>
-                            <i className="fa-solid fa-cloud-arrow-up text-lg"></i>
-                            {uploadingId === d.id ? 'TRAITEMENT...' : 'UPLOADER'}
-                            <input 
-                              type="file" 
-                              className="hidden" 
-                              onChange={(e) => handleFileUpload(d.id, e.target.files[0], 'autre')}
-                              accept=".pdf,.jpg,.jpeg,.png"
-                            />
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Documents List */}
-                      {d.documents?.length > 0 ? (
-                        <div className="pt-6 border-t border-gray-100/50 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <AnimatePresence>
-                          {d.documents.map(doc => (
-                            <motion.a 
-                              key={doc.id} 
-                              href={doc.path} 
-                              target="_blank" 
-                              initial={{ scale: 0.9, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              className="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-2xl hover:border-secondary transition-all group/doc hover:shadow-lg"
-                            >
-                              <div className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center group-hover/doc:bg-secondary group-hover/doc:text-white transition-all transform group-hover/doc:rotate-12">
-                                <i className="fa-solid fa-file-pdf text-xl"></i>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-xs font-black text-primary truncate uppercase">{doc.originalName}</div>
-                                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tight mt-0.5">{doc.type} • {(doc.fileSize / 1024 / 1024).toFixed(1)}MB</div>
-                              </div>
-                            </motion.a>
-                          ))}
-                          </AnimatePresence>
-                        </div>
-                      ) : (
-                        <div className="py-4 text-center">
-                          <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em]">Aucun document attaché pour le moment</p>
-                        </div>
-                      )}
-                    </motion.div>
+                      {t(`espace.tabs.${tab}`)} ({tab === 'all' ? stats.total : stats[tab]})
+                    </button>
                   ))}
+                </div>
+
+                {/* Dossier List */}
+                <div className="space-y-4">
+                  <AnimatePresence mode="popLayout">
+                    {filteredDemandes.length === 0 ? (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="py-12 text-center"
+                      >
+                        <i className="fa-solid fa-inbox text-4xl text-gray-200 mb-3 block"></i>
+                        <p className="text-sm text-gray-400 font-medium">{t('espace.noFiles')}</p>
+                      </motion.div>
+                    ) : filteredDemandes.map(d => (
+                      <motion.div
+                        key={d.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="group border border-gray-100 rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-all hover:border-gray-200 bg-white"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <span className="text-[10px] font-bold text-secondary uppercase tracking-wider bg-secondary/5 px-2 py-0.5 rounded">{d.reference}</span>
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-1.5 ${STATUS_COLORS[d.status]?.color}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[d.status]?.dot}`}></span>
+                                {t(`status.${d.status}`)}
+                              </span>
+                            </div>
+                            <Link href={`/espace/${d.id}`} className="block group/link">
+                              <h3 className="font-bold text-primary text-base sm:text-lg group-hover/link:text-secondary transition-colors">{d.equipmentType || d.companyName}</h3>
+                            </Link>
+                            <p className="text-gray-400 text-xs sm:text-sm mt-1">
+                              {d.amount && <span className="font-semibold text-primary">{d.amount}</span>}
+                              {d.amount && ' • '}
+                              {new Date(d.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Link href={`/espace/${d.id}`} className="px-4 py-2 bg-gray-50 text-primary text-xs font-bold rounded-lg hover:bg-secondary hover:text-white transition-all flex items-center gap-1.5">
+                              {t('espace.viewDetail')} <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                            </Link>
+                            <label className={`cursor-pointer px-4 py-2 bg-gray-50 text-primary text-xs font-bold rounded-lg hover:bg-accent hover:text-white transition-all flex items-center gap-1.5 ${uploadingId === d.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                              <i className="fa-solid fa-cloud-arrow-up"></i>
+                              {uploadingId === d.id ? '...' : t('espace.upload')}
+                              <input
+                                type="file"
+                                className="hidden"
+                                onChange={(e) => handleFileUpload(d.id, e.target.files[0], 'autre')}
+                                accept=".pdf,.jpg,.jpeg,.png"
+                              />
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Documents */}
+                        {d.documents?.length > 0 && (
+                          <div className="pt-3 mt-3 border-t border-gray-50 flex flex-wrap gap-2">
+                            {d.documents.map(doc => (
+                              <a
+                                key={doc.id}
+                                href={doc.path}
+                                target="_blank"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg text-xs hover:bg-secondary/10 hover:text-secondary transition-all group/doc"
+                              >
+                                <i className="fa-solid fa-file-pdf text-red-400 group-hover/doc:text-secondary"></i>
+                                <span className="font-medium text-gray-600 truncate max-w-[120px]">{doc.originalName}</span>
+                                <span className="text-gray-300 text-[10px]">{(doc.fileSize / 1024 / 1024).toFixed(1)}MB</span>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               </motion.div>
             </div>
 
-            <div className="lg:col-span-4 space-y-8">
-              {/* Profile Completion Card (DYNAMIQUE) */}
-              <motion.div variants={itemVariants} className="bg-white rounded-[40px] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100 relative overflow-hidden">
-                <h3 className="text-xl font-black text-primary mb-8 tracking-tight">Profil & Sécurité</h3>
-                
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-black text-gray-400 uppercase tracking-widest">Complétion</span>
-                  <span className="text-lg font-black text-secondary">{completionScore}%</span>
+            {/* ── Sidebar ── */}
+            <div className="lg:col-span-4 space-y-6">
+
+              {/* Profile Completion */}
+              <motion.div variants={itemVariants} className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-base sm:text-lg font-black text-primary">{t('espace.profileSecurity')}</h3>
+                  <span className={`text-lg font-black ${completionScore >= 80 ? 'text-green-500' : completionScore >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+                    {completionScore}%
+                  </span>
                 </div>
-                <div className="h-3 w-full bg-gray-100 rounded-full mb-10 overflow-hidden">
-                  <motion.div 
+
+                <div className="h-2.5 w-full bg-gray-100 rounded-full mb-6 overflow-hidden">
+                  <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${completionScore}%` }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-secondary to-accent"
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    className={`h-full rounded-full ${completionScore >= 80 ? 'bg-gradient-to-r from-green-400 to-green-600' : completionScore >= 50 ? 'bg-gradient-to-r from-amber-400 to-amber-600' : 'bg-gradient-to-r from-red-400 to-red-600'}`}
                   ></motion.div>
                 </div>
 
-                <div className="space-y-8">
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-green-100/50">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-50 text-green-500 rounded-xl flex items-center justify-center flex-shrink-0">
                       <i className="fa-solid fa-shield-check"></i>
                     </div>
-                    <div>
-                      <div className="text-sm font-black text-primary uppercase tracking-tight">Identité Validée</div>
-                      <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-1">Via Auth0 Secure</div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-primary">{t('espace.identityValidated')}</div>
+                      <div className="text-[10px] text-gray-400 font-medium">{t('espace.viaAuth0')}</div>
                     </div>
+                    <i className="fa-solid fa-circle-check text-green-500 ml-auto"></i>
                   </div>
-                   <div className="flex items-center gap-5">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-inner border ${completionScore > 80 ? 'bg-green-50 text-green-500 border-green-100/50' : 'bg-amber-50 text-amber-500 border-amber-100/50'}`}>
+
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${completionScore > 80 ? 'bg-green-50 text-green-500' : 'bg-amber-50 text-amber-500'}`}>
                       <i className={`fa-solid ${completionScore > 80 ? 'fa-building-circle-check' : 'fa-circle-exclamation'}`}></i>
                     </div>
-                    <div>
-                      <div className="text-sm font-black text-primary uppercase tracking-tight">Dossier KBIS</div>
-                      <div className="text-[10px] text-gray-400 font-bold tracking-widest uppercase mt-1">
-                        {completionScore > 80 ? 'Document vérifié' : 'Action requise'}
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-primary">{t('espace.kbisFile')}</div>
+                      <div className="text-[10px] text-gray-400 font-medium">
+                        {completionScore > 80 ? t('espace.documentVerified') : t('espace.actionRequired')}
                       </div>
                     </div>
+                    {completionScore > 80 ? (
+                      <i className="fa-solid fa-circle-check text-green-500 ml-auto"></i>
+                    ) : (
+                      <i className="fa-solid fa-circle-exclamation text-amber-500 ml-auto"></i>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${currentDbUser.phone ? 'bg-green-50 text-green-500' : 'bg-gray-50 text-gray-400'}`}>
+                      <i className="fa-solid fa-phone"></i>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-primary">{t('espace.phoneNumber')}</div>
+                      <div className="text-[10px] text-gray-400 font-medium">
+                        {currentDbUser.phone || t('espace.notProvided')}
+                      </div>
+                    </div>
+                    {currentDbUser.phone ? (
+                      <i className="fa-solid fa-circle-check text-green-500 ml-auto"></i>
+                    ) : (
+                      <i className="fa-solid fa-circle-plus text-gray-300 ml-auto"></i>
+                    )}
                   </div>
                 </div>
 
-                <button className="w-full py-4 bg-gray-50 text-gray-500 font-black rounded-2xl border-2 border-transparent hover:border-secondary hover:bg-white hover:text-secondary transition-all mt-10 uppercase text-xs tracking-[0.2em] shadow-sm">
-                  Modifier mes infos
+                <button
+                  onClick={() => {
+                    setProfileData({
+                      name: currentDbUser.name || '',
+                      phone: currentDbUser.phone || '',
+                      company: currentDbUser.company || '',
+                      legalForm: currentDbUser.legalForm || '',
+                    });
+                    setShowProfileModal(true);
+                  }}
+                  className="w-full py-3 bg-gray-50 text-gray-500 font-bold rounded-xl border border-gray-100 hover:border-secondary hover:bg-secondary/5 hover:text-secondary transition-all mt-5 text-xs uppercase tracking-wider"
+                >
+                  {t('espace.editInfo')}
                 </button>
               </motion.div>
 
-               {/* Advisor Card */}
-               <motion.div 
-                 variants={itemVariants}
-                 whileHover={{ y: -5 }}
-                 className="bg-gradient-to-br from-[#0A2540] to-primary rounded-[40px] p-10 text-white relative shadow-2xl overflow-hidden"
-               >
-                <div className="absolute -top-20 -right-20 w-64 h-64 bg-secondary/10 rounded-full blur-[80px]"></div>
-                <div className="flex items-center gap-6 mb-8 relative z-10">
-                  <div className="w-16 h-16 bg-white/10 rounded-[20px] flex items-center justify-center border border-white/20 backdrop-blur-xl animate-float">
-                    <i className="fa-solid fa-headset text-3xl text-accent"></i>
+              {/* Advisor Card */}
+              <motion.div
+                variants={itemVariants}
+                whileHover={{ y: -3 }}
+                className="bg-gradient-to-br from-[#0A2540] to-primary rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white relative shadow-xl overflow-hidden"
+              >
+                <div className="absolute -top-16 -right-16 w-48 h-48 bg-secondary/10 rounded-full blur-3xl"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 backdrop-blur-sm">
+                      <i className="fa-solid fa-headset text-2xl text-accent"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-black text-base sm:text-lg">{t('espace.dedicatedExpert')}</h3>
+                      <p className="text-white/40 text-[10px] uppercase font-bold tracking-wider">{t('espace.riskAnalyst')}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-black text-xl tracking-tight">Expert dédié</h3>
-                    <p className="text-white/40 text-[10px] uppercase font-black tracking-widest mt-1">Analyseur de risques</p>
-                  </div>
+                  <p className="text-sm text-white/60 mb-6 leading-relaxed italic">
+                    &ldquo;{t('espace.expertMessage')}&rdquo;
+                  </p>
+                  <Link href="/contact" className="w-full py-3 bg-accent hover:bg-accent/80 text-white font-bold rounded-xl transition-all block text-center text-sm shadow-lg">
+                    {t('espace.contactAdvisor')}
+                  </Link>
                 </div>
-                <p className="text-sm text-white/70 mb-10 font-light leading-relaxed relative z-10 italic">
-                  "Votre demande est actuellement en cours d'analyse par notre comité. Prévoyez une réponse définitive sous 48h."
-                </p>
-                <Link href="/contact" className="w-full py-4 bg-accent hover:bg-white hover:text-primary text-white font-black rounded-2xl transition-all block text-center shadow-[0_15px_30px_rgba(16,185,129,0.3)] relative z-10 uppercase text-xs tracking-widest">
-                  Contacter mon conseiller
-                </Link>
               </motion.div>
+
+              {/* Recent Activity */}
+              {demandes.length > 0 && (
+                <motion.div variants={itemVariants} className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100">
+                  <h3 className="text-base font-black text-primary mb-4">{t('espace.recentActivity')}</h3>
+                  <div className="space-y-3">
+                    {demandes.slice(0, 4).map(d => (
+                      <Link key={d.id} href={`/espace/${d.id}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${STATUS_COLORS[d.status]?.color}`}>
+                          <i className={STATUS_COLORS[d.status]?.icon}></i>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-primary truncate">{d.equipmentType || d.companyName}</div>
+                          <div className="text-[10px] text-gray-400">
+                            {new Date(d.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}
+                          </div>
+                        </div>
+                        <i className="fa-solid fa-chevron-right text-[10px] text-gray-300"></i>
+                      </Link>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
       </motion.div>
+
+      {/* Profile Edit Modal */}
+      <AnimatePresence>
+        {showProfileModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowProfileModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-black text-primary">{t('espace.editInfo')}</h3>
+                <button onClick={() => setShowProfileModal(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">
+                  <i className="fa-solid fa-xmark text-gray-400"></i>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">{t('espace.profile.name')}</label>
+                  <input
+                    type="text"
+                    value={profileData.name}
+                    onChange={(e) => setProfileData(p => ({ ...p, name: e.target.value }))}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">{t('espace.profile.phone')}</label>
+                  <input
+                    type="tel"
+                    value={profileData.phone}
+                    onChange={(e) => setProfileData(p => ({ ...p, phone: e.target.value }))}
+                    placeholder="06 12 34 56 78"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">{t('espace.profile.company')}</label>
+                  <input
+                    type="text"
+                    value={profileData.company}
+                    onChange={(e) => setProfileData(p => ({ ...p, company: e.target.value }))}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">{t('espace.profile.legalForm')}</label>
+                  <select
+                    value={profileData.legalForm}
+                    onChange={(e) => setProfileData(p => ({ ...p, legalForm: e.target.value }))}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all"
+                  >
+                    <option value="">{t('espace.profile.selectForm')}</option>
+                    <option value="SAS">SAS</option>
+                    <option value="SARL">SARL</option>
+                    <option value="EURL">EURL</option>
+                    <option value="SA">SA</option>
+                    <option value="EI">EI</option>
+                    <option value="SASU">SASU</option>
+                    <option value="SCI">SCI</option>
+                    <option value="Autre">Autre</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="flex-1 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-all text-sm"
+                >
+                  {t('espace.profile.cancel')}
+                </button>
+                <button
+                  onClick={handleProfileSave}
+                  disabled={savingProfile}
+                  className="flex-1 py-3 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {savingProfile && <i className="fa-solid fa-spinner fa-spin"></i>}
+                  {t('espace.profile.save')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

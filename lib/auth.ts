@@ -21,9 +21,10 @@ export function getRoleClaim(auth0User: Record<string, unknown>): string {
 }
 
 /** Mappe le claim rôle Auth0 vers le rôle Prisma */
-export function mapRole(roleClaim: string): 'CLIENT' | 'ADMIN' | 'PARTNER' {
+export function mapRole(roleClaim: string): 'CLIENT' | 'ADMIN' | 'PARTNER' | 'INSURER' {
   if (roleClaim === 'admin') return 'ADMIN';
   if (roleClaim === 'partner') return 'PARTNER';
+  if (roleClaim === 'insurer') return 'INSURER';
   return 'CLIENT';
 }
 
@@ -73,6 +74,21 @@ export async function requirePartner(): Promise<AuthResult | NextResponse> {
 
   if (result.dbUser.role !== 'PARTNER' && result.dbUser.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Accès partenaire requis' }, { status: 403 });
+  }
+
+  return result;
+}
+
+/**
+ * Vérifie le rôle INSURER ou ADMIN.
+ * Retourne { auth0User, dbUser } ou répond 401/403.
+ */
+export async function requireInsurer(): Promise<AuthResult | NextResponse> {
+  const result = await requireAuth();
+  if (result instanceof NextResponse) return result;
+
+  if (result.dbUser.role !== 'INSURER' && result.dbUser.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Accès assureur requis' }, { status: 403 });
   }
 
   return result;

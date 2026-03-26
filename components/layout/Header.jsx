@@ -1,149 +1,249 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
+import { useTranslation } from '@/lib/i18n';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const pathname = usePathname();
   const { user, isLoading } = useUser();
+  const timeoutRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
   const solutions = [
-    { name: 'Crédit-bail', icon: 'fa-handshake', path: '/solutions/credit-bail' },
-    { name: 'Location avec option d\'achat', icon: 'fa-file-contract', path: '/solutions/loa' },
-    { name: 'Crédit professionnel', icon: 'fa-coins', path: '/solutions/credit-pro' },
-    { name: 'Assurance professionnelle', icon: 'fa-shield-halved', path: '/assurance' }
+    { name: t('nav.solutions.creditBail'), icon: 'fa-handshake', desc: t('nav.solutions.creditBailDesc'), path: '/solutions/credit-bail' },
+    { name: t('nav.solutions.loa'), icon: 'fa-file-contract', desc: t('nav.solutions.loaDesc'), path: '/solutions/loa' },
+    { name: t('nav.solutions.creditPro'), icon: 'fa-coins', desc: t('nav.solutions.creditProDesc'), path: '/solutions/credit-pro' },
+    { name: t('nav.solutions.insurancePro'), icon: 'fa-shield-halved', desc: t('nav.solutions.insuranceProDesc'), path: '/assurance' }
   ];
 
   const sectors = [
-    { name: 'BTP & Construction', icon: 'fa-hard-hat', path: '/sectors#btp' },
-    { name: 'Médical & Santé', icon: 'fa-user-doctor', path: '/sectors#medical' },
-    { name: 'Informatique & Tech', icon: 'fa-laptop-code', path: '/sectors#it' },
-    { name: 'Transport & Logistique', icon: 'fa-truck', path: '/sectors#transport' }
+    { name: t('nav.sectors.btp'), icon: 'fa-hard-hat', path: '/sectors/btp' },
+    { name: t('nav.sectors.medical'), icon: 'fa-user-doctor', path: '/sectors/medical' },
+    { name: t('nav.sectors.it'), icon: 'fa-laptop-code', path: '/sectors/it' },
+    { name: t('nav.sectors.transport'), icon: 'fa-truck', path: '/sectors/transport' }
   ];
 
   const isOverDarkHero = pathname === '/' && !isScrolled;
-  const navLinkClass = isOverDarkHero ? 'text-white/95 hover:text-white' : 'text-gray-700 hover:text-secondary';
+
+  const navLinkClass = (href) => {
+    const isActive = pathname === href || pathname.startsWith(href + '/');
+    const base = isOverDarkHero ? 'text-white/90 hover:text-white' : 'text-gray-600 hover:text-primary';
+    const active = isOverDarkHero ? 'text-white' : 'text-primary';
+    return `${isActive ? active : base} text-[15px] font-medium transition-colors relative`;
+  };
+
+  const handleDropdownEnter = (name) => {
+    clearTimeout(timeoutRef.current);
+    setOpenDropdown(name);
+  };
+
+  const handleDropdownLeave = () => {
+    timeoutRef.current = setTimeout(() => setOpenDropdown(null), 150);
+  };
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : isOverDarkHero ? 'bg-primary/20 backdrop-blur-sm' : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled
+          ? 'bg-white/90 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border-b border-gray-100/50'
+          : isOverDarkHero
+            ? 'bg-transparent'
+            : 'bg-white/80 backdrop-blur-md'
       }`}
     >
-      <nav className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <img src="/Finassurs_logo.jpeg" alt="Finassur - Financement professionnel" className="h-10 sm:h-12 w-auto object-contain" />
+      <nav className="container mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16 sm:h-[72px]">
+          {/* Logo */}
+          <Link href="/" className="flex items-center shrink-0">
+            <div className="h-10 sm:h-11 w-auto rounded-lg overflow-hidden bg-white shadow-sm">
+              <img
+                src="/Finassurs_logo.jpeg"
+                alt="Finassur"
+                className="h-full w-auto object-contain"
+              />
+            </div>
           </Link>
 
-          <div className="hidden lg:flex items-center space-x-8">
-            <div className="relative group" onMouseEnter={() => setOpenDropdown('solutions')} onMouseLeave={() => setOpenDropdown(null)}>
-              <button className={`${navLinkClass} font-medium flex items-center space-x-1 transition-colors`}>
-                <span>Nos Solutions</span>
-                <i className="fa-solid fa-chevron-down text-xs"></i>
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
+            {/* Solutions Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleDropdownEnter('solutions')}
+              onMouseLeave={handleDropdownLeave}
+            >
+              <button className={`${navLinkClass('/solutions')} flex items-center gap-1.5 px-4 py-2 rounded-lg hover:bg-white/10`}>
+                <span>{t('nav.solutions')}</span>
+                <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-200 ${openDropdown === 'solutions' ? 'rotate-180' : ''}`}></i>
               </button>
-              <div className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 transition-all duration-300 ${openDropdown === 'solutions' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-                <div className="p-2">
-                  {solutions.map((s, i) => (
-                    <Link key={i} href={s.path} className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-                      <i className={`fa-solid ${s.icon} text-secondary`}></i>
-                      <span className="font-medium">{s.name}</span>
+              <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-3 transition-all duration-200 ${openDropdown === 'solutions' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <div className="w-[320px] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden">
+                  <div className="p-2">
+                    {solutions.map((s, i) => (
+                      <Link key={i} href={s.path} className="flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group">
+                        <div className="w-9 h-9 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary/20 transition-colors">
+                          <i className={`fa-solid ${s.icon} text-secondary text-sm`}></i>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-sm text-gray-900">{s.name}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{s.desc}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="border-t border-gray-100 p-3">
+                    <Link href="/solutions" className="flex items-center justify-center gap-2 text-sm font-semibold text-secondary hover:text-secondary/80 transition-colors py-1.5">
+                      <span>{t('nav.viewAllSolutions')}</span>
+                      <i className="fa-solid fa-arrow-right text-xs"></i>
                     </Link>
-                  ))}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="relative group" onMouseEnter={() => setOpenDropdown('sectors')} onMouseLeave={() => setOpenDropdown(null)}>
-              <button className={`${navLinkClass} font-medium flex items-center space-x-1 transition-colors`}>
-                <span>Secteurs Financés</span>
-                <i className="fa-solid fa-chevron-down text-xs"></i>
+            {/* Sectors Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleDropdownEnter('sectors')}
+              onMouseLeave={handleDropdownLeave}
+            >
+              <button className={`${navLinkClass('/sectors')} flex items-center gap-1.5 px-4 py-2 rounded-lg hover:bg-white/10`}>
+                <span>{t('nav.sectors')}</span>
+                <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-200 ${openDropdown === 'sectors' ? 'rotate-180' : ''}`}></i>
               </button>
-              <div className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 transition-all duration-300 ${openDropdown === 'sectors' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-                <div className="p-2">
-                  {sectors.map((s, i) => (
-                    <Link key={i} href={s.path} className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-                      <i className={`fa-solid ${s.icon} text-secondary`}></i>
-                      <span className="font-medium">{s.name}</span>
-                    </Link>
-                  ))}
+              <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-3 transition-all duration-200 ${openDropdown === 'sectors' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <div className="w-[260px] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden">
+                  <div className="p-2">
+                    {sectors.map((s, i) => (
+                      <Link key={i} href={s.path} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group">
+                        <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors">
+                          <i className={`fa-solid ${s.icon} text-accent text-sm`}></i>
+                        </div>
+                        <span className="font-medium text-sm text-gray-900">{s.name}</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <Link href="/assurance" className={`${navLinkClass} font-medium transition-colors`}>Assurance</Link>
-            <Link href="/why-leasing" className={`${navLinkClass} font-medium transition-colors`}>Pourquoi Finassur</Link>
-            <Link href="/blog" className={`${navLinkClass} font-medium transition-colors`}>Actualités</Link>
-            <Link href="/contact" className={`${navLinkClass} font-medium transition-colors`}>Contact</Link>
+            <Link href="/assurance" className={`${navLinkClass('/assurance')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.insurance')}</Link>
+            <Link href="/why-leasing" className={`${navLinkClass('/why-leasing')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.whyFinassur')}</Link>
+            <Link href="/blog" className={`${navLinkClass('/blog')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.blog')}</Link>
+            <Link href="/contact" className={`${navLinkClass('/contact')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.contact')}</Link>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher isOverDarkHero={isOverDarkHero} />
             {user ? (
-              <Link href="/espace" className={`hidden sm:flex items-center space-x-3 px-4 py-2 rounded-xl transition-all duration-300 group border border-transparent ${
-                isOverDarkHero ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-gray-50 hover:bg-gray-100 text-primary'
+              <Link href="/espace" className={`hidden sm:flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full transition-all duration-300 group ${
+                isOverDarkHero
+                  ? 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                  : 'bg-gray-50 hover:bg-gray-100 text-primary border border-gray-200'
               }`}>
                 {user.picture ? (
-                  <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full border-2 border-accent/20" />
+                  <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full ring-2 ring-accent/30" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent">
-                    <i className="fa-solid fa-user"></i>
+                    <i className="fa-solid fa-user text-sm"></i>
                   </div>
                 )}
                 <div className="text-left hidden xl:block">
-                  <div className="text-xs font-bold leading-tight line-clamp-1">{user.name}</div>
-                  <div className={`text-[10px] opacity-70 ${isOverDarkHero ? 'text-white' : 'text-gray-500'}`}>Mon Dashboard</div>
+                  <div className="text-sm font-semibold leading-tight line-clamp-1">{user.name}</div>
+                  <div className={`text-[11px] ${isOverDarkHero ? 'text-white/60' : 'text-gray-400'}`}>{t('nav.mySpace')}</div>
                 </div>
               </Link>
             ) : (
-              <Link href="/api/auth/login" className={`hidden sm:flex items-center space-x-2 px-6 py-2.5 text-sm font-bold rounded-xl border-2 transition-all duration-300 ${
-                isOverDarkHero ? 'border-white/80 text-white hover:bg-white/10' : 'border-secondary text-secondary hover:bg-secondary hover:text-white'
+              <Link href="/api/auth/login" className={`hidden sm:flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 ${
+                isOverDarkHero
+                  ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                  : 'bg-primary text-white hover:bg-primary/90 shadow-sm hover:shadow-md'
               }`}>
-                <i className="fa-solid fa-user"></i>
-                <span>Accéder à mon espace</span>
+                <i className="fa-solid fa-user text-xs"></i>
+                <span>{t('nav.mySpace')}</span>
               </Link>
             )}
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`lg:hidden ${isOverDarkHero ? 'text-white' : 'text-gray-700'}`} aria-label="Menu">
-              <i className={`fa-solid ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`lg:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-colors ${
+                isOverDarkHero ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              aria-label="Menu"
+            >
+              <i className={`fa-solid ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
             </button>
           </div>
         </div>
 
-        {isMobileMenuOpen && (
-          <div className={`lg:hidden mt-4 pb-4 pt-4 border-t ${isOverDarkHero ? 'border-white/20' : 'border-gray-200'}`}>
-            <div className="space-y-4">
-              <Link href="/solutions" className={`block font-medium ${isOverDarkHero ? 'text-white hover:text-white/90' : 'text-gray-700 hover:text-secondary'}`} onClick={() => setIsMobileMenuOpen(false)}>Nos Solutions</Link>
-              <Link href="/sectors" className={`block font-medium ${isOverDarkHero ? 'text-white hover:text-white/90' : 'text-gray-700 hover:text-secondary'}`} onClick={() => setIsMobileMenuOpen(false)}>Secteurs Financés</Link>
-              <Link href="/assurance" className={`block font-medium ${isOverDarkHero ? 'text-white hover:text-white/90' : 'text-gray-700 hover:text-secondary'}`} onClick={() => setIsMobileMenuOpen(false)}>Assurance</Link>
-              <Link href="/why-leasing" className={`block font-medium ${isOverDarkHero ? 'text-white hover:text-white/90' : 'text-gray-700 hover:text-secondary'}`} onClick={() => setIsMobileMenuOpen(false)}>Pourquoi Finassur</Link>
-              <Link href="/blog" className={`block font-medium ${isOverDarkHero ? 'text-white hover:text-white/90' : 'text-gray-700 hover:text-secondary'}`} onClick={() => setIsMobileMenuOpen(false)}>Actualités</Link>
-              <Link href="/contact" className={`block font-medium ${isOverDarkHero ? 'text-white hover:text-white/90' : 'text-gray-700 hover:text-secondary'}`} onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
+        {/* Mobile Menu */}
+        <div className={`lg:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-[500px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}>
+          <div className={`pt-4 border-t space-y-1 ${isOverDarkHero ? 'border-white/10' : 'border-gray-100'}`}>
+            {[
+              { label: t('nav.solutions'), href: '/solutions' },
+              { label: t('nav.sectors'), href: '/sectors' },
+              { label: t('nav.insurance'), href: '/assurance' },
+              { label: t('nav.whyFinassur'), href: '/why-leasing' },
+              { label: t('nav.blog'), href: '/blog' },
+              { label: t('nav.contact'), href: '/contact' },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block px-4 py-3 rounded-xl font-medium transition-colors ${
+                  pathname === item.href
+                    ? isOverDarkHero ? 'bg-white/10 text-white' : 'bg-secondary/5 text-secondary'
+                    : isOverDarkHero ? 'text-white/80 hover:bg-white/5 hover:text-white' : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+
+            <div className="pt-3">
               {user ? (
-                <Link href="/espace" className={`flex items-center space-x-3 p-3 rounded-xl ${isOverDarkHero ? 'bg-white/10 text-white' : 'bg-gray-50 text-primary'}`} onClick={() => setIsMobileMenuOpen(false)}>
-                  <img src={user.picture} alt="" className="w-10 h-10 rounded-full" />
+                <Link href="/espace" className={`flex items-center gap-3 p-3 rounded-xl ${isOverDarkHero ? 'bg-white/10 text-white' : 'bg-gray-50 text-primary'}`}>
+                  {user.picture ? (
+                    <img src={user.picture} alt="" className="w-10 h-10 rounded-full" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent">
+                      <i className="fa-solid fa-user"></i>
+                    </div>
+                  )}
                   <div>
                     <div className="font-bold">{user.name}</div>
-                    <div className="text-xs opacity-70">Tableau de bord</div>
+                    <div className="text-xs opacity-70">{t('nav.dashboard')}</div>
                   </div>
                 </Link>
               ) : (
-                <Link href="/api/auth/login" className={`flex items-center space-x-2 font-semibold ${isOverDarkHero ? 'text-white hover:text-white/90' : 'text-secondary hover:text-secondary/80'}`} onClick={() => setIsMobileMenuOpen(false)}>
-                  <i className="fa-solid fa-user"></i>
-                  <span>Accéder à mon espace</span>
+                <Link href="/api/auth/login" className="flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors">
+                  <i className="fa-solid fa-user text-sm"></i>
+                  <span>{t('nav.accessSpace')}</span>
                 </Link>
               )}
             </div>
           </div>
-        )}
+        </div>
       </nav>
     </header>
   );

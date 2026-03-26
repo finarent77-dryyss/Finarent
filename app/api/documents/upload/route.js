@@ -48,6 +48,16 @@ export async function POST(request) {
       );
     }
 
+    // Validation extension de fichier (double check avec MIME)
+    const ext = (file.name || '').split('.').pop()?.toLowerCase();
+    const ALLOWED_EXTENSIONS = new Set(['pdf', 'jpg', 'jpeg', 'png']);
+    if (!ext || !ALLOWED_EXTENSIONS.has(ext)) {
+      return NextResponse.json(
+        { error: 'Extension de fichier non autorisée' },
+        { status: 400 }
+      );
+    }
+
     const application = await prisma.application.findUnique({
       where: { id: applicationId },
       include: { user: true },

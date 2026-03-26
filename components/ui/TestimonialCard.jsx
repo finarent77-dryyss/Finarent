@@ -10,10 +10,12 @@ export default function TestimonialCard({ testimonial }) {
       </div>
       <p className="text-gray-700 leading-relaxed mb-6 text-lg">&quot;{testimonial.text}&quot;</p>
       <div className="flex items-center space-x-4">
-        <img src={testimonial.avatar} alt={testimonial.name} className="w-14 h-14 rounded-full object-cover" />
+        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center text-primary font-black text-lg shrink-0">
+          {testimonial.initials}
+        </div>
         <div>
-          <div className="font-bold text-primary">{testimonial.name}</div>
-          <div className="text-sm text-gray-600">{testimonial.position}, {testimonial.company}</div>
+          <div className="font-bold text-primary">{testimonial.position}</div>
+          <div className="text-sm text-gray-600">Secteur {testimonial.sector}</div>
         </div>
       </div>
       {testimonial.sector && (
