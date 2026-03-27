@@ -5,17 +5,17 @@ import { motion } from 'framer-motion';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
 
 const STATUS_COLORS = {
-  PENDING: 'bg-amber-100 text-amber-800',
-  REVIEWING: 'bg-blue-100 text-blue-800',
-  QUOTE_SENT: 'bg-cyan-100 text-cyan-800',
+  PENDING: 'bg-slate-100 text-slate-700',
+  REVIEWING: 'bg-secondary/10 text-secondary',
+  QUOTE_SENT: 'bg-secondary/10 text-secondary',
   APPROVED: 'bg-green-100 text-green-800',
   REJECTED: 'bg-red-100 text-red-800',
   COMPLETED: 'bg-emerald-100 text-emerald-800',
 };
 
 const INSURER_STATUSES = [
-  { value: 'REVIEWING', label: 'En étude', color: 'bg-blue-500' },
-  { value: 'QUOTE_SENT', label: 'Devis envoyé', color: 'bg-cyan-500' },
+  { value: 'REVIEWING', label: 'En étude', color: 'bg-secondary' },
+  { value: 'QUOTE_SENT', label: 'Devis envoyé', color: 'bg-secondary' },
   { value: 'APPROVED', label: 'Approuvé', color: 'bg-green-500' },
   { value: 'REJECTED', label: 'Refusé', color: 'bg-red-500' },
 ];
@@ -50,7 +50,7 @@ export default function InsurerApplicationsClient() {
   };
 
   if (loading) {
-    return <div className="flex justify-center py-20"><i className="fa-solid fa-spinner fa-spin text-4xl text-teal-500"></i></div>;
+    return <div className="flex justify-center py-20"><i className="fa-solid fa-spinner fa-spin text-4xl text-accent"></i></div>;
   }
 
   return (
@@ -92,7 +92,7 @@ export default function InsurerApplicationsClient() {
                     key={doc.id}
                     href={doc.fileUrl}
                     target="_blank"
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg text-xs hover:bg-teal-50 hover:text-teal-600 transition-all"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg text-xs hover:bg-accent/5 hover:text-accent transition-all"
                   >
                     <i className="fa-solid fa-file-pdf text-red-400"></i>
                     <span className="font-medium truncate max-w-[120px]">{doc.fileName}</span>
@@ -112,7 +112,7 @@ export default function InsurerApplicationsClient() {
                     disabled={updating === a.id || a.status === s.value}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                       a.status === s.value
-                        ? 'bg-teal-600 text-white'
+                        ? 'bg-accent text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50'
                     }`}
                   >

@@ -18,8 +18,8 @@ export default function HomeClient() {
   const processSteps = [
     { title: t('home.step1Title'), description: t('home.step1Desc'), icon: 'fa-file-lines', iconBg: 'bg-secondary/10', iconColor: 'text-secondary' },
     { title: t('home.step2Title'), description: t('home.step2Desc'), icon: 'fa-user-tie', iconBg: 'bg-accent/10', iconColor: 'text-accent' },
-    { title: t('home.step3Title'), description: t('home.step3Desc'), icon: 'fa-check-double', iconBg: 'bg-indigo-500/10', iconColor: 'text-indigo-600' },
-    { title: t('home.step4Title'), description: t('home.step4Desc'), icon: 'fa-truck-fast', iconBg: 'bg-orange-500/10', iconColor: 'text-orange-600' },
+    { title: t('home.step3Title'), description: t('home.step3Desc'), icon: 'fa-check-double', iconBg: 'bg-secondary/10', iconColor: 'text-secondary' },
+    { title: t('home.step4Title'), description: t('home.step4Desc'), icon: 'fa-truck-fast', iconBg: 'bg-accent/10', iconColor: 'text-accent' },
   ];
 
   return (
@@ -35,8 +35,8 @@ export default function HomeClient() {
                 {[
                   { icon: 'fa-users', num: '1500+', label: t('home.satisfiedClients'), color: 'secondary' },
                   { icon: 'fa-clock', num: '48h', label: t('home.responseTime'), color: 'accent' },
-                  { icon: 'fa-euro-sign', num: '50M€', label: t('home.funded2025'), color: 'indigo-500' },
-                  { icon: 'fa-handshake-simple', num: '98%', label: t('home.approvalRate'), color: 'orange-500' }
+                  { icon: 'fa-euro-sign', num: '50M€', label: t('home.funded2025'), color: 'secondary' },
+                  { icon: 'fa-handshake-simple', num: '98%', label: t('home.approvalRate'), color: 'accent' }
                 ].map((stat, i) => (
                   <div key={i} className="group p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[32px] bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center">
                     <div className={`w-10 h-10 sm:w-14 sm:h-14 bg-${stat.color}/10 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-6 group-hover:scale-110 transition-transform`}>
@@ -169,7 +169,7 @@ export default function HomeClient() {
                   {[
                     { icon: 'fa-coins', color: 'accent', title: t('home.cashPreserved'), desc: t('home.cashPreservedDesc') },
                     { icon: 'fa-file-invoice-dollar', color: 'secondary', title: t('home.taxAdvantage'), desc: t('home.taxAdvantageDesc') },
-                    { icon: 'fa-arrows-rotate', color: 'indigo-500', title: t('home.latestEquipment'), desc: t('home.latestEquipmentDesc') }
+                    { icon: 'fa-arrows-rotate', color: 'secondary', title: t('home.latestEquipment'), desc: t('home.latestEquipmentDesc') }
                   ].map((item, i) => (
                     <ScrollReveal key={i} delay={i * 0.1}>
                       <div className="group flex items-center gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl sm:rounded-3xl hover:bg-gray-50 transition-all duration-300 border border-transparent hover:border-gray-100">
@@ -190,7 +190,7 @@ export default function HomeClient() {
         </section>
 
         {/* Process */}
-        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-indigo-50">
+        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-slate-100">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-3 sm:mb-4">{t('home.simpleProcess')}</h2>
@@ -221,7 +221,7 @@ export default function HomeClient() {
             <div className="mt-8 sm:mt-12 lg:mt-16 bg-gradient-to-r from-secondary to-accent rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-white text-center">
               <div className="max-w-3xl mx-auto">
                 <div className="flex justify-center space-x-1 sm:space-x-2 mb-4 sm:mb-6">
-                  {[...Array(5)].map((_, i) => <i key={i} className="fa-solid fa-star text-yellow-300 text-lg sm:text-2xl"></i>)}
+                  {[...Array(5)].map((_, i) => <i key={i} className="fa-solid fa-star text-accent text-lg sm:text-2xl"></i>)}
                 </div>
                 <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">4.9/5</div>
                 <p className="text-sm sm:text-base lg:text-xl text-white/90 mb-6 sm:mb-8">{t('home.averageRating')}</p>
@@ -262,11 +262,11 @@ export default function HomeClient() {
               {[
                 { icon: 'fa-award', num: '15+', label: t('home.yearsExperience'), color: 'secondary' },
                 { icon: 'fa-building', num: '1200+', label: t('home.clientCompanies'), color: 'accent' },
-                { icon: 'fa-euro-sign', num: '50M€', label: t('home.fundedAmount'), color: 'indigo-600' },
-                { icon: 'fa-handshake', num: '98%', label: t('home.satisfactionRate'), color: 'orange-600' },
+                { icon: 'fa-euro-sign', num: '50M€', label: t('home.fundedAmount'), color: 'secondary' },
+                { icon: 'fa-handshake', num: '98%', label: t('home.satisfactionRate'), color: 'accent' },
               ].map((item, i) => (
                 <div key={i} className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg text-center">
-                  <div className={`w-10 h-10 sm:w-16 sm:h-16 bg-${item.color === 'secondary' ? 'secondary' : item.color === 'accent' ? 'accent' : 'indigo-500'}/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
+                  <div className={`w-10 h-10 sm:w-16 sm:h-16 bg-${item.color === 'secondary' ? 'secondary' : item.color === 'accent' ? 'accent' : 'secondary'}/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
                     <i className={`fa-solid ${item.icon} text-${item.color} text-lg sm:text-2xl`}></i>
                   </div>
                   <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary mb-1 sm:mb-2">{item.num}</div>

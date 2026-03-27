@@ -6,30 +6,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
 
 const STATUS_COLORS = {
-  en_attente: { color: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500', icon: 'fa-regular fa-clock' },
-  en_cours: { color: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500', icon: 'fa-solid fa-magnifying-glass' },
-  documents_manquants: { color: 'bg-orange-100 text-orange-800', dot: 'bg-orange-500', icon: 'fa-solid fa-file' },
-  devis_envoye: { color: 'bg-cyan-100 text-cyan-800', dot: 'bg-cyan-500', icon: 'fa-solid fa-file-invoice' },
-  devis_accepte: { color: 'bg-indigo-100 text-indigo-800', dot: 'bg-indigo-500', icon: 'fa-solid fa-check' },
-  signature_en_attente: { color: 'bg-purple-100 text-purple-800', dot: 'bg-purple-500', icon: 'fa-solid fa-pen' },
-  signe: { color: 'bg-teal-100 text-teal-800', dot: 'bg-teal-500', icon: 'fa-solid fa-signature' },
-  transmis: { color: 'bg-sky-100 text-sky-800', dot: 'bg-sky-500', icon: 'fa-solid fa-paper-plane' },
-  validee: { color: 'bg-green-100 text-green-800', dot: 'bg-green-500', icon: 'fa-solid fa-check-circle' },
-  refusee: { color: 'bg-red-100 text-red-800', dot: 'bg-red-500', icon: 'fa-solid fa-xmark-circle' },
+  en_attente: { color: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500', icon: 'fa-regular fa-clock' },
+  en_cours: { color: 'bg-secondary/10 text-secondary', dot: 'bg-secondary', icon: 'fa-solid fa-magnifying-glass' },
+  documents_manquants: { color: 'bg-red-100 text-red-700', dot: 'bg-red-500', icon: 'fa-solid fa-file' },
+  devis_envoye: { color: 'bg-secondary/10 text-secondary', dot: 'bg-secondary', icon: 'fa-solid fa-file-invoice' },
+  devis_accepte: { color: 'bg-accent/10 text-accent', dot: 'bg-accent', icon: 'fa-solid fa-check' },
+  signature_en_attente: { color: 'bg-secondary/10 text-secondary', dot: 'bg-secondary', icon: 'fa-solid fa-pen' },
+  signe: { color: 'bg-accent/10 text-accent', dot: 'bg-accent', icon: 'fa-solid fa-signature' },
+  transmis: { color: 'bg-secondary/10 text-secondary', dot: 'bg-secondary', icon: 'fa-solid fa-paper-plane' },
+  validee: { color: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500', icon: 'fa-solid fa-check-circle' },
+  refusee: { color: 'bg-red-100 text-red-700', dot: 'bg-red-500', icon: 'fa-solid fa-xmark-circle' },
   finalise: { color: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500', icon: 'fa-solid fa-flag-checkered' },
 };
 
 const STAT_CARDS = [
-  { key: 'total', icon: 'fa-folder-open', gradient: 'from-blue-500 to-blue-700', shadow: 'shadow-blue-500/25' },
-  { key: 'pending', icon: 'fa-hourglass-half', gradient: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
-  { key: 'active', icon: 'fa-spinner', gradient: 'from-violet-500 to-purple-700', shadow: 'shadow-violet-500/25' },
-  { key: 'completed', icon: 'fa-circle-check', gradient: 'from-emerald-500 to-green-700', shadow: 'shadow-emerald-500/25' },
+  { key: 'total', icon: 'fa-folder-open', gradient: 'from-primary to-primary/80', shadow: 'shadow-primary/25' },
+  { key: 'pending', icon: 'fa-hourglass-half', gradient: 'from-slate-500 to-slate-700', shadow: 'shadow-slate-500/25' },
+  { key: 'active', icon: 'fa-spinner', gradient: 'from-secondary to-secondary/80', shadow: 'shadow-secondary/25' },
+  { key: 'completed', icon: 'fa-circle-check', gradient: 'from-accent to-emerald-700', shadow: 'shadow-accent/25' },
 ];
 
 const QUICK_ACTIONS = [
-  { key: 'newRequest', icon: 'fa-plus', href: '/contact', color: 'bg-secondary text-white hover:bg-secondary/90' },
+  { key: 'newRequest', icon: 'fa-plus', href: '/espace/demande', color: 'bg-secondary text-white hover:bg-secondary/90' },
   { key: 'simulate', icon: 'fa-calculator', href: '/simulator', color: 'bg-accent text-white hover:bg-accent/90' },
-  { key: 'contactAdvisor', icon: 'fa-headset', href: '/contact', color: 'bg-primary text-white hover:bg-primary/90' },
+  { key: 'referral', icon: 'fa-gift', href: '/espace/parrainage', color: 'bg-primary text-white hover:bg-primary/90' },
 ];
 
 export default function DashboardClient({ user, dbUser, initialDemandes }) {
@@ -168,6 +168,9 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               <Link href="/contact" className="px-5 sm:px-7 py-2.5 sm:py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm flex items-center gap-2">
                 <i className="fa-solid fa-plus text-xs"></i>
                 {t('espace.newRequest')}
+              </Link>
+              <Link href="/espace/notifications" className="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-50 text-slate-500 rounded-xl hover:bg-secondary/10 hover:text-secondary transition-all shadow-sm border border-slate-100">
+                <i className="fa-solid fa-bell"></i>
               </Link>
               <a href="/api/auth/logout?returnTo=/" className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100">
                 <i className="fa-solid fa-power-off"></i>
@@ -352,7 +355,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               <motion.div variants={itemVariants} className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="text-base sm:text-lg font-black text-primary">{t('espace.profileSecurity')}</h3>
-                  <span className={`text-lg font-black ${completionScore >= 80 ? 'text-green-500' : completionScore >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+                  <span className={`text-lg font-black ${completionScore >= 80 ? 'text-accent' : completionScore >= 50 ? 'text-secondary' : 'text-red-500'}`}>
                     {completionScore}%
                   </span>
                 </div>
@@ -362,7 +365,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                     initial={{ width: 0 }}
                     animate={{ width: `${completionScore}%` }}
                     transition={{ duration: 1.2, ease: 'easeOut' }}
-                    className={`h-full rounded-full ${completionScore >= 80 ? 'bg-gradient-to-r from-green-400 to-green-600' : completionScore >= 50 ? 'bg-gradient-to-r from-amber-400 to-amber-600' : 'bg-gradient-to-r from-red-400 to-red-600'}`}
+                    className={`h-full rounded-full ${completionScore >= 80 ? 'bg-gradient-to-r from-accent to-emerald-700' : completionScore >= 50 ? 'bg-gradient-to-r from-secondary to-secondary/70' : 'bg-gradient-to-r from-red-400 to-red-600'}`}
                   ></motion.div>
                 </div>
 
@@ -379,7 +382,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${completionScore > 80 ? 'bg-green-50 text-green-500' : 'bg-amber-50 text-amber-500'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${completionScore > 80 ? 'bg-emerald-50 text-accent' : 'bg-secondary/5 text-secondary'}`}>
                       <i className={`fa-solid ${completionScore > 80 ? 'fa-building-circle-check' : 'fa-circle-exclamation'}`}></i>
                     </div>
                     <div className="min-w-0">
@@ -391,7 +394,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                     {completionScore > 80 ? (
                       <i className="fa-solid fa-circle-check text-green-500 ml-auto"></i>
                     ) : (
-                      <i className="fa-solid fa-circle-exclamation text-amber-500 ml-auto"></i>
+                      <i className="fa-solid fa-circle-exclamation text-secondary ml-auto"></i>
                     )}
                   </div>
 
@@ -413,20 +416,21 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setProfileData({
-                      name: currentDbUser.name || '',
-                      phone: currentDbUser.phone || '',
-                      company: currentDbUser.company || '',
-                      legalForm: currentDbUser.legalForm || '',
-                    });
-                    setShowProfileModal(true);
-                  }}
-                  className="w-full py-3 bg-gray-50 text-gray-500 font-bold rounded-xl border border-gray-100 hover:border-secondary hover:bg-secondary/5 hover:text-secondary transition-all mt-5 text-xs uppercase tracking-wider"
-                >
-                  {t('espace.editInfo')}
-                </button>
+                <div className="flex gap-2 mt-5">
+                  <Link
+                    href="/espace/profile"
+                    className="flex-1 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl border border-gray-100 hover:border-secondary hover:bg-secondary/5 hover:text-secondary transition-all text-xs uppercase tracking-wider block text-center"
+                  >
+                    {t('espace.editInfo')}
+                  </Link>
+                  <Link
+                    href="/espace/security"
+                    className="flex-1 py-3 bg-secondary/5 text-secondary font-bold rounded-xl border border-secondary/20 hover:bg-secondary hover:text-white transition-all text-xs uppercase tracking-wider block text-center flex items-center justify-center gap-1.5"
+                  >
+                    <i className="fa-solid fa-shield-halved text-[10px]"></i>
+                    {t('espace.security.title')}
+                  </Link>
+                </div>
               </motion.div>
 
               {/* Advisor Card */}

@@ -3,7 +3,7 @@ export default function TestimonialCard({ testimonial }) {
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100">
       <div className="flex items-center mb-6">
         {[...Array(testimonial.rating)].map((_, index) => (
-          <div key={index} className="w-5 h-5 text-yellow-400">
+          <div key={index} className="w-5 h-5 text-accent">
             <i className="fa-solid fa-star"></i>
           </div>
         ))}

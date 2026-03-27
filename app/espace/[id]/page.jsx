@@ -44,6 +44,8 @@ export default async function DossierDetailPage({ params }) {
     ...application,
     status: STATUS_TO_LEGACY[application.status] || application.status,
     amount: application.amount != null ? `${application.amount.toLocaleString()}€` : null,
+    rawAmount: application.amount,
+    duration: application.duration,
     documents: (application.documents || []).map((d) => ({
       ...d,
       path: d.fileUrl,

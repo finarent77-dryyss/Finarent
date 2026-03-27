@@ -5,16 +5,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
 
 const STATUS_COLORS = {
-  en_attente: { bg: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
-  en_cours: { bg: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500' },
-  documents_manquants: { bg: 'bg-orange-100 text-orange-800', dot: 'bg-orange-500' },
-  devis_envoye: { bg: 'bg-cyan-100 text-cyan-800', dot: 'bg-cyan-500' },
-  devis_accepte: { bg: 'bg-indigo-100 text-indigo-800', dot: 'bg-indigo-500' },
-  signature_en_attente: { bg: 'bg-purple-100 text-purple-800', dot: 'bg-purple-500' },
-  signe: { bg: 'bg-teal-100 text-teal-800', dot: 'bg-teal-500' },
-  transmis: { bg: 'bg-sky-100 text-sky-800', dot: 'bg-sky-500' },
-  validee: { bg: 'bg-green-100 text-green-800', dot: 'bg-green-500' },
-  refusee: { bg: 'bg-red-100 text-red-800', dot: 'bg-red-500' },
+  en_attente: { bg: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500' },
+  en_cours: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  documents_manquants: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
+  devis_envoye: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  devis_accepte: { bg: 'bg-accent/10 text-accent', dot: 'bg-accent' },
+  signature_en_attente: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  signe: { bg: 'bg-accent/10 text-accent', dot: 'bg-accent' },
+  transmis: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  validee: { bg: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500' },
+  refusee: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
   finalise: { bg: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500' },
 };
 
@@ -288,8 +288,8 @@ export default function DemandesClient() {
 
                         {/* Message */}
                         {d.message && (
-                          <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4">
-                            <div className="text-[10px] font-bold text-blue-400 uppercase mb-1">Message du prospect</div>
+                          <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-4">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Message du prospect</div>
                             <p className="text-sm text-gray-600 italic">&ldquo;{d.message}&rdquo;</p>
                           </div>
                         )}

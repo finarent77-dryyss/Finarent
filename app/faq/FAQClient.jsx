@@ -1,38 +1,59 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import FAQItem from '@/components/ui/FAQItem';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n';
 
+const CATEGORY_LABELS = {
+  general: 'Général',
+  financement: 'Financement',
+  assurance: 'Assurance',
+  documents: 'Documents',
+  compte: 'Mon compte',
+};
+
 export default function FAQClient() {
   const { t } = useTranslation();
+  const [dynamicFaqs, setDynamicFaqs] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const faqs = [
-    {
-      category: t('faq.category1'),
-      items: [
-        { q: t('faq.q1_1'), a: t('faq.a1_1') },
-        { q: t('faq.q1_2'), a: t('faq.a1_2') },
-        { q: t('faq.q1_3'), a: t('faq.a1_3') },
-      ]
-    },
-    {
-      category: t('faq.category2'),
-      items: [
-        { q: t('faq.q2_1'), a: t('faq.a2_1') },
-        { q: t('faq.q2_2'), a: t('faq.a2_2') },
-        { q: t('faq.q2_3'), a: t('faq.a2_3') },
-      ]
-    },
-    {
-      category: t('faq.category3'),
-      items: [
-        { q: t('faq.q3_1'), a: t('faq.a3_1') },
-        { q: t('faq.q3_2'), a: t('faq.a3_2') },
-      ]
-    }
+  // Hardcoded fallback
+  const fallbackFaqs = [
+    { category: t('faq.category1'), items: [
+      { q: t('faq.q1_1'), a: t('faq.a1_1') }, { q: t('faq.q1_2'), a: t('faq.a1_2') }, { q: t('faq.q1_3'), a: t('faq.a1_3') },
+    ]},
+    { category: t('faq.category2'), items: [
+      { q: t('faq.q2_1'), a: t('faq.a2_1') }, { q: t('faq.q2_2'), a: t('faq.a2_2') }, { q: t('faq.q2_3'), a: t('faq.a2_3') },
+    ]},
+    { category: t('faq.category3'), items: [
+      { q: t('faq.q3_1'), a: t('faq.a3_1') }, { q: t('faq.q3_2'), a: t('faq.a3_2') },
+    ]},
   ];
+
+  useEffect(() => {
+    fetch('/api/faq')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          // Group by category
+          const grouped = {};
+          data.forEach(f => {
+            if (!grouped[f.category]) grouped[f.category] = [];
+            grouped[f.category].push({ q: f.question, a: f.answer });
+          });
+          setDynamicFaqs(Object.entries(grouped).map(([cat, items]) => ({
+            category: CATEGORY_LABELS[cat] || cat,
+            items,
+          })));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const faqs = dynamicFaqs || fallbackFaqs;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,20 +68,26 @@ export default function FAQClient() {
 
       <section className="py-20">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="space-y-12">
-            {faqs.map((cat, idx) => (
-              <ScrollReveal key={idx} delay={idx * 0.1}>
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-secondary border-l-4 border-secondary pl-4">{cat.category}</h2>
-                  <div className="space-y-4">
-                    {cat.items.map((item, i) => (
-                      <FAQItem key={i} question={item.q} answer={item.a} />
-                    ))}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <i className="fa-solid fa-spinner fa-spin text-3xl text-secondary"></i>
+            </div>
+          ) : (
+            <div className="space-y-12">
+              {faqs.map((cat, idx) => (
+                <ScrollReveal key={idx} delay={idx * 0.1}>
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-bold text-secondary border-l-4 border-secondary pl-4">{cat.category}</h2>
+                    <div className="space-y-4">
+                      {cat.items.map((item, i) => (
+                        <FAQItem key={i} question={item.q} answer={item.a} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          )}
 
           <ScrollReveal delay={0.4}>
             <div className="mt-20 bg-primary rounded-3xl p-8 sm:p-12 text-white text-center">

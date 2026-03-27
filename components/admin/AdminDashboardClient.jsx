@@ -6,25 +6,25 @@ import { motion } from 'framer-motion';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
 
 const STAT_CARDS = [
-  { key: 'totalApplications', label: 'Total dossiers', icon: 'fa-folder-open', gradient: 'from-blue-500 to-blue-700', shadow: 'shadow-blue-500/20' },
-  { key: 'pendingApplications', label: 'En attente', icon: 'fa-hourglass-half', gradient: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/20' },
-  { key: 'activeApplications', label: 'En cours', icon: 'fa-spinner', gradient: 'from-violet-500 to-purple-700', shadow: 'shadow-violet-500/20' },
-  { key: 'completedApplications', label: 'Finalisés', icon: 'fa-circle-check', gradient: 'from-emerald-500 to-green-700', shadow: 'shadow-emerald-500/20' },
-  { key: 'totalUsers', label: 'Utilisateurs', icon: 'fa-users', gradient: 'from-cyan-500 to-cyan-700', shadow: 'shadow-cyan-500/20' },
-  { key: 'totalPartners', label: 'Partenaires', icon: 'fa-handshake', gradient: 'from-pink-500 to-rose-700', shadow: 'shadow-pink-500/20' },
+  { key: 'totalApplications', label: 'Total dossiers', icon: 'fa-folder-open', gradient: 'from-primary to-primary/80', shadow: 'shadow-primary/20' },
+  { key: 'pendingApplications', label: 'En attente', icon: 'fa-hourglass-half', gradient: 'from-slate-500 to-slate-700', shadow: 'shadow-slate-500/20' },
+  { key: 'activeApplications', label: 'En cours', icon: 'fa-spinner', gradient: 'from-secondary to-secondary/80', shadow: 'shadow-secondary/20' },
+  { key: 'completedApplications', label: 'Finalisés', icon: 'fa-circle-check', gradient: 'from-accent to-emerald-700', shadow: 'shadow-accent/20' },
+  { key: 'totalUsers', label: 'Utilisateurs', icon: 'fa-users', gradient: 'from-secondary/80 to-secondary', shadow: 'shadow-secondary/20' },
+  { key: 'totalPartners', label: 'Partenaires', icon: 'fa-handshake', gradient: 'from-accent/80 to-accent', shadow: 'shadow-accent/20' },
 ];
 
 const STATUS_COLORS = {
-  PENDING: { bg: 'bg-amber-100 text-amber-800', dot: 'bg-amber-500' },
-  REVIEWING: { bg: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500' },
-  DOCUMENTS_NEEDED: { bg: 'bg-orange-100 text-orange-800', dot: 'bg-orange-500' },
-  QUOTE_SENT: { bg: 'bg-cyan-100 text-cyan-800', dot: 'bg-cyan-500' },
-  QUOTE_ACCEPTED: { bg: 'bg-indigo-100 text-indigo-800', dot: 'bg-indigo-500' },
-  PENDING_SIGNATURE: { bg: 'bg-purple-100 text-purple-800', dot: 'bg-purple-500' },
-  SIGNED: { bg: 'bg-teal-100 text-teal-800', dot: 'bg-teal-500' },
-  TRANSMITTED: { bg: 'bg-sky-100 text-sky-800', dot: 'bg-sky-500' },
-  APPROVED: { bg: 'bg-green-100 text-green-800', dot: 'bg-green-500' },
-  REJECTED: { bg: 'bg-red-100 text-red-800', dot: 'bg-red-500' },
+  PENDING: { bg: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500' },
+  REVIEWING: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  DOCUMENTS_NEEDED: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
+  QUOTE_SENT: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  QUOTE_ACCEPTED: { bg: 'bg-accent/10 text-accent', dot: 'bg-accent' },
+  PENDING_SIGNATURE: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  SIGNED: { bg: 'bg-accent/10 text-accent', dot: 'bg-accent' },
+  TRANSMITTED: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  APPROVED: { bg: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500' },
+  REJECTED: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
   COMPLETED: { bg: 'bg-emerald-100 text-emerald-800', dot: 'bg-emerald-500' },
 };
 
@@ -68,8 +68,8 @@ export default function AdminDashboardClient() {
           <p className="text-gray-400 text-sm mt-1">Vue d'ensemble de l'activité Finassur</p>
         </div>
         {pendingCount > 0 && (
-          <Link href="/admin/demandes" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-xl text-sm font-bold border border-amber-200 hover:bg-amber-100 transition-all">
-            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+          <Link href="/admin/demandes" className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary rounded-xl text-sm font-bold border border-secondary/20 hover:bg-secondary/20 transition-all">
+            <span className="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
             {pendingCount} dossier{pendingCount > 1 ? 's' : ''} en attente
           </Link>
         )}
@@ -159,8 +159,8 @@ export default function AdminDashboardClient() {
           {stats?.totalApplications > 0 ? (
             <div className="space-y-3">
               {[
-                { label: 'En attente', count: stats?.pendingApplications || 0, color: 'bg-amber-500' },
-                { label: 'En cours', count: stats?.activeApplications || 0, color: 'bg-violet-500' },
+                { label: 'En attente', count: stats?.pendingApplications || 0, color: 'bg-slate-500' },
+                { label: 'En cours', count: stats?.activeApplications || 0, color: 'bg-secondary' },
                 { label: 'Finalisés', count: stats?.completedApplications || 0, color: 'bg-emerald-500' },
               ].map((item) => (
                 <div key={item.label}>
@@ -183,6 +183,114 @@ export default function AdminDashboardClient() {
             <div className="py-8 text-center text-gray-400">
               <i className="fa-solid fa-chart-bar text-3xl mb-2 block"></i>
               <p className="text-sm">Aucune donnée disponible</p>
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Key Metrics Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Montant moyen</div>
+          <div className="text-2xl font-black text-secondary">
+            {(stats?.averageAmount || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+          </div>
+          <div className="text-xs text-slate-400 mt-1">Sur dossiers validés</div>
+        </motion.div>
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Taux de conversion</div>
+          <div className="text-2xl font-black text-accent">{conversionRate}%</div>
+          <div className="text-xs text-slate-400 mt-1">Finalisés / Total</div>
+        </motion.div>
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Dossiers ce mois</div>
+          <div className="text-2xl font-black text-secondary">
+            {(() => {
+              const now = new Date();
+              const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+              const current = (stats?.monthlyData || []).find((m) => m.month === currentKey);
+              return current ? current.count : 0;
+            })()}
+          </div>
+          <div className="text-xs text-slate-400 mt-1">Depuis le 1er du mois</div>
+        </motion.div>
+      </div>
+
+      {/* Analytics: Monthly Trend & Top Sectors */}
+      <div className="grid lg:grid-cols-2 gap-6 mb-8">
+        {/* Monthly Trend */}
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <h3 className="text-base font-bold text-primary mb-4">Tendance mensuelle</h3>
+          {(stats?.monthlyData || []).length > 0 ? (() => {
+            const data = stats.monthlyData;
+            const maxCount = Math.max(...data.map((d) => d.count), 1);
+            const FR_MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+            return (
+              <div className="space-y-3">
+                {data.map((item) => {
+                  const [y, m] = item.month.split('-');
+                  const monthLabel = `${FR_MONTHS[parseInt(m, 10) - 1]} ${y}`;
+                  const pct = (item.count / maxCount) * 100;
+                  return (
+                    <div key={item.month}>
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="font-medium text-slate-600 capitalize">{monthLabel}</span>
+                        <span className="font-bold text-primary">{item.count}</span>
+                      </div>
+                      <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                          className="h-full rounded-full bg-secondary hover:bg-accent transition-colors"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })() : (
+            <div className="py-8 text-center text-slate-400">
+              <i className="fa-solid fa-chart-simple text-3xl mb-2 block"></i>
+              <p className="text-sm">Aucune donnée mensuelle</p>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Top Sectors */}
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <h3 className="text-base font-bold text-primary mb-4">Secteurs les plus demandés</h3>
+          {(stats?.topSectors || []).length > 0 ? (() => {
+            const sectors = stats.topSectors;
+            const maxCount = Math.max(...sectors.map((s) => s.count), 1);
+            return (
+              <div className="space-y-3">
+                {sectors.map((item, idx) => {
+                  const pct = (item.count / maxCount) * 100;
+                  return (
+                    <div key={item.sector || idx}>
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="font-medium text-slate-600">{item.sector || 'Non renseigné'}</span>
+                        <span className="font-bold text-primary">{item.count}</span>
+                      </div>
+                      <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.8, ease: 'easeOut', delay: idx * 0.1 }}
+                          className="h-full rounded-full bg-accent"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })() : (
+            <div className="py-8 text-center text-slate-400">
+              <i className="fa-solid fa-industry text-3xl mb-2 block"></i>
+              <p className="text-sm">Aucun secteur disponible</p>
             </div>
           )}
         </motion.div>

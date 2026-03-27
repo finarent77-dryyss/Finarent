@@ -17,7 +17,7 @@ export default function InsurerSidebar({ email }) {
       <aside className="w-64 bg-white border-r border-gray-100 min-h-screen fixed left-0 top-0 pt-20 hidden lg:block">
         <div className="px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 bg-gradient-to-br from-accent to-emerald-700 rounded-xl flex items-center justify-center text-white font-bold text-sm">
               <i className="fa-solid fa-shield-halved"></i>
             </div>
             <div className="min-w-0">
@@ -35,7 +35,7 @@ export default function InsurerSidebar({ email }) {
                 key={item.key}
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  isActive ? 'bg-teal-600 text-white shadow-lg' : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
+                  isActive ? 'bg-accent text-white shadow-lg' : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
                 }`}
               >
                 <i className={`fa-solid ${item.icon} w-5 text-center`}></i>
@@ -61,7 +61,7 @@ export default function InsurerSidebar({ email }) {
             <Link
               key={item.key}
               href={item.href}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-all ${isActive ? 'text-teal-600' : 'text-gray-400'}`}
+              className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-all ${isActive ? 'text-accent' : 'text-gray-400'}`}
             >
               <i className={`fa-solid ${item.icon}`}></i>
               {item.label}

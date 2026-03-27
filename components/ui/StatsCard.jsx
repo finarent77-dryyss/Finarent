@@ -1,4 +1,4 @@
-export default function StatsCard({ icon, number, label, color = 'from-secondary to-indigo-600' }) {
+export default function StatsCard({ icon, number, label, color = 'from-secondary to-secondary/80' }) {
   return (
     <div className="text-center p-4 bg-gradient-to-br from-secondary/5 to-secondary/10 rounded-xl">
       {icon && (

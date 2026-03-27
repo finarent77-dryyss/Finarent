@@ -1,26 +1,23 @@
 import { NextResponse } from 'next/server';
-import { validateEmail } from '@/utils/validation';
+import { prisma } from '@/lib/prisma';
 
-/**
- * POST /api/newsletter
- * Inscription newsletter.
- * Phase 2 : stocker en DB + envoi de confirmation via Nodemailer.
- */
 export async function POST(request) {
   try {
     const body = await request.json();
-    const email = body?.email?.trim();
+    const email = body?.email?.trim()?.toLowerCase();
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email requis' }, { status: 400 });
-    }
-
-    if (!validateEmail(email)) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
     }
 
-    // TODO Phase 2 : stocker en DB + envoi via Nodemailer
-    return NextResponse.json({ success: true });
+    // Check if already subscribed
+    const existing = await prisma.newsletter.findUnique({ where: { email } });
+    if (existing) {
+      return NextResponse.json({ success: true, message: 'Déjà inscrit' });
+    }
+
+    await prisma.newsletter.create({ data: { email } });
+    return NextResponse.json({ success: true, message: 'Inscription réussie' });
   } catch (err) {
     console.error('Newsletter error:', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

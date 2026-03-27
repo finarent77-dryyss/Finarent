@@ -6,15 +6,15 @@ import { useTranslation } from '@/lib/i18n';
 export default function AssuranceClient() {
   const { t } = useTranslation();
   const assuranceTypes = [
-    { id: 'rc-pro', icon: 'fa-shield-halved', color: 'from-secondary to-indigo-600', ...t('data.assurance.rcPro') },
+    { id: 'rc-pro', icon: 'fa-shield-halved', color: 'from-secondary to-secondary/80', ...t('data.assurance.rcPro') },
     { id: 'do', icon: 'fa-user-tie', color: 'from-accent to-emerald-600', ...t('data.assurance.do') },
-    { id: 'flotte', icon: 'fa-truck', color: 'from-orange-500 to-orange-600', ...t('data.assurance.flotte') },
-    { id: 'multirisque', icon: 'fa-building', color: 'from-purple-500 to-purple-600', ...t('data.assurance.multirisque') },
+    { id: 'flotte', icon: 'fa-truck', color: 'from-accent to-emerald-700', ...t('data.assurance.flotte') },
+    { id: 'multirisque', icon: 'fa-building', color: 'from-primary to-primary/80', ...t('data.assurance.multirisque') },
   ];
 
   return (
     <div className="min-h-screen">
-      <section className="pt-32 pb-20 bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+      <section className="pt-32 pb-20 bg-gradient-to-br from-gray-50 via-white to-slate-100">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="inline-block px-4 py-2 bg-secondary/10 rounded-full mb-6">
@@ -74,8 +74,8 @@ export default function AssuranceClient() {
                 {[
                   { icon: 'fa-handshake', bg: 'bg-secondary/10', color: 'text-secondary', title: t('insurance.singleContact'), desc: t('insurance.singleContactDesc') },
                   { icon: 'fa-clock', bg: 'bg-accent/10', color: 'text-accent', title: t('insurance.quote48h'), desc: t('insurance.quote48hDesc') },
-                  { icon: 'fa-scale-balanced', bg: 'bg-indigo-500/10', color: 'text-indigo-600', title: t('insurance.competitiveRates'), desc: t('insurance.competitiveRatesDesc') },
-                  { icon: 'fa-headset', bg: 'bg-orange-500/10', color: 'text-orange-600', title: t('insurance.dedicatedSupport'), desc: t('insurance.dedicatedSupportDesc') },
+                  { icon: 'fa-scale-balanced', bg: 'bg-secondary/10', color: 'text-secondary', title: t('insurance.competitiveRates'), desc: t('insurance.competitiveRatesDesc') },
+                  { icon: 'fa-headset', bg: 'bg-accent/10', color: 'text-accent', title: t('insurance.dedicatedSupport'), desc: t('insurance.dedicatedSupportDesc') },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start space-x-4">
                     <div className={`w-12 h-12 ${item.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>

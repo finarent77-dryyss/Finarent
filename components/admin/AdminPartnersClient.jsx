@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const TYPE_LABELS = { BANK: 'Banque', INSURANCE: 'Assurance', LEASING: 'Leasing' };
 const TYPE_COLORS = {
-  BANK: { bg: 'bg-blue-100 text-blue-800', icon: 'fa-building-columns' },
-  INSURANCE: { bg: 'bg-teal-100 text-teal-800', icon: 'fa-shield-halved' },
-  LEASING: { bg: 'bg-purple-100 text-purple-800', icon: 'fa-handshake' },
+  BANK: { bg: 'bg-secondary/10 text-secondary', icon: 'fa-building-columns' },
+  INSURANCE: { bg: 'bg-accent/10 text-accent', icon: 'fa-shield-halved' },
+  LEASING: { bg: 'bg-slate-100 text-slate-700', icon: 'fa-handshake' },
 };
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } };
@@ -278,7 +278,7 @@ export default function AdminPartnersClient() {
                   </button>
                   <button
                     onClick={() => toggleActive(p.id, p.isActive)}
-                    className={`flex-1 py-2.5 text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${p.isActive ? 'text-amber-500 hover:bg-amber-50' : 'text-green-500 hover:bg-green-50'}`}
+                    className={`flex-1 py-2.5 text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${p.isActive ? 'text-slate-500 hover:bg-slate-50' : 'text-accent hover:bg-accent/5'}`}
                   >
                     <i className={`fa-solid ${p.isActive ? 'fa-pause' : 'fa-play'} text-[10px]`}></i>
                     {p.isActive ? 'Désactiver' : 'Activer'}

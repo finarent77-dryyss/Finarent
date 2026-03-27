@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ROLES = ['CLIENT', 'ADMIN', 'PARTNER', 'INSURER'];
 const ROLE_COLORS = {
-  CLIENT: { bg: 'bg-blue-100 text-blue-800', dot: 'bg-blue-500' },
-  ADMIN: { bg: 'bg-red-100 text-red-800', dot: 'bg-red-500' },
-  PARTNER: { bg: 'bg-purple-100 text-purple-800', dot: 'bg-purple-500' },
-  INSURER: { bg: 'bg-teal-100 text-teal-800', dot: 'bg-teal-500' },
+  CLIENT: { bg: 'bg-secondary/10 text-secondary', dot: 'bg-secondary' },
+  ADMIN: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
+  PARTNER: { bg: 'bg-accent/10 text-accent', dot: 'bg-accent' },
+  INSURER: { bg: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500' },
 };
 
 const ROLE_ICONS = {

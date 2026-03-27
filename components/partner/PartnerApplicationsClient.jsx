@@ -5,14 +5,14 @@ import { motion } from 'framer-motion';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
 
 const STATUS_COLORS = {
-  PENDING: 'bg-amber-100 text-amber-800',
-  REVIEWING: 'bg-blue-100 text-blue-800',
-  DOCUMENTS_NEEDED: 'bg-orange-100 text-orange-800',
-  QUOTE_SENT: 'bg-cyan-100 text-cyan-800',
-  QUOTE_ACCEPTED: 'bg-indigo-100 text-indigo-800',
-  PENDING_SIGNATURE: 'bg-purple-100 text-purple-800',
-  SIGNED: 'bg-teal-100 text-teal-800',
-  TRANSMITTED: 'bg-sky-100 text-sky-800',
+  PENDING: 'bg-slate-100 text-slate-700',
+  REVIEWING: 'bg-secondary/10 text-secondary',
+  DOCUMENTS_NEEDED: 'bg-red-100 text-red-700',
+  QUOTE_SENT: 'bg-secondary/10 text-secondary',
+  QUOTE_ACCEPTED: 'bg-accent/10 text-accent',
+  PENDING_SIGNATURE: 'bg-secondary/10 text-secondary',
+  SIGNED: 'bg-accent/10 text-accent',
+  TRANSMITTED: 'bg-secondary/10 text-secondary',
   APPROVED: 'bg-green-100 text-green-800',
   REJECTED: 'bg-red-100 text-red-800',
   COMPLETED: 'bg-emerald-100 text-emerald-800',
@@ -40,7 +40,7 @@ export default function PartnerApplicationsClient() {
   });
 
   if (loading) {
-    return <div className="flex justify-center py-20"><i className="fa-solid fa-spinner fa-spin text-4xl text-purple-500"></i></div>;
+    return <div className="flex justify-center py-20"><i className="fa-solid fa-spinner fa-spin text-4xl text-secondary"></i></div>;
   }
 
   return (
@@ -52,7 +52,7 @@ export default function PartnerApplicationsClient() {
           placeholder="Rechercher..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 w-full sm:w-64"
+          className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 w-full sm:w-64"
         />
       </div>
 
@@ -87,7 +87,7 @@ export default function PartnerApplicationsClient() {
                     key={doc.id}
                     href={doc.fileUrl}
                     target="_blank"
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg text-xs hover:bg-purple-50 hover:text-purple-600 transition-all"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg text-xs hover:bg-secondary/5 hover:text-secondary transition-all"
                   >
                     <i className="fa-solid fa-file-pdf text-red-400"></i>
                     <span className="font-medium truncate max-w-[120px]">{doc.fileName}</span>

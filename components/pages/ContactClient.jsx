@@ -144,7 +144,7 @@ export default function ContactClient() {
   return (
     <PageTransition>
       <div className="min-h-screen">
-        <section className="pt-28 pb-12 bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <section className="pt-28 pb-12 bg-gradient-to-br from-gray-50 via-white to-slate-100">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-block px-4 py-2 bg-secondary/10 rounded-full mb-4">

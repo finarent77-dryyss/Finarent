@@ -31,7 +31,8 @@ export default function Header() {
     { name: t('nav.solutions.creditBail'), icon: 'fa-handshake', desc: t('nav.solutions.creditBailDesc'), path: '/solutions/credit-bail' },
     { name: t('nav.solutions.loa'), icon: 'fa-file-contract', desc: t('nav.solutions.loaDesc'), path: '/solutions/loa' },
     { name: t('nav.solutions.creditPro'), icon: 'fa-coins', desc: t('nav.solutions.creditProDesc'), path: '/solutions/credit-pro' },
-    { name: t('nav.solutions.insurancePro'), icon: 'fa-shield-halved', desc: t('nav.solutions.insuranceProDesc'), path: '/assurance' }
+    { name: t('nav.solutions.insurancePro'), icon: 'fa-shield-halved', desc: t('nav.solutions.insuranceProDesc'), path: '/assurance' },
+    { name: t('comparator.navLabel'), icon: 'fa-scale-balanced', desc: t('comparator.subtitle'), path: '/comparateur' }
   ];
 
   const sectors = [
@@ -206,6 +207,7 @@ export default function Header() {
               { label: t('nav.whyFinassur'), href: '/why-leasing' },
               { label: t('nav.blog'), href: '/blog' },
               { label: t('nav.contact'), href: '/contact' },
+              { label: t('comparator.navLabel'), href: '/comparateur' },
             ].map((item) => (
               <Link
                 key={item.href}

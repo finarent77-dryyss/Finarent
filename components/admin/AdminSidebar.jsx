@@ -8,6 +8,9 @@ const NAV_ITEMS = [
   { key: 'demandes', href: '/admin/demandes', icon: 'fa-folder-open', label: 'Demandes' },
   { key: 'users', href: '/admin/users', icon: 'fa-users', label: 'Utilisateurs' },
   { key: 'partners', href: '/admin/partners', icon: 'fa-handshake', label: 'Partenaires' },
+  { key: 'logs', href: '/admin/logs', icon: 'fa-clock-rotate-left', label: 'Logs d\'activité' },
+  { key: 'faq', href: '/admin/faq', icon: 'fa-circle-question', label: 'FAQ' },
+  { key: 'settings', href: '/admin/settings', icon: 'fa-gear', label: 'Paramètres' },
 ];
 
 export default function AdminSidebar({ email }) {
@@ -50,7 +53,15 @@ export default function AdminSidebar({ email }) {
         })}
       </nav>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-100 space-y-1">
+        <a
+          href="/api/admin/export?format=csv"
+          download
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-secondary hover:bg-secondary/5 transition-all"
+        >
+          <i className="fa-solid fa-file-csv w-5 text-center"></i>
+          Exporter CSV
+        </a>
         <a
           href="/api/auth/logout?returnTo=/"
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all"
