@@ -55,6 +55,16 @@ enum DocumentType {
   AUTRE
 }
 
+enum OfferStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REFUSED
+  EXPIRED
+  SIGNED
+}
+
 // ─── MODELS ───────────────────────────────────────────────
 model User {
   id           String        @id @default(cuid())
@@ -86,6 +96,7 @@ model Partner {
   users        User[]
   applications Application[]
   commissions  Commission[]
+  offers       Offer[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -109,12 +120,39 @@ model Application {
   partner       Partner?          @relation(fields: [partnerId], references: [id])
   adminNotes    String?
   transmittedAt DateTime?
+  scorePreQual  Int?              @default(0)
+  scoreLabel    String?
   documents     Document[]
   messages      Message[]
   statusHistory StatusHistory[]
   commissions   Commission[]
+  offers        Offer[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
+}
+
+model Offer {
+  id              String       @id @default(cuid())
+  applicationId   String
+  application     Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  amount          Float
+  durationMonths  Int
+  monthlyPayment  Float
+  rate            Float
+  totalCost       Float
+  partnerId       String?
+  partner         Partner?     @relation(fields: [partnerId], references: [id])
+  conditions      Json?
+  status          OfferStatus  @default(DRAFT)
+  expiresAt       DateTime
+  sentAt          DateTime?
+  viewedAt        DateTime?
+  acceptedAt      DateTime?
+  signatureUrl    String?
+  signedAt        DateTime?
+  createdBy       String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model Document {

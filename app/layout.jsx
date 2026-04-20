@@ -1,7 +1,10 @@
+import { Suspense } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import CookieBanner from '@/components/ui/CookieBanner';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { LanguageProvider } from '@/lib/i18n';
+import PostHogProvider from '@/components/providers/PostHogProvider';
 import './globals.css';
 
 export const metadata = {
@@ -21,15 +24,20 @@ export default function RootLayout({ children }) {
       <body>
         <UserProvider>
           <LanguageProvider>
-            <div className="min-h-screen flex flex-col">
-              <div id="site-header">
-                <Header />
-              </div>
-              <main className="flex-grow">{children}</main>
-              <footer id="site-footer">
-                <Footer />
-              </footer>
-            </div>
+            <Suspense fallback={null}>
+              <PostHogProvider>
+                <div className="min-h-screen flex flex-col">
+                  <div id="site-header">
+                    <Header />
+                  </div>
+                  <main className="flex-grow">{children}</main>
+                  <footer id="site-footer">
+                    <Footer />
+                  </footer>
+                </div>
+                <CookieBanner />
+              </PostHogProvider>
+            </Suspense>
           </LanguageProvider>
         </UserProvider>
       </body>

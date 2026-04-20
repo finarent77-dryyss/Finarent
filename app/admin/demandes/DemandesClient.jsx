@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
 
@@ -26,6 +27,13 @@ const STATUS_GROUPS = {
   active: ['en_cours', 'devis_envoye', 'devis_accepte', 'signature_en_attente', 'signe'],
   transmitted: ['transmis'],
   done: ['validee', 'refusee', 'finalise'],
+};
+
+const SCORE_BADGES = {
+  excellent: { cls: 'bg-emerald-100 text-emerald-800', icon: 'fa-trophy' },
+  bon:       { cls: 'bg-accent/10 text-accent',        icon: 'fa-circle-check' },
+  moyen:     { cls: 'bg-secondary/10 text-secondary',  icon: 'fa-circle-half-stroke' },
+  faible:    { cls: 'bg-slate-100 text-slate-700',     icon: 'fa-triangle-exclamation' },
 };
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } };
@@ -138,6 +146,21 @@ export default function DemandesClient() {
           <h1 className="text-2xl sm:text-3xl font-black text-primary">{t('admin.financingRequests')}</h1>
           <p className="text-gray-400 text-sm mt-1">{demandes.length} demande{demandes.length > 1 ? 's' : ''} au total</p>
         </div>
+
+        {/* View toggle: Liste / Kanban */}
+        <div className="inline-flex items-center gap-1 bg-slate-100 rounded-xl p-1 self-start sm:self-auto">
+          <span className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-white text-primary shadow-sm">
+            <i className="fa-solid fa-list text-[10px] mr-1.5"></i>
+            Liste
+          </span>
+          <Link
+            href="/admin/demandes/kanban"
+            className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-primary transition-all"
+          >
+            <i className="fa-solid fa-table-columns text-[10px] mr-1.5"></i>
+            Kanban
+          </Link>
+        </div>
       </motion.div>
 
       {/* Filters */}
@@ -206,6 +229,15 @@ export default function DemandesClient() {
                           <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`}></span>
                           {t(`status.${d.status}`) || d.status}
                         </span>
+                        {d.scoreLabel && SCORE_BADGES[d.scoreLabel] && (
+                          <span
+                            title={`Score de pré-qualification : ${d.scorePreQual ?? 0}/100`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${SCORE_BADGES[d.scoreLabel].cls}`}
+                          >
+                            <i className={`fa-solid ${SCORE_BADGES[d.scoreLabel].icon} text-[10px]`}></i>
+                            {d.scoreLabel} · {d.scorePreQual ?? 0}
+                          </span>
+                        )}
                         <span className="text-[10px] font-bold text-gray-300 uppercase">{t(`requestType.${d.requestType}`) || d.requestType}</span>
                       </div>
                       <h3 className="font-bold text-primary text-lg">{d.companyName}</h3>

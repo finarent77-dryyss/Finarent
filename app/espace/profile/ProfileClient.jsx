@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
 
 export default function ProfileClient({ user, dbUser }) {
@@ -15,6 +15,26 @@ export default function ProfileClient({ user, dbUser }) {
   });
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState(null); // { type: 'success'|'error', message }
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch('/api/profile/delete', { method: 'DELETE' });
+      if (res.ok) {
+        window.location.href = '/api/auth/logout';
+      } else {
+        setFeedback({ type: 'error', message: 'Erreur lors de la suppression du compte' });
+        setShowDeleteDialog(false);
+        setDeleting(false);
+      }
+    } catch {
+      setFeedback({ type: 'error', message: 'Erreur lors de la suppression du compte' });
+      setShowDeleteDialog(false);
+      setDeleting(false);
+    }
+  };
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -229,8 +249,113 @@ export default function ProfileClient({ user, dbUser }) {
               </motion.button>
             </form>
           </motion.div>
+
+          {/* Privacy & Personal Data Section (RGPD) */}
+          <motion.div
+            variants={itemVariants}
+            className="mt-8 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200"
+          >
+            <h3 className="text-base font-black text-primary mb-2 flex items-center gap-2">
+              <div className="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
+                <i className="fa-solid fa-shield-halved text-sm"></i>
+              </div>
+              Confidentialité et données personnelles
+            </h3>
+            <p className="text-sm text-slate-500 mb-6">
+              Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de portabilité et de suppression de vos données.
+            </p>
+
+            <div className="space-y-4">
+              {/* Export */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-primary flex items-center gap-2">
+                    <i className="fa-solid fa-download text-secondary"></i>
+                    Exporter mes données
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Téléchargez l&apos;ensemble de vos données au format JSON (article 20 RGPD).
+                  </p>
+                </div>
+                <a
+                  href="/api/profile/export"
+                  download
+                  className="shrink-0 px-5 py-2.5 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 transition-all text-sm flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-file-arrow-down text-xs"></i>
+                  Exporter
+                </a>
+              </div>
+
+              {/* Delete */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-red-50 border border-red-200">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-red-700 flex items-center gap-2">
+                    <i className="fa-solid fa-triangle-exclamation"></i>
+                    Supprimer mon compte
+                  </p>
+                  <p className="text-xs text-red-600/80 mt-1">
+                    Votre compte sera anonymisé. Certaines données peuvent être conservées pour répondre à nos obligations légales.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="shrink-0 px-5 py-2.5 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all text-sm flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-trash text-xs"></i>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </motion.div>
+
+      {/* Delete confirmation dialog */}
+      <AnimatePresence>
+        {showDeleteDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            onClick={() => !deleting && setShowDeleteDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 mb-4">
+                <i className="fa-solid fa-triangle-exclamation text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-black text-primary mb-2">Confirmer la suppression</h3>
+              <p className="text-sm text-slate-500 mb-6">
+                Cette action est <strong className="text-red-600">irréversible</strong>. Vos données personnelles seront anonymisées et vous serez déconnecté. Souhaitez-vous continuer&nbsp;?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={deleting}
+                  className="flex-1 px-5 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="flex-1 px-5 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleting && <i className="fa-solid fa-spinner fa-spin"></i>}
+                  {deleting ? 'Suppression...' : 'Confirmer'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

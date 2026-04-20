@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
@@ -114,7 +114,12 @@ export default function DemandeWizardClient({ user, dbUser }) {
     }
     if (stepIndex === 2) {
       if (!form.companyName.trim()) errs.companyName = t('espace.wizard.errors.required');
-      if (!/^\d{9}$/.test(form.siren.replace(/\s/g, ''))) errs.siren = t('espace.wizard.errors.invalidSiren');
+      {
+        const sirenDigits = form.siren.replace(/\D/g, '');
+        if (sirenDigits.length !== 9 && sirenDigits.length !== 14) {
+          errs.siren = t('espace.wizard.errors.invalidSiren');
+        }
+      }
       if (!form.legalForm) errs.legalForm = t('espace.wizard.errors.required');
       if (!form.sector) errs.sector = t('espace.wizard.errors.required');
     }
@@ -158,7 +163,7 @@ export default function DemandeWizardClient({ user, dbUser }) {
       const body = {
         productType: form.productType,
         companyName: form.companyName.trim(),
-        siren: form.siren.replace(/\s/g, ''),
+        siren: form.siren.replace(/\D/g, ''),
         legalForm: form.legalForm,
         sector: isRcPro ? form.sector_rcpro : form.sector,
         description: isRcPro
@@ -491,6 +496,59 @@ function StepProject({ form, update, errors, t }) {
 // ─── STEP 3: COMPANY ────────────────────────────────────
 
 function StepCompany({ form, update, errors, t }) {
+  const [sirenLoading, setSirenLoading] = useState(false);
+  const [sirenFound, setSirenFound] = useState(null);
+  const [sirenError, setSirenError] = useState(null);
+  const lastLookupRef = useRef('');
+
+  const handleSirenBlur = useCallback(async () => {
+    const digits = form.siren.replace(/\D/g, '');
+    // Accept 9 (SIREN) or 14 (SIRET). If 9, pad with "00001" (siège social par défaut)
+    if (digits.length !== 9 && digits.length !== 14) {
+      setSirenFound(null);
+      setSirenError(null);
+      return;
+    }
+
+    const siretToLookup = digits.length === 9 ? digits + '00001' : digits;
+    if (lastLookupRef.current === siretToLookup) return;
+    lastLookupRef.current = siretToLookup;
+
+    setSirenLoading(true);
+    setSirenError(null);
+    setSirenFound(null);
+
+    try {
+      const res = await fetch(`/api/siret/${siretToLookup}`);
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setSirenError(data.error || 'Entreprise introuvable');
+        return;
+      }
+
+      // Auto-fill company name
+      if (data.raisonSociale) {
+        update('companyName', data.raisonSociale);
+      }
+
+      // Auto-fill legalForm if matches one of our predefined options
+      if (data.formeJuridique) {
+        const upper = data.formeJuridique.toUpperCase();
+        const matchedForm = LEGAL_FORMS.find((lf) => upper.includes(lf.toUpperCase()));
+        if (matchedForm) {
+          update('legalForm', matchedForm);
+        }
+      }
+
+      setSirenFound(data.raisonSociale || 'Entreprise trouvée');
+    } catch (err) {
+      setSirenError('Erreur lors de la recherche');
+    } finally {
+      setSirenLoading(false);
+    }
+  }, [form.siren, update]);
+
   return (
     <div>
       <h2 className="text-xl font-bold text-primary mb-2">
@@ -506,13 +564,66 @@ function StepCompany({ form, update, errors, t }) {
           placeholder={t('espace.wizard.companyNamePlaceholder')}
           error={errors.companyName}
         />
-        <FieldInput
-          label={t('espace.wizard.siren')}
-          value={form.siren}
-          onChange={(v) => update('siren', v.replace(/[^\d\s]/g, '').slice(0, 11))}
-          placeholder="123 456 789"
-          error={errors.siren}
-        />
+        <div>
+          <label className="block text-sm font-medium text-primary mb-1.5">
+            {t('espace.wizard.siren')}
+            <span className="text-slate-400 font-normal ml-1">(SIREN 9 chiffres ou SIRET 14 chiffres)</span>
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              value={form.siren}
+              onChange={(e) => {
+                const v = e.target.value.replace(/[^\d\s]/g, '').slice(0, 17);
+                update('siren', v);
+                // Reset indicators when user types again
+                setSirenFound(null);
+                setSirenError(null);
+              }}
+              onBlur={handleSirenBlur}
+              placeholder="123 456 789 00012"
+              className={`
+                w-full px-4 py-3 rounded-xl border text-sm transition-all outline-none pr-10
+                ${errors.siren
+                  ? 'border-red-300 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                  : sirenFound
+                    ? 'border-accent bg-accent/5 focus:border-accent focus:ring-2 focus:ring-accent/20'
+                    : 'border-slate-200 bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/20'
+                }
+              `}
+            />
+            {sirenLoading && (
+              <i className="fa-solid fa-spinner fa-spin absolute right-4 top-1/2 -translate-y-1/2 text-sm text-secondary" />
+            )}
+            {!sirenLoading && sirenFound && (
+              <i className="fa-solid fa-circle-check absolute right-4 top-1/2 -translate-y-1/2 text-sm text-accent" />
+            )}
+          </div>
+          {sirenLoading && (
+            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+              <i className="fa-solid fa-spinner fa-spin text-[10px]" />
+              Recherche...
+            </p>
+          )}
+          {!sirenLoading && sirenFound && (
+            <p className="text-xs text-accent mt-1 flex items-center gap-1 font-medium">
+              <i className="fa-solid fa-circle-check text-[10px]" />
+              Entreprise trouvée : {sirenFound}
+            </p>
+          )}
+          {!sirenLoading && sirenError && (
+            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+              <i className="fa-solid fa-circle-exclamation text-[10px]" />
+              {sirenError}
+            </p>
+          )}
+          {errors.siren && !sirenError && (
+            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+              <i className="fa-solid fa-circle-exclamation text-[10px]" />
+              {errors.siren}
+            </p>
+          )}
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <FieldSelect
             label={t('espace.wizard.legalForm')}

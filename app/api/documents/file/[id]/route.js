@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { syncUser, isAdmin } from '@/lib/users';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { getFileUrl, readFileBuffer, storageMode } from '@/lib/storage';
 
 /**
  * GET /api/documents/file/[id]
  * Sert un document de façon sécurisée — authentification requise, accès propriétaire ou admin.
+ * - Mode Supabase : redirige (302) vers une URL signée temporaire.
+ * - Mode local : streame le fichier en réponse directe.
  */
 export async function GET(request, { params }) {
   try {
@@ -39,8 +40,14 @@ export async function GET(request, { params }) {
       return new NextResponse('Accès non autorisé', { status: 403 });
     }
 
-    const filePath = join(process.cwd(), 'private', 'uploads', document.fileUrl);
-    const fileBuffer = await readFile(filePath);
+    // Supabase : redirection vers URL signée
+    if (storageMode === 'supabase') {
+      const signedUrl = await getFileUrl(document.fileUrl, 3600);
+      return NextResponse.redirect(signedUrl, 302);
+    }
+
+    // Local : lecture buffer et streaming
+    const fileBuffer = await readFileBuffer(document.fileUrl);
 
     return new NextResponse(fileBuffer, {
       headers: {

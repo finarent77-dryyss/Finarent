@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { syncUser } from '@/lib/users';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
 import { generateReference } from '@/lib/reference';
+import { calculateScore } from '@/lib/scoring';
 
 /**
  * GET /api/applications
@@ -103,18 +104,26 @@ export async function POST(request) {
       attempts++;
     } while (attempts < 5);
 
+    // Pré-qualification automatique (scoring 0-100)
+    const applicationDraft = {
+      userId: dbUser.id,
+      productType: body.productType,
+      companyName: body.companyName.trim(),
+      siren: body.siren.replace(/\s/g, ''),
+      legalForm: body.legalForm || null,
+      sector: body.sector || null,
+      description: body.description?.trim() || null,
+      amount: body.amount ? Number(body.amount) : null,
+      duration: body.duration ? Number(body.duration) : null,
+      equipmentType: body.equipmentType?.trim() || null,
+    };
+    const { score: scorePreQual, label: scoreLabel } = calculateScore(applicationDraft, []);
+
     const application = await prisma.application.create({
       data: {
-        userId: dbUser.id,
-        productType: body.productType,
-        companyName: body.companyName.trim(),
-        siren: body.siren.replace(/\s/g, ''),
-        legalForm: body.legalForm || null,
-        sector: body.sector || null,
-        description: body.description?.trim() || null,
-        amount: body.amount ? Number(body.amount) : null,
-        duration: body.duration ? Number(body.duration) : null,
-        equipmentType: body.equipmentType?.trim() || null,
+        ...applicationDraft,
+        scorePreQual,
+        scoreLabel,
       },
     });
 

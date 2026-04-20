@@ -34,6 +34,7 @@ const itemVariants = { hidden: { y: 15, opacity: 0 }, visible: { y: 0, opacity: 
 export default function AdminDashboardClient() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [slaAlerts, setSlaAlerts] = useState({ level1: [], level2: [], level3: [] });
 
   useEffect(() => {
     fetch('/api/admin/stats')
@@ -41,6 +42,11 @@ export default function AdminDashboardClient() {
       .then(setStats)
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    fetch('/api/admin/sla-alerts')
+      .then(r => r.ok ? r.json() : { level1: [], level2: [], level3: [] })
+      .then(setSlaAlerts)
+      .catch(() => {});
   }, []);
 
   if (loading) {
@@ -74,6 +80,52 @@ export default function AdminDashboardClient() {
           </Link>
         )}
       </motion.div>
+
+      {/* SLA Alerts */}
+      {(slaAlerts.level1.length + slaAlerts.level2.length + slaAlerts.level3.length) > 0 && (
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <i className="fa-solid fa-triangle-exclamation text-red-500"></i>
+              <h3 className="text-base font-bold text-primary">Alertes SLA</h3>
+            </div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              {slaAlerts.level1.length + slaAlerts.level2.length + slaAlerts.level3.length} en cours
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { level: 1, count: slaAlerts.level1.length, label: 'Non traité > 4h', dot: 'bg-red-500', text: 'text-red-500', bar: 'bg-red-500', border: 'border-red-200', soft: 'bg-red-50' },
+              { level: 2, count: slaAlerts.level2.length, label: 'Analyse > 24h', dot: 'bg-secondary', text: 'text-secondary', bar: 'bg-secondary', border: 'border-secondary/20', soft: 'bg-secondary/5' },
+              { level: 3, count: slaAlerts.level3.length, label: 'Documents > 48h', dot: 'bg-slate-500', text: 'text-slate-700', bar: 'bg-slate-500', border: 'border-slate-200', soft: 'bg-slate-50' },
+            ].map(a => (
+              <Link
+                key={a.level}
+                href={`/admin/demandes?sla=${a.level}`}
+                className={`block rounded-xl p-4 border ${a.border} ${a.soft} hover:shadow-md transition-all group`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${a.dot} ${a.count > 0 ? 'animate-pulse' : ''}`}></span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${a.text}`}>Niveau {a.level}</span>
+                  </div>
+                  <i className={`fa-solid fa-arrow-right text-xs ${a.text} opacity-50 group-hover:opacity-100 transition-opacity`}></i>
+                </div>
+                <div className={`text-3xl font-black ${a.text}`}>{a.count}</div>
+                <div className="text-xs font-semibold text-slate-500 mt-0.5">{a.label}</div>
+                <div className="h-1.5 bg-white rounded-full overflow-hidden mt-3">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, a.count * 10)}%` }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    className={`h-full ${a.bar} rounded-full`}
+                  />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">

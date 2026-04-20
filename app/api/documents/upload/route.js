@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { uploadFile } from '@/lib/storage';
 import { syncUser, isAdmin } from '@/lib/users';
 
 const TYPE_MAP = { kbis: 'KBIS', rib: 'RIB', cni: 'CNI', bilan: 'BILAN', contrat: 'CONTRAT', autre: 'AUTRE' };
@@ -77,14 +76,10 @@ export async function POST(request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const timestamp = Date.now();
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const uniqueFilename = `${timestamp}_${sanitizedFilename}`;
 
-    // Stockage dans un dossier PRIVÉ (hors public/) — non accessible directement via HTTP
-    const uploadDir = join(process.cwd(), 'private', 'uploads');
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(join(uploadDir, uniqueFilename), buffer);
+    // Stockage via l'adaptateur (Supabase si configuré, sinon local)
+    const stored = await uploadFile(buffer, sanitizedFilename, file.type, applicationId);
 
     const document = await prisma.document.create({
       data: {
@@ -92,7 +87,7 @@ export async function POST(request) {
         uploadedBy: dbUser.id,
         type: docType,
         fileName: file.name,
-        fileUrl: uniqueFilename, // nom de fichier uniquement, servi via /api/documents/file/[id]
+        fileUrl: stored.path, // chemin du storage (Supabase) ou chemin complet local
         fileSize: file.size,
         mimeType: file.type,
       },
