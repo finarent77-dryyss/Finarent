@@ -81,6 +81,51 @@ export default function AdminDashboardClient() {
         )}
       </motion.div>
 
+      {/* À traiter aujourd'hui */}
+      {(stats?.todayActions?.total || 0) > 0 && (
+        <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#0A2540] rounded-2xl p-5 mb-6 text-white relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                <i className="fa-solid fa-bolt text-amber-400"></i>
+              </div>
+              <div>
+                <h3 className="text-base font-black">À traiter aujourd'hui</h3>
+                <p className="text-xs text-white/50">{stats.todayActions.total} action{stats.todayActions.total > 1 ? 's' : ''} prioritaire{stats.todayActions.total > 1 ? 's' : ''}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { count: stats.todayActions.urgentPending, label: 'Dossiers PENDING > 4h', icon: 'fa-hourglass-half', href: '/admin/demandes?sla=1', tone: 'red' },
+                { count: stats.todayActions.urgentDocs, label: 'Docs en attente > 7j', icon: 'fa-folder-open', href: '/admin/demandes?status=DOCUMENTS_NEEDED', tone: 'amber' },
+                { count: stats.todayActions.expiringSoonOffers, label: 'Offres expirent < 24h', icon: 'fa-clock', href: '/admin/offers?filter=expiring', tone: 'amber' },
+                { count: stats.todayActions.staleOffers, label: 'Offres sans réponse > 48h', icon: 'fa-bell', href: '/admin/offers?filter=stale', tone: 'slate' },
+              ].map((action, idx) => {
+                const colors = action.tone === 'red'
+                  ? 'bg-red-500/10 text-red-300 border-red-500/30 hover:bg-red-500/20'
+                  : action.tone === 'amber'
+                    ? 'bg-amber-500/10 text-amber-200 border-amber-500/30 hover:bg-amber-500/20'
+                    : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10';
+                return (
+                  <Link
+                    key={idx}
+                    href={action.href}
+                    className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${colors} ${action.count === 0 ? 'opacity-40 pointer-events-none' : ''}`}
+                  >
+                    <i className={`fa-solid ${action.icon} mt-0.5`}></i>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-2xl font-black tabular-nums">{action.count}</div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider leading-tight mt-0.5">{action.label}</div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* SLA Alerts */}
       {(slaAlerts.level1.length + slaAlerts.level2.length + slaAlerts.level3.length) > 0 && (
         <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
@@ -241,22 +286,22 @@ export default function AdminDashboardClient() {
       </div>
 
       {/* Key Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
         <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Montant moyen</div>
-          <div className="text-2xl font-black text-secondary">
+          <div className="text-xl font-black text-secondary">
             {(stats?.averageAmount || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
           </div>
           <div className="text-xs text-slate-400 mt-1">Sur dossiers validés</div>
         </motion.div>
         <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Taux de conversion</div>
-          <div className="text-2xl font-black text-accent">{conversionRate}%</div>
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Conversion</div>
+          <div className="text-xl font-black text-accent">{conversionRate}%</div>
           <div className="text-xs text-slate-400 mt-1">Finalisés / Total</div>
         </motion.div>
         <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Dossiers ce mois</div>
-          <div className="text-2xl font-black text-secondary">
+          <div className="text-xl font-black text-secondary">
             {(() => {
               const now = new Date();
               const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -266,7 +311,136 @@ export default function AdminDashboardClient() {
           </div>
           <div className="text-xs text-slate-400 mt-1">Depuis le 1er du mois</div>
         </motion.div>
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Délai traitement</div>
+          <div className="text-xl font-black text-primary">
+            {stats?.avgProcessingHours > 0 ? `${stats.avgProcessingHours}h` : '—'}
+          </div>
+          <div className="text-xs text-slate-400 mt-1">Moy. dépôt → fonds</div>
+        </motion.div>
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Délai signature</div>
+          <div className="text-xl font-black text-primary">
+            {stats?.avgSignatureHours > 0 ? `${stats.avgSignatureHours}h` : '—'}
+          </div>
+          <div className="text-xs text-slate-400 mt-1">Moy. envoi → signé</div>
+        </motion.div>
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Taux d'abandon</div>
+          <div className={`text-xl font-black ${(stats?.abandonmentRate || 0) > 25 ? 'text-red-500' : 'text-slate-700'}`}>
+            {stats?.abandonmentRate ?? 0}%
+          </div>
+          <div className="text-xs text-slate-400 mt-1">Refusés + stagnants 30j</div>
+        </motion.div>
       </div>
+
+      {/* Conversion Funnel */}
+      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-8">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-base font-bold text-primary">Funnel de conversion</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Cumul des dossiers passés par chaque étape</p>
+          </div>
+          {stats?.stagnantCount > 0 && (
+            <Link href="/admin/demandes?stagnant=1" className="text-xs font-bold text-red-500 hover:underline">
+              <i className="fa-solid fa-triangle-exclamation mr-1"></i>
+              {stats.stagnantCount} dossier{stats.stagnantCount > 1 ? 's' : ''} stagnant{stats.stagnantCount > 1 ? 's' : ''}
+            </Link>
+          )}
+        </div>
+        {(stats?.funnel || []).length > 0 && stats.funnel[0].count > 0 ? (
+          <div className="space-y-3">
+            {stats.funnel.map((step, idx) => {
+              const top = stats.funnel[0].count;
+              const prev = idx === 0 ? null : stats.funnel[idx - 1];
+              const widthPct = top > 0 ? (step.count / top) * 100 : 0;
+              const conversionFromPrev = prev && prev.count > 0 ? Math.round((step.count / prev.count) * 100) : null;
+              const colors = ['bg-secondary', 'bg-secondary/85', 'bg-secondary/70', 'bg-accent/80', 'bg-accent', 'bg-emerald-600'];
+              return (
+                <div key={step.status} className="relative">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-primary">{step.label}</span>
+                      {conversionFromPrev !== null && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${conversionFromPrev >= 70 ? 'bg-emerald-100 text-emerald-700' : conversionFromPrev >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                          {conversionFromPrev}% vs étape précédente
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-bold text-primary tabular-nums">{step.count}</span>
+                  </div>
+                  <div className="h-7 bg-slate-100 rounded-lg overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${widthPct}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut', delay: idx * 0.08 }}
+                      className={`h-full ${colors[idx]} flex items-center px-3`}
+                    >
+                      {widthPct > 15 && (
+                        <span className="text-xs font-bold text-white tabular-nums">{Math.round(widthPct)}%</span>
+                      )}
+                    </motion.div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="py-12 text-center text-slate-400">
+            <i className="fa-solid fa-filter text-3xl mb-2 block"></i>
+            <p className="text-sm">Aucun dossier dans le funnel</p>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Performance par opérateur */}
+      {(stats?.topOperators || []).length > 0 && (
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-8">
+          <h3 className="text-base font-bold text-primary mb-4">Performance par opérateur</h3>
+          {(() => {
+            const ops = stats.topOperators;
+            const maxActions = Math.max(...ops.map((o) => o.actions), 1);
+            const ROLE_BADGE = {
+              ADMIN: { label: 'Admin', cls: 'bg-primary/10 text-primary' },
+              PARTNER: { label: 'Partenaire', cls: 'bg-secondary/10 text-secondary' },
+              INSURER: { label: 'Assureur', cls: 'bg-accent/10 text-accent' },
+            };
+            return (
+              <div className="space-y-3">
+                {ops.map((op, idx) => {
+                  const badge = ROLE_BADGE[op.role] || { label: op.role, cls: 'bg-slate-100 text-slate-600' };
+                  const pct = (op.actions / maxActions) * 100;
+                  return (
+                    <div key={op.id} className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-primary text-sm truncate">{op.name}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.cls}`}>{badge.label}</span>
+                        </div>
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${pct}%` }}
+                            transition={{ duration: 0.7, ease: 'easeOut', delay: idx * 0.1 }}
+                            className="h-full bg-secondary rounded-full"
+                          />
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-lg font-black text-primary tabular-nums">{op.actions}</div>
+                        <div className="text-[10px] text-slate-400 uppercase tracking-wider">actions</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </motion.div>
+      )}
 
       {/* Analytics: Monthly Trend & Top Sectors */}
       <div className="grid lg:grid-cols-2 gap-6 mb-8">

@@ -156,6 +156,32 @@ export default function ContactClient() {
           </div>
         </section>
 
+        {/* 3 contact cards */}
+        <section className="py-8 bg-white">
+          <div className="container mx-auto px-6">
+            <div className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-4">
+              {[
+                { icon: 'fa-phone', title: 'Téléphone', value: t('common.phone'), sub: 'Lun-Ven 9h-18h', href: 'tel:0123456789', color: 'from-secondary to-secondary/80' },
+                { icon: 'fa-envelope', title: 'Email', value: 'contact@finarent.fr', sub: 'Réponse sous 1h ouvrée', href: 'mailto:contact@finarent.fr', color: 'from-accent to-emerald-700' },
+                { icon: 'fa-location-dot', title: 'Adresse', value: '12 rue de la République', sub: '75011 Paris', href: '#map', color: 'from-primary to-[#0A2540]' },
+              ].map((c, i) => (
+                <ScrollReveal key={i} delay={i * 0.07}>
+                  <a href={c.href} className="group flex items-start gap-4 p-5 bg-white rounded-2xl shadow-md hover:shadow-2xl border border-gray-100 hover:border-secondary/30 hover:-translate-y-1 transition-all duration-300">
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.color} flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform`}>
+                      <i className={`fa-solid ${c.icon} text-lg`}></i>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-0.5">{c.title}</div>
+                      <div className="font-bold text-primary text-sm group-hover:text-secondary transition-colors truncate">{c.value}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{c.sub}</div>
+                    </div>
+                  </a>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="py-12 bg-white">
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
@@ -349,6 +375,68 @@ export default function ContactClient() {
                 <FAQItem question={t('contact.faq1Q')} answer={t('contact.faq1A')} />
                 <FAQItem question={t('contact.faq2Q')} answer={t('contact.faq2A')} />
                 <FAQItem question={t('contact.faq3Q')} answer={t('contact.faq3A')} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Map + adresse */}
+        <section id="map" className="py-12 bg-white">
+          <div className="container mx-auto px-6">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-8">
+                <div className="inline-block px-3 py-1.5 bg-accent/10 rounded-full mb-3">
+                  <span className="text-accent font-bold text-xs uppercase tracking-widest">Nous rencontrer</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Notre bureau parisien</h2>
+                <p className="text-gray-600">Rendez-vous physique sur demande, du lundi au vendredi.</p>
+              </div>
+              <div className="grid lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 rounded-2xl overflow-hidden shadow-xl border border-gray-100 aspect-video lg:aspect-auto lg:min-h-[400px]">
+                  <iframe
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=2.3690%2C48.8550%2C2.3850%2C48.8650&amp;layer=mapnik&amp;marker=48.8600%2C2.3770"
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                    title="Localisation Finarent — République, Paris"
+                  ></iframe>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-primary to-[#0A2540] rounded-2xl p-6 text-white shadow-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                        <i className="fa-solid fa-location-dot text-accent"></i>
+                      </div>
+                      <h3 className="font-bold text-lg">Finarent</h3>
+                    </div>
+                    <div className="space-y-2 text-sm text-white/80">
+                      <div className="flex items-start gap-2">
+                        <i className="fa-solid fa-building text-accent text-xs mt-1"></i>
+                        <span>12 rue de la République<br />75011 Paris</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-train text-accent text-xs"></i>
+                        <span>Métro République (3, 5, 8, 9, 11)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-clock text-accent text-xs"></i>
+                        <span>Lun-Ven · 9h–18h</span>
+                      </div>
+                    </div>
+                  </div>
+                  <a
+                    href="https://www.openstreetmap.org/?mlat=48.8600&amp;mlon=2.3770#map=16/48.8600/2.3770"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-gray-200 hover:border-secondary hover:bg-secondary hover:text-white rounded-xl text-sm font-bold text-primary transition-all"
+                  >
+                    <i className="fa-solid fa-diamond-turn-right"></i>
+                    Itinéraire
+                  </a>
+                  <Link href="/contact#form" className="flex items-center justify-center gap-2 w-full py-3 bg-accent hover:bg-accent/90 rounded-xl text-sm font-bold text-white transition-all shadow-lg">
+                    <i className="fa-solid fa-calendar-plus"></i>
+                    Prendre rendez-vous
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

@@ -133,7 +133,7 @@ export default function ProfileClient({ user, dbUser }) {
             <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
               <div className="relative">
                 <img
-                  src={user.picture || '/Finassurs_logo.jpeg'}
+                  src={user.picture || '/finarent-logo.jpg'}
                   alt={user.name}
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-3 border-white shadow-lg object-cover"
                 />

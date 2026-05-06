@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useFinancingCalculator } from '@/hooks/useFinancingCalculator';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
+import AmortizationChart from '@/components/ui/AmortizationChart';
 import { useTranslation } from '@/lib/i18n';
 
 export default function SimulatorClient() {
@@ -98,6 +99,19 @@ export default function SimulatorClient() {
                     </button>
                   </div>
                 </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Graphique amortissement */}
+            <ScrollReveal>
+              <div className="max-w-5xl mx-auto mt-8">
+                <AmortizationChart
+                  amount={amount}
+                  duration={duration}
+                  interestRate={interestRate}
+                  monthlyPayment={monthlyPayment}
+                  totalInterest={totalInterest}
+                />
               </div>
             </ScrollReveal>
           </div>

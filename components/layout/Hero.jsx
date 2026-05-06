@@ -17,12 +17,18 @@ export default function Hero() {
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           <div className="space-y-6 sm:space-y-10">
-            <div className="inline-flex items-center space-x-2 sm:space-x-3 bg-white/5 backdrop-blur-xl px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 shadow-2xl animate-fade-in">
-              <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-accent"></span>
-              </span>
-              <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-white/80">{t('hero.badge')}</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center space-x-2 sm:space-x-3 bg-white/5 backdrop-blur-xl px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 shadow-2xl animate-fade-in">
+                <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-accent"></span>
+                </span>
+                <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-white/80">{t('hero.badge')}</span>
+              </div>
+              <div className="inline-flex items-center gap-2 bg-emerald-500/10 backdrop-blur-xl px-3 py-1.5 rounded-full border border-emerald-400/20">
+                <span className="text-emerald-400 text-xs">★★★★★</span>
+                <span className="text-[10px] sm:text-xs font-bold text-white/80 tracking-wider"><span className="text-emerald-400">4.9/5</span> · 1500+ avis</span>
+              </div>
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black leading-[1.1] tracking-tight">
@@ -75,8 +81,8 @@ export default function Hero() {
                 <div className="relative h-[600px] w-full rounded-[36px] overflow-hidden">
                   <img
                     className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-2000"
-                    src="/hero_business_team_premium_v2_1772271137874.png"
-                    alt="Finassur Excellence"
+                    src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=1200&q=80"
+                    alt="Cheffe d'entreprise française accompagnée par Finarent pour son financement"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
 

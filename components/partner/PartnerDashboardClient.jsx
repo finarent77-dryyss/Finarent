@@ -56,9 +56,17 @@ export default function PartnerDashboardClient() {
   return (
     <motion.div initial="hidden" animate="visible" variants={containerVariants} className="max-w-6xl mx-auto">
       {/* Header */}
-      <motion.div variants={itemVariants} className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-black text-primary">Espace Partenaire</h1>
-        <p className="text-gray-400 text-sm mt-1">Suivez vos dossiers transmis par Finassur</p>
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-primary">Espace Partenaire</h1>
+          <p className="text-gray-400 text-sm mt-1">Suivez vos dossiers transmis par Finarent</p>
+        </div>
+        {(stats?.pendingActions || 0) > 0 && (
+          <Link href="/partner/applications" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-xl text-sm font-bold border border-amber-200 hover:bg-amber-100 transition-all">
+            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+            {stats.pendingActions} dossier{stats.pendingActions > 1 ? 's' : ''} à traiter
+          </Link>
+        )}
       </motion.div>
 
       {/* Stat Cards */}
@@ -142,36 +150,123 @@ export default function PartnerDashboardClient() {
           </div>
         </motion.div>
 
-        {/* Status Distribution */}
+        {/* Funnel partner-side */}
         <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-base font-bold text-primary mb-4">Répartition des statuts</h3>
-          {stats?.total > 0 ? (
-            <div className="space-y-3">
-              {[
-                { label: 'Transmis', count: stats?.transmitted || 0, color: 'bg-secondary' },
-                { label: 'Validés', count: stats?.approved || 0, color: 'bg-green-500' },
-                { label: 'Finalisés', count: stats?.completed || 0, color: 'bg-slate-500' },
-              ].map((item) => (
-                <div key={item.label}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="font-medium text-gray-600">{item.label}</span>
-                    <span className="font-bold text-primary">{item.count}</span>
+          <h3 className="text-base font-bold text-primary mb-1">Funnel partenaire</h3>
+          <p className="text-xs text-slate-400 mb-4">De la transmission à la finalisation</p>
+          {(stats?.funnel || []).length > 0 && stats.funnel[0].count > 0 ? (
+            <div className="space-y-2.5">
+              {stats.funnel.map((step, idx) => {
+                const top = stats.funnel[0].count;
+                const prev = idx === 0 ? null : stats.funnel[idx - 1];
+                const widthPct = top > 0 ? (step.count / top) * 100 : 0;
+                const conv = prev && prev.count > 0 ? Math.round((step.count / prev.count) * 100) : null;
+                const colors = ['bg-secondary', 'bg-secondary/80', 'bg-accent/80', 'bg-emerald-600'];
+                return (
+                  <div key={idx}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-primary">{step.label}</span>
+                        {conv !== null && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${conv >= 70 ? 'bg-emerald-100 text-emerald-700' : conv >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                            {conv}%
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs font-bold text-primary tabular-nums">{step.count}</span>
+                    </div>
+                    <div className="h-5 bg-slate-100 rounded-md overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${widthPct}%` }}
+                        transition={{ duration: 0.7, ease: 'easeOut', delay: idx * 0.07 }}
+                        className={`h-full ${colors[idx]}`}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${stats.total > 0 ? (item.count / stats.total) * 100 : 0}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                      className={`h-full rounded-full ${item.color}`}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="py-8 text-center text-gray-400">
-              <i className="fa-solid fa-chart-bar text-3xl mb-2 block"></i>
-              <p className="text-sm">Aucune donnée disponible</p>
+              <i className="fa-solid fa-filter text-3xl mb-2 block"></i>
+              <p className="text-sm">Aucun dossier dans le funnel</p>
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Top sectors + products */}
+      <div className="grid lg:grid-cols-2 gap-6 mb-8">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <h3 className="text-base font-bold text-primary mb-1">Top secteurs reçus</h3>
+          <p className="text-xs text-slate-400 mb-5">Provenance des dossiers transmis par Finarent</p>
+          {(stats?.topSectors || []).length > 0 ? (() => {
+            const max = Math.max(...stats.topSectors.map((s) => s.count), 1);
+            return (
+              <div className="space-y-3">
+                {stats.topSectors.map((s, idx) => {
+                  const pct = (s.count / max) * 100;
+                  return (
+                    <div key={s.sector || idx}>
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="font-medium text-slate-600">{s.sector || 'Non renseigné'}</span>
+                        <span className="font-bold text-primary tabular-nums">{s.count}</span>
+                      </div>
+                      <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.7, ease: 'easeOut', delay: idx * 0.08 }}
+                          className="h-full rounded-full bg-secondary"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })() : (
+            <div className="py-8 text-center text-slate-400">
+              <i className="fa-solid fa-industry text-3xl mb-2 block"></i>
+              <p className="text-sm">Aucun secteur</p>
+            </div>
+          )}
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <h3 className="text-base font-bold text-primary mb-1">Mix produits</h3>
+          <p className="text-xs text-slate-400 mb-5">Répartition par type de financement</p>
+          {(stats?.topProducts || []).length > 0 ? (() => {
+            const total = stats.topProducts.reduce((s, p) => s + p.count, 0) || 1;
+            const colors = ['bg-secondary', 'bg-accent', 'bg-primary', 'bg-amber-500', 'bg-slate-500', 'bg-rose-500'];
+            return (
+              <div className="space-y-3">
+                {stats.topProducts.map((p, idx) => {
+                  const pct = Math.round((p.count / total) * 100);
+                  return (
+                    <div key={p.productType}>
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="font-medium text-slate-600">{p.label}</span>
+                        <span className="font-bold text-primary tabular-nums">{p.count} <span className="text-xs text-slate-400 font-normal">({pct}%)</span></span>
+                      </div>
+                      <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.7, ease: 'easeOut', delay: idx * 0.08 }}
+                          className={`h-full rounded-full ${colors[idx % colors.length]}`}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })() : (
+            <div className="py-8 text-center text-slate-400">
+              <i className="fa-solid fa-box text-3xl mb-2 block"></i>
+              <p className="text-sm">Aucun produit</p>
             </div>
           )}
         </motion.div>
@@ -206,6 +301,54 @@ export default function PartnerDashboardClient() {
           </div>
         </div>
       </motion.div>
+
+      {/* Commission Timeline */}
+      {(stats?.commissionTimeline || []).some((m) => m.paid > 0 || m.pending > 0) && (
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-8">
+          <h3 className="text-base font-bold text-primary mb-1">Commissions mensuelles</h3>
+          <p className="text-xs text-slate-400 mb-5">Encaissé vs en attente sur 6 mois</p>
+          {(() => {
+            const data = stats.commissionTimeline;
+            const max = Math.max(...data.map((m) => m.paid + m.pending), 1);
+            const FR_MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+            return (
+              <>
+                <div className="flex items-end gap-3 h-44">
+                  {data.map((m, i) => {
+                    const totalH = ((m.paid + m.pending) / max) * 100;
+                    const paidH = (m.paid + m.pending) > 0 ? (m.paid / (m.paid + m.pending)) * 100 : 0;
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center justify-end h-full gap-2">
+                        <span className="text-[11px] font-bold text-primary">{Math.round(m.paid + m.pending).toLocaleString('fr-FR')}€</span>
+                        <div className="w-full flex flex-col-reverse rounded-t-lg overflow-hidden" style={{ height: `${Math.max(totalH, 4)}%` }}>
+                          <motion.div
+                            initial={{ height: 0 }}
+                            animate={{ height: `${paidH}%` }}
+                            transition={{ duration: 0.6, delay: i * 0.06 }}
+                            className="w-full bg-accent"
+                          />
+                          <div className="w-full bg-secondary/60 flex-1" />
+                        </div>
+                        <span className="text-[10px] font-semibold text-slate-400">{FR_MONTHS[m.month]}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center justify-center gap-5 mt-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="w-3 h-3 rounded-sm bg-accent"></span>
+                    <span className="text-slate-600 font-medium">Encaissées</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="w-3 h-3 rounded-sm bg-secondary/60"></span>
+                    <span className="text-slate-600 font-medium">En attente</span>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </motion.div>
+      )}
 
       {/* Monthly Performance Chart */}
       <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-8">

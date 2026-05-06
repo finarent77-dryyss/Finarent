@@ -28,12 +28,28 @@ export default function SolutionsClient() {
               const key = solutionKeys[idx];
               const translated = t(`data.solutions.${key}`);
               return (
-                <Link key={sol.id} href={`/solutions/${sol.id}`} className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border border-gray-100 hover:border-secondary">
+                <Link key={sol.id} href={`/solutions/${sol.id}`} className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border border-gray-100 hover:border-secondary relative">
+                  {sol.monthlyFrom && (
+                    <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 text-accent rounded-full text-xs font-bold">
+                      <i className="fa-solid fa-tag text-[10px]"></i>
+                      {sol.monthlyFrom === 'Sur devis' ? sol.monthlyFrom : `dès ${sol.monthlyFrom}`}
+                    </div>
+                  )}
                   <div className={`w-16 h-16 bg-gradient-to-br ${sol.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                     <i className={`fa-solid ${sol.icon} text-white text-3xl`}></i>
                   </div>
                   <h3 className="text-2xl font-bold text-primary mb-3">{translated.title}</h3>
                   <p className="text-gray-600 mb-4">{translated.description}</p>
+                  <div className="flex flex-wrap gap-3 mb-4 text-xs">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full font-medium">
+                      <i className="fa-solid fa-coins text-secondary"></i>
+                      {sol.minAmount} – {sol.maxAmount}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full font-medium">
+                      <i className="fa-regular fa-calendar text-secondary"></i>
+                      {sol.duration}
+                    </span>
+                  </div>
                   <span className="text-secondary font-semibold inline-flex items-center gap-2">{t('solutions.learnMore')} <i className="fa-solid fa-arrow-right"></i></span>
                 </Link>
               );

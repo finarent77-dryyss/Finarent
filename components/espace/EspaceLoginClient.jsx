@@ -14,7 +14,7 @@ export default function EspaceLoginClient() {
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-secondary via-accent to-secondary"></div>
 
             <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-gray-100">
-              <img src="/Finassurs_logo.jpeg" alt="Finassur" className="h-10 w-auto object-contain" />
+              <img src="/finarent-logo.jpg" alt="Finarent" className="h-10 w-auto object-contain" />
             </div>
 
             <h1 className="text-3xl font-black text-primary mb-4 leading-tight">

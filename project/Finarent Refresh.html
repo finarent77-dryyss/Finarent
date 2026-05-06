@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Finarent · Refresh — exploration complète</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="ambient.jsx"></script>
+<script type="text/babel" src="heroes.jsx"></script>
+<script type="text/babel" src="dashboards.jsx"></script>
+<script type="text/babel" src="wizard.jsx"></script>
+<script type="text/babel" src="public-pages.jsx"></script>
+<script type="text/babel" src="espace-pages.jsx"></script>
+<script type="text/babel" src="admin-pages.jsx"></script>
+<script type="text/babel" src="extra-pages.jsx"></script>
+
+<script type="text/babel">
+const TWEAKS_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentHue": 165,
+  "accentChroma": 0.13,
+  "accentLight": 0.7,
+  "inkColor": "#0A2540",
+  "background": "warm",
+  "fontHeadline": "serif",
+  "buttonShape": "pill",
+  "density": "comfortable",
+  "showLogos": true,
+  "showLiveTicker": true,
+  "ctaPrimaryLabel": "Démarrer une simulation"
+}/*EDITMODE-END*/;
+
+const App = () => {
+  const [tweaks, setTweak] = useTweaks(TWEAKS_DEFAULTS);
+
+  React.useEffect(() => {
+    const r = document.documentElement;
+    const accent = `oklch(${tweaks.accentLight} ${tweaks.accentChroma} ${tweaks.accentHue})`;
+    const accentDeep = `oklch(${Math.max(0.3, tweaks.accentLight - 0.26)} ${tweaks.accentChroma * 0.7} ${tweaks.accentHue})`;
+    const accentSoft = `oklch(${Math.min(0.96, tweaks.accentLight + 0.25)} ${tweaks.accentChroma * 0.4} ${tweaks.accentHue})`;
+    r.style.setProperty('--fr-accent', accent);
+    r.style.setProperty('--fr-accent-deep', accentDeep);
+    r.style.setProperty('--fr-accent-soft', accentSoft);
+    r.style.setProperty('--fr-ink', tweaks.inkColor);
+    r.style.setProperty('--fr-bg', tweaks.background === 'warm' ? '#FAF8F4' : tweaks.background === 'cool' ? '#F4F6F9' : '#FFFFFF');
+    document.body.dataset.tweakFontHeadline = tweaks.fontHeadline;
+    document.body.dataset.tweakButton = tweaks.buttonShape;
+    document.body.dataset.tweakDensity = tweaks.density;
+  }, [tweaks]);
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="overview" title="Finarent · Refresh complet" subtitle="Refonte intégrale 2026 — public, espace client, admin, partenaire, assureur. Identité conservée (bleu profond + accent vert), surface, mouvement et ambiance levés. Panneau Tweaks (icône en haut à droite) pour comparer les directions en direct." />
+
+        <DCSection id="brand" title="Brand · ouverture" subtitle="Page de marque, ambiance immersive — utilisée comme splash ou intro investisseur.">
+          <DCArtboard id="splash" label="00 · Splash · marque" width={1280} height={760}>
+            <PageSplash />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="heroes" title="Hero · landing page" subtitle="4 directions d'accroche, du plus éditorial au plus photographique. Toggle live ticker / partenaires via Tweaks.">
+          <DCArtboard id="hero-editorial" label="01 · Éditorial · serif + cas client" width={1280} height={760}>
+            <HeroEditorial />
+          </DCArtboard>
+          <DCArtboard id="hero-data" label="02 · Data · live ticker + comparator" width={1280} height={1040}>
+            <HeroData />
+          </DCArtboard>
+          <DCArtboard id="hero-minimal" label="03 · Minimal confiant · statement" width={1280} height={760}>
+            <HeroMinimal />
+          </DCArtboard>
+          <DCArtboard id="hero-photo" label="04 · Photographique · full-bleed" width={1280} height={760}>
+            <HeroPhoto />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="public" title="Pages publiques" subtitle="Le parcours marketing complet. Architecture rythmée — chaque page a son ambiance.">
+          <DCArtboard id="page-home" label="Home · immersive scroll" width={1280} height={2400}>
+            <PageHome />
+          </DCArtboard>
+          <DCArtboard id="page-solutions" label="Solutions · index produits" width={1280} height={1100}>
+            <PageSolutions />
+          </DCArtboard>
+          <DCArtboard id="page-sector" label="Secteur · BTP" width={1280} height={1100}>
+            <PageSectorDetail />
+          </DCArtboard>
+          <DCArtboard id="page-process" label="Process · timeline éditoriale" width={1280} height={1400}>
+            <PageProcess />
+          </DCArtboard>
+          <DCArtboard id="page-why" label="Why leasing · sombre" width={1280} height={1100}>
+            <PageWhyLeasing />
+          </DCArtboard>
+          <DCArtboard id="page-simulator" label="Simulateur" width={1280} height={1000}>
+            <PageSimulator />
+          </DCArtboard>
+          <DCArtboard id="page-comparateur" label="Comparateur · achat vs leasing" width={1280} height={1100}>
+            <PageComparateur />
+          </DCArtboard>
+          <DCArtboard id="page-testimonials" label="Témoignages clients" width={1280} height={1100}>
+            <PageTestimonials />
+          </DCArtboard>
+          <DCArtboard id="page-faq" label="FAQ" width={1280} height={1100}>
+            <PageFAQ />
+          </DCArtboard>
+          <DCArtboard id="page-contact" label="Contact" width={1280} height={900}>
+            <PageContact />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="auth" title="Auth · entrée" subtitle="Login dual-pane, ambiance immersive côté gauche.">
+          <DCArtboard id="page-login" label="Login · split" width={1280} height={760}>
+            <PageLogin />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="espace" title="Espace client" subtitle="Le côté connecté — éditorial mais opérationnel.">
+          <DCArtboard id="dash-client" label="Dashboard client · éditorial" width={1280} height={1100}>
+            <PageEspaceDashboard />
+          </DCArtboard>
+          <DCArtboard id="dossier" label="Dossier · détail timeline" width={1280} height={1300}>
+            <PageDossierDetail />
+          </DCArtboard>
+          <DCArtboard id="parrainage" label="Parrainage" width={1280} height={1000}>
+            <PageParrainage />
+          </DCArtboard>
+          <DCArtboard id="profile" label="Profil · sécurité" width={1280} height={1100}>
+            <PageProfile />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="wizard" title="Wizard · financement" subtitle="5 étapes avec simulation live. Cœur du parcours conversion.">
+          <DCArtboard id="wizard-1" label="Étape 3 · simulation en direct" width={1280} height={980}>
+            <Wizard />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="admin" title="Espace admin" subtitle="Le poste de pilotage interne — dashboards data-dense, kanban opérationnel.">
+          <DCArtboard id="dash-admin-overview" label="Admin · vue d'ensemble" width={1440} height={1500}>
+            <PageAdminDashboard />
+          </DCArtboard>
+          <DCArtboard id="dash-admin-old" label="Admin · variante data legacy" width={1280} height={1100}>
+            <DashboardData />
+          </DCArtboard>
+          <DCArtboard id="dash-admin-editorial" label="Variante éditoriale (lo-fi)" width={1280} height={1100}>
+            <DashboardEditorial />
+          </DCArtboard>
+          <DCArtboard id="kanban" label="Kanban · dossiers" width={1440} height={900}>
+            <PageAdminKanban />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="b2b" title="Espaces B2B" subtitle="Partenaires bancaires + assureurs — vues spécialisées.">
+          <DCArtboard id="partner" label="Partenaire · bancaire" width={1280} height={1300}>
+            <PagePartner />
+          </DCArtboard>
+          <DCArtboard id="insurer" label="Assureur · sinistres & polices" width={1280} height={900}>
+            <PageInsurer />
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks · Finarent refresh">
+        <TweakSection label="Accent (vert Finarent)">
+          <TweakSlider label="Teinte (hue)" value={tweaks.accentHue} min={100} max={280} step={5} onChange={v => setTweak('accentHue', v)} />
+          <TweakSlider label="Saturation" value={tweaks.accentChroma} min={0.04} max={0.20} step={0.01} onChange={v => setTweak('accentChroma', v)} />
+          <TweakSlider label="Luminosité" value={tweaks.accentLight} min={0.50} max={0.85} step={0.02} onChange={v => setTweak('accentLight', v)} />
+        </TweakSection>
+
+        <TweakSection label="Identité de surface">
+          <TweakColor label="Bleu Finarent" value={tweaks.inkColor} onChange={v => setTweak('inkColor', v)} />
+          <TweakRadio label="Fond" value={tweaks.background} options={[
+            { value: 'warm', label: 'Warm' },
+            { value: 'cool', label: 'Cool' },
+            { value: 'pure', label: 'Pure' }
+          ]} onChange={v => setTweak('background', v)} />
+        </TweakSection>
+
+        <TweakSection label="Typographie & forme">
+          <TweakRadio label="Titres" value={tweaks.fontHeadline} options={[
+            { value: 'serif', label: 'Serif' },
+            { value: 'sans', label: 'Sans' }
+          ]} onChange={v => setTweak('fontHeadline', v)} />
+          <TweakRadio label="Boutons" value={tweaks.buttonShape} options={[
+            { value: 'pill', label: 'Pill' },
+            { value: 'rounded', label: 'Round' },
+            { value: 'square', label: 'Net' }
+          ]} onChange={v => setTweak('buttonShape', v)} />
+          <TweakRadio label="Densité" value={tweaks.density} options={[
+            { value: 'comfortable', label: 'Confort' },
+            { value: 'compact', label: 'Dense' }
+          ]} onChange={v => setTweak('density', v)} />
+        </TweakSection>
+
+        <TweakSection label="Contenu">
+          <TweakText label="CTA principal" value={tweaks.ctaPrimaryLabel} onChange={v => setTweak('ctaPrimaryLabel', v)} />
+          <TweakToggle label="Live ticker" value={tweaks.showLiveTicker} onChange={v => setTweak('showLiveTicker', v)} />
+          <TweakToggle label="Logos partenaires" value={tweaks.showLogos} onChange={v => setTweak('showLogos', v)} />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+};
+
+const StyleBridge = () => {
+  return (
+    <style>{`
+      [data-tweak-font-headline="sans"] .fr-serif,
+      [data-tweak-font-headline="sans"] .fr-h1,
+      [data-tweak-font-headline="sans"] .fr-h2 { font-family: var(--fr-sans) !important; font-style: normal !important; }
+      [data-tweak-button="rounded"] .fr-btn { border-radius: 12px !important; }
+      [data-tweak-button="square"] .fr-btn { border-radius: 4px !important; }
+      [data-tweak-density="compact"] .fr-btn { padding: 10px 16px !important; font-size: 13px !important; }
+    `}</style>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<><StyleBridge /><App /></>);
+</script>
+</body>
+</html>

@@ -26,21 +26,17 @@ function getNestedValue(obj, path) {
 }
 
 export function LanguageProvider({ children }) {
-  const [locale, setLocaleState] = useState('fr');
+  const [locale] = useState('fr');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && messages[saved]) {
-      setLocaleState(saved);
-    }
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    document.documentElement.lang = 'fr';
     setMounted(true);
   }, []);
 
-  const setLocale = useCallback((lang) => {
-    setLocaleState(lang);
-    localStorage.setItem(STORAGE_KEY, lang);
-    document.documentElement.lang = lang;
+  const setLocale = useCallback(() => {
+    // i18n verrouillé sur le français — la bascule de langue a été retirée.
   }, []);
 
   const t = useCallback((key) => {

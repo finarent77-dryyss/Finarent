@@ -4,6 +4,24 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
+import ActiveFileTimeline from './ActiveFileTimeline';
+
+const ACTIVE_STATUSES = ['en_attente', 'documents_manquants', 'en_cours', 'devis_envoye', 'devis_accepte', 'signature_en_attente', 'signe', 'transmis'];
+
+function pickActiveDossier(demandes) {
+  if (!demandes || demandes.length === 0) return null;
+  const active = demandes.filter((d) => ACTIVE_STATUSES.includes(d.status));
+  if (active.length === 0) return null;
+  return active.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))[0];
+}
+
+function computeSavings(demandes) {
+  // Estimation simple : pour chaque dossier validé, on chiffre une économie de 100% mensualités
+  // déductible (vs amortissement comptable d'un achat) = ~33% IS sur la durée du contrat.
+  return demandes
+    .filter((d) => ['validee', 'finalise', 'signe', 'transmis'].includes(d.status))
+    .reduce((sum, d) => sum + (d.amount || 0) * 0.33, 0);
+}
 
 const STATUS_COLORS = {
   en_attente: { color: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500', icon: 'fa-regular fa-clock' },
@@ -149,7 +167,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-secondary via-accent to-secondary rounded-full blur opacity-40 group-hover:opacity-80 transition duration-500"></div>
                 <img
-                  src={user.picture || '/Finassurs_logo.jpeg'}
+                  src={user.picture || '/finarent-logo.jpg'}
                   alt={user.name}
                   className="relative w-14 h-14 sm:w-18 sm:h-18 rounded-full border-3 border-white shadow-xl object-cover"
                 />
@@ -177,6 +195,12 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               </a>
             </div>
           </motion.div>
+
+          {/* ── Active File Timeline ── */}
+          {(() => {
+            const active = pickActiveDossier(demandes);
+            return active ? <ActiveFileTimeline dossier={active} dateLocale={dateLocale} /> : null;
+          })()}
 
           {/* ── Stat Cards (Digital Nova style) ── */}
           <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-10">
@@ -324,7 +348,39 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                           </div>
                         </div>
 
-                        {/* Documents */}
+                        {/* Documents progress */}
+                        {(() => {
+                          const REQUIRED = ['KBIS', 'RIB', 'CNI', 'BILAN'];
+                          const provided = new Set((d.documents || []).map((doc) => (doc.type || '').toUpperCase()));
+                          const got = REQUIRED.filter((r) => provided.has(r)).length;
+                          const pct = (got / REQUIRED.length) * 100;
+                          const allDone = got === REQUIRED.length;
+                          return (
+                            <div className="pt-3 mt-3 border-t border-gray-50">
+                              <div className="flex items-center justify-between text-[11px] font-semibold mb-1.5">
+                                <span className={allDone ? 'text-emerald-600' : 'text-slate-500'}>
+                                  <i className={`fa-solid ${allDone ? 'fa-circle-check' : 'fa-folder-open'} mr-1.5`}></i>
+                                  Documents requis : {got}/{REQUIRED.length}
+                                </span>
+                                {!allDone && (
+                                  <span className="text-amber-600">
+                                    {REQUIRED.filter((r) => !provided.has(r)).join(' · ')}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${pct}%` }}
+                                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                                  className={`h-full rounded-full ${allDone ? 'bg-emerald-500' : 'bg-secondary'}`}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Documents list */}
                         {d.documents?.length > 0 && (
                           <div className="pt-3 mt-3 border-t border-gray-50 flex flex-wrap gap-2">
                             {d.documents.map(doc => (
@@ -481,6 +537,31 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                   </div>
                 </motion.div>
               )}
+
+              {/* Économies fiscales estimées */}
+              {(() => {
+                const savings = computeSavings(demandes);
+                if (savings <= 0) return null;
+                return (
+                  <motion.div variants={itemVariants} className="bg-gradient-to-br from-emerald-50 via-white to-emerald-50 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-100">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-11 h-11 bg-emerald-500 text-white rounded-xl flex items-center justify-center">
+                        <i className="fa-solid fa-piggy-bank text-lg"></i>
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-primary">Économies estimées</h3>
+                        <p className="text-[10px] text-emerald-700/70 uppercase tracking-wider font-bold">Avantage fiscal leasing</p>
+                      </div>
+                    </div>
+                    <div className="text-3xl font-black text-emerald-600 tabular-nums">
+                      ~{Math.round(savings).toLocaleString('fr-FR')}€
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                      Estimation basée sur la déductibilité 100% des mensualités vs amortissement comptable d'un achat (taux IS 33%).
+                    </p>
+                  </motion.div>
+                );
+              })()}
             </div>
           </div>
         </div>

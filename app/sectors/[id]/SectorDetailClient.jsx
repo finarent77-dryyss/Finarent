@@ -10,6 +10,17 @@ export default function SectorDetailClient({ sector, otherSectors }) {
     <div className="min-h-screen">
       {/* Hero */}
       <section className="relative pt-28 pb-16 sm:pt-40 sm:pb-28 overflow-hidden bg-[#0A192F] text-white">
+        {sector.heroImage && (
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src={sector.heroImage}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0A192F] via-[#0A192F]/85 to-[#0A192F]/40"></div>
+          </div>
+        )}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-secondary/15 rounded-full blur-[120px] animate-pulse-slow"></div>
           <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-accent/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>

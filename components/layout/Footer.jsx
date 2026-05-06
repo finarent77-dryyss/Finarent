@@ -49,6 +49,7 @@ function FooterNewsletter() {
         <button
           type="submit"
           disabled={isSubmitting}
+          aria-label="S'inscrire"
           className="px-5 py-3 bg-accent hover:bg-accent/80 rounded-r-xl text-sm font-bold transition-all duration-300 disabled:opacity-50 shrink-0"
         >
           {isSubmitting ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-arrow-right"></i>}
@@ -64,10 +65,16 @@ function FooterNewsletter() {
   );
 }
 
+const SOCIALS = [
+  { icon: 'linkedin-in', url: '#', label: 'LinkedIn' },
+  { icon: 'facebook-f', url: '#', label: 'Facebook' },
+  { icon: 'twitter', url: '#', label: 'Twitter' },
+  { icon: 'instagram', url: '#', label: 'Instagram' },
+];
+
 export default function Footer() {
   const { t } = useTranslation();
-
-  const linkClass = "text-white/50 hover:text-white transition-colors duration-200";
+  const linkClass = 'text-white/55 hover:text-white transition-colors duration-200';
 
   return (
     <footer className="bg-[#0A192F] text-white">
@@ -95,45 +102,40 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Main Footer */}
+      {/* Brand + Newsletter row */}
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="py-10 sm:py-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-6">
+        <div className="py-10 sm:py-12 grid lg:grid-cols-12 gap-8 lg:gap-12 border-b border-white/5">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-3 lg:col-span-2">
-            <div className="flex items-center gap-3 mb-5">
+          <div className="lg:col-span-7">
+            <div className="flex items-center gap-3 mb-4">
               <div className="h-10 w-auto rounded-lg overflow-hidden bg-white shadow-sm">
-                <img src="/Finassurs_logo.jpeg" alt="Finassur" className="h-full w-auto object-contain" />
+                <img src="/finarent-logo.jpg" alt="Finarent" className="h-full w-auto object-contain" />
               </div>
             </div>
-            <p className="text-white/40 text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="text-white/50 text-sm leading-relaxed mb-5 max-w-lg">
               {t('footer.companyDesc')}
             </p>
-            <div className="space-y-2.5 mb-6">
-              <a href="tel:0123456789" className="flex items-center gap-3 text-white/60 hover:text-white transition-colors text-sm group">
-                <div className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors">
+            <div className="flex flex-wrap gap-x-6 gap-y-3 mb-5">
+              <a href="tel:0123456789" className="flex items-center gap-2.5 text-white/60 hover:text-white transition-colors text-sm group">
+                <span className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors">
                   <i className="fa-solid fa-phone text-accent text-xs"></i>
-                </div>
+                </span>
                 <span>{t('common.phone')}</span>
               </a>
-              <a href="mailto:contact@finassur.fr" className="flex items-center gap-3 text-white/60 hover:text-white transition-colors text-sm group">
-                <div className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors">
+              <a href="mailto:contact@finarent.fr" className="flex items-center gap-2.5 text-white/60 hover:text-white transition-colors text-sm group">
+                <span className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors">
                   <i className="fa-solid fa-envelope text-accent text-xs"></i>
-                </div>
-                <span>{t('common.email')}</span>
+                </span>
+                <span>contact@finarent.fr</span>
               </a>
             </div>
             <div className="flex gap-2">
-              {[
-                { icon: 'linkedin-in', url: '#' },
-                { icon: 'facebook-f', url: '#' },
-                { icon: 'twitter', url: '#' },
-                { icon: 'instagram', url: '#' },
-              ].map((s) => (
+              {SOCIALS.map((s) => (
                 <a
                   key={s.icon}
                   href={s.url}
                   className="w-9 h-9 rounded-xl bg-white/5 hover:bg-accent flex items-center justify-center text-white/40 hover:text-white transition-all duration-300"
-                  aria-label={s.icon}
+                  aria-label={s.label}
                 >
                   <i className={`fa-brands fa-${s.icon} text-sm`}></i>
                 </a>
@@ -141,7 +143,21 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Solutions */}
+          {/* Newsletter inline */}
+          <div className="lg:col-span-5">
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+              <div className="flex items-center gap-2 mb-2">
+                <i className="fa-solid fa-paper-plane text-accent text-sm"></i>
+                <h4 className="font-bold text-sm">{t('footer.newsletter')}</h4>
+              </div>
+              <p className="text-white/40 text-xs mb-4">{t('footer.newsletterDesc')}</p>
+              <FooterNewsletter />
+            </div>
+          </div>
+        </div>
+
+        {/* 4-column links row */}
+        <div className="py-10 grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 border-b border-white/5">
           <div>
             <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.solutions')}</h4>
             <ul className="space-y-2.5 text-sm">
@@ -154,7 +170,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Sectors */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.sectors')}</h4>
             <ul className="space-y-2.5 text-sm">
@@ -166,83 +181,47 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company + Help */}
-          <div className="col-span-2 md:col-span-1">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.finassur')}</h4>
-            <ul className="space-y-2.5 text-sm mb-6">
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.finarent')}</h4>
+            <ul className="space-y-2.5 text-sm">
               <li><Link href="/about" className={linkClass}>{t('footer.about')}</Link></li>
               <li><Link href="/why-leasing" className={linkClass}>{t('footer.whyUs')}</Link></li>
               <li><Link href="/process" className={linkClass}>{t('footer.process')}</Link></li>
               <li><Link href="/testimonials" className={linkClass}>{t('footer.reviews')}</Link></li>
               <li><Link href="/contact" className={linkClass}>{t('nav.contact')}</Link></li>
             </ul>
+          </div>
+
+          <div>
             <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.help')}</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/blog" className={linkClass}>{t('footer.blog')}</Link></li>
               <li><Link href="/faq" className={linkClass}>{t('footer.faq')}</Link></li>
-              <li><Link href="/legal" className={linkClass}>{t('footer.legal')}</Link></li>
+              <li><Link href="/blog" className={linkClass}>{t('footer.blog')}</Link></li>
+              <li><Link href="/legal" className={linkClass}>{t('footer.legalNotice')}</Link></li>
+              <li><Link href="/terms" className={linkClass}>{t('footer.terms')}</Link></li>
+              <li><Link href="/privacy" className={linkClass}>{t('footer.privacy')}</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* Newsletter */}
-        <div className="border-t border-white/5 py-8">
-          <div className="max-w-xl mx-auto text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <i className="fa-solid fa-paper-plane text-accent"></i>
-              <h4 className="font-bold text-sm">{t('footer.newsletter')}</h4>
-            </div>
-            <p className="text-white/40 text-xs sm:text-sm mb-4">{t('footer.newsletterDesc')}</p>
-            <FooterNewsletter />
+        {/* Compact legal strip */}
+        <div className="py-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 text-xs text-white/40">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span className="text-white/50 font-semibold">{t('footer.companyLegal1')}</span>
+            <span className="hidden sm:inline text-white/20">·</span>
+            <span>{t('footer.companyLegal2')} {t('footer.companyLegal3')}</span>
+            <span className="hidden sm:inline text-white/20">·</span>
+            <span>{t('footer.regulationLine1')}</span>
+            <span className="hidden sm:inline text-white/20">·</span>
+            <span>{t('footer.regulationLine2')}</span>
           </div>
-        </div>
-
-        {/* Legal bottom */}
-        <div className="border-t border-white/5 py-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div>
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">{t('footer.legalInfo')}</h5>
-              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                <Link href="/legal" className={linkClass}>{t('footer.legalNotice')}</Link>
-                <span className="text-white/20">|</span>
-                <Link href="/terms" className={linkClass}>{t('footer.terms')}</Link>
-                <span className="text-white/20">|</span>
-                <Link href="/privacy" className={linkClass}>{t('footer.privacy')}</Link>
-              </div>
-            </div>
-            <div>
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">{t('footer.companyInfo')}</h5>
-              <div className="text-xs text-white/40 space-y-0.5">
-                <div>{t('footer.companyLegal1')}</div>
-                <div>{t('footer.companyLegal2')} — {t('footer.companyLegal3')}</div>
-              </div>
-            </div>
-            <div>
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">{t('footer.regulation')}</h5>
-              <div className="text-xs text-white/40 space-y-0.5">
-                <div>{t('footer.regulationLine1')}</div>
-                <div>{t('footer.regulationLine2')}</div>
-                <div>{t('footer.regulationLine3')}</div>
-              </div>
-            </div>
-            <div className="flex items-end">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-                  <i className="fa-solid fa-shield-halved text-accent/40"></i>
-                </div>
-                <div className="text-[10px] text-white/30 leading-tight">
-                  {t('footer.secureSite')}<br />
-                  <span className="text-white/50 font-medium">{t('footer.sslRgpd')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-6 border-t border-white/5">
-            <div className="text-white/30 text-xs">{t('footer.copyright')}</div>
-            <div className="text-white/20 text-[10px]">
-              {t('footer.madeWith')} <i className="fa-solid fa-heart text-accent/40"></i> {t('footer.inParis')}
-            </div>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-[11px]">
+              <i className="fa-solid fa-shield-halved text-accent/60"></i>
+              <span>{t('footer.sslRgpd')}</span>
+            </span>
+            <span className="text-white/20">·</span>
+            <span>{t('footer.copyright')}</span>
           </div>
         </div>
       </div>

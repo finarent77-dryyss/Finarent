@@ -2,14 +2,15 @@ import { Suspense } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CookieBanner from '@/components/ui/CookieBanner';
+import FloatingContactCTA from '@/components/ui/FloatingContactCTA';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { LanguageProvider } from '@/lib/i18n';
 import PostHogProvider from '@/components/providers/PostHogProvider';
 import './globals.css';
 
 export const metadata = {
-  title: 'Finassur | Financement & Leasing Professionnel',
-  description: 'Finassur accompagne les entreprises : crédit-bail, LOA, solutions de financement. De 3 000€ à 500 000€, réponse en 48h.',
+  title: 'Finarent | Financement & Leasing Professionnel',
+  description: 'Finarent accompagne les entreprises : crédit-bail, LOA, solutions de financement. De 3 000€ à 500 000€, réponse en 48h.',
 };
 
 export default function RootLayout({ children }) {
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
                   </footer>
                 </div>
                 <CookieBanner />
+                <FloatingContactCTA />
               </PostHogProvider>
             </Suspense>
           </LanguageProvider>

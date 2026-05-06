@@ -86,7 +86,7 @@ export default function FirstVisitSplash({ children }) {
           </div>
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-secondary/20 to-accent/20 shadow-2xl shadow-secondary/20 animate-whirlwind-pulse" />
           <div className="absolute inset-2 sm:inset-3 rounded-2xl overflow-hidden bg-white flex items-center justify-center p-4 sm:p-6 md:p-8 shadow-inner">
-            <img src="/Finassurs_logo.jpeg" alt="Finassur" className="w-full h-full object-contain" />
+            <img src="/finarent-logo.jpg" alt="Finarent" className="w-full h-full object-contain" />
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function FirstVisitSplash({ children }) {
 
         {/* Logo */}
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-white shadow-xl shadow-secondary/10 border border-gray-100 mb-6 sm:mb-8">
-          <img src="/Finassurs_logo.jpeg" alt="Finassur" className="w-full h-full object-contain p-2" />
+          <img src="/finarent-logo.jpg" alt="Finarent" className="w-full h-full object-contain p-2" />
         </div>
 
         {/* Welcome text */}

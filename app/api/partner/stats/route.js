@@ -110,16 +110,92 @@ export async function GET() {
     avgProcessingTime = 5; // Fallback placeholder
   }
 
+  // Top secteurs reçus
+  const sectorGroups = await prisma.application.groupBy({
+    by: ['sector'],
+    where: { ...where, sector: { not: null } },
+    _count: { sector: true },
+    orderBy: { _count: { sector: 'desc' } },
+    take: 5,
+  });
+  const topSectors = sectorGroups.map((s) => ({ sector: s.sector, count: s._count.sector }));
+
+  // Top product types
+  const productGroups = await prisma.application.groupBy({
+    by: ['productType'],
+    where,
+    _count: { productType: true },
+    orderBy: { _count: { productType: 'desc' } },
+  });
+  const PRODUCT_LABELS = {
+    PRET_PRO: 'Prêt pro',
+    CREDIT_BAIL: 'Crédit-bail',
+    LOA: 'LOA',
+    LLD: 'LLD',
+    LEASING_OPS: 'Leasing op.',
+    RC_PRO: 'RC Pro',
+  };
+  const topProducts = productGroups.map((p) => ({
+    productType: p.productType,
+    label: PRODUCT_LABELS[p.productType] || p.productType,
+    count: p._count.productType,
+  }));
+
+  // Funnel partner-side
+  const reviewing = await prisma.application.count({ where: { ...where, status: 'REVIEWING' } });
+  const funnel = [
+    { label: 'Transmis', count: transmitted + reviewing + approved + completed },
+    { label: 'En analyse', count: reviewing + approved + completed },
+    { label: 'Validés', count: approved + completed },
+    { label: 'Finalisés', count: completed },
+  ];
+
+  // Dossiers à traiter (en attente d'action partenaire)
+  const pendingActions = await prisma.application.count({
+    where: { ...where, status: { in: ['TRANSMITTED', 'REVIEWING'] } },
+  });
+
+  // Commission timeline (6 derniers mois, par mois)
+  const sixMonthsAgoComm = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  const recentCommissions = dbUser.partnerId
+    ? await prisma.commission.findMany({
+        where: { partnerId: dbUser.partnerId, createdAt: { gte: sixMonthsAgoComm } },
+        select: { createdAt: true, amount: true, status: true },
+      })
+    : [];
+  const commissionTimeline = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const m = d.getMonth();
+    const y = d.getFullYear();
+    const monthComms = recentCommissions.filter((c) => {
+      const cd = new Date(c.createdAt);
+      return cd.getMonth() === m && cd.getFullYear() === y;
+    });
+    commissionTimeline.push({
+      month: m,
+      year: y,
+      paid: monthComms.filter((c) => c.status === 'PAID').reduce((s, c) => s + c.amount, 0),
+      pending: monthComms.filter((c) => c.status === 'PENDING').reduce((s, c) => s + c.amount, 0),
+    });
+  }
+
   return NextResponse.json({
     total,
     transmitted,
     approved,
     completed,
+    reviewing,
+    pendingActions,
     totalCommissions: commissions._sum.amount || 0,
     totalAmount: totalAmount._sum.amount || 0,
     monthlyData,
     commissionStats,
+    commissionTimeline,
     conversionRate,
     avgProcessingTime,
+    topSectors,
+    topProducts,
+    funnel,
   });
 }

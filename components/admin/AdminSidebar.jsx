@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { key: 'offers', href: '/admin/offers', icon: 'fa-file-invoice-dollar', label: 'Offres' },
   { key: 'logs', href: '/admin/logs', icon: 'fa-clock-rotate-left', label: 'Logs d\'activité' },
   { key: 'faq', href: '/admin/faq', icon: 'fa-circle-question', label: 'FAQ' },
+  { key: 'testimonials', href: '/admin/testimonials', icon: 'fa-comment-dots', label: 'Témoignages' },
   { key: 'settings', href: '/admin/settings', icon: 'fa-gear', label: 'Paramètres' },
 ];
 

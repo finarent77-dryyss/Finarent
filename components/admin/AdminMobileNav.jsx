@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { key: 'demandes', href: '/admin/demandes', icon: 'fa-folder-open', label: 'Demandes' },
   { key: 'users', href: '/admin/users', icon: 'fa-users', label: 'Users' },
   { key: 'partners', href: '/admin/partners', icon: 'fa-handshake', label: 'Partenaires' },
+  { key: 'testimonials', href: '/admin/testimonials', icon: 'fa-comment-dots', label: 'Témoignages' },
 ];
 
 export default function AdminMobileNav() {

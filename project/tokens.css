@@ -1,0 +1,255 @@
+/* Finarent — Refreshed design tokens
+   Keeps the DNA (deep navy, emerald accent) but levels up restraint, type and surface treatments. */
+
+:root {
+  /* Brand */
+  --fr-ink: #0A2540;            /* Primary navy — kept */
+  --fr-ink-2: #0E2C4D;
+  --fr-ink-soft: #1A3658;
+
+  /* Surfaces (warm-cool neutrals, low chroma) */
+  --fr-bg: #FAF8F4;             /* Warm paper */
+  --fr-bg-cool: #F4F6F9;
+  --fr-bg-card: #FFFFFF;
+  --fr-bg-deep: #06182C;
+
+  /* Lines */
+  --fr-line: #E6E2D8;
+  --fr-line-cool: #E2E8F0;
+  --fr-line-dark: rgba(255,255,255,0.08);
+
+  /* Accent — refined emerald */
+  --fr-accent: oklch(0.68 0.13 165);
+  --fr-accent-soft: oklch(0.93 0.05 165);
+  --fr-accent-deep: oklch(0.42 0.09 165);
+
+  /* Secondary — refined indigo (was #6366F1, tone down chroma) */
+  --fr-indigo: oklch(0.55 0.14 270);
+
+  /* Text */
+  --fr-text: #0F1B2D;
+  --fr-text-muted: #5B6B82;
+  --fr-text-soft: #8A98AD;
+
+  /* Type */
+  --fr-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --fr-serif: 'Instrument Serif', 'Times New Roman', serif;
+  --fr-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Radii — slightly tighter than current rounded-2xl/3xl maximalism */
+  --fr-r-sm: 6px;
+  --fr-r-md: 10px;
+  --fr-r-lg: 16px;
+  --fr-r-xl: 22px;
+
+  /* Shadows — softer, less "shadow-2xl shadow-slate-200/50" */
+  --fr-shadow-sm: 0 1px 2px rgba(10, 37, 64, 0.04);
+  --fr-shadow-md: 0 8px 24px -8px rgba(10, 37, 64, 0.08);
+  --fr-shadow-lg: 0 24px 60px -20px rgba(10, 37, 64, 0.18);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--fr-sans);
+  color: var(--fr-text);
+  background: var(--fr-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.fr-serif { font-family: var(--fr-serif); font-weight: 400; letter-spacing: -0.01em; }
+.fr-mono { font-family: var(--fr-mono); }
+
+/* Typography scale — investor-facing, confident */
+.fr-h1 { font-size: clamp(40px, 5vw, 72px); line-height: 0.98; letter-spacing: -0.035em; font-weight: 600; }
+.fr-h2 { font-size: clamp(32px, 3.4vw, 48px); line-height: 1.04; letter-spacing: -0.025em; font-weight: 600; }
+.fr-h3 { font-size: 22px; line-height: 1.2; letter-spacing: -0.015em; font-weight: 600; }
+.fr-eyebrow { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+.fr-body { font-size: 16px; line-height: 1.55; color: var(--fr-text-muted); }
+.fr-body-lg { font-size: 19px; line-height: 1.5; color: var(--fr-text-muted); font-weight: 400; }
+
+/* Buttons — restrained */
+.fr-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 22px; border-radius: 999px;
+  font-weight: 600; font-size: 14.5px; letter-spacing: -0.005em;
+  border: 1px solid transparent; cursor: pointer; transition: all .2s ease;
+  text-decoration: none;
+}
+.fr-btn-primary { background: var(--fr-ink); color: white; }
+.fr-btn-primary:hover { background: var(--fr-ink-2); transform: translateY(-1px); }
+.fr-btn-ghost { background: transparent; color: var(--fr-ink); border-color: var(--fr-line); }
+.fr-btn-ghost:hover { background: white; border-color: var(--fr-ink); }
+.fr-btn-light { background: white; color: var(--fr-ink); }
+.fr-btn-light:hover { background: var(--fr-bg); }
+.fr-btn-accent { background: var(--fr-accent); color: var(--fr-ink); }
+.fr-btn-accent:hover { background: var(--fr-accent-deep); color: white; }
+
+/* Card */
+.fr-card { background: var(--fr-bg-card); border: 1px solid var(--fr-line-cool); border-radius: var(--fr-r-lg); }
+
+/* Tabular numerics for data */
+.fr-tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Subtle striped placeholder for "drop image here" */
+.fr-placeholder {
+  background-image: repeating-linear-gradient(45deg, rgba(10,37,64,0.04), rgba(10,37,64,0.04) 1px, transparent 1px, transparent 12px);
+  background-color: var(--fr-bg-cool);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fr-mono); font-size: 11px; color: var(--fr-text-soft);
+  letter-spacing: 0.04em;
+}
+
+/* Tag/chip */
+.fr-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  background: white; border: 1px solid var(--fr-line-cool);
+  font-size: 12px; font-weight: 500; color: var(--fr-text);
+}
+.fr-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fr-accent); }
+
+/* Ticker animation */
+@keyframes fr-ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Numeric pulse */
+@keyframes fr-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+.fr-live-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--fr-accent); animation: fr-pulse-ring 2s infinite;
+}
+
+/* === Ambient layer === */
+/* Grain — applied as ::before on .fr-grain */
+.fr-grain { position: relative; }
+.fr-grain::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
+  opacity: 0.045; mix-blend-mode: overlay;
+}
+.fr-grain-dark::after { mix-blend-mode: screen; opacity: 0.07; }
+
+/* Halo — soft radial color glow */
+.fr-halo {
+  position: absolute; border-radius: 50%; filter: blur(80px);
+  pointer-events: none; opacity: 0.55;
+}
+
+/* Soft star/dot field */
+.fr-stars {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 50%, transparent 50%),
+    radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.5) 50%, transparent 50%),
+    radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.45) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 85% 20%, rgba(255,255,255,0.5) 50%, transparent 50%),
+    radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.4) 50%, transparent 50%);
+  background-size: 600px 600px;
+}
+
+/* Float — subtle endless motion */
+@keyframes fr-float-slow {
+  0%, 100% { transform: translate3d(0,0,0); }
+  50% { transform: translate3d(0,-14px,0); }
+}
+@keyframes fr-float-x {
+  0%, 100% { transform: translate3d(0,0,0); }
+  50% { transform: translate3d(20px,-10px,0); }
+}
+@keyframes fr-drift {
+  0% { transform: translate3d(-5%,0,0); }
+  100% { transform: translate3d(5%,0,0); }
+}
+.fr-float { animation: fr-float-slow 9s ease-in-out infinite; }
+.fr-float-x { animation: fr-float-x 11s ease-in-out infinite; }
+.fr-drift { animation: fr-drift 14s ease-in-out infinite alternate; }
+
+/* Marquee/ticker */
+@keyframes fr-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.fr-marquee { animation: fr-marquee 40s linear infinite; }
+
+/* Reveal on scroll (handled via IO + class swap) */
+.fr-reveal { opacity: 0; transform: translateY(20px); transition: opacity .9s ease, transform .9s ease; }
+.fr-reveal.in { opacity: 1; transform: translateY(0); }
+
+/* Glassy panel */
+.fr-glass {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.fr-glass-dark {
+  background: rgba(10, 24, 44, 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Aurora gradient (deep mood) */
+.fr-aurora {
+  background:
+    radial-gradient(60% 50% at 20% 20%, color-mix(in oklch, var(--fr-accent) 28%, transparent) 0%, transparent 60%),
+    radial-gradient(50% 40% at 80% 30%, color-mix(in oklch, var(--fr-indigo) 22%, transparent) 0%, transparent 60%),
+    radial-gradient(70% 60% at 50% 100%, color-mix(in oklch, var(--fr-accent) 18%, transparent) 0%, transparent 70%),
+    linear-gradient(180deg, var(--fr-bg-deep) 0%, #04101F 100%);
+}
+
+/* Big number / metric */
+.fr-metric { font-family: var(--fr-serif); font-size: 56px; line-height: 0.95; letter-spacing: -0.02em; }
+.fr-metric-sm { font-family: var(--fr-serif); font-size: 36px; line-height: 1; letter-spacing: -0.02em; }
+
+/* Subtle inner ring on cards */
+.fr-ring-inner { box-shadow: inset 0 0 0 1px rgba(10,37,64,0.04); }
+
+/* Scroll-shadow (top/bottom fade for long lists) */
+.fr-fade-y {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+}
+
+/* Nav chrome */
+.fr-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 28px;
+}
+.fr-nav-link { color: var(--fr-text); font-size: 14px; font-weight: 500; text-decoration: none; padding: 8px 12px; border-radius: 8px; }
+.fr-nav-link:hover { background: rgba(10,37,64,0.04); }
+
+/* Status pill */
+.fr-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:600; letter-spacing:0.01em; }
+.fr-pill-warn { background: #FFF4E5; color: #8A4B00; }
+.fr-pill-ok { background: var(--fr-accent-soft); color: var(--fr-accent-deep); }
+.fr-pill-info { background: #EAF2FF; color: #1B3A6B; }
+.fr-pill-danger { background: #FEE7E7; color: #8A1B1B; }
+.fr-pill-neutral { background: var(--fr-bg-cool); color: var(--fr-text-muted); }
+
+/* Sidebar */
+.fr-sidebar-item { display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:8px; font-size:13.5px; color: var(--fr-text-muted); cursor:pointer; }
+.fr-sidebar-item:hover { background: var(--fr-bg-cool); color: var(--fr-text); }
+.fr-sidebar-item.active { background: var(--fr-ink); color: white; }
+.fr-sidebar-item.active .fr-icon { color: var(--fr-accent); }
+
+/* KPI tile */
+.fr-kpi { padding: 18px 20px; border-radius: var(--fr-r-md); background: var(--fr-bg-card); border:1px solid var(--fr-line-cool); }
+.fr-kpi-label { font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color: var(--fr-text-soft); font-weight:600; }
+.fr-kpi-value { font-family: var(--fr-serif); font-size: 38px; line-height:1; letter-spacing:-0.02em; margin-top: 8px; color: var(--fr-text); }
+.fr-kpi-delta { font-size: 12px; margin-top: 6px; color: var(--fr-accent-deep); font-weight: 600; }
+
+/* Table */
+.fr-table { width:100%; border-collapse: collapse; font-size: 13px; }
+.fr-table th { text-align:left; font-weight: 600; color: var(--fr-text-muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 14px; border-bottom: 1px solid var(--fr-line-cool); }
+.fr-table td { padding: 14px; border-bottom: 1px solid var(--fr-line-cool); color: var(--fr-text); }
+.fr-table tr:hover td { background: var(--fr-bg-cool); }
+
+/* Avatar */
+.fr-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--fr-ink); color: white; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; letter-spacing: 0.02em; }
+

@@ -232,3 +232,23 @@ model Referral {
   createdAt    DateTime  @default(now())
   convertedAt  DateTime?
 }
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  authorName  String
+  initials    String
+  position    String?
+  company     String?
+  sector      String?
+  rating      Int      @default(5)
+  text        String
+  amount      String?
+  isPublished Boolean  @default(false)
+  isApproved  Boolean  @default(false)
+  rejectedAt  DateTime?
+  approvedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, isApproved])
+}

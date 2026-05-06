@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { useTranslation } from '@/lib/i18n';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import NotificationsBell from '@/components/espace/NotificationsBell';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -76,8 +76,8 @@ export default function Header() {
           <Link href="/" className="flex items-center shrink-0">
             <div className="h-10 sm:h-11 w-auto rounded-lg overflow-hidden bg-white shadow-sm">
               <img
-                src="/Finassurs_logo.jpeg"
-                alt="Finassur"
+                src="/finarent-logo.jpg"
+                alt="Finarent"
                 className="h-full w-auto object-contain"
               />
             </div>
@@ -154,7 +154,7 @@ export default function Header() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            <LanguageSwitcher isOverDarkHero={isOverDarkHero} />
+            {user && !isLoading && <NotificationsBell isOverDarkHero={isOverDarkHero} />}
             {user ? (
               <Link href="/espace" className={`hidden sm:flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full transition-all duration-300 group ${
                 isOverDarkHero

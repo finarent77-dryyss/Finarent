@@ -82,7 +82,134 @@ export async function GET() {
   });
   const averageAmount = avgResult._avg.amount || 0;
 
+  // ─── Conversion funnel ─────────────────────────────
+  // Compte cumulatif : un dossier "passé" par le statut REVIEWING signifie qu'il
+  // est au moins en REVIEWING, ou plus loin dans le pipeline.
+  const FUNNEL_ORDER = ['PENDING', 'REVIEWING', 'QUOTE_SENT', 'PENDING_SIGNATURE', 'SIGNED', 'COMPLETED'];
+  const FUNNEL_LABELS = {
+    PENDING: 'Dossiers reçus',
+    REVIEWING: 'En étude',
+    QUOTE_SENT: 'Offres émises',
+    PENDING_SIGNATURE: 'Signature en cours',
+    SIGNED: 'Signés',
+    COMPLETED: 'Fonds débloqués',
+  };
+  const allStatusCounts = statusCounts.reduce((acc, s) => ({ ...acc, [s.status]: s._count.status }), {});
+
+  // Approximation cumulative : on considère qu'un dossier dans un statut
+  // "aval" est aussi passé par les statuts "amont".
+  const cumulativeOrder = ['PENDING', 'REVIEWING', 'DOCUMENTS_NEEDED', 'QUOTE_SENT', 'QUOTE_ACCEPTED', 'PENDING_SIGNATURE', 'SIGNED', 'TRANSMITTED', 'APPROVED', 'COMPLETED'];
+  const funnel = FUNNEL_ORDER.map((step) => {
+    const startIdx = cumulativeOrder.indexOf(step);
+    const cumulative = cumulativeOrder
+      .slice(startIdx)
+      .reduce((sum, s) => sum + (allStatusCounts[s] || 0), 0);
+    return { status: step, label: FUNNEL_LABELS[step], count: cumulative };
+  });
+
+  // ─── Délais moyens (en heures) ─────────────────────
+  // Délai traitement : createdAt → updatedAt sur dossiers COMPLETED
+  const completedApps = await prisma.application.findMany({
+    where: { status: { in: ['COMPLETED', 'APPROVED'] } },
+    select: { createdAt: true, updatedAt: true },
+  });
+  const avgProcessingHours = completedApps.length > 0
+    ? Math.round(
+        completedApps.reduce((sum, a) => sum + (new Date(a.updatedAt) - new Date(a.createdAt)), 0)
+        / completedApps.length / 3_600_000,
+      )
+    : 0;
+
+  // Délai signature : StatusHistory PENDING_SIGNATURE → SIGNED par application
+  const signedHistories = await prisma.statusHistory.findMany({
+    where: { toStatus: 'SIGNED' },
+    select: { applicationId: true, createdAt: true },
+  });
+  const pendingSignatureHistories = await prisma.statusHistory.findMany({
+    where: { toStatus: 'PENDING_SIGNATURE' },
+    select: { applicationId: true, createdAt: true },
+  });
+  const pendingSigByApp = pendingSignatureHistories.reduce((acc, h) => {
+    if (!acc[h.applicationId] || h.createdAt < acc[h.applicationId]) acc[h.applicationId] = h.createdAt;
+    return acc;
+  }, {});
+  const signatureDurations = signedHistories
+    .map((s) => pendingSigByApp[s.applicationId] && (new Date(s.createdAt) - new Date(pendingSigByApp[s.applicationId])))
+    .filter((d) => d && d > 0);
+  const avgSignatureHours = signatureDurations.length > 0
+    ? Math.round(signatureDurations.reduce((s, d) => s + d, 0) / signatureDurations.length / 3_600_000)
+    : 0;
+
+  // Taux d'abandon : (REJECTED + dossiers stagnants > 30j en PENDING/DOCUMENTS_NEEDED) / total
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const stagnantCount = await prisma.application.count({
+    where: {
+      status: { in: ['PENDING', 'DOCUMENTS_NEEDED'] },
+      updatedAt: { lt: thirtyDaysAgo },
+    },
+  });
+  const abandonmentRate = totalApplications > 0
+    ? Math.round(((rejectedApplications + stagnantCount) / totalApplications) * 100)
+    : 0;
+
+  // ─── Performance par opérateur (top 5) ─────────────
+  const operatorActions = await prisma.statusHistory.groupBy({
+    by: ['changedById'],
+    _count: { id: true },
+    orderBy: { _count: { id: 'desc' } },
+    take: 5,
+  });
+  const operatorIds = operatorActions.map((o) => o.changedById).filter(Boolean);
+  const operators = operatorIds.length > 0
+    ? await prisma.user.findMany({
+        where: { id: { in: operatorIds }, role: { in: ['ADMIN', 'PARTNER', 'INSURER'] } },
+        select: { id: true, name: true, email: true, role: true },
+      })
+    : [];
+  const operatorMap = operators.reduce((acc, u) => ({ ...acc, [u.id]: u }), {});
+  const topOperators = operatorActions
+    .map((o) => ({
+      id: o.changedById,
+      name: operatorMap[o.changedById]?.name || operatorMap[o.changedById]?.email?.split('@')[0] || 'Inconnu',
+      email: operatorMap[o.changedById]?.email,
+      role: operatorMap[o.changedById]?.role,
+      actions: o._count.id,
+    }))
+    .filter((o) => operatorMap[o.id]); // ignore actions par utilisateurs non-staff
+
+  // ─── À traiter aujourd'hui ─────────────────────────
+  const nowDate = new Date();
+  const fourHoursAgo = new Date(nowDate.getTime() - 4 * 3_600_000);
+  const oneDayAhead = new Date(nowDate.getTime() + 24 * 3_600_000);
+  const sevenDaysAgo = new Date(nowDate.getTime() - 7 * 24 * 3_600_000);
+  const twoDaysAgo = new Date(nowDate.getTime() - 2 * 24 * 3_600_000);
+
+  const [urgentPending, urgentDocs, expiringSoonOffers, staleOffers] = await Promise.all([
+    prisma.application.count({
+      where: { status: 'PENDING', createdAt: { lt: fourHoursAgo } },
+    }),
+    prisma.application.count({
+      where: { status: 'DOCUMENTS_NEEDED', updatedAt: { lt: sevenDaysAgo } },
+    }),
+    prisma.offer.count({
+      where: { status: { in: ['SENT', 'VIEWED'] }, expiresAt: { lt: oneDayAhead, gt: nowDate } },
+    }),
+    prisma.offer.count({
+      where: { status: 'SENT', sentAt: { lt: twoDaysAgo } },
+    }),
+  ]);
+
+  const todayActions = {
+    urgentPending,
+    urgentDocs,
+    expiringSoonOffers,
+    staleOffers,
+    total: urgentPending + urgentDocs + expiringSoonOffers + staleOffers,
+  };
+
   return NextResponse.json({
+    todayActions,
     totalApplications,
     pendingApplications,
     activeApplications,
@@ -92,9 +219,15 @@ export async function GET() {
     totalPartners,
     totalAmount: totalAmount._sum.amount || 0,
     recentApplications,
-    statusCounts: statusCounts.reduce((acc, s) => ({ ...acc, [s.status]: s._count.status }), {}),
+    statusCounts: allStatusCounts,
     monthlyData,
     topSectors,
     averageAmount,
+    funnel,
+    avgProcessingHours,
+    avgSignatureHours,
+    abandonmentRate,
+    stagnantCount,
+    topOperators,
   });
 }

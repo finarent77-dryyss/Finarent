@@ -2,7 +2,7 @@
   "common": {
     "requestQuote": "Demander un devis",
     "phone": "01 23 45 67 89",
-    "email": "contact@finassur.fr",
+    "email": "contact@finarent.fr",
     "select": "Sélectionner",
     "other": "Autre"
   },
@@ -10,7 +10,7 @@
     "solutions": "Nos Solutions",
     "sectors": "Secteurs",
     "insurance": "Assurance",
-    "whyFinassur": "Pourquoi Finassur",
+    "whyFinarent": "Pourquoi Finarent",
     "blog": "Actualités",
     "contact": "Contact",
     "mySpace": "Mon espace",
@@ -118,7 +118,7 @@
     "badge": "Contactez-nous",
     "title": "Démarrez votre projet de financement",
     "subtitle": "Remplissez le formulaire ci-dessous et recevez une réponse personnalisée sous 48h.",
-    "whyChooseUs": "Pourquoi choisir Finassur ?",
+    "whyChooseUs": "Pourquoi choisir Finarent ?",
     "whyChooseUsDesc": "Un accompagnement sur-mesure par des experts du financement professionnel.",
     "response48h": "Réponse garantie sous 48h",
     "noCommitment": "Sans engagement",
@@ -186,10 +186,10 @@
   },
   "about": {
     "ourStory": "Notre histoire",
-    "title": "À propos de Finassur",
+    "title": "À propos de Finarent",
     "subtitle": "Courtier en financement et assurance professionnel, nous accompagnons les entreprises depuis plus de 15 ans dans le développement de leur activité.",
     "partnerTitle": "Votre partenaire de confiance",
-    "partnerDesc1": "Finassur est un courtier spécialisé dans le financement et l'assurance des équipements professionnels. Notre mission : permettre à chaque entreprise d'accéder aux meilleurs outils pour se développer.",
+    "partnerDesc1": "Finarent est un courtier spécialisé dans le financement et l'assurance des équipements professionnels. Notre mission : permettre à chaque entreprise d'accéder aux meilleurs outils pour se développer.",
     "partnerDesc2": "Grâce à notre réseau de partenaires bancaires et d'assureurs, nous négocions pour vous les meilleures conditions du marché.",
     "fundedCompanies": "Entreprises financées",
     "approvalRate": "Taux d'acceptation",
@@ -214,7 +214,7 @@
     "ourSolutionsDesc": "Des couvertures adaptées à tous les secteurs d'activité professionnelle.",
     "idealFor": "Idéal pour :",
     "advantagesTitle": "Les avantages",
-    "whyInsure": "Pourquoi assurer votre activité avec Finassur ?",
+    "whyInsure": "Pourquoi assurer votre activité avec Finarent ?",
     "whyInsureDesc": "Nous combinons notre expertise en financement et en assurance pour vous offrir une protection complète et des conditions avantageuses.",
     "singleContact": "Un interlocuteur unique",
     "singleContactDesc": "Financement et assurance gérés par le même conseiller dédié.",
@@ -392,12 +392,12 @@
     "sirenRcs": "SIREN : 123 456 789 — RCS Paris",
     "tva": "TVA Intracommunautaire : FR 12 345678901",
     "director": "Directeur de la publication",
-    "directorDesc": "Le directeur de la publication est le représentant légal de la société Finassur.",
+    "directorDesc": "Le directeur de la publication est le représentant légal de la société Finarent.",
     "hosting": "Hébergeur",
     "hostingDesc": "Vercel Inc.",
     "hostingAddress": "440 N Barranca Ave #4133, Covina, CA 91723, USA",
     "regulation": "Régulation",
-    "regulationDesc": "Finassur est immatriculé à l'ORIAS en qualité de Courtier en Opérations de Banque et en Services de Paiement (COBSP) et de Courtier en Assurance (COA).",
+    "regulationDesc": "Finarent est immatriculé à l'ORIAS en qualité de Courtier en Opérations de Banque et en Services de Paiement (COBSP) et de Courtier en Assurance (COA).",
     "ip": "Propriété intellectuelle",
     "ipDesc": "L'ensemble du contenu du site (textes, images, logos, graphismes) est protégé par le droit de la propriété intellectuelle. Toute reproduction, même partielle, est interdite sans autorisation préalable."
   },
@@ -410,30 +410,114 @@
     "section3Title": "Conservation des données",
     "section3": "Vos données personnelles sont conservées pendant la durée de la relation commerciale et 5 ans après la fin du contrat, conformément aux obligations légales. Les données de prospects sont supprimées après 3 ans sans interaction.",
     "section4Title": "Vos droits",
-    "section4": "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, de portabilité et d'opposition sur vos données personnelles. Pour exercer ces droits, contactez-nous à : dpo@finassur.fr",
+    "section4": "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, de portabilité et d'opposition sur vos données personnelles. Pour exercer ces droits, contactez-nous à : dpo@finarent.fr",
     "section5Title": "Cookies",
     "section5": "Notre site utilise des cookies essentiels au fonctionnement du service et des cookies analytiques pour améliorer votre expérience. Vous pouvez gérer vos préférences de cookies à tout moment via les paramètres de votre navigateur."
   },
   "terms": {
     "title": "Conditions générales d'utilisation",
     "section1Title": "Objet",
-    "section1": "Les présentes conditions générales d'utilisation régissent l'accès et l'utilisation du site finassur.fr. En accédant au site, vous acceptez sans réserve les présentes conditions.",
+    "section1": "Les présentes conditions générales d'utilisation régissent l'accès et l'utilisation du site finarent.fr. En accédant au site, vous acceptez sans réserve les présentes conditions.",
     "section2Title": "Services proposés",
-    "section2": "Finassur propose des services de courtage en financement d'équipements professionnels et en assurance. Les informations présentées sur le site sont fournies à titre indicatif et ne constituent pas une offre contractuelle.",
+    "section2": "Finarent propose des services de courtage en financement d'équipements professionnels et en assurance. Les informations présentées sur le site sont fournies à titre indicatif et ne constituent pas une offre contractuelle.",
     "section3Title": "Responsabilité",
-    "section3": "Finassur s'efforce de fournir des informations exactes et à jour. Toutefois, nous ne pouvons garantir l'exhaustivité ou l'exactitude de l'ensemble des informations présentes sur le site. L'utilisation du simulateur de financement fournit des estimations indicatives et ne constitue pas une offre de financement.",
+    "section3": "Finarent s'efforce de fournir des informations exactes et à jour. Toutefois, nous ne pouvons garantir l'exhaustivité ou l'exactitude de l'ensemble des informations présentes sur le site. L'utilisation du simulateur de financement fournit des estimations indicatives et ne constitue pas une offre de financement.",
     "section4Title": "Propriété intellectuelle",
     "section4": "L'ensemble des éléments du site (textes, images, logos, marques) sont protégés par le droit de la propriété intellectuelle. Toute reproduction ou représentation, totale ou partielle, est interdite sans autorisation préalable écrite.",
     "section5Title": "Droit applicable",
     "section5": "Les présentes conditions sont régies par le droit français. Tout litige sera soumis à la compétence exclusive des tribunaux de Paris."
   },
   "process": {
-    "title": "Notre processus",
-    "subtitle": "Un accompagnement complet de votre demande jusqu'à la livraison de vos équipements."
+    "badge": "Processus 100% en ligne",
+    "title": "Notre processus en 4 étapes",
+    "subtitle": "Un accompagnement complet de votre simulation jusqu'à la livraison de vos équipements, en 48h en moyenne.",
+    "stepsTitle": "Comment ça marche ?",
+    "stepsSubtitle": "Quatre étapes simples, sans engagement, sans frais de dossier.",
+    "steps": [
+      {
+        "label": "Étape 1",
+        "title": "Simulez en 2 minutes",
+        "description": "Indiquez le montant, la durée et le type d'équipement. Notre simulateur calcule immédiatement votre mensualité estimée et le coût total.",
+        "duration": "2 min",
+        "icon": "fa-calculator"
+      },
+      {
+        "label": "Étape 2",
+        "title": "Déposez votre dossier",
+        "description": "Remplissez le formulaire en 5 étapes (entreprise, projet, documents). Vos pièces sont chiffrées et stockées de manière sécurisée.",
+        "duration": "10 min",
+        "icon": "fa-file-signature"
+      },
+      {
+        "label": "Étape 3",
+        "title": "Recevez vos offres",
+        "description": "Nos conseillers étudient votre dossier et le soumettent à notre réseau de 30+ partenaires bancaires. Vous recevez les meilleures offres adaptées à votre profil.",
+        "duration": "24 à 48h",
+        "icon": "fa-handshake"
+      },
+      {
+        "label": "Étape 4",
+        "title": "Signez et recevez vos fonds",
+        "description": "Signature électronique légale (eIDAS), déblocage des fonds ou livraison de vos équipements. Votre conseiller reste à vos côtés pour le suivi.",
+        "duration": "48h",
+        "icon": "fa-money-bill-trend-up"
+      }
+    ],
+    "guaranteesTitle": "Nos engagements",
+    "guarantees": [
+      { "icon": "fa-bolt", "title": "Réponse sous 48h", "description": "Engagement contractuel de notre équipe sur le délai de réponse." },
+      { "icon": "fa-circle-check", "title": "Sans engagement", "description": "Vous restez libre d'accepter ou de refuser l'offre proposée." },
+      { "icon": "fa-shield-halved", "title": "100% sécurisé", "description": "Données chiffrées AES-256, conformité RGPD et hébergement européen." },
+      { "icon": "fa-user-tie", "title": "Conseiller dédié", "description": "Un interlocuteur unique tout au long de votre dossier." }
+    ],
+    "faqTitle": "Questions fréquentes sur le processus",
+    "faq": [
+      { "q": "Quel est le délai moyen de traitement ?", "a": "48h pour une première réponse, 5 à 7 jours ouvrés en moyenne pour le déblocage des fonds après signature." },
+      { "q": "Quels documents sont nécessaires ?", "a": "Un Kbis de moins de 3 mois, vos deux derniers bilans, un RIB professionnel et la pièce d'identité du gérant. Notre conseiller vous indiquera précisément les pièces à fournir." },
+      { "q": "Y a-t-il des frais de dossier ?", "a": "Non, l'étude de votre dossier et la mise en relation avec nos partenaires sont entièrement gratuites." },
+      { "q": "Puis-je annuler en cours de procédure ?", "a": "Oui, vous pouvez annuler votre demande à tout moment avant la signature électronique, sans aucun frais." }
+    ],
+    "ctaTitle": "Prêt à démarrer votre projet ?",
+    "ctaDescription": "Simulez votre financement en 2 minutes, sans engagement.",
+    "ctaSimulate": "Lancer la simulation",
+    "ctaContact": "Parler à un conseiller"
   },
   "whyLeasing": {
-    "title": "Pourquoi choisir Finassur ?",
-    "subtitle": "Découvrez les avantages du financement professionnel avec Finassur."
+    "badge": "Le bon choix pour votre trésorerie",
+    "title": "Pourquoi choisir le leasing professionnel ?",
+    "subtitle": "Le crédit-bail et la LOA sont devenus les solutions de financement préférées des entreprises françaises. Voici pourquoi.",
+    "advantagesTitle": "6 avantages clés du leasing",
+    "advantagesSubtitle": "Une solution flexible, fiscalement optimisée et sans impact sur votre capacité d'endettement.",
+    "advantages": [
+      { "icon": "fa-piggy-bank", "title": "Préservez votre trésorerie", "description": "Aucun apport initial requis. Votre trésorerie reste disponible pour développer votre activité, recruter ou investir ailleurs." },
+      { "icon": "fa-receipt", "title": "Avantages fiscaux", "description": "Les mensualités sont 100% déductibles du résultat imposable, contrairement à l'amortissement d'un achat classique." },
+      { "icon": "fa-percent", "title": "TVA récupérable", "description": "La TVA est étalée sur les mensualités, ce qui améliore votre cash-flow par rapport à un achat où vous décaissez la TVA en une fois." },
+      { "icon": "fa-arrows-rotate", "title": "Renouvellement facile", "description": "À l'issue du contrat, vous pouvez restituer le matériel, l'acheter à sa valeur résiduelle ou le renouveler — vous gardez toujours du matériel récent." },
+      { "icon": "fa-chart-line", "title": "Pas d'impact sur l'endettement", "description": "En crédit-bail, le matériel n'apparaît pas au bilan : vous préservez votre capacité d'emprunt pour d'autres projets stratégiques." },
+      { "icon": "fa-screwdriver-wrench", "title": "Maintenance incluse", "description": "De nombreux contrats incluent la maintenance, l'assurance et l'assistance, ce qui simplifie votre gestion et lisse vos coûts." }
+    ],
+    "comparisonTitle": "Leasing vs Achat : le comparatif",
+    "comparisonHeaders": ["Critère", "Achat comptant", "Crédit bancaire", "Leasing pro"],
+    "comparison": [
+      ["Apport initial", "100%", "10-30%", "0%"],
+      ["Impact trésorerie", "Fort", "Modéré", "Faible"],
+      ["Déductibilité fiscale", "Amortissement", "Intérêts seulement", "100% mensualités"],
+      ["TVA", "Décaissée immédiatement", "Décaissée immédiatement", "Étalée"],
+      ["Bilan", "Inscrit à l'actif", "Inscrit + dette", "Hors bilan*"],
+      ["Renouvellement matériel", "À votre charge", "À votre charge", "Inclus possible"]
+    ],
+    "comparisonNote": "* Sous conditions, selon les normes comptables applicables (IFRS 16 peut requérir une comptabilisation au bilan).",
+    "useCasesTitle": "Le leasing est idéal pour…",
+    "useCases": [
+      { "icon": "fa-truck", "title": "Véhicules utilitaires & flotte", "description": "Renouvelez votre flotte tous les 3-4 ans sans plomber votre bilan." },
+      { "icon": "fa-laptop", "title": "Matériel informatique", "description": "Évitez l'obsolescence rapide grâce à des contrats courts et évolutifs." },
+      { "icon": "fa-industry", "title": "Machines & équipements industriels", "description": "Financez des outils de production coûteux tout en préservant votre BFR." },
+      { "icon": "fa-stethoscope", "title": "Équipements médicaux", "description": "Solutions adaptées aux professions libérales et établissements de santé." }
+    ],
+    "ctaTitle": "Découvrez nos solutions de leasing",
+    "ctaDescription": "Crédit-bail, LOA, LLD, leasing opérationnel : nous trouvons la formule la plus adaptée à vos besoins.",
+    "ctaSolutions": "Voir les solutions",
+    "ctaSimulate": "Simuler mon leasing"
   },
   "notFound": {
     "title": "Page introuvable",
@@ -455,7 +539,7 @@
     "tech": "Informatique & Tech",
     "transport": "Transport & Logistique",
     "industry": "Industrie",
-    "finassur": "Finassur",
+    "finarent": "Finarent",
     "about": "À propos",
     "whyUs": "Pourquoi nous",
     "process": "Processus",
@@ -474,7 +558,7 @@
     "legalNotice": "Mentions légales",
     "terms": "CGU",
     "privacy": "Confidentialité",
-    "companyInfo": "Finassur",
+    "companyInfo": "Finarent",
     "companyLegal1": "SAS au capital de 10 000€",
     "companyLegal2": "SIREN : 123 456 789",
     "companyLegal3": "RCS Paris",
@@ -482,7 +566,7 @@
     "regulationLine1": "ORIAS n° XX XXX XXX",
     "regulationLine2": "Courtier en Opérations de Banque (COBSP)",
     "regulationLine3": "Courtier en Assurance (COA)",
-    "copyright": "© 2025 Finassur. Tous droits réservés.",
+    "copyright": "© 2025 Finarent. Tous droits réservés.",
     "readyToFinance": "Prêt à financer votre",
     "nextProject": "prochain projet",
     "ctaDesc": "Réponse sous 48h. Sans engagement, sans frais de dossier.",
@@ -588,13 +672,13 @@
       "enable2FA": "Activez la double authentification",
       "enable2FADesc": "Protégez votre compte avec un second facteur via Auth0",
       "dontShare": "Ne partagez jamais vos identifiants",
-      "dontShareDesc": "Finassur ne vous demandera jamais votre mot de passe",
+      "dontShareDesc": "Finarent ne vous demandera jamais votre mot de passe",
       "back": "Retour au tableau de bord"
     },
     "referral": {
       "back": "Retour au tableau de bord",
       "title": "Parrainez et gagnez",
-      "subtitle": "Invitez un professionnel à découvrir Finassur",
+      "subtitle": "Invitez un professionnel à découvrir Finarent",
       "inviteStep": "Invitez",
       "subscribeStep": "Il souscrit",
       "earnStep": "Vous gagnez",

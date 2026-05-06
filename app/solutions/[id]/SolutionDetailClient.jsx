@@ -10,6 +10,17 @@ export default function SolutionDetailClient({ sol, otherSolutions }) {
     <div className="min-h-screen">
       {/* Hero */}
       <section className="relative pt-28 pb-16 sm:pt-40 sm:pb-32 overflow-hidden bg-[#0A192F] text-white">
+        {sol.heroImage && (
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src={sol.heroImage}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover opacity-25"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0A192F] via-[#0A192F]/85 to-[#0A192F]/40"></div>
+          </div>
+        )}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-secondary/15 rounded-full blur-[120px] animate-pulse-slow"></div>
           <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-accent/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
@@ -34,6 +45,12 @@ export default function SolutionDetailClient({ sol, otherSolutions }) {
               {sol.description}
             </p>
             <div className="flex flex-wrap gap-4">
+              {sol.monthlyFrom && (
+                <span className="inline-flex items-center gap-3 px-6 py-3 bg-accent text-white rounded-2xl font-bold shadow-xl shadow-accent/30">
+                  <i className="fa-solid fa-tag" />
+                  {sol.monthlyFrom === 'Sur devis' ? sol.monthlyFrom : `À partir de ${sol.monthlyFrom}`}
+                </span>
+              )}
               <span className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 text-white font-bold shadow-xl">
                 <i className="fa-solid fa-clock text-accent" />
                 {t('solutionDetail.delay')} : {sol.duration}
@@ -43,6 +60,11 @@ export default function SolutionDetailClient({ sol, otherSolutions }) {
                 {sol.minAmount} - {sol.maxAmount}
               </span>
             </div>
+            {sol.monthlyFrom && sol.monthlyFrom !== 'Sur devis' && (
+              <p className="text-xs text-white/40 mt-4 italic">
+                * Mensualité indicative pour {sol.minAmount} sur 36 mois. Taux personnalisé selon votre dossier.
+              </p>
+            )}
           </div>
         </div>
       </section>
