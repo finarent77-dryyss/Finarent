@@ -484,10 +484,27 @@ export default function HomeClient() {
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-3 sm:mb-4">{t('home.theyTrustUs')}</h2>
               <p className="text-sm sm:text-base lg:text-xl text-gray-600">{t('home.companiesChoseUs')}</p>
             </div>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 sm:gap-6 lg:gap-8 items-center mb-8 sm:mb-12 lg:mb-16">
-              {['BTP', 'MÉDICAL', 'TRANSPORT', 'INDUSTRIE', 'IT & TECH', 'SERVICES'].map((company, i) => (
-                <div key={i} className="bg-white rounded-xl p-3 sm:p-6 shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-center h-16 sm:h-24">
-                  <div className="text-xs sm:text-lg lg:text-2xl font-bold text-gray-400">{company}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 mb-8 sm:mb-12 lg:mb-16">
+              {[
+                { name: 'BTP',       icon: 'fa-helmet-safety',  count: '320+', gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
+                { name: 'Médical',   icon: 'fa-stethoscope',    count: '210+', gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
+                { name: 'Transport', icon: 'fa-truck-fast',     count: '180+', gradient: 'from-sky-500/10 to-blue-500/5',       accent: 'text-sky-600',     ring: 'hover:ring-sky-400/40' },
+                { name: 'Industrie', icon: 'fa-industry',       count: '150+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
+                { name: 'IT & Tech', icon: 'fa-microchip',      count: '240+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
+                { name: 'Services',  icon: 'fa-briefcase',      count: '290+', gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
+              ].map((s, i) => (
+                <div
+                  key={i}
+                  className={`group relative bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ring-1 ring-transparent ${s.ring} overflow-hidden`}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className="relative flex flex-col items-center text-center">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                      <i className={`fa-solid ${s.icon} ${s.accent} text-base sm:text-xl`}></i>
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold text-primary tracking-tight uppercase">{s.name}</div>
+                    <div className={`text-[10px] sm:text-xs font-semibold ${s.accent} mt-0.5`}>{s.count} PME</div>
+                  </div>
                 </div>
               ))}
             </div>

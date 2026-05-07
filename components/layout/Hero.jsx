@@ -81,8 +81,8 @@ export default function Hero() {
                 <div className="relative h-[600px] w-full rounded-[36px] overflow-hidden">
                   <img
                     className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-2000"
-                    src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=1200&q=80"
-                    alt="Cheffe d'entreprise française accompagnée par Finarent pour son financement"
+                    src="/hero_business_team_premium_v2_1772271137874.png"
+                    alt="Équipe de dirigeants accompagnés par Finassur pour leur financement professionnel"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
 
