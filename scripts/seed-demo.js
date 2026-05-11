@@ -10,11 +10,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // ─── Auth0 IDs des 4 comptes démo (créés via Management API) ───
+// Tenant: dev-44jsict2grc7s0jn.eu.auth0.com
 const AUTH0 = {
-  admin: 'auth0|69fbb4623a90ae642df98e0a',
-  client: 'auth0|69fbb46321e377949c61f388',
-  partner: 'auth0|69fbb46321e377949c61f38a',
-  insurer: 'auth0|69fbb4643b91660516060110',
+  admin: 'auth0|6a025639a8352bcd01f1e289',
+  client: 'auth0|6a025639cbde62d766cfef79',
+  partner: 'auth0|6a025639cbde62d766cfef7a',
+  insurer: 'auth0|6a02563a065428472e9c5a79',
 };
 
 function daysAgo(n) {
