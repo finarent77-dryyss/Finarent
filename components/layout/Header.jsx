@@ -77,7 +77,7 @@ export default function Header() {
             <div className="h-10 sm:h-11 w-auto rounded-lg overflow-hidden bg-white shadow-sm">
               <img
                 src="/finarent-logo.jpg"
-                alt="Finarent"
+                alt="Finassur"
                 className="h-full w-auto object-contain"
               />
             </div>
