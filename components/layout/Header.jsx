@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { useTranslation } from '@/lib/i18n';
 import NotificationsBell from '@/components/espace/NotificationsBell';
+import { CATEGORIES, SIMULATORS } from '@/lib/simulators/registry';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -141,6 +142,55 @@ export default function Header() {
                         <span className="font-medium text-sm text-gray-900">{s.name}</span>
                       </Link>
                     ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Simulateurs Dropdown (mega-menu) */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleDropdownEnter('simulateurs')}
+              onMouseLeave={handleDropdownLeave}
+            >
+              <button className={`${navLinkClass('/simulateurs')} flex items-center gap-1.5 px-4 py-2 rounded-lg hover:bg-white/10`}>
+                <span>Simulateurs</span>
+                <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-200 ${openDropdown === 'simulateurs' ? 'rotate-180' : ''}`}></i>
+              </button>
+              <div className={`absolute top-full right-0 pt-3 transition-all duration-200 ${openDropdown === 'simulateurs' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <div className="w-[640px] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden">
+                  <div className="grid grid-cols-2 p-3 gap-x-3">
+                    {CATEGORIES.map((cat) => {
+                      const items = SIMULATORS.filter((s) => s.category === cat.slug);
+                      const available = items.filter((s) => s.available).length;
+                      return (
+                        <Link
+                          key={cat.slug}
+                          href={`/simulateurs#${cat.slug}`}
+                          className="group flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                        >
+                          <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-${cat.color}-50 group-hover:bg-${cat.color}-100 transition-colors`}>
+                            <i className={`fa-solid ${cat.icon} text-${cat.color}-600 text-sm`}></i>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm text-gray-900 flex items-center gap-2">
+                              {cat.name}
+                              {available > 0 && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">{available} actif{available > 1 ? 's' : ''}</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-0.5">{items.length} simulateurs disponibles</div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  <div className="border-t border-gray-100 p-3 bg-gradient-to-br from-gray-50 to-white">
+                    <Link href="/simulateurs" className="flex items-center justify-center gap-2 text-sm font-bold text-secondary hover:text-secondary/80 transition-colors py-1.5">
+                      <i className="fa-solid fa-calculator text-xs"></i>
+                      <span>Voir les {SIMULATORS.length} simulateurs</span>
+                      <i className="fa-solid fa-arrow-right text-xs"></i>
+                    </Link>
                   </div>
                 </div>
               </div>
