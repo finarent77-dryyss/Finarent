@@ -3,17 +3,19 @@ import { getSimulator, getCategory, SIMULATORS } from '@/lib/simulators/registry
 import SimulatorShell from '@/components/simulators/SimulatorShell';
 import ComingSoonStub from '@/components/simulators/ComingSoonStub';
 
-// 4 simulateurs fonctionnels — registry mappé statiquement pour
+// 5 simulateurs fonctionnels — registry mappé statiquement pour
 // que Next.js puisse code-split correctement.
 import MensualiteSimulator from '@/components/simulators/working/MensualiteSimulator';
 import CapaciteEmpruntSimulator from '@/components/simulators/working/CapaciteEmpruntSimulator';
 import CoutCreditSimulator from '@/components/simulators/working/CoutCreditSimulator';
+import FraisNotaireSimulator from '@/components/simulators/working/FraisNotaireSimulator';
 import AssuranceEmprunteurSimulator from '@/components/simulators/working/AssuranceEmprunteurSimulator';
 
 const WORKING = {
   'credit-immobilier/mensualite': MensualiteSimulator,
   'credit-immobilier/capacite-emprunt': CapaciteEmpruntSimulator,
   'credit-immobilier/cout-credit': CoutCreditSimulator,
+  'credit-immobilier/frais-notaire': FraisNotaireSimulator,
   'assurance-emprunteur/assurance-emprunteur': AssuranceEmprunteurSimulator,
 };
 
