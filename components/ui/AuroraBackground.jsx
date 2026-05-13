@@ -5,12 +5,15 @@
  *  - 'soft'   → discret, sections blanches qui manquent de vie
  *  - 'vivid'  → plus saturé, sections de mise en valeur
  *  - 'dark'   → pour fonds sombres (couleurs lumineuses)
+ *  - 'brand'  → identique au CTA "Prêt à développer" : indigo → teal → emerald
  */
 export default function AuroraBackground({ variant = 'soft', className = '' }) {
   const palette = {
     soft:  ['bg-secondary/15', 'bg-accent/15',  'bg-purple-300/15'],
     vivid: ['bg-secondary/30', 'bg-accent/25',  'bg-pink-300/20'],
     dark:  ['bg-secondary/25', 'bg-accent/20',  'bg-blue-400/15'],
+    // Brand = palette exacte du CTA premium (capture client) — indigo / teal / emerald
+    brand: ['bg-secondary/25', 'bg-teal-400/20', 'bg-accent/25'],
   }[variant] || ['bg-secondary/15', 'bg-accent/15', 'bg-purple-300/15'];
 
   return (
