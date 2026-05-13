@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from './prisma';
 import type { User } from '@prisma/client';
 
-const ROLE_CLAIM = 'https://finassur/role';
+const ROLE_CLAIM = 'https://finarent/role';
+// Ancien namespace : conservé en fallback le temps que l'Action Auth0 migre.
+const LEGACY_ROLE_CLAIM = 'https://finassur/role';
 
 export type AuthResult = {
   auth0User: Record<string, unknown>;
@@ -17,7 +19,9 @@ export async function getSession() {
 
 /** Extrait le claim de rôle du token Auth0 */
 export function getRoleClaim(auth0User: Record<string, unknown>): string {
-  return (auth0User[ROLE_CLAIM] as string) ?? 'client';
+  return (auth0User[ROLE_CLAIM] as string)
+    ?? (auth0User[LEGACY_ROLE_CLAIM] as string)
+    ?? 'client';
 }
 
 /** Mappe le claim rôle Auth0 vers le rôle Prisma */

@@ -3,6 +3,12 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const ROLE_CLAIM = 'https://finarent/role';
+// Ancien namespace : fallback tant que l'Action Auth0 émet encore l'ancien claim.
+const LEGACY_ROLE_CLAIM = 'https://finassur/role';
+
+function getRole(user: Record<string, unknown>): string | undefined {
+  return (user[ROLE_CLAIM] as string) ?? (user[LEGACY_ROLE_CLAIM] as string);
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -27,7 +33,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('returnTo', pathname);
       return NextResponse.redirect(loginUrl);
     }
-    const role = (session.user as Record<string, unknown>)[ROLE_CLAIM];
+    const role = getRole(session.user as Record<string, unknown>);
     if (role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
@@ -41,7 +47,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('returnTo', pathname);
       return NextResponse.redirect(loginUrl);
     }
-    const role = (session.user as Record<string, unknown>)[ROLE_CLAIM];
+    const role = getRole(session.user as Record<string, unknown>);
     if (role !== 'partner' && role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
@@ -55,7 +61,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('returnTo', pathname);
       return NextResponse.redirect(loginUrl);
     }
-    const role = (session.user as Record<string, unknown>)[ROLE_CLAIM];
+    const role = getRole(session.user as Record<string, unknown>);
     if (role !== 'insurer' && role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }

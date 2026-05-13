@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { SliderInput } from '@/components/simulators/inputs';
 import { monthlyPayment, totalCost, totalInterest, formatEUR } from '@/lib/simulators/calculations/pret';
@@ -11,21 +11,33 @@ export default function HomeQuickSimulator() {
   const [amount, setAmount] = useState(150000);
   const [months, setMonths] = useState(240);
   const [rate, setRate] = useState(3.8);
+  const [pulseKey, setPulseKey] = useState(0);
+  const firstRender = useRef(true);
 
   const m = useMemo(() => monthlyPayment(amount, months, rate), [amount, months, rate]);
   const cost = useMemo(() => totalCost(m, months), [m, months]);
   const interest = useMemo(() => totalInterest(m, months, amount), [m, months, amount]);
 
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    setPulseKey((k) => k + 1);
+  }, [m]);
+
   return (
-    <section className="relative py-12 sm:py-16 lg:py-24 bg-linear-to-br from-white via-secondary/5 to-accent/5 overflow-hidden">
-      <AuroraBackground variant="soft" />
+    <section className="relative py-12 sm:py-16 lg:py-24 overflow-hidden">
+      <div className="absolute inset-0 mesh-bg"></div>
+      <AuroraBackground variant="vivid" />
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-block px-3 py-1.5 bg-secondary/10 rounded-full mb-4 animate-bounce-soft">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full mb-4 shadow-lg border border-secondary/20 animate-bounce-soft">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+            </span>
             <span className="text-secondary font-bold text-[10px] sm:text-xs uppercase tracking-widest">Simulateur rapide</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-primary mb-4 tracking-tight">
-            Estimez votre <span className="text-transparent bg-clip-text bg-linear-to-r from-secondary via-accent to-secondary animate-gradient">mensualité</span>
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-primary mb-4 tracking-tight">
+            Estimez votre <span className="text-transparent bg-clip-text bg-linear-to-r from-secondary via-purple-500 to-accent animate-gradient-sweep">mensualité</span>
           </h2>
           <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
             Glissez les curseurs ou <span className="font-semibold text-secondary">cliquez sur les chiffres</span> pour saisir vos valeurs au clavier.
@@ -69,14 +81,25 @@ export default function HomeQuickSimulator() {
             </div>
 
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <div className="relative bg-linear-to-br from-primary via-primary to-primary/85 rounded-3xl p-6 sm:p-7 text-white shadow-xl flex-1 overflow-hidden hover-lift">
-                <div className="absolute -top-16 -right-16 w-48 h-48 bg-accent/20 rounded-full blur-3xl animate-blob pointer-events-none"></div>
-                <div className="absolute -bottom-16 -left-12 w-44 h-44 bg-secondary/30 rounded-full blur-3xl animate-blob-delay pointer-events-none"></div>
-                <div className="relative">
-                  <div className="text-xs uppercase tracking-widest font-bold opacity-70 mb-2">Mensualité estimée</div>
-                  <div className="text-4xl sm:text-5xl font-black tracking-tight mb-1">
-                    <AnimatedNumber value={m} format={formatEUR} />
-                  </div>
+              <div className="relative rounded-3xl p-[2px] bg-linear-to-r from-secondary via-accent to-purple-500 animate-gradient-sweep shadow-2xl">
+                <div
+                  key={pulseKey}
+                  className="relative bg-linear-to-br from-primary via-primary to-primary/85 rounded-[22px] p-6 sm:p-7 text-white flex-1 overflow-hidden animate-ring-pulse"
+                >
+                  <div className="absolute -top-16 -right-16 w-48 h-48 bg-accent/30 rounded-full blur-3xl animate-blob pointer-events-none"></div>
+                  <div className="absolute -bottom-16 -left-12 w-44 h-44 bg-secondary/40 rounded-full blur-3xl animate-blob-delay pointer-events-none"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold opacity-70 mb-2">
+                      <i className="fa-solid fa-bolt text-accent animate-pulse"></i>
+                      <span>Mensualité estimée</span>
+                    </div>
+                    <div className="text-5xl sm:text-6xl font-black tracking-tight mb-1">
+                      <AnimatedNumber
+                        value={m}
+                        format={formatEUR}
+                        className="bg-clip-text text-transparent bg-linear-to-r from-white via-accent to-white animate-gradient-sweep"
+                      />
+                    </div>
                   <div className="text-xs opacity-70">/ mois pendant {Math.round(months / 12)} ans</div>
                   <div className="h-px bg-white/10 my-5"></div>
                   <div className="grid grid-cols-2 gap-4">
@@ -90,6 +113,7 @@ export default function HomeQuickSimulator() {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
 
               <Link

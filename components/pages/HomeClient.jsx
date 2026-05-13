@@ -9,6 +9,9 @@ import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import Hero from '@/components/layout/Hero';
 import HomeQuickSimulator from '@/components/home/HomeQuickSimulator';
 import AuroraBackground from '@/components/ui/AuroraBackground';
+import Tilt3D from '@/components/ui/Tilt3D';
+import Marquee from '@/components/ui/Marquee';
+import AnimatedHeading from '@/components/ui/AnimatedHeading';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import { sectorsData } from '@/assets/data/sectors';
@@ -30,9 +33,10 @@ export default function HomeClient() {
       <div className="min-h-screen">
         <Hero />
 
-        {/* Stats */}
+        {/* Stats — mesh gradient animé + tilt 3D sur les cartes */}
         <section className="relative py-12 sm:py-16 lg:py-24 bg-white overflow-hidden">
-          <AuroraBackground variant="soft" />
+          <div className="absolute inset-0 mesh-bg opacity-60"></div>
+          <AuroraBackground variant="vivid" />
           <div className="container mx-auto px-4 sm:px-6 relative z-10">
             <ScrollReveal>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
@@ -42,18 +46,21 @@ export default function HomeClient() {
                   { icon: 'fa-euro-sign', to: 50, suffix: 'M€', label: t('home.funded2025'), color: 'secondary' },
                   { icon: 'fa-handshake-simple', to: 98, suffix: '%', label: t('home.approvalRate'), color: 'accent' },
                 ].map((stat, i) => (
-                  <div key={i} className="group p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[32px] bg-white/80 backdrop-blur-sm border border-gray-100 hover-lift hover:bg-white hover:shadow-2xl transition-all duration-500 text-center">
-                    <div className={`w-10 h-10 sm:w-14 sm:h-14 bg-${stat.color}/10 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-6 group-hover:scale-110 transition-transform`}>
-                      <i className={`fa-solid ${stat.icon} text-${stat.color} text-lg sm:text-2xl`}></i>
+                  <Tilt3D key={i} max={14} className="rounded-2xl sm:rounded-[32px]">
+                    <div className="group p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[32px] bg-white/90 backdrop-blur-md border border-white shadow-xl text-center hover:shadow-2xl transition-shadow duration-500">
+                      <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-linear-to-br from-${stat.color}/30 to-${stat.color}/5 flex items-center justify-center mx-auto mb-3 sm:mb-6 group-hover:animate-glow-pulse`}>
+                        <div className={`absolute inset-0 rounded-2xl bg-${stat.color}/20 animate-pulse-slow`}></div>
+                        <i className={`fa-solid ${stat.icon} text-${stat.color} text-xl sm:text-3xl relative z-10`}></i>
+                      </div>
+                      <AnimatedCounter
+                        to={stat.to}
+                        suffix={stat.suffix}
+                        duration={stat.duration || 1800}
+                        className="block text-2xl sm:text-3xl lg:text-5xl font-black text-primary mb-1 sm:mb-2 tracking-tighter tabular-nums"
+                      />
+                      <div className="text-[10px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider sm:tracking-widest">{stat.label}</div>
                     </div>
-                    <AnimatedCounter
-                      to={stat.to}
-                      suffix={stat.suffix}
-                      duration={stat.duration || 1800}
-                      className="block text-2xl sm:text-3xl lg:text-4xl font-black text-primary mb-1 sm:mb-2 tracking-tighter tabular-nums"
-                    />
-                    <div className="text-[10px] sm:text-sm font-bold text-gray-500 uppercase tracking-wider sm:tracking-widest">{stat.label}</div>
-                  </div>
+                  </Tilt3D>
                 ))}
               </div>
             </ScrollReveal>
@@ -62,11 +69,11 @@ export default function HomeClient() {
 
         <HomeQuickSimulator />
 
-        {/* Trust strip — partenaires bancaires (placeholder à remplacer par vrais logos SVG) */}
+        {/* Trust strip — marquee infini qui défile */}
         <section className="py-12 sm:py-16 bg-white border-t border-gray-100">
-          <div className="container mx-auto px-4 sm:px-6">
+          <div className="mb-8 sm:mb-10 px-4">
             <ScrollReveal>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 sm:mb-10">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-primary text-center">
                   30+ partenaires bancaires & assureurs
                 </p>
@@ -75,31 +82,34 @@ export default function HomeClient() {
                   Une mise en concurrence pour <span className="font-bold text-secondary">les meilleures conditions du marché</span>
                 </p>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 max-w-5xl mx-auto">
-                {[
-                  { name: 'BNP Paribas', initial: 'BNP', color: 'from-emerald-700 to-emerald-800' },
-                  { name: 'Société Générale', initial: 'SG', color: 'from-red-600 to-red-700' },
-                  { name: 'BPCE Lease', initial: 'BPCE', color: 'from-purple-700 to-purple-800' },
-                  { name: 'Crédit Agricole', initial: 'CA', color: 'from-emerald-600 to-green-700' },
-                  { name: 'CIC Lease', initial: 'CIC', color: 'from-blue-600 to-blue-700' },
-                  { name: 'LCL', initial: 'LCL', color: 'from-amber-500 to-orange-600' },
-                ].map((p) => (
-                  <div key={p.name} className="group flex items-center gap-3 px-3 py-2.5 bg-white border border-gray-100 rounded-2xl hover:border-secondary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                    <span className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-sm group-hover:scale-105 transition-transform`}>
-                      {p.initial}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-primary truncate">{p.name}</div>
-                      <div className="text-[10px] text-gray-400">Partenaire</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-center text-[11px] text-gray-400 mt-6 italic">
-                Et bien d'autres : Bpifrance, Arval, Ayvens, BNP Lease Group, SocGen Equipment Finance…
-              </p>
             </ScrollReveal>
           </div>
+          <Marquee speed="slow">
+            {[
+              { name: 'BNP Paribas', initial: 'BNP', color: 'from-emerald-700 to-emerald-800' },
+              { name: 'Société Générale', initial: 'SG', color: 'from-red-600 to-red-700' },
+              { name: 'BPCE Lease', initial: 'BPCE', color: 'from-purple-700 to-purple-800' },
+              { name: 'Crédit Agricole', initial: 'CA', color: 'from-emerald-600 to-green-700' },
+              { name: 'CIC Lease', initial: 'CIC', color: 'from-blue-600 to-blue-700' },
+              { name: 'LCL', initial: 'LCL', color: 'from-amber-500 to-orange-600' },
+              { name: 'Bpifrance', initial: 'BPI', color: 'from-sky-600 to-sky-700' },
+              { name: 'Arval', initial: 'ARV', color: 'from-cyan-600 to-cyan-700' },
+              { name: 'Ayvens', initial: 'AYV', color: 'from-indigo-600 to-indigo-700' },
+              { name: 'BNP Lease', initial: 'BNL', color: 'from-emerald-600 to-teal-700' },
+              { name: 'SG Equipment', initial: 'SGE', color: 'from-rose-600 to-pink-700' },
+              { name: 'Hello Bank', initial: 'HB', color: 'from-fuchsia-600 to-purple-700' },
+            ].map((p) => (
+              <div key={p.name} className="group flex items-center gap-3 px-4 py-3 bg-white border border-gray-100 rounded-2xl hover:border-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shrink-0">
+                <span className={`w-12 h-12 rounded-xl bg-linear-to-br ${p.color} flex items-center justify-center text-white text-xs font-black shrink-0 shadow-md group-hover:scale-110 group-hover:rotate-6 transition-transform`}>
+                  {p.initial}
+                </span>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-primary truncate">{p.name}</div>
+                  <div className="text-[10px] text-gray-400">Partenaire</div>
+                </div>
+              </div>
+            ))}
+          </Marquee>
         </section>
 
         {/* Showcase espace client */}

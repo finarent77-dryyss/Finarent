@@ -1,10 +1,13 @@
 'use client';
 
-import { Suspense, useState, useCallback, useMemo, useRef } from 'react';
+import { Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
 import { buildPrefillFromParams } from '@/lib/simulators/prefill';
+
+const DRAFT_KEY = 'finarent.wizard.draft.v1';
 
 // ─── CONSTANTS ──────────────────────────────────────────
 
@@ -72,34 +75,67 @@ function DemandeWizardInner({ user, dbUser }) {
   const prefill = useMemo(() => buildPrefillFromParams(searchParams), [searchParams]);
   const isRcPrefill = prefill?.productType === 'RC_PRO';
 
-  const [step, setStep] = useState(prefill?.productType ? 1 : 0);
+  // Brouillon localStorage (uniquement si pas de préremplissage simulateur, pour éviter d'écraser)
+  const draft = useMemo(() => {
+    if (prefill || typeof window === 'undefined') return null;
+    try {
+      const raw = window.localStorage.getItem(DRAFT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed?.email && parsed.email !== (dbUser.email || user.email)) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }, [prefill, dbUser.email, user.email]);
+
+  const [step, setStep] = useState(() => {
+    if (prefill?.productType) return 1;
+    if (draft?.step != null && draft.step < STEPS.length) return draft.step;
+    return 0;
+  });
   const [direction, setDirection] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showDraftHint, setShowDraftHint] = useState(!!draft);
 
   const [form, setForm] = useState({
     // Step 1 - Type
-    productType: prefill?.productType || '',
+    productType: prefill?.productType || draft?.productType || '',
     // Step 2 - Project (financing)
-    equipmentType: prefill?.equipmentType || '',
-    amount: prefill && !isRcPrefill ? prefill.amount : '',
-    duration: prefill && !isRcPrefill && prefill.duration ? prefill.duration : '36',
-    description: prefill?.description || '',
+    equipmentType: prefill?.equipmentType || draft?.equipmentType || '',
+    amount: (prefill && !isRcPrefill ? prefill.amount : '') || draft?.amount || '',
+    duration: (prefill && !isRcPrefill && prefill.duration ? prefill.duration : '') || draft?.duration || '36',
+    description: prefill?.description || draft?.description || '',
     // Step 2 - Project (RC_PRO)
-    sector_rcpro: prefill?.sector_rcpro || '',
-    ca: isRcPrefill ? prefill.ca : '',
-    employees: isRcPrefill ? prefill.employees : '',
+    sector_rcpro: prefill?.sector_rcpro || draft?.sector_rcpro || '',
+    ca: (isRcPrefill ? prefill.ca : '') || draft?.ca || '',
+    employees: (isRcPrefill ? prefill.employees : '') || draft?.employees || '',
     // Step 3 - Company
-    companyName: dbUser.company || '',
-    siren: '',
-    legalForm: dbUser.legalForm || '',
-    sector: '',
+    companyName: dbUser.company || draft?.companyName || '',
+    siren: draft?.siren || '',
+    legalForm: dbUser.legalForm || draft?.legalForm || '',
+    sector: draft?.sector || '',
     // Step 4 - Contact
-    name: dbUser.name || user.name || '',
+    name: dbUser.name || user.name || draft?.name || '',
     email: dbUser.email || user.email || '',
-    phone: dbUser.phone || '',
+    phone: dbUser.phone || draft?.phone || '',
     terms: false,
   });
+
+  // Sauvegarde du brouillon à chaque modification (sauf les CGU)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const { terms, ...persistable } = form;
+      window.localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ ...persistable, step, email: dbUser.email || user.email }),
+      );
+    } catch {
+      // localStorage indisponible / plein — silencieux
+    }
+  }, [form, step, dbUser.email, user.email]);
 
   const update = useCallback((field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -189,6 +225,14 @@ function DemandeWizardInner({ user, dbUser }) {
         equipmentType: isRcPro ? null : form.equipmentType.trim(),
         name: form.name.trim(),
         phone: form.phone.trim(),
+        sourceSimulator: prefill?.fromSimulatorSlug
+          ? {
+              slug: prefill.fromSimulatorSlug,
+              category: prefill.fromSimulatorCategory || null,
+              label: prefill.fromSimulatorLabel || null,
+              params: prefill.rawParams || {},
+            }
+          : null,
       };
 
       const res = await fetch('/api/applications', {
@@ -202,6 +246,11 @@ function DemandeWizardInner({ user, dbUser }) {
         throw new Error(data.error || 'Erreur serveur');
       }
 
+      // Nettoyage du brouillon après envoi réussi
+      try {
+        if (typeof window !== 'undefined') window.localStorage.removeItem(DRAFT_KEY);
+      } catch { /* noop */ }
+
       router.push('/espace');
     } catch (err) {
       setErrors({ submit: err.message });
@@ -209,6 +258,33 @@ function DemandeWizardInner({ user, dbUser }) {
       setSubmitting(false);
     }
   };
+
+  const clearDraft = useCallback(() => {
+    try {
+      if (typeof window !== 'undefined') window.localStorage.removeItem(DRAFT_KEY);
+    } catch { /* noop */ }
+    setShowDraftHint(false);
+    setForm({
+      productType: '',
+      equipmentType: '',
+      amount: '',
+      duration: '36',
+      description: '',
+      sector_rcpro: '',
+      ca: '',
+      employees: '',
+      companyName: dbUser.company || '',
+      siren: '',
+      legalForm: dbUser.legalForm || '',
+      sector: '',
+      name: dbUser.name || user.name || '',
+      email: dbUser.email || user.email || '',
+      phone: dbUser.phone || '',
+      terms: false,
+    });
+    setStep(0);
+    setErrors({});
+  }, [dbUser, user]);
 
   // ─── STEP LABELS ─────────────────────────────────────
 
@@ -240,9 +316,37 @@ function DemandeWizardInner({ user, dbUser }) {
           <p className="text-slate-500 mt-1">{t('espace.wizard.subtitle')}</p>
 
           {prefill?.fromSimulatorLabel && (
-            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-              <i className="fa-solid fa-wand-magic-sparkles" />
-              Prérempli depuis votre simulation : {prefill.fromSimulatorLabel}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+                <i className="fa-solid fa-wand-magic-sparkles" />
+                Prérempli depuis votre simulation : {prefill.fromSimulatorLabel}
+              </span>
+              {prefill.fromSimulatorCategory && prefill.fromSimulatorSlug && (
+                <Link
+                  href={`/simulateurs/${prefill.fromSimulatorCategory}/${prefill.fromSimulatorSlug}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:text-primary hover:border-secondary text-xs font-semibold transition-colors"
+                >
+                  <i className="fa-solid fa-pen-to-square" />
+                  Modifier ma simulation
+                </Link>
+              )}
+            </div>
+          )}
+
+          {!prefill && showDraftHint && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+                <i className="fa-solid fa-floppy-disk" />
+                Brouillon restauré depuis votre dernière visite
+              </span>
+              <button
+                type="button"
+                onClick={clearDraft}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:text-red-600 hover:border-red-300 text-xs font-semibold transition-colors"
+              >
+                <i className="fa-solid fa-trash" />
+                Recommencer
+              </button>
             </div>
           )}
         </div>

@@ -240,6 +240,15 @@ export default function DemandesClient() {
                           </span>
                         )}
                         <span className="text-[10px] font-bold text-gray-300 uppercase">{t(`requestType.${d.requestType}`) || d.requestType}</span>
+                        {d.quoteDetails?.source?.kind === 'simulator' && (
+                          <span
+                            title={`Source : simulateur ${d.quoteDetails.source.label || d.quoteDetails.source.slug}`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-violet-100 text-violet-700"
+                          >
+                            <i className="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                            Simulateur · {d.quoteDetails.source.label || d.quoteDetails.source.slug}
+                          </span>
+                        )}
                       </div>
                       <h3 className="font-bold text-primary text-lg">{d.companyName}</h3>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
@@ -296,6 +305,42 @@ export default function DemandesClient() {
                         {d.phone && (
                           <div className="text-sm text-gray-500">
                             <i className="fa-solid fa-phone text-gray-300 mr-2"></i>{d.phone}
+                          </div>
+                        )}
+
+                        {d.quoteDetails?.source?.kind === 'simulator' && (
+                          <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <i className="fa-solid fa-wand-magic-sparkles text-violet-600"></i>
+                              <div className="text-xs font-bold uppercase tracking-wider text-violet-700">
+                                Issue du simulateur « {d.quoteDetails.source.label || d.quoteDetails.source.slug} »
+                              </div>
+                            </div>
+                            {d.quoteDetails.source.category && d.quoteDetails.source.slug && (
+                              <Link
+                                href={`/simulateurs/${d.quoteDetails.source.category}/${d.quoteDetails.source.slug}`}
+                                target="_blank"
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-700 hover:text-violet-900 underline-offset-2 hover:underline mb-3"
+                              >
+                                <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                Ouvrir le simulateur dans un onglet
+                              </Link>
+                            )}
+                            {d.quoteDetails.source.params && Object.keys(d.quoteDetails.source.params).length > 0 && (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                                {Object.entries(d.quoteDetails.source.params).map(([k, v]) => (
+                                  <div key={k} className="bg-white rounded-lg p-2 border border-violet-100">
+                                    <div className="text-[10px] font-bold text-violet-400 uppercase">{k}</div>
+                                    <div className="text-xs font-semibold text-primary truncate" title={String(v)}>{String(v)}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {d.quoteDetails.source.capturedAt && (
+                              <div className="text-[10px] text-violet-400 mt-3">
+                                Capturée le {formatDate(d.quoteDetails.source.capturedAt)}
+                              </div>
+                            )}
                           </div>
                         )}
 

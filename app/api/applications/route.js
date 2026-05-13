@@ -119,11 +119,32 @@ export async function POST(request) {
     };
     const { score: scorePreQual, label: scoreLabel } = calculateScore(applicationDraft, []);
 
+    // Traçabilité du simulateur d'origine (si présent) dans quoteDetails
+    const quoteDetails = body.sourceSimulator && typeof body.sourceSimulator === 'object'
+      ? {
+          source: {
+            kind: 'simulator',
+            slug: String(body.sourceSimulator.slug || '').slice(0, 80) || null,
+            category: String(body.sourceSimulator.category || '').slice(0, 80) || null,
+            label: String(body.sourceSimulator.label || '').slice(0, 200) || null,
+            params: body.sourceSimulator.params && typeof body.sourceSimulator.params === 'object'
+              ? Object.fromEntries(
+                  Object.entries(body.sourceSimulator.params)
+                    .slice(0, 30)
+                    .map(([k, v]) => [String(k).slice(0, 40), String(v).slice(0, 200)]),
+                )
+              : {},
+            capturedAt: new Date().toISOString(),
+          },
+        }
+      : null;
+
     const application = await prisma.application.create({
       data: {
         ...applicationDraft,
         scorePreQual,
         scoreLabel,
+        ...(quoteDetails ? { quoteDetails } : {}),
       },
     });
 

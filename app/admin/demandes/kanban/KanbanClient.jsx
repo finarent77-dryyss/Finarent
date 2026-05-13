@@ -103,6 +103,15 @@ function KanbanCard({ demande, isDragging }) {
         {demande.companyName}
       </h3>
       <div className="text-xs text-slate-500 truncate mb-2">{demande.email}</div>
+      {demande.quoteDetails?.source?.kind === 'simulator' && (
+        <div
+          className="mb-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-violet-100 text-violet-700"
+          title={`Simulateur : ${demande.quoteDetails.source.label || demande.quoteDetails.source.slug}`}
+        >
+          <i className="fa-solid fa-wand-magic-sparkles text-[8px]"></i>
+          <span className="truncate max-w-[140px]">{demande.quoteDetails.source.label || demande.quoteDetails.source.slug}</span>
+        </div>
+      )}
       <div className="flex items-center justify-between pt-2 border-t border-slate-100">
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
           Montant

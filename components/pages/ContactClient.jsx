@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { validateForm } from '@/utils/validation';
@@ -8,6 +8,19 @@ import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import FAQItem from '@/components/ui/FAQItem';
 import { useTranslation } from '@/lib/i18n';
+import { buildPrefillFromParams } from '@/lib/simulators/prefill';
+
+// Mapping secteur wizard → option du select de /contact (libellés différents)
+const CONTACT_SECTOR_MAP = {
+  'BTP & Construction': 'btp',
+  'Médical & Santé': 'medical',
+  'Informatique & Tech': 'tech',
+  'Transport & Logistique': 'transport',
+  'Industrie': 'industrie',
+  'Services': 'services',
+  'Commerce': 'commerce',
+  'Autre': 'autre',
+};
 
 const getAmountOption = (amount) => {
   const n = Number(amount);
@@ -23,11 +36,7 @@ const getAmountOption = (amount) => {
 
 export default function ContactClient() {
   const searchParams = useSearchParams();
-  const fromSimulator = searchParams.get('fromSimulator');
-  const amountParam = searchParams.get('amount');
-  const durationParam = searchParams.get('duration');
-  const monthlyPaymentParam = searchParams.get('monthlyPayment');
-  const totalCostParam = searchParams.get('totalCost');
+  const prefill = useMemo(() => buildPrefillFromParams(searchParams), [searchParams]);
   const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
@@ -51,16 +60,20 @@ export default function ContactClient() {
   const [reference, setReference] = useState(null);
 
   useEffect(() => {
-    if (fromSimulator && amountParam) {
-      const simulationMsg = `Simulation : ${Number(amountParam).toLocaleString()}€ sur ${durationParam} mois - Mensualité estimée : ${Number(monthlyPaymentParam || 0).toLocaleString()}€`;
-      setFormData(prev => ({
-        ...prev,
-        requestType: 'financement',
-        amount: getAmountOption(amountParam),
-        message: prev.message || simulationMsg
-      }));
-    }
-  }, [fromSimulator, amountParam, durationParam, monthlyPaymentParam]);
+    if (!prefill) return;
+    const isRcPro = prefill.productType === 'RC_PRO';
+    const numericAmount = isRcPro ? prefill.ca : prefill.amount;
+    const amountOption = getAmountOption(numericAmount);
+    const sectorOption = isRcPro ? CONTACT_SECTOR_MAP[prefill.sector_rcpro] || '' : '';
+    setFormData(prev => ({
+      ...prev,
+      requestType: isRcPro ? 'assurance' : 'financement',
+      amount: amountOption || prev.amount,
+      equipmentType: !isRcPro && prefill.equipmentType ? prefill.equipmentType : prev.equipmentType,
+      sector: sectorOption || prev.sector,
+      message: prev.message || prefill.description || '',
+    }));
+  }, [prefill]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
