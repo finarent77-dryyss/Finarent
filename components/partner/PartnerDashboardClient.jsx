@@ -142,7 +142,7 @@ export default function PartnerDashboardClient() {
                 <i className="fa-solid fa-headset"></i>
               </div>
               <div>
-                <div className="font-bold text-sm">Contacter Finassur</div>
+                <div className="font-bold text-sm">Contacter Finarent</div>
                 <div className="text-xs text-gray-400">Support dédié partenaire</div>
               </div>
               <i className="fa-solid fa-chevron-right text-gray-300 ml-auto"></i>

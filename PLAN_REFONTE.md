@@ -1,4 +1,4 @@
-# 🗺️ Plan de refonte Finassur — Architecture v2.0
+# 🗺️ Plan de refonte Finarent — Architecture v2.0
 
 **Basé sur la spec Mars 2026.** Migration du codebase actuel (JS, DemandeFinancement) vers l'architecture cible (TS, Application, Partenaires, workflow complet).
 
@@ -143,4 +143,4 @@ Ensuite : migration, puis `lib/prisma.ts` et `lib/auth.ts`.
 
 ---
 
-*Document généré pour Finassur — Mars 2026*
+*Document généré pour Finarent — Mars 2026*

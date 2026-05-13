@@ -1,7 +1,7 @@
 import AdminOffersClient from './AdminOffersClient';
 
 export const metadata = {
-  title: 'Offres | Admin Finassur',
+  title: 'Offres | Admin Finarent',
 };
 
 export default function AdminOffersPage() {

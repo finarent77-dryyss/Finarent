@@ -1,6 +1,6 @@
 # Comparatif — Spécification Technique vs État Réel du projet
 
-> Analyse comparative entre la **Documentation Technique v1.0** (spec livrée avec les maquettes) et **l'implémentation actuelle** du projet Finassur (commit `81c8528`).
+> Analyse comparative entre la **Documentation Technique v1.0** (spec livrée avec les maquettes) et **l'implémentation actuelle** du projet Finarent (commit `81c8528`).
 
 ---
 

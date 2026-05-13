@@ -1,7 +1,7 @@
 import PartnerDashboardClient from '@/components/partner/PartnerDashboardClient';
 
 export const metadata = {
-  title: 'Dashboard | Espace Partenaire Finassur',
+  title: 'Dashboard | Espace Partenaire Finarent',
 };
 
 export default function PartnerPage() {

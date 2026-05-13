@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import ContactClient from '@/components/pages/ContactClient';
 
 export const metadata = {
-  title: 'Contact | Finassur',
-  description: 'Contactez Finassur pour une demande de financement ou d\'assurance professionnelle. Réponse sous 48h.',
+  title: 'Contact | Finarent',
+  description: 'Contactez Finarent pour une demande de financement ou d\'assurance professionnelle. Réponse sous 48h.',
 };
 
 export default function ContactPage() {

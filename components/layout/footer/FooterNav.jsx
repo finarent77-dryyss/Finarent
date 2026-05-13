@@ -30,7 +30,7 @@ export default function FooterNav() {
         </ul>
       </div>
       <div>
-        <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-white/90">{t('footer.finassur')}</h4>
+        <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-white/90">{t('footer.finarent')}</h4>
         <ul className="space-y-2 text-sm">
           <li><Link href="/about" className="text-white/60 hover:text-white transition-colors">{t('footer.about')}</Link></li>
           <li><Link href="/why-leasing" className="text-white/60 hover:text-white transition-colors">{t('footer.whyUs')}</Link></li>

@@ -81,7 +81,7 @@ export default function Header() {
             <div className="h-10 sm:h-11 w-auto rounded-lg overflow-hidden bg-white shadow-sm">
               <img
                 src="/finarent-logo.jpg"
-                alt="Finassur"
+                alt="Finarent"
                 className="h-full w-auto object-contain"
               />
             </div>
@@ -202,7 +202,7 @@ export default function Header() {
             </div>
 
             <Link href="/assurance" className={`${navLinkClass('/assurance')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.insurance')}</Link>
-            <Link href="/why-leasing" className={`${navLinkClass('/why-leasing')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.whyFinassur')}</Link>
+            <Link href="/why-leasing" className={`${navLinkClass('/why-leasing')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.whyFinarent')}</Link>
             <Link href="/blog" className={`${navLinkClass('/blog')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.blog')}</Link>
             <Link href="/contact" className={`${navLinkClass('/contact')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.contact')}</Link>
           </div>
@@ -260,7 +260,7 @@ export default function Header() {
               { label: t('nav.solutions'), href: '/solutions' },
               { label: t('nav.sectors'), href: '/sectors' },
               { label: t('nav.insurance'), href: '/assurance' },
-              { label: t('nav.whyFinassur'), href: '/why-leasing' },
+              { label: t('nav.whyFinarent'), href: '/why-leasing' },
               { label: t('nav.blog'), href: '/blog' },
               { label: t('nav.contact'), href: '/contact' },
               { label: t('comparator.navLabel'), href: '/comparateur' },

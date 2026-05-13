@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
 
-const COLLAPSED_KEY = 'finassur:admin:sidebarCollapsed';
+const COLLAPSED_KEY = 'finarent:admin:sidebarCollapsed';
 
 export default function AdminLayoutClient({ email, children }) {
   const [isOpen, setIsOpen] = useState(false);

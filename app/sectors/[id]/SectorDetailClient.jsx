@@ -129,7 +129,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
                 {t('sectorDetail.yourAdvantages')}
               </span>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary">
-                {t('sectorDetail.whyFinance')} <span className="text-secondary">Finassur</span> ?
+                {t('sectorDetail.whyFinance')} <span className="text-secondary">Finarent</span> ?
               </h2>
             </div>
 

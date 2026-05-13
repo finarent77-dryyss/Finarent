@@ -1,7 +1,7 @@
-# État du Projet : Finassur
+# État du Projet : Finarent
 
 ## 📝 Présentation du Projet
-Finassur est une plateforme de courtage en financement professionnel. Elle permet aux entreprises de simuler et de déposer des demandes de financement (crédit-bail, LOA, etc.) et de gérer leurs documents via un espace client sécurisé. L'administration dispose d'un tableau de bord pour traiter ces demandes.
+Finarent est une plateforme de courtage en financement professionnel. Elle permet aux entreprises de simuler et de déposer des demandes de financement (crédit-bail, LOA, etc.) et de gérer leurs documents via un espace client sécurisé. L'administration dispose d'un tableau de bord pour traiter ces demandes.
 
 ## 🚀 Ce qui a été réalisé
 

@@ -82,7 +82,7 @@ export default function ParrainageClient({ dbUser }) {
               <i className="fa-solid fa-gift text-accent mr-2"></i>
               Parrainez et gagnez
             </h1>
-            <p className="text-white/60 max-w-lg mb-8">Invitez un professionnel à découvrir Finassur. Quand il souscrit, vous êtes récompensé.</p>
+            <p className="text-white/60 max-w-lg mb-8">Invitez un professionnel à découvrir Finarent. Quand il souscrit, vous êtes récompensé.</p>
             <div className="grid grid-cols-3 gap-4">
               {[
                 { icon: 'fa-paper-plane', step: '1', label: 'Invitez' },
@@ -113,10 +113,10 @@ export default function ParrainageClient({ dbUser }) {
             </button>
           </div>
           <div className="flex gap-2 mt-3">
-            <a href={`mailto:?subject=Découvrez Finassur&body=Je vous recommande Finassur pour vos financements professionnels : ${referralLink}`} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-100 transition-all flex items-center gap-1.5">
+            <a href={`mailto:?subject=Découvrez Finarent&body=Je vous recommande Finarent pour vos financements professionnels : ${referralLink}`} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-100 transition-all flex items-center gap-1.5">
               <i className="fa-solid fa-envelope"></i> Email
             </a>
-            <a href={`https://wa.me/?text=Découvrez Finassur pour vos financements : ${referralLink}`} target="_blank" className="px-4 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-100 transition-all flex items-center gap-1.5">
+            <a href={`https://wa.me/?text=Découvrez Finarent pour vos financements : ${referralLink}`} target="_blank" className="px-4 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-100 transition-all flex items-center gap-1.5">
               <i className="fa-brands fa-whatsapp"></i> WhatsApp
             </a>
           </div>

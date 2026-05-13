@@ -5,8 +5,8 @@ import SolutionDetailClient from './SolutionDetailClient';
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const sol = solutionsData.find(s => s.id === id);
-  if (!sol) return { title: 'Solution | Finassur' };
-  return { title: `${sol.title} | Finassur`, description: sol.description };
+  if (!sol) return { title: 'Solution | Finarent' };
+  return { title: `${sol.title} | Finarent`, description: sol.description };
 }
 
 export default async function SolutionDetailPage({ params }) {

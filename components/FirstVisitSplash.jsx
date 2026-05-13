@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 
-const STORAGE_KEY = 'finassur_visited';
+const STORAGE_KEY = 'finarent_visited';
 
 export default function FirstVisitSplash({ children }) {
   const router = useRouter();
@@ -113,7 +113,7 @@ export default function FirstVisitSplash({ children }) {
 
         {/* Welcome text */}
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary mb-3 text-center tracking-tight">
-          {t('splash.welcome')} <span className="text-transparent bg-clip-text bg-linear-to-r from-secondary to-accent">Finassur</span>
+          {t('splash.welcome')} <span className="text-transparent bg-clip-text bg-linear-to-r from-secondary to-accent">Finarent</span>
         </h1>
         <p className="text-base sm:text-lg text-gray-500 mb-10 sm:mb-12 text-center max-w-lg leading-relaxed">
           {t('splash.whatAreYouLooking')}

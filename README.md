@@ -1,6 +1,6 @@
-# Finassur - Plateforme de Financement Professionnel
+# Finarent - Plateforme de Financement Professionnel
 
-Application **Next.js 15** pour Finassur, spécialisée dans le financement professionnel (crédit-bail, LOA, solutions de financement).
+Application **Next.js 15** pour Finarent, spécialisée dans le financement professionnel (crédit-bail, LOA, solutions de financement).
 
 ## 🚀 Technologies Utilisées
 
@@ -20,7 +20,7 @@ Application **Next.js 15** pour Finassur, spécialisée dans le financement prof
 
 1. Clonez le repository
 ```bash
-cd finassur
+cd finarent
 ```
 
 2. Installez les dépendances
@@ -103,7 +103,7 @@ npm run preview
 ## 📁 Structure du Projet
 
 ```
-finassur/
+finarent/
 ├── app/                   # Next.js App Router
 │   ├── layout.jsx        # Layout racine
 │   ├── page.jsx          # Page d'accueil
@@ -255,9 +255,9 @@ Ce projet est privé et propriétaire.
 ## 👥 Support
 
 Pour toute question ou problème:
-- Email: contact@finassur.fr
+- Email: contact@finarent.fr
 - Téléphone: 01 23 45 67 89
 
 ---
 
-Développé avec ❤️ pour Finassur
+Développé avec ❤️ pour Finarent

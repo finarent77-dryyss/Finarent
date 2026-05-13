@@ -20,7 +20,7 @@ export async function POST(request, { params }) {
   }
 
   // Generate a simple HTML contract
-  const contractHtml = `<html><body><h1>Contrat Finassur</h1><p>Offre ${offer.id}</p><p>Montant: ${offer.amount}€</p></body></html>`;
+  const contractHtml = `<html><body><h1>Contrat Finarent</h1><p>Offre ${offer.id}</p><p>Montant: ${offer.amount}€</p></body></html>`;
   const buffer = Buffer.from(contractHtml);
 
   try {

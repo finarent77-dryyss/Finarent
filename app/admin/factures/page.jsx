@@ -1,7 +1,7 @@
 import AdminInvoicesClient from './AdminInvoicesClient';
 
 export const metadata = {
-  title: 'Factures | Admin Finassur',
+  title: 'Factures | Admin Finarent',
 };
 
 export default function AdminInvoicesPage() {

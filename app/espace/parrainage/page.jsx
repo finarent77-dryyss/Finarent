@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { syncUser } from '@/lib/users';
 import ParrainageClient from './ParrainageClient';
 
-export const metadata = { title: 'Parrainage | Finassur' };
+export const metadata = { title: 'Parrainage | Finarent' };
 
 export default async function ParrainagePage() {
   const session = await getSession();

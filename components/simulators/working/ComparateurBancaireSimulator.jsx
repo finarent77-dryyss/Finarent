@@ -14,7 +14,7 @@ const BANKS = [
   { name: 'Banque Populaire',    rate: 3.60, fees: 1300, insurance: 0.32 },
   { name: 'Boursorama',          rate: 3.45, fees: 0,    insurance: 0.28 },
   { name: 'Fortuneo',            rate: 3.40, fees: 0,    insurance: 0.26 },
-  { name: 'Délégation Finassur', rate: 3.40, fees: 800,  insurance: 0.14 },
+  { name: 'Délégation Finarent', rate: 3.40, fees: 800,  insurance: 0.14 },
 ];
 
 export default function ComparateurBancaireSimulator() {
@@ -40,7 +40,7 @@ export default function ComparateurBancaireSimulator() {
     <div className="space-y-6">
       <div className="bg-secondary/5 border border-secondary/20 rounded-2xl p-4 text-sm text-primary">
         <i className="fa-solid fa-circle-info text-secondary mr-2"></i>
-        Comparaison de 9 acteurs (banques traditionnelles, banques en ligne, délégation). Taux indicatifs pour profil bon dossier — votre conseiller Finassur négocie pour vous des conditions sur-mesure.
+        Comparaison de 9 acteurs (banques traditionnelles, banques en ligne, délégation). Taux indicatifs pour profil bon dossier — votre conseiller Finarent négocie pour vous des conditions sur-mesure.
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-6">

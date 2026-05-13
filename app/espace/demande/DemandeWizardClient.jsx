@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useCallback, useMemo, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
+import { buildPrefillFromParams } from '@/lib/simulators/prefill';
 
 // ─── CONSTANTS ──────────────────────────────────────────
 
@@ -54,26 +55,40 @@ const slideVariants = {
 
 // ─── MAIN COMPONENT ─────────────────────────────────────
 
-export default function DemandeWizardClient({ user, dbUser }) {
+export default function DemandeWizardClient(props) {
+  return (
+    <Suspense fallback={null}>
+      <DemandeWizardInner {...props} />
+    </Suspense>
+  );
+}
+
+function DemandeWizardInner({ user, dbUser }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
-  const [step, setStep] = useState(0);
+
+  // Préremplissage depuis un simulateur (calculé une seule fois)
+  const prefill = useMemo(() => buildPrefillFromParams(searchParams), [searchParams]);
+  const isRcPrefill = prefill?.productType === 'RC_PRO';
+
+  const [step, setStep] = useState(prefill?.productType ? 1 : 0);
   const [direction, setDirection] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     // Step 1 - Type
-    productType: '',
+    productType: prefill?.productType || '',
     // Step 2 - Project (financing)
-    equipmentType: '',
-    amount: '',
-    duration: '36',
-    description: '',
+    equipmentType: prefill?.equipmentType || '',
+    amount: prefill && !isRcPrefill ? prefill.amount : '',
+    duration: prefill && !isRcPrefill && prefill.duration ? prefill.duration : '36',
+    description: prefill?.description || '',
     // Step 2 - Project (RC_PRO)
-    sector_rcpro: '',
-    ca: '',
-    employees: '',
+    sector_rcpro: prefill?.sector_rcpro || '',
+    ca: isRcPrefill ? prefill.ca : '',
+    employees: isRcPrefill ? prefill.employees : '',
     // Step 3 - Company
     companyName: dbUser.company || '',
     siren: '',
@@ -223,6 +238,13 @@ export default function DemandeWizardClient({ user, dbUser }) {
             {t('espace.wizard.title')}
           </h1>
           <p className="text-slate-500 mt-1">{t('espace.wizard.subtitle')}</p>
+
+          {prefill?.fromSimulatorLabel && (
+            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+              <i className="fa-solid fa-wand-magic-sparkles" />
+              Prérempli depuis votre simulation : {prefill.fromSimulatorLabel}
+            </div>
+          )}
         </div>
       </div>
 

@@ -20,7 +20,7 @@ export async function GET() {
   return new NextResponse(JSON.stringify(data, null, 2), {
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="finassur-data-${auth.dbUser.id}.json"`,
+      'Content-Disposition': `attachment; filename="finarent-data-${auth.dbUser.id}.json"`,
     },
   });
 }

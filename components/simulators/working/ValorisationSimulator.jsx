@@ -54,7 +54,7 @@ export default function ValorisationSimulator() {
     <div className="space-y-6">
       <div className="bg-secondary/5 border border-secondary/20 rounded-2xl p-4 text-sm text-primary">
         <i className="fa-solid fa-circle-info text-secondary mr-2"></i>
-        Estimation indicative basée sur les prix moyens du marché (notaires + DVF). Pour une expertise précise et certifiée, votre conseiller Finassur vous met en relation avec un expert agréé.
+        Estimation indicative basée sur les prix moyens du marché (notaires + DVF). Pour une expertise précise et certifiée, votre conseiller Finarent vous met en relation avec un expert agréé.
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-6">

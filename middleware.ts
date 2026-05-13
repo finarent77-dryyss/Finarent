@@ -2,7 +2,7 @@ import { getSession } from '@auth0/nextjs-auth0/edge';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const ROLE_CLAIM = 'https://finassur/role';
+const ROLE_CLAIM = 'https://finarent/role';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

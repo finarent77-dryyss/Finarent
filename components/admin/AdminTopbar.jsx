@@ -18,7 +18,7 @@ export default function AdminTopbar({ isOpen, onToggle, email }) {
         <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-white font-bold text-xs">
           A
         </div>
-        <span className="text-sm font-black text-primary">Admin Finassur</span>
+        <span className="text-sm font-black text-primary">Admin Finarent</span>
       </Link>
 
       <div className="w-10" aria-hidden="true" />

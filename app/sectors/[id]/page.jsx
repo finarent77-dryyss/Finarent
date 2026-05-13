@@ -5,8 +5,8 @@ import SectorDetailClient from './SectorDetailClient';
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const sector = sectorsData.find(s => s.id === id);
-  if (!sector) return { title: 'Secteur | Finassur' };
-  return { title: `${sector.title} | Finassur`, description: sector.description };
+  if (!sector) return { title: 'Secteur | Finarent' };
+  return { title: `${sector.title} | Finarent`, description: sector.description };
 }
 
 export default async function SectorDetailPage({ params }) {

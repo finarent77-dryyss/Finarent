@@ -5,8 +5,8 @@ import BlogDetailClient from './BlogDetailClient';
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const post = blogData.find(p => p.id === Number(id));
-  if (!post) return { title: 'Article | Finassur' };
-  return { title: `${post.title} | Finassur`, description: post.excerpt };
+  if (!post) return { title: 'Article | Finarent' };
+  return { title: `${post.title} | Finarent`, description: post.excerpt };
 }
 
 export default async function BlogDetailPage({ params }) {

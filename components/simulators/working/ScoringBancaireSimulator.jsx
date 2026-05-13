@@ -77,7 +77,7 @@ export default function ScoringBancaireSimulator() {
       </div>
 
       <div className={`bg-${color}-50 border-2 border-${color}-200 rounded-2xl p-8`}>
-        <div className={`text-xs uppercase tracking-widest font-bold text-${color}-700 mb-2`}>Score Finassur</div>
+        <div className={`text-xs uppercase tracking-widest font-bold text-${color}-700 mb-2`}>Score Finarent</div>
         <div className={`text-6xl font-black text-${color}-600`}>{score} <span className="text-3xl text-gray-400">/ 100</span></div>
         <div className={`text-lg font-bold text-${color}-700 mt-2`}>{grade}</div>
         <div className="mt-4 h-3 bg-white rounded-full overflow-hidden">

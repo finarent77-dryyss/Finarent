@@ -20,7 +20,7 @@ export default function LegalClient() {
                     <i className="fa-solid fa-building text-secondary"></i>{t('legal.editor')}
                   </h2>
                   <div className="text-gray-600 leading-relaxed space-y-2">
-                    <p><strong>Finassur SAS</strong></p>
+                    <p><strong>Finarent SAS</strong></p>
                     <p>{t('legal.companyType')}</p>
                     <p>{t('legal.address')}</p>
                     <p>{t('legal.sirenRcs')}</p>

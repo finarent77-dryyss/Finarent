@@ -117,7 +117,7 @@ export async function generateMetadata({ params }) {
     description: sim.desc,
     alternates: { canonical: `/simulateurs/${category}/${slug}` },
     openGraph: {
-      title: `Simulateur ${sim.name} | Finassur`,
+      title: `Simulateur ${sim.name} | Finarent`,
       description: sim.desc,
       url: `/simulateurs/${category}/${slug}`,
       type: 'website',

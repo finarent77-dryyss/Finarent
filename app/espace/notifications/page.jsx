@@ -4,7 +4,7 @@ import { syncUser } from '@/lib/users';
 import { prisma } from '@/lib/prisma';
 import NotificationsClient from './NotificationsClient';
 
-export const metadata = { title: 'Notifications | Finassur' };
+export const metadata = { title: 'Notifications | Finarent' };
 
 export default async function NotificationsPage() {
   const session = await getSession();

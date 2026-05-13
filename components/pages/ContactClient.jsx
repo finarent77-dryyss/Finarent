@@ -219,7 +219,7 @@ export default function ContactClient() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <i className="fa-solid fa-envelope text-secondary text-sm"></i>
-                        <a href="mailto:contact@finassur.fr" className="text-sm font-medium text-gray-900 hover:text-secondary">{t('common.email')}</a>
+                        <a href="mailto:contact@finarent.fr" className="text-sm font-medium text-gray-900 hover:text-secondary">{t('common.email')}</a>
                       </div>
                     </div>
                   </div>

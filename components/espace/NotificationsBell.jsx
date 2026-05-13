@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const STORAGE_KEY = 'finassur_notif_lastread';
+const STORAGE_KEY = 'finarent_notif_lastread';
 const POLL_INTERVAL = 60_000;
 
 const STATUS_LABEL = {

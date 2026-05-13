@@ -11,13 +11,13 @@ import './globals.css';
 export const metadata = {
   metadataBase: new URL(process.env.AUTH0_BASE_URL || 'http://localhost:3000'),
   title: {
-    default: 'Finassur | Financement & Assurance Professionnel',
-    template: '%s | Finassur',
+    default: 'Finarent | Financement & Assurance Professionnel',
+    template: '%s | Finarent',
   },
-  description: 'Finassur accompagne les entreprises dans leur financement professionnel (crédit-bail, LOA, leasing) et leur assurance (RC Pro, flotte, multirisque). De 3 000€ à 2 M€, réponse en 48h.',
+  description: 'Finarent accompagne les entreprises dans leur financement professionnel (crédit-bail, LOA, leasing) et leur assurance (RC Pro, flotte, multirisque). De 3 000€ à 2 M€, réponse en 48h.',
   keywords: ['financement professionnel', 'crédit-bail', 'leasing', 'LOA', 'assurance pro', 'RC Pro', 'courtier financement', 'PME'],
-  applicationName: 'Finassur',
-  authors: [{ name: 'Finassur' }],
+  applicationName: 'Finarent',
+  authors: [{ name: 'Finarent' }],
   icons: {
     icon: [
       { url: '/finarent-logo.jpg', type: 'image/jpeg' },
@@ -28,14 +28,14 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    siteName: 'Finassur',
-    title: 'Finassur | Financement & Assurance Professionnel',
+    siteName: 'Finarent',
+    title: 'Finarent | Financement & Assurance Professionnel',
     description: 'Crédit-bail, leasing, assurance pro. Réponse en 48h. 1200+ entreprises accompagnées, 98% d\'accords.',
-    images: [{ url: '/hero_business_team_premium_v2_1772271137874.png', width: 1200, height: 630, alt: 'Finassur — Financement professionnel' }],
+    images: [{ url: '/hero_business_team_premium_v2_1772271137874.png', width: 1200, height: 630, alt: 'Finarent — Financement professionnel' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Finassur | Financement & Assurance Professionnel',
+    title: 'Finarent | Financement & Assurance Professionnel',
     description: 'Crédit-bail, leasing, assurance pro. Réponse en 48h.',
     images: ['/hero_business_team_premium_v2_1772271137874.png'],
   },

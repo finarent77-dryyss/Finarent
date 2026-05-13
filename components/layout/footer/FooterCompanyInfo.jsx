@@ -12,7 +12,7 @@ export default function FooterCompanyInfo() {
         <div className="w-10 h-10 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center shadow-lg">
           <i className="fa-solid fa-chart-line text-white text-lg"></i>
         </div>
-        <span className="text-2xl font-bold">Finassur</span>
+        <span className="text-2xl font-bold">Finarent</span>
       </div>
       <p className="text-white/60 mb-6 text-sm leading-relaxed pr-4">
         {t('footer.companyDesc')}

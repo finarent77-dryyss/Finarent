@@ -182,7 +182,7 @@ function CreateQuoteModal({ onClose, onCreated }) {
     taxRate: 20,
     paymentTerms: 'À réception',
     notes: '',
-    items: [{ description: 'Honoraires de courtage Finassur', quantity: 1, unitPriceHT: 0 }],
+    items: [{ description: 'Honoraires de courtage Finarent', quantity: 1, unitPriceHT: 0 }],
   });
 
   const updateItem = (i, patch) => setForm((f) => ({ ...f, items: f.items.map((it, idx) => idx === i ? { ...it, ...patch } : it) }));

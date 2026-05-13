@@ -3,7 +3,7 @@ import { CATEGORIES, SIMULATORS } from '@/lib/simulators/registry';
 
 export const metadata = {
   title: 'Simulateurs financiers et assurance',
-  description: 'Tous les simulateurs Finassur : capacité d\'emprunt, mensualité, coût total, assurance emprunteur, taux d\'endettement, frais de notaire et plus encore.',
+  description: 'Tous les simulateurs Finarent : capacité d\'emprunt, mensualité, coût total, assurance emprunteur, taux d\'endettement, frais de notaire et plus encore.',
   alternates: { canonical: '/simulateurs' },
 };
 

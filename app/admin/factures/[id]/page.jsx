@@ -1,7 +1,7 @@
 import InvoiceDetailClient from './InvoiceDetailClient';
 
 export const metadata = {
-  title: 'Détail facture | Admin Finassur',
+  title: 'Détail facture | Admin Finarent',
 };
 
 export default async function InvoiceDetailPage({ params }) {

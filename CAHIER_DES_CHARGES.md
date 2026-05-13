@@ -1,4 +1,4 @@
-# Finassur — Cahier des charges & État du projet
+# Finarent — Cahier des charges & État du projet
 
 > **Version** : 4.0 (Phase 4 terminée)
 > **Dernière mise à jour** : avril 2026
@@ -9,7 +9,7 @@
 
 ### 1.1 Contexte
 
-**Finassur** est une plateforme SaaS de courtage en financement professionnel et assurance destinée aux TPE/PME françaises. Elle met en relation les entreprises avec des partenaires bancaires, assureurs et organismes de leasing pour obtenir des solutions de financement (crédit-bail, LOA, LLD, prêt pro) et d'assurance (RC Pro).
+**Finarent** est une plateforme SaaS de courtage en financement professionnel et assurance destinée aux TPE/PME françaises. Elle met en relation les entreprises avec des partenaires bancaires, assureurs et organismes de leasing pour obtenir des solutions de financement (crédit-bail, LOA, LLD, prêt pro) et d'assurance (RC Pro).
 
 ### 1.2 Objectifs métier
 
@@ -23,7 +23,7 @@
 | Rôle | Description | Accès |
 |------|-------------|-------|
 | **CLIENT** | Dirigeant TPE/PME recherchant un financement | `/espace` |
-| **ADMIN** | Courtier Finassur qui instruit les dossiers | `/admin` |
+| **ADMIN** | Courtier Finarent qui instruit les dossiers | `/admin` |
 | **PARTNER** | Banque / organisme de leasing partenaire | `/partner` |
 | **INSURER** | Compagnie d'assurance | `/insurer` |
 
@@ -52,7 +52,7 @@
 
 ### 2.3 Intégrations externes
 
-- **Auth0** — Authentification + custom claim `https://finassur/role`
+- **Auth0** — Authentification + custom claim `https://finarent/role`
 - **Supabase** — Storage fichiers (configuré, non actif)
 - **Google reCAPTCHA v3** — Protection formulaires
 - **SMTP** — Envoi emails transactionnels
@@ -147,7 +147,7 @@ enum DocumentType { KBIS, RIB, CNI, BILAN, CONTRAT, AUTRE }
 | Route | Description | Statut |
 |-------|-------------|--------|
 | `/` | Accueil (hero, stats, secteurs, témoignages, process) | ✅ |
-| `/about` | Présentation de Finassur | ✅ |
+| `/about` | Présentation de Finarent | ✅ |
 | `/assurance` | Solutions d'assurance RC Pro | ✅ |
 | `/blog` + `/blog/[id]` | Articles de conseil (6 articles) | ✅ |
 | `/comparateur` | Comparateur de solutions (slider, tableau, recommandation) | ✅ |
@@ -205,7 +205,7 @@ enum DocumentType { KBIS, RIB, CNI, BILAN, CONTRAT, AUTRE }
 ### 5.6 Authentification & Sécurité
 
 - ✅ Auth0 login/logout (Next.js 15 async params compatible)
-- ✅ Custom claim `https://finassur/role` → mapping rôle Prisma
+- ✅ Custom claim `https://finarent/role` → mapping rôle Prisma
 - ✅ Middleware de protection par rôle (`/admin`, `/partner`, `/insurer`, `/espace`)
 - ✅ Helpers `requireAuth`, `requireAdmin`, `requirePartner`, `requireInsurer`
 - ✅ Rate limiting sur `/api/financement` (5 requêtes/heure/IP, in-memory)
@@ -228,7 +228,7 @@ enum DocumentType { KBIS, RIB, CNI, BILAN, CONTRAT, AUTRE }
 ### 5.8 Internationalisation
 
 - ✅ Système i18n maison (`lib/i18n.jsx` avec LanguageProvider)
-- ✅ Persistance localStorage (`finassur_lang`)
+- ✅ Persistance localStorage (`finarent_lang`)
 - ✅ FR (620+ clés) et EN (620+ clés)
 - ✅ LanguageSwitcher dans le Header
 - ⚠️ Espaces admin/partner/insurer : partiellement en FR hardcodé
@@ -459,7 +459,7 @@ Attente retour partenaire → statut final
 | Priorité | Tâche | Effort |
 |----------|-------|--------|
 | 🔴 **P0** | Conformité RGPD (bannière cookies, politique confidentialité vérifiée par juriste) | 2 jours |
-| 🔴 **P0** | Mentions légales à jour (SIRET Finassur, hébergeur, DPO) | 1h |
+| 🔴 **P0** | Mentions légales à jour (SIRET Finarent, hébergeur, DPO) | 1h |
 | 🔴 **P0** | Immatriculation ORIAS (courtier en financement + assurance) | Externe |
 | 🟡 **P1** | Droit à l'oubli (suppression compte utilisateur) | 4h |
 | 🟡 **P1** | Export données utilisateur (portabilité) | 4h |
@@ -494,8 +494,8 @@ SMTP_HOST=
 SMTP_PORT=587
 SMTP_USER=
 SMTP_PASS=
-SMTP_FROM=noreply@finassur.fr
-ADMIN_EMAIL=admin@finassur.fr
+SMTP_FROM=noreply@finarent.fr
+ADMIN_EMAIL=admin@finarent.fr
 
 # Signature (à activer)
 YOUSIGN_API_KEY=
@@ -544,10 +544,10 @@ YOUSIGN_BASE_URL=
 
 | Ressource | Lien / Info |
 |-----------|-------------|
-| Repo Git | `slformation-dryyss/finassur` (à reconfigurer) |
-| Email contact | contact@finassur.fr (placeholder) |
-| Email admin | admin@finassur.fr (placeholder) |
-| Domaine prod | finassur.fr (à configurer) |
+| Repo Git | `slformation-dryyss/finarent` (à reconfigurer) |
+| Email contact | contact@finarent.fr (placeholder) |
+| Email admin | admin@finarent.fr (placeholder) |
+| Domaine prod | finarent.fr (à configurer) |
 | Plan de renommage | [RENAME_TO_FINARET.md](RENAME_TO_FINARET.md) |
 
 ---

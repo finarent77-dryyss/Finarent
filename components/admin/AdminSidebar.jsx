@@ -49,7 +49,7 @@ export default function AdminSidebar({
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-bold text-primary truncate">Admin Finassur</div>
+              <div className="text-sm font-bold text-primary truncate">Admin Finarent</div>
               <div className="text-[10px] text-gray-400 truncate">{email}</div>
             </div>
           )}

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { syncUser } from '@/lib/users';
 import ProfileClient from './ProfileClient';
 
-export const metadata = { title: 'Mon profil | Finassur' };
+export const metadata = { title: 'Mon profil | Finarent' };
 
 export default async function ProfilePage() {
   const session = await getSession();

@@ -87,7 +87,7 @@ async function cleanup() {
 // ─── Tests ─────────────────────────────────────────────────────
 async function main() {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(' TESTS E2E FINASSUR — Préfixe: "' + PREFIX + '"');
+  console.log(' TESTS E2E FINARENT — Préfixe: "' + PREFIX + '"');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   await cleanup();

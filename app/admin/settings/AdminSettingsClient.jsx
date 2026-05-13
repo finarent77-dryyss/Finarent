@@ -42,7 +42,7 @@ export default function AdminSettingsClient() {
           <i className="fa-solid fa-gear mr-3 text-secondary"></i>
           Param&egrave;tres
         </h1>
-        <p className="text-slate-400 text-sm mt-1">Configuration de la plateforme Finassur</p>
+        <p className="text-slate-400 text-sm mt-1">Configuration de la plateforme Finarent</p>
       </motion.div>
 
       {/* Company Info */}
@@ -60,7 +60,7 @@ export default function AdminSettingsClient() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Nom</div>
-            <div className="text-sm font-bold text-primary">Finassur</div>
+            <div className="text-sm font-bold text-primary">Finarent</div>
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Activit&eacute;</div>
@@ -68,7 +68,7 @@ export default function AdminSettingsClient() {
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Email de contact</div>
-            <div className="text-sm font-bold text-secondary">contact@finassur.fr</div>
+            <div className="text-sm font-bold text-secondary">contact@finarent.fr</div>
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">T&eacute;l&eacute;phone</div>

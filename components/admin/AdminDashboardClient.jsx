@@ -71,7 +71,7 @@ export default function AdminDashboardClient() {
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-primary">Tableau de bord</h1>
-          <p className="text-gray-400 text-sm mt-1">Vue d'ensemble de l'activité Finassur</p>
+          <p className="text-gray-400 text-sm mt-1">Vue d'ensemble de l'activité Finarent</p>
         </div>
         {pendingCount > 0 && (
           <Link href="/admin/demandes" className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary rounded-xl text-sm font-bold border border-secondary/20 hover:bg-secondary/20 transition-all">

@@ -7,13 +7,13 @@
 
 ## 1. Identité du projet
 
-**Finarent** (anciennement **Finassur**) est une plateforme web de courtage en financement et assurance professionnels.
+**Finarent** (anciennement **Finarent**) est une plateforme web de courtage en financement et assurance professionnels.
 
 - **Mission** : permettre aux entreprises (TPE/PME) de simuler, déposer, et suivre leurs demandes de financement (crédit-bail, LOA, LLD, prêt pro, leasing opérationnel) ou d'assurance RC Pro.
 - **Rôle** : courtier intermédiaire entre clients et partenaires bancaires/assureurs (réseau de 30+ partenaires visé).
 - **Régulation** : COBSP (Courtier en Opérations de Banque) + COA (Courtier en Assurance), immatriculation ORIAS requise.
 - **Owner** : `andrys972@gmail.com` (compte admin).
-- **Statut** : MVP fonctionnel à 95% de la spec v1.0, en cours de rebrand `Finassur → Finarent` (mi-finalisé) et de préparation au déploiement Vercel.
+- **Statut** : MVP fonctionnel à 95% de la spec v1.0, en cours de rebrand `Finarent → Finarent` (mi-finalisé) et de préparation au déploiement Vercel.
 
 ---
 
@@ -25,9 +25,9 @@
 | React | React | 18.3.1 | + react-dom 18.3.1 |
 | Styling | Tailwind CSS | v4 | `@tailwindcss/postcss` ; classes legacy `bg-gradient-to-*` toujours valides |
 | Animations | Framer Motion | 12.23 | Utilisé partout pour les entrées/scroll reveal |
-| Auth | Auth0 | `@auth0/nextjs-auth0` 3.5 | Custom claim `https://finassur/role` (à migrer vers `https://finarent/role`) |
+| Auth | Auth0 | `@auth0/nextjs-auth0` 3.5 | Custom claim `https://finarent/role` (à migrer vers `https://finarent/role`) |
 | ORM | Prisma | 5.22 | Postgres |
-| BDD | PostgreSQL | local 5432 (`finassur` DB) | Schema v3.0 |
+| BDD | PostgreSQL | local 5432 (`finarent` DB) | Schema v3.0 |
 | Storage fichiers | Supabase Storage | adapter avec fallback local `/private/uploads` | `lib/storage.js` |
 | Email | Nodemailer SMTP | 6.9 | 2 templates : confirmation client + alerte admin |
 | SMS | Twilio | 5.13 | 6 triggers (fallback console si pas de credentials) |
@@ -46,7 +46,7 @@
 ## 3. Structure des dossiers
 
 ```
-c:/Users/andry/Bureau/finassur/
+c:/Users/andry/Bureau/finarent/
 ├── app/                          # Next.js App Router
 │   ├── (public pages)            # /, /about, /solutions, /sectors, /blog, /faq, etc.
 │   ├── admin/                    # Espace admin (layout protégé Auth0)
@@ -106,7 +106,7 @@ c:/Users/andry/Bureau/finassur/
 ├── public/
 │   ├── finarent-logo.jpg         # Logo officiel (URL-safe)
 │   ├── finarent logo.jpg         # Original avec espace dans le nom (à supprimer)
-│   ├── Finassurs_logo.jpeg       # Ancien logo (à supprimer après vérification)
+│   ├── Finarents_logo.jpeg       # Ancien logo (à supprimer après vérification)
 │   ├── hero_business_team_premium_v2_*.png
 │   ├── solutions_leasing_concepts_*.png
 │   └── uploads/                  # Fichiers utilisateurs (fallback local quand Supabase off)
@@ -167,7 +167,7 @@ c:/Users/andry/Bureau/finassur/
 | **INSURER** | `/insurer` | `requireInsurer()` | Pas de sidebar dédiée | Dashboard RC Pro : stats, funnel souscription, top secteurs (segmentation risque), tendance mensuelle, applications, prime moyenne. |
 
 ### Auth0 claim
-- Custom claim attendu : `https://finassur/role` (à migrer vers `https://finarent/role` côté Auth0 dashboard ET dans `middleware.ts`, `lib/auth.ts`, `lib/users.js`).
+- Custom claim attendu : `https://finarent/role` (à migrer vers `https://finarent/role` côté Auth0 dashboard ET dans `middleware.ts`, `lib/auth.ts`, `lib/users.js`).
 - Promotion admin manuelle : `node scripts/promote-admin.js <email>`.
 
 ---
@@ -249,7 +249,7 @@ c:/Users/andry/Bureau/finassur/
 ### Logo
 - Officiel : `public/finarent-logo.jpg` (URL-safe, à utiliser partout)
 - Fichier original : `public/finarent logo.jpg` (espace dans le nom — éviter)
-- Ancien : `public/Finassurs_logo.jpeg` (à supprimer après vérification)
+- Ancien : `public/Finarents_logo.jpeg` (à supprimer après vérification)
 
 ### Charte couleurs (Tailwind tokens, via `app/globals.css`)
 - `primary` (bleu nuit)
@@ -265,7 +265,7 @@ c:/Users/andry/Bureau/finassur/
 
 ---
 
-## 9. État du rebrand Finassur → Finarent (CRITIQUE)
+## 9. État du rebrand Finarent → Finarent (CRITIQUE)
 
 > **Le rebrand est mi-finalisé. Lire ATTENTIVEMENT avant toute modif sensible.**
 
@@ -275,36 +275,36 @@ c:/Users/andry/Bureau/finassur/
 - LanguageSwitcher retiré du Header
 - `lib/i18n.jsx` verrouillé sur `'fr'` (locale ne change plus, EN n'est plus servi)
 - "Made with ❤️ in Paris" supprimé du Footer
-- **`messages/fr.json` et `messages/en.json`** : bulk replace `Finassur → Finarent` et `finassur → finarent` complété (0 occurrence restante). Email = `contact@finarent.fr`, copyright = `© 2026 Finarent`, etc.
+- **`messages/fr.json` et `messages/en.json`** : bulk replace `Finarent → Finarent` et `finarent → finarent` complété (0 occurrence restante). Email = `contact@finarent.fr`, copyright = `© 2026 Finarent`, etc.
 - `vercel.json` corrigé pour plan Hobby (sla-check passé en `0 10 * * *`)
 
 ### ❌ Pas encore fait (90+ fichiers concernés)
-- **Code source** : il reste des occurrences `Finassur` en dur dans plein de composants : `Header.jsx`, `Footer.jsx` (pas tout), `FirstVisitSplash.jsx`, `EspaceLoginClient.jsx`, `app/admin/*`, `app/partner/*`, `app/insurer/*`, `lib/email.js`, `lib/yousign.js`, etc. → un `grep -r "Finassur"` montre tout.
-- **Auth0 claim** : `https://finassur/role` dans `middleware.ts`, `lib/auth.ts`, `lib/users.js` — à migrer vers `https://finarent/role`. **Nécessite aussi de modifier la Rule/Action sur le Auth0 Dashboard**, sinon les sessions seront cassées.
-- **Emails / domaine** : SMTP_FROM est `noreply@finassur.fr` dans `.env` — à passer à `noreply@finarent.fr` côté infra.
-- **GitHub repo** : actuellement `slformation-dryyss/finassur` — à renommer.
-- **Domaine prod** : `finassur.fr` → `finarent.fr` (à acheter/migrer + DNS + 301 redirect).
+- **Code source** : il reste des occurrences `Finarent` en dur dans plein de composants : `Header.jsx`, `Footer.jsx` (pas tout), `FirstVisitSplash.jsx`, `EspaceLoginClient.jsx`, `app/admin/*`, `app/partner/*`, `app/insurer/*`, `lib/email.js`, `lib/yousign.js`, etc. → un `grep -r "Finarent"` montre tout.
+- **Auth0 claim** : `https://finarent/role` dans `middleware.ts`, `lib/auth.ts`, `lib/users.js` — à migrer vers `https://finarent/role`. **Nécessite aussi de modifier la Rule/Action sur le Auth0 Dashboard**, sinon les sessions seront cassées.
+- **Emails / domaine** : SMTP_FROM est `noreply@finarent.fr` dans `.env` — à passer à `noreply@finarent.fr` côté infra.
+- **GitHub repo** : actuellement `slformation-dryyss/finarent` — à renommer.
+- **Domaine prod** : `finarent.fr` → `finarent.fr` (à acheter/migrer + DNS + 301 redirect).
 - **Templates HTML legacy** dans `templates/` — pas critique, c'est de la spec d'origine.
 - **Docs MD** : `RENAME_TO_FINARET.md`, `CAHIER_DES_CHARGES.md`, `COMPARATIF_SPEC_VS_REEL.md`, `PROJECT_STATUS.md` — historique, à nettoyer plus tard.
-- **`.claude/settings*.json`** : contiennent `finassur` dans les permissions — pas critique.
+- **`.claude/settings*.json`** : contiennent `finarent` dans les permissions — pas critique.
 
 ### Stratégie recommandée pour finir le rebrand
 ```bash
 # 1. Bulk replace dans le code source (préserver casses, exclure prudemment)
 find . \
   -type d \( -name node_modules -o -name .next -o -name .git -o -name dist -o -name templates -o -name migrations \) -prune \
-  -o -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.css" \) -not -name "package-lock.json" -print | xargs sed -i 's/Finassur/Finarent/g; s/finassur/finarent/g'
+  -o -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.css" \) -not -name "package-lock.json" -print | xargs sed -i 's/Finarent/Finarent/g; s/finarent/finarent/g'
 
 # 2. Vérifier qu'il ne reste rien
-grep -rni "finassur" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=templates --exclude-dir=migrations
+grep -rni "finarent" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=templates --exclude-dir=migrations
 
 # 3. Auth0 claim — manuel : ajouter une nouvelle Action côté Dashboard qui mappe les deux claims pour ne pas casser les sessions existantes pendant la transition
 ```
 
 ### Pièges à éviter
-- **NE PAS** renommer la base Postgres `finassur → finarent` sans synchroniser `DATABASE_URL`. C'est optionnel.
-- **NE PAS** toucher aux migrations Prisma (`prisma/migrations/*.sql`) — elles contiennent `finassur` dans les commentaires mais c'est ininfluent.
-- **NE PAS** supprimer `Finassurs_logo.jpeg` tant que tout le code ne le référence plus (vérifier : `grep -r "Finassurs_logo" .`).
+- **NE PAS** renommer la base Postgres `finarent → finarent` sans synchroniser `DATABASE_URL`. C'est optionnel.
+- **NE PAS** toucher aux migrations Prisma (`prisma/migrations/*.sql`) — elles contiennent `finarent` dans les commentaires mais c'est ininfluent.
+- **NE PAS** supprimer `Finarents_logo.jpeg` tant que tout le code ne le référence plus (vérifier : `grep -r "Finarents_logo" .`).
 
 ---
 
@@ -458,10 +458,10 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.posthog.com
 ## 15. TODO restant (priorité)
 
 ### 🔴 P0 — Critiques avant prod
-1. **Finir le rebrand `Finassur → Finarent`** dans le code source (~90 fichiers, voir §9)
+1. **Finir le rebrand `Finarent → Finarent`** dans le code source (~90 fichiers, voir §9)
 2. **Migrer le claim Auth0** côté Dashboard + code
-3. **Remplacer le logo Finassurs_logo.jpeg** partout puis le supprimer
-4. **Acheter/configurer le domaine `finarent.fr`** + DNS + 301 redirect depuis `finassur.fr`
+3. **Remplacer le logo Finarents_logo.jpeg** partout puis le supprimer
+4. **Acheter/configurer le domaine `finarent.fr`** + DNS + 301 redirect depuis `finarent.fr`
 5. **Configurer Auth0 production** (callback URL, allowed logout URL pointing vers `finarent.fr`)
 6. **Activer Sentry production** (DSN)
 7. **Tester un parcours complet end-to-end** sur un Vercel preview avant prod
@@ -491,7 +491,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.posthog.com
 ```bash
 # Dev
 PORT=3002 npm run dev                                  # Lance sur 3002
-tail -f /tmp/finassur-dev.log                          # Suivre le log
+tail -f /tmp/finarent-dev.log                          # Suivre le log
 
 # Database
 npx prisma generate                                    # Régen client
@@ -511,11 +511,11 @@ npm run lint                                           # ESLint Next
 curl -sL -o /dev/null -w "%{http_code} %{time_total}s\n" http://localhost:3002/
 
 # Tuer un process Next dev orphelin (Windows)
-wmic process where "name='node.exe'" get ProcessId,CommandLine | grep finassur
+wmic process where "name='node.exe'" get ProcessId,CommandLine | grep finarent
 taskkill //F //PID <pid>
 
-# Find leftover Finassur references
-grep -rni "finassur" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git
+# Find leftover Finarent references
+grep -rni "finarent" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git
 ```
 
 ---
@@ -523,8 +523,8 @@ grep -rni "finassur" . --exclude-dir=node_modules --exclude-dir=.next --exclude-
 ## 17. Ressources externes
 
 - **Auth0 dashboard** : tenant à confirmer, custom claim à migrer
-- **Vercel project** : `slformation-dryyss/finassur` (à renommer)
-- **GitHub repo** : `slformation-dryyss/finassur` (à renommer)
+- **Vercel project** : `slformation-dryyss/finarent` (à renommer)
+- **GitHub repo** : `slformation-dryyss/finarent` (à renommer)
 - **API SIRET publique** : `https://recherche-entreprises.api.gouv.fr/search` (aucune clé requise)
 - **YouSign API** : v3, sandbox + prod
 - **Supabase** : à provisionner pour storage prod
@@ -536,7 +536,7 @@ grep -rni "finassur" . --exclude-dir=node_modules --exclude-dir=.next --exclude-
 
 Si on reprend en 1 journée, voici l'ordre conseillé pour avancer concrètement sans casser :
 
-1. **30 min — Cleanup rebrand** : bulk sed `Finassur → Finarent` + `finassur → finarent` dans tout le code source. Build pour valider. (Voir §9 pour la commande exacte.)
+1. **30 min — Cleanup rebrand** : bulk sed `Finarent → Finarent` + `finarent → finarent` dans tout le code source. Build pour valider. (Voir §9 pour la commande exacte.)
 2. **20 min — Auth0 claim migration** : update `middleware.ts`, `lib/auth.ts`, `lib/users.js` pour accepter les DEUX claims temporairement (rétrocompat). Plus tard, supprimer l'ancien.
 3. **30 min — Photos** : choisir une approche (Unsplash CDN URLs vs download local) et wirer les pages secteurs (5 pages = highest impact).
 4. **30 min — Footer optimisation** : restructurer en 4 colonnes équilibrées, brand condensé, newsletter inline.

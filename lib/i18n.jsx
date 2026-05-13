@@ -5,7 +5,7 @@ import fr from '@/messages/fr.json';
 import en from '@/messages/en.json';
 
 const messages = { fr, en };
-const STORAGE_KEY = 'finassur_lang';
+const STORAGE_KEY = 'finarent_lang';
 
 const LanguageContext = createContext({ locale: 'fr', t: (key) => key, setLocale: () => {} });
 

@@ -215,7 +215,7 @@ function CreateInvoiceModal({ onClose, onCreated }) {
     dueDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
     paymentTerms: 'Paiement à 30 jours',
     notes: '',
-    lines: [{ description: 'Frais de dossier Finassur', quantity: 1, unitPrice: 0, vatRate: 20 }],
+    lines: [{ description: 'Frais de dossier Finarent', quantity: 1, unitPrice: 0, vatRate: 20 }],
   });
 
   const updateLine = (i, patch) => {

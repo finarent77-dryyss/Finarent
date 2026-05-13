@@ -1,7 +1,7 @@
 import ComparateurClient from './ComparateurClient';
 
 export const metadata = {
-  title: 'Comparateur de solutions | Finassur',
+  title: 'Comparateur de solutions | Finarent',
   description: 'Comparez les solutions de financement professionnel',
 };
 

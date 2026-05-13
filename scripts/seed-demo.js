@@ -1,4 +1,4 @@
-// Seed démo Finassur — données réalistes pour rendez-vous client
+// Seed démo Finarent — données réalistes pour rendez-vous client
 // Usage : node scripts/seed-demo.js
 //
 // Idempotent : nettoie d'abord la donnée démo, puis recrée.
@@ -231,11 +231,11 @@ async function main() {
   // ─── 8. TESTIMONIALS ────────────────────────────────────────
   console.log('⭐  Témoignages...');
   const testimonials = [
-    { authorName: 'Philippe Bernard', initials: 'PB', position: 'Gérant', company: 'Bernard BTP',         sector: 'BTP',        rating: 5, text: 'Service impeccable, dossier monté en 48h. Je recommande Finassur à tous les artisans du BTP.', amount: '85 000€' },
+    { authorName: 'Philippe Bernard', initials: 'PB', position: 'Gérant', company: 'Bernard BTP',         sector: 'BTP',        rating: 5, text: 'Service impeccable, dossier monté en 48h. Je recommande Finarent à tous les artisans du BTP.', amount: '85 000€' },
     { authorName: 'Dr Marie Lefebvre', initials: 'ML', position: 'Médecin radiologue', company: 'Cabinet Dr Lefebvre', sector: 'Médical', rating: 5, text: 'Accompagnement très professionnel pour le financement de mon échographe. Conseils précieux sur l\'optimisation fiscale.', amount: '45 000€' },
     { authorName: 'Antoine Moreau', initials: 'AM', position: 'CEO', company: 'Moreau IT', sector: 'IT', rating: 4, text: 'Process clair, équipe disponible. J\'ai pu équiper mes 30 collaborateurs sans toucher à ma trésorerie.', amount: '180 000€' },
     { authorName: 'Isabelle Roux', initials: 'IR', position: 'Directrice', company: 'Roux Logistique', sector: 'Transport', rating: 5, text: 'Renouvellement de flotte en LLD, tout s\'est fait à distance. Très satisfaite.', amount: '120 000€' },
-    { authorName: 'Thomas Simon', initials: 'TS', position: 'Dirigeant', company: 'Simon Mécanique', sector: 'Industrie', rating: 5, text: 'Pour ma nouvelle machine, Finassur a négocié un taux 0,8 point en-dessous de ce que ma banque me proposait.', amount: '220 000€' },
+    { authorName: 'Thomas Simon', initials: 'TS', position: 'Dirigeant', company: 'Simon Mécanique', sector: 'Industrie', rating: 5, text: 'Pour ma nouvelle machine, Finarent a négocié un taux 0,8 point en-dessous de ce que ma banque me proposait.', amount: '220 000€' },
     { authorName: 'Camille Michel', initials: 'CM', position: 'Consultant', company: 'Michel Conseil', sector: 'Services', rating: 4, text: 'Solution sur-mesure pour l\'aménagement de mes bureaux. Bonne disponibilité du conseiller.', amount: '18 000€' },
   ];
   for (const t of testimonials) {

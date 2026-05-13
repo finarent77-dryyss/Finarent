@@ -82,7 +82,7 @@ export default function Hero() {
                   <img
                     className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-2000"
                     src="/hero_business_team_premium_v2_1772271137874.png"
-                    alt="Équipe de dirigeants accompagnés par Finassur pour leur financement professionnel"
+                    alt="Équipe de dirigeants accompagnés par Finarent pour leur financement professionnel"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
 

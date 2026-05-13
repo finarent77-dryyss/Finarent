@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { syncUser } from '@/lib/users';
 import SecurityClient from './SecurityClient';
 
-export const metadata = { title: 'Sécurité | Finassur' };
+export const metadata = { title: 'Sécurité | Finarent' };
 
 export default async function SecurityPage() {
   const session = await getSession();

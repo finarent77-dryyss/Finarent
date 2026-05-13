@@ -10,7 +10,7 @@ export default function AdminHeader({ email }) {
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center gap-4">
         <Link href="/admin/demandes" className="text-primary font-bold text-xl">
-          Admin Finassur
+          Admin Finarent
         </Link>
         <span className="text-gray-500">|</span>
         <span className="text-gray-600">{email}</span>

@@ -1,4 +1,4 @@
-// Finassur — Schema v3.0 (Mars 2026)
+// Finarent — Schema v3.0 (Mars 2026)
 
 generator client {
   provider = "prisma-client-js"
@@ -282,7 +282,7 @@ model Testimonial {
 
 // ─── FACTURATION ──────────────────────────────────────────
 // Inspiré du modèle slformations : Invoice + lignes + versements + avoirs.
-// Adapté à Finassur (frais de dossier client, honoraires courtage).
+// Adapté à Finarent (frais de dossier client, honoraires courtage).
 
 model Invoice {
   id            String          @id @default(cuid())
@@ -383,7 +383,7 @@ model CreditNote {
 
 // ─── DEVIS (Quote) ─────────────────────────────────────────
 // Distinct du modèle Offer (qui représente une offre de prêt partenaire).
-// Quote = proposition commerciale Finassur (frais courtage, honoraires).
+// Quote = proposition commerciale Finarent (frais courtage, honoraires).
 
 model Quote {
   id               String     @id @default(cuid())

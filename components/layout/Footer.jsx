@@ -182,7 +182,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.finassur')}</h4>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.finarent')}</h4>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/about" className={linkClass}>{t('footer.about')}</Link></li>
               <li><Link href="/why-leasing" className={linkClass}>{t('footer.whyUs')}</Link></li>

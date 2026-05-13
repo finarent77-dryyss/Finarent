@@ -7,12 +7,12 @@ export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('finassur_cookie_consent');
+    const consent = localStorage.getItem('finarent_cookie_consent');
     if (!consent) setTimeout(() => setVisible(true), 1000);
   }, []);
 
   const accept = (type) => {
-    localStorage.setItem('finassur_cookie_consent', JSON.stringify({ type, date: new Date().toISOString() }));
+    localStorage.setItem('finarent_cookie_consent', JSON.stringify({ type, date: new Date().toISOString() }));
     setVisible(false);
   };
 

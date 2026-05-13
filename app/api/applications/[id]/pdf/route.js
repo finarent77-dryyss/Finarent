@@ -163,7 +163,7 @@ export async function GET(request, { params }) {
   ` : ''}
 
   <div class="footer">
-    <p>Finassur — Courtier en financement professionnel</p>
+    <p>Finarent — Courtier en financement professionnel</p>
     <p>Document généré le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
     <p>Réf: ${app.id}</p>
   </div>

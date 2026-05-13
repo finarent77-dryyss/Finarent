@@ -1,8 +1,8 @@
-# Renommage du projet : Finassur → Finaret
+# Renommage du projet : Finarent → Finaret
 
 ## Objectif
 
-Renommer le projet **Finassur** en **Finaret** dans l'ensemble du code source, de la configuration et de la documentation.
+Renommer le projet **Finarent** en **Finaret** dans l'ensemble du code source, de la configuration et de la documentation.
 
 ## Checklist de renommage
 
@@ -15,7 +15,7 @@ Renommer le projet **Finassur** en **Finaret** dans l'ensemble du code source, d
 
 ### 2. Auth0 custom claim
 
-- [ ] `middleware.ts` — `ROLE_CLAIM = 'https://finassur/role'` → `'https://finaret/role'`
+- [ ] `middleware.ts` — `ROLE_CLAIM = 'https://finarent/role'` → `'https://finaret/role'`
 - [ ] `lib/auth.ts` — même claim
 - [ ] `lib/users.js` — même claim
 - [ ] **Action Auth0 Dashboard** : mettre à jour la Rule/Action qui ajoute le custom claim
@@ -26,16 +26,16 @@ Renommer le projet **Finassur** en **Finaret** dans l'ensemble du code source, d
 - [ ] `components/layout/Header.jsx` — logo / nom affiché
 - [ ] `components/layout/Footer.jsx` — mentions légales, copyright
 - [ ] `components/FirstVisitSplash.jsx` — écran d'accueil
-- [ ] `messages/fr.json` — toutes les occurrences "Finassur"
-- [ ] `messages/en.json` — toutes les occurrences "Finassur"
+- [ ] `messages/fr.json` — toutes les occurrences "Finarent"
+- [ ] `messages/en.json` — toutes les occurrences "Finarent"
 - [ ] `app/not-found.jsx`, `app/error.jsx` — textes d'erreur
 - [ ] `app/legal/`, `app/privacy/`, `app/terms/` — mentions légales
 
 ### 4. Assets & images
 
-- [ ] `public/Finassurs_logo.jpeg` → `public/Finaret_logo.jpeg`
+- [ ] `public/Finarents_logo.jpeg` → `public/Finaret_logo.jpeg`
 - [ ] `public/favicon.ico` — nouvelle icône
-- [ ] Références dans le code : `<img src="/Finassurs_logo.jpeg" />`
+- [ ] Références dans le code : `<img src="/Finarents_logo.jpeg" />`
 - [ ] Open Graph / Twitter cards images
 
 ### 5. Emails transactionnels
@@ -43,27 +43,27 @@ Renommer le projet **Finassur** en **Finaret** dans l'ensemble du code source, d
 - [ ] `lib/email.js` — templates HTML (expéditeur, signature)
 - [ ] `sendConfirmationDemande()` — nom dans le corps
 - [ ] `sendAlerteAdmin()` — idem
-- [ ] Variable `SMTP_FROM=noreply@finassur.fr` → `noreply@finaret.fr`
+- [ ] Variable `SMTP_FROM=noreply@finarent.fr` → `noreply@finaret.fr`
 
 ### 6. Base de données
 
-- [ ] `DATABASE_URL` — renommer la base `finassur` → `finaret` (optionnel)
-- [ ] Aucun changement de schéma Prisma requis (pas de champ "finassur")
+- [ ] `DATABASE_URL` — renommer la base `finarent` → `finaret` (optionnel)
+- [ ] Aucun changement de schéma Prisma requis (pas de champ "finarent")
 
 ### 7. Génération PDF
 
-- [ ] `app/api/applications/[id]/pdf/route.js` — logo, titre, footer ("Finassur — Courtier en financement")
+- [ ] `app/api/applications/[id]/pdf/route.js` — logo, titre, footer ("Finarent — Courtier en financement")
 
 ### 8. Git & déploiement
 
-- [ ] Remote Git : `slformation-dryyss/finassur` → nouveau repo `finaret`
-- [ ] Domaine de production : `finassur.fr` → `finaret.fr`
+- [ ] Remote Git : `slformation-dryyss/finarent` → nouveau repo `finaret`
+- [ ] Domaine de production : `finarent.fr` → `finaret.fr`
 - [ ] Certificats SSL
 - [ ] DNS (MX pour emails transactionnels)
 
 ### 9. Références textuelles
 
-Faire un `grep -ri "finassur" .` et remplacer toutes les occurrences :
+Faire un `grep -ri "finarent" .` et remplacer toutes les occurrences :
 - Textes marketing sur les pages (About, Home, FAQ, etc.)
 - Données JSON (secteurs, solutions, témoignages, FAQ)
 - Commentaires de code
@@ -74,14 +74,14 @@ Faire un `grep -ri "finassur" .` et remplacer toutes les occurrences :
 - [ ] Build sans erreur : `npx next build`
 - [ ] Auth0 login/logout fonctionne avec le nouveau claim
 - [ ] Emails envoyés avec le bon `from`
-- [ ] Aucune occurrence "Finassur" restante : `grep -ri "finassur" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git`
+- [ ] Aucune occurrence "Finarent" restante : `grep -ri "finarent" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git`
 
 ## Commandes de remplacement en masse
 
 ### Rechercher toutes les occurrences
 
 ```bash
-grep -rni "finassur" . \
+grep -rni "finarent" . \
   --exclude-dir=node_modules \
   --exclude-dir=.next \
   --exclude-dir=.git \
@@ -94,17 +94,17 @@ grep -rni "finassur" . \
 # Dry-run : voir les fichiers concernés
 find . -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.json" -o -name "*.md" \) \
   -not -path "./node_modules/*" -not -path "./.next/*" -not -path "./.git/*" \
-  -exec grep -l "Finassur" {} \;
+  -exec grep -l "Finarent" {} \;
 
-# Remplacer "Finassur" → "Finaret" (capitalisé)
+# Remplacer "Finarent" → "Finaret" (capitalisé)
 find . -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.json" \) \
   -not -path "./node_modules/*" -not -path "./.next/*" -not -path "./.git/*" \
-  -exec sed -i 's/Finassur/Finaret/g' {} +
+  -exec sed -i 's/Finarent/Finaret/g' {} +
 
-# Remplacer "finassur" → "finaret" (minuscule, URLs, emails)
+# Remplacer "finarent" → "finaret" (minuscule, URLs, emails)
 find . -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.json" \) \
   -not -path "./node_modules/*" -not -path "./.next/*" -not -path "./.git/*" \
-  -exec sed -i 's/finassur/finaret/g' {} +
+  -exec sed -i 's/finarent/finaret/g' {} +
 ```
 
 ## Ordre recommandé
@@ -120,7 +120,7 @@ find . -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx"
 
 ## Points d'attention
 
-- **Sessions Auth0 existantes** : les utilisateurs connectés avec l'ancien claim `https://finassur/role` seront déconnectés. Prévoir une fenêtre de maintenance.
-- **Emails en transit** : les emails déjà envoyés référenceront "Finassur". Pas de rétroaction possible.
-- **SEO** : rediriger `finassur.fr` → `finaret.fr` avec un 301 permanent pour préserver le référencement.
+- **Sessions Auth0 existantes** : les utilisateurs connectés avec l'ancien claim `https://finarent/role` seront déconnectés. Prévoir une fenêtre de maintenance.
+- **Emails en transit** : les emails déjà envoyés référenceront "Finarent". Pas de rétroaction possible.
+- **SEO** : rediriger `finarent.fr` → `finaret.fr` avec un 301 permanent pour préserver le référencement.
 - **Marques** : vérifier que "Finaret" est disponible à l'INPI avant le renommage définitif.
