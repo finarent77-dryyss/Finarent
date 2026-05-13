@@ -45,6 +45,9 @@ export default function Header() {
 
   const isOverDarkHero = pathname === '/' && !isScrolled;
 
+  // Les espaces admin/partenaire/assureur ont leur propre chrome (sidebar + topbar)
+  if (pathname?.startsWith('/admin')) return null;
+
   const navLinkClass = (href) => {
     const isActive = pathname === href || pathname.startsWith(href + '/');
     const base = isOverDarkHero ? 'text-white/90 hover:text-white' : 'text-gray-600 hover:text-primary';

@@ -1,8 +1,7 @@
 import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
 import { isAdmin, syncUser } from '@/lib/users';
-import AdminSidebar from '@/components/admin/AdminSidebar';
-import AdminMobileNav from '@/components/admin/AdminMobileNav';
+import AdminLayoutClient from '@/components/admin/AdminLayoutClient';
 
 export default async function AdminLayout({ children }) {
   const session = await getSession();
@@ -18,12 +17,8 @@ export default async function AdminLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <AdminSidebar email={session.user.email || session.user.name} />
-      <AdminMobileNav />
-      <main className="lg:ml-64 pt-20 pb-12 px-4 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
+    <AdminLayoutClient email={session.user.email || session.user.name}>
+      {children}
+    </AdminLayoutClient>
   );
 }
