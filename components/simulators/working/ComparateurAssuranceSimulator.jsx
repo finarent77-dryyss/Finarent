@@ -33,18 +33,7 @@ export default function ComparateurAssuranceSimulator() {
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-8">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-3xl">
-            💰
-          </div>
-          <div>
-            <div className="text-xs uppercase tracking-widest font-bold text-emerald-700">Économie potentielle</div>
-            <div className="text-4xl font-black text-emerald-600">{formatEUR(savings.savings)}</div>
-            <div className="text-sm text-emerald-700">soit <strong>{savings.pct}%</strong> de moins</div>
-          </div>
-        </div>
-      </div>
+      <ResultCard label="Économie potentielle" value={formatEUR(savings.savings)} sub={`soit ${savings.pct}% de moins en passant par la délégation`} accent="accent" large />
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="bg-white border-2 border-rose-200 rounded-2xl p-5">

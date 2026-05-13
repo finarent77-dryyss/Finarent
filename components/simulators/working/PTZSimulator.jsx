@@ -104,7 +104,7 @@ export default function PTZSimulator() {
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        <ResultCard label="Plafond ressources zone" value={formatEUR(incomeLimit)} sub={`Foyer ${household} pers.`} accent="primary" />
+        <ResultCard label="Plafond ressources zone" value={formatEUR(incomeLimit)} sub={`Foyer ${household} pers.`} accent="primary" large />
         <ResultCard label="Plafond opération zone" value={formatEUR(propertyLimit)} accent="accent" />
       </div>
 

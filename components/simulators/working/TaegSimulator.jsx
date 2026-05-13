@@ -42,7 +42,7 @@ export default function TaegSimulator() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <ResultCard label="Mensualité capital + intérêts" value={formatEUR(m)} accent="primary" />
-        <ResultCard label="Mensualité totale (avec assur. + frais)" value={formatEUR(monthlyTotal)} accent="secondary" />
+        <ResultCard label="Mensualité totale (avec assur. + frais)" value={formatEUR(monthlyTotal)} accent="secondary" large />
       </div>
 
       <ConversionCTA simulatorName="taeg" params={{ amount, months, rate, insuranceRate, fees, taeg }} />

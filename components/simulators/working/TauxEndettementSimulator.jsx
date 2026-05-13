@@ -46,7 +46,7 @@ export default function TauxEndettementSimulator() {
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        <ResultCard label="Charges totales / mois" value={formatEUR(totalCharges)} accent="rose-600" />
+        <ResultCard label="Charges totales / mois" value={formatEUR(totalCharges)} accent="rose-600" large />
         <ResultCard label="Reste après charges" value={formatEUR(income - totalCharges)} accent="emerald-600" />
       </div>
 

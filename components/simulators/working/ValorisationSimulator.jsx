@@ -126,7 +126,7 @@ export default function ValorisationSimulator() {
 
       <div className="grid sm:grid-cols-3 gap-4">
         <ResultCard label="Prix bas" value={formatEUR(lowEstimate)} sub="Estimation prudente" accent="rose-600" />
-        <ResultCard label="Prix central" value={formatEUR(estimatedValue)} accent="secondary" />
+        <ResultCard label="Prix central" value={formatEUR(estimatedValue)} accent="secondary" large />
         <ResultCard label="Prix haut" value={formatEUR(highEstimate)} sub="Estimation optimiste" accent="emerald-600" />
       </div>
 

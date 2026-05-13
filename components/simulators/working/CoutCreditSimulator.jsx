@@ -78,7 +78,7 @@ export default function CoutCreditSimulator() {
         </div>
 
         <div className="grid sm:grid-cols-2 gap-3 mt-5 pt-5 border-t border-gray-100">
-          <ResultCard label="Mensualité (hors assurance)" value={formatEUR(m)} accent="primary" />
+          <ResultCard label="Mensualité (hors assurance)" value={formatEUR(m)} accent="primary" large />
           <ResultCard label="TAEG estimé" value={formatPct(taeg)} sub="Taux Annuel Effectif Global" accent="secondary" />
         </div>
       </div>

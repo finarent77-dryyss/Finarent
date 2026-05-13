@@ -203,7 +203,7 @@ export default function AssuranceEmprunteurSimulator() {
       </div>
 
       <div className="grid sm:grid-cols-3 gap-4">
-        <ResultCard label="Prime initiale / mois" value={formatEUR(monthlyInitial)} accent="primary" />
+        <ResultCard label="Prime initiale / mois" value={formatEUR(monthlyInitial)} accent="primary" large />
         <ResultCard label={`Emprunteur 1 (${q1}%)`} value={formatEUR(total1)} accent="emerald-600" />
         {hasCoBorrower
           ? <ResultCard label={`Emprunteur 2 (${q2}%)`} value={formatEUR(total2)} accent="emerald-600" />

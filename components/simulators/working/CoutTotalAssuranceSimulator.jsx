@@ -48,11 +48,7 @@ export default function CoutTotalAssuranceSimulator() {
         ))}
       </div>
 
-      <div className="bg-gradient-to-br from-primary to-[#0F2748] text-white rounded-2xl p-8">
-        <div className="text-xs uppercase tracking-widest font-bold text-accent mb-2">Coût total annuel</div>
-        <div className="text-5xl font-black">{formatEUR(total)}</div>
-        <div className="text-sm text-white/70 mt-2">soit {formatEUR(monthly)} / mois</div>
-      </div>
+      <ResultCard label="Coût total annuel" value={formatEUR(total)} sub={`soit ${formatEUR(monthly)} / mois`} accent="primary" large />
 
       <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-5">
         <div className="text-xs uppercase tracking-widest font-bold text-emerald-700">Économies potentielles avec un audit Finarent</div>

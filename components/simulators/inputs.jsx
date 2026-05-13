@@ -100,12 +100,40 @@ export function NumberInput({ label, value, onChange, suffix, prefix, min, max, 
   );
 }
 
-/** Carte résultat. */
+/**
+ * Carte résultat.
+ * - default : carte blanche bord coloré (résultats secondaires).
+ * - large   : carte hero "dark glowing" (gradient border + fond primary + value en
+ *   gradient shimmer) — uniformise visuellement avec HomeQuickSimulator.
+ */
 export function ResultCard({ label, value, sub, accent = 'primary', large = false }) {
+  if (large) {
+    return (
+      <div className="relative rounded-3xl p-[2px] bg-linear-to-r from-secondary via-accent to-purple-500 animate-gradient-sweep shadow-2xl">
+        <div className="relative bg-linear-to-br from-primary via-primary to-primary/85 rounded-[22px] p-6 sm:p-7 text-white overflow-hidden">
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-accent/30 rounded-full blur-3xl animate-blob pointer-events-none"></div>
+          <div className="absolute -bottom-16 -left-12 w-44 h-44 bg-secondary/40 rounded-full blur-3xl animate-blob-delay pointer-events-none"></div>
+          <div className="relative">
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs uppercase tracking-widest font-bold opacity-70 mb-2">
+              <i className="fa-solid fa-bolt text-accent animate-pulse"></i>
+              <span>{label}</span>
+            </div>
+            <div className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight">
+              <span className="bg-clip-text text-transparent bg-linear-to-r from-white via-accent to-white animate-gradient-sweep">
+                {value}
+              </span>
+            </div>
+            {sub && <div className="text-xs opacity-70 mt-2">{sub}</div>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`bg-white rounded-2xl border-2 border-${accent}/10 p-5 ${large ? 'sm:p-7' : ''}`}>
+    <div className={`bg-white rounded-2xl border-2 border-${accent}/10 shadow-sm p-5`}>
       <div className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">{label}</div>
-      <div className={`${large ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-3xl'} font-black text-${accent} tracking-tight`}>{value}</div>
+      <div className={`text-2xl sm:text-3xl font-black text-${accent} tracking-tight`}>{value}</div>
       {sub && <div className="text-xs text-gray-500 mt-2">{sub}</div>}
     </div>
   );

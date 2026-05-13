@@ -46,7 +46,7 @@ export default function ResteAVivreSimulator() {
       <div className="grid sm:grid-cols-3 gap-4">
         <ResultCard label="Revenus" value={formatEUR(income)} accent="emerald-600" />
         <ResultCard label="Charges" value={formatEUR(totalCharges)} accent="rose-600" />
-        <ResultCard label="Disponible" value={formatEUR(result.total)} accent="secondary" />
+        <ResultCard label="Disponible" value={formatEUR(result.total)} accent="secondary" large />
       </div>
 
       <ConversionCTA simulatorName="reste-a-vivre" params={{ income, totalCharges, household, remaining: result.total }} />

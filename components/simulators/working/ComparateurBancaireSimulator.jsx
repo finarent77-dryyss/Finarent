@@ -48,11 +48,7 @@ export default function ComparateurBancaireSimulator() {
         <SliderInput label="Durée" value={months} onChange={setMonths} min={120} max={300} step={12} suffix="mois" format="number" accent="accent" />
       </div>
 
-      <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-5">
-        <div className="text-xs uppercase tracking-widest font-bold text-emerald-700 mb-1">Économie potentielle</div>
-        <div className="text-3xl font-black text-emerald-700">{formatEUR(savings)}</div>
-        <div className="text-sm text-emerald-700">Entre la meilleure offre ({cheapest.name}) et la plus chère ({mostExpensive.name})</div>
-      </div>
+      <ResultCard label="Économie potentielle" value={formatEUR(savings)} sub={`Entre la meilleure offre (${cheapest.name}) et la plus chère (${mostExpensive.name})`} accent="accent" large />
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
