@@ -6,9 +6,11 @@ import { usePathname } from 'next/navigation';
 const NAV_ITEMS = [
   { key: 'dashboard', href: '/admin', icon: 'fa-chart-pie', label: 'Tableau de bord' },
   { key: 'demandes', href: '/admin/demandes', icon: 'fa-folder-open', label: 'Demandes' },
+  { key: 'devis', href: '/admin/devis', icon: 'fa-file-signature', label: 'Devis' },
+  { key: 'factures', href: '/admin/factures', icon: 'fa-file-invoice', label: 'Factures' },
+  { key: 'offers', href: '/admin/offers', icon: 'fa-file-invoice-dollar', label: 'Offres prêt' },
   { key: 'users', href: '/admin/users', icon: 'fa-users', label: 'Utilisateurs' },
   { key: 'partners', href: '/admin/partners', icon: 'fa-handshake', label: 'Partenaires' },
-  { key: 'offers', href: '/admin/offers', icon: 'fa-file-invoice-dollar', label: 'Offres' },
   { key: 'logs', href: '/admin/logs', icon: 'fa-clock-rotate-left', label: 'Logs d\'activité' },
   { key: 'faq', href: '/admin/faq', icon: 'fa-circle-question', label: 'FAQ' },
   { key: 'testimonials', href: '/admin/testimonials', icon: 'fa-comment-dots', label: 'Témoignages' },

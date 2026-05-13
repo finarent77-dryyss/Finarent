@@ -82,6 +82,11 @@ model User {
   referralsMade Referral[]   @relation("referrer")
   referralCode  String?      @unique
   lastLoginAt  DateTime?
+  invoices     Invoice[]
+  quotes       Quote[]
+  creditNotes  CreditNote[]
+  signaturesToSign  SignatureRequest[] @relation("SignatureRequestTo")
+  signaturesRequested SignatureRequest[] @relation("SignatureRequestBy")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -127,8 +132,17 @@ model Application {
   statusHistory StatusHistory[]
   commissions   Commission[]
   offers        Offer[]
+  invoices      Invoice[]
+  quotes        Quote[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
+
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([sector])
+  @@index([productType])
+  @@index([status, createdAt])
+  @@index([status, updatedAt])
 }
 
 model Offer {
@@ -153,6 +167,9 @@ model Offer {
   createdBy       String
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+
+  @@index([status, expiresAt])
+  @@index([status, sentAt])
 }
 
 model Document {
@@ -189,6 +206,11 @@ model StatusHistory {
   toStatus      ApplicationStatus
   comment       String?
   createdAt     DateTime          @default(now())
+
+  @@index([applicationId])
+  @@index([changedById])
+  @@index([toStatus])
+  @@index([fromStatus, toStatus])
 }
 
 model Commission {
@@ -202,6 +224,11 @@ model Commission {
   status        String      @default("PENDING")
   paidAt        DateTime?
   createdAt     DateTime    @default(now())
+
+  @@index([partnerId])
+  @@index([status])
+  @@index([partnerId, status])
+  @@index([partnerId, createdAt])
 }
 
 model Newsletter {
@@ -251,4 +278,213 @@ model Testimonial {
   updatedAt   DateTime @updatedAt
 
   @@index([isPublished, isApproved])
+}
+
+// ─── FACTURATION ──────────────────────────────────────────
+// Inspiré du modèle slformations : Invoice + lignes + versements + avoirs.
+// Adapté à Finassur (frais de dossier client, honoraires courtage).
+
+model Invoice {
+  id            String          @id @default(cuid())
+  invoiceNumber String          @unique
+  issueDate     DateTime        @default(now())
+  dueDate       DateTime?
+  paymentTerms  String?
+  // status : DRAFT | ISSUED | PARTIAL | PAID | CANCELLED
+  status        String          @default("DRAFT")
+  // Client (snapshot — peut différer si client modifie son profil après émission)
+  clientName    String
+  clientEmail   String?
+  clientPhone   String?
+  clientAddress String?
+  clientPostal  String?
+  clientCity    String?
+  clientSiret   String?
+  // Liens optionnels
+  userId        String?
+  user          User?           @relation(fields: [userId], references: [id])
+  applicationId String?
+  application   Application?    @relation(fields: [applicationId], references: [id])
+  // Totaux
+  totalHT       Float           @default(0)
+  totalTVA      Float           @default(0)
+  totalTTC      Float           @default(0)
+  paidAmount    Float           @default(0)
+  paidAt        DateTime?
+  paymentMethod String?
+  pdfUrl        String?
+  notes         String?
+  sentAt        DateTime?
+  sentTo        String?
+  archivedAt    DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  lines         InvoiceLine[]
+  payments      InvoicePayment[]
+  creditNotes   CreditNote[]
+
+  @@index([status])
+  @@index([userId])
+  @@index([applicationId])
+  @@index([issueDate])
+}
+
+model InvoiceLine {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float    @default(0)
+  vatRate     Float    @default(20)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model InvoicePayment {
+  id            String   @id @default(cuid())
+  invoiceId     String
+  amount        Float
+  paidAt        DateTime @default(now())
+  paymentMethod String   // CB | virement | chèque | espèces | avoir
+  reference     String?  // numéro chèque, ID virement, etc.
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([paidAt])
+}
+
+model CreditNote {
+  id               String   @id @default(cuid())
+  creditNoteNumber String   @unique
+  invoiceId        String?
+  userId           String?
+  reason           String
+  amount           Float
+  usedAmount       Float    @default(0)
+  status           String   @default("DRAFT") // DRAFT | ACTIVE | USED | EXPIRED | CANCELLED
+  expiresAt        DateTime?
+  pdfUrl           String?
+  issuedAt         DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  invoice          Invoice? @relation(fields: [invoiceId], references: [id])
+  user             User?    @relation(fields: [userId], references: [id])
+
+  @@index([invoiceId])
+  @@index([userId])
+  @@index([status])
+}
+
+// ─── DEVIS (Quote) ─────────────────────────────────────────
+// Distinct du modèle Offer (qui représente une offre de prêt partenaire).
+// Quote = proposition commerciale Finassur (frais courtage, honoraires).
+
+model Quote {
+  id               String     @id @default(cuid())
+  quoteNumber      String     @unique
+  userId           String?
+  user             User?      @relation(fields: [userId], references: [id])
+  applicationId    String?
+  application      Application? @relation(fields: [applicationId], references: [id])
+  // Client snapshot
+  companyName      String?
+  companyAddress   String?
+  companySiret     String?
+  contactName      String
+  contactEmail     String
+  contactPhone     String?
+  // Workflow
+  status           String     @default("DRAFT") // DRAFT | SENT | ACCEPTED | REFUSED | EXPIRED
+  validUntil       DateTime
+  subtotalHT       Float      @default(0)
+  taxRate          Float      @default(20)
+  taxAmount        Float      @default(0)
+  totalTTC         Float      @default(0)
+  discountPercent  Float?
+  discountAmount   Float?
+  paymentTerms     String?
+  notes            String?
+  sentAt           DateTime?
+  acceptedAt       DateTime?
+  refusedAt        DateTime?
+  refusalReason    String?
+  pdfUrl           String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  items            QuoteItem[]
+
+  @@index([status])
+  @@index([userId])
+  @@index([applicationId])
+  @@index([createdAt])
+}
+
+model QuoteItem {
+  id          String   @id @default(cuid())
+  quoteId     String
+  description String
+  quantity    Int      @default(1)
+  unitPriceHT Float
+  totalHT     Float
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+}
+
+// ─── SIGNATURE ÉLECTRONIQUE ────────────────────────────────
+// Tracker des signatures envoyées via YouSign, hors-ligne ou autres.
+
+model SignatureRequest {
+  id                String    @id @default(cuid())
+  documentType      String    // OFFER | QUOTE | CONTRACT | INVOICE | OTHER
+  documentId        String
+  requestedToId     String
+  requestedById     String
+  status            String    @default("PENDING") // PENDING | SIGNED | REFUSED | EXPIRED
+  provider          String    @default("yousign") // yousign | manual
+  providerRefId     String?   // ID externe YouSign
+  signUrl           String?
+  signatureData     String?   // base64 signature image (si signature manuscrite manuelle)
+  signedAt          DateTime?
+  signedByIp        String?
+  signedByUserAgent String?
+  token             String    @unique
+  expiresAt         DateTime
+  refusalReason     String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  requestedTo       User      @relation("SignatureRequestTo", fields: [requestedToId], references: [id])
+  requestedBy       User      @relation("SignatureRequestBy", fields: [requestedById], references: [id])
+
+  @@index([token])
+  @@index([documentType, documentId])
+  @@index([requestedToId])
+  @@index([status])
+}
+
+// ─── TEMPLATES DOCUMENTS ───────────────────────────────────
+
+model DocumentTemplate {
+  id            String   @id @default(cuid())
+  type          String   // INVOICE | QUOTE | CONTRACT | RECEIPT
+  name          String
+  logoUrl       String?
+  headerColor   String?  @default("#0A192F")
+  footerText    String?
+  legalMentions String?
+  htmlTemplate  String
+  variables     Json     @default("[]")
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type, isDefault])
 }

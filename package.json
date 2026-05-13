@@ -29,6 +29,8 @@
     "@sentry/nextjs": "^10.49.0",
     "@supabase/supabase-js": "^2.45.0",
     "framer-motion": "^12.23.26",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "next": "^15.0.0",
     "nodemailer": "^6.9.0",
     "posthog-js": "^1.369.3",

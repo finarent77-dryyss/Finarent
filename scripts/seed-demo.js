@@ -35,6 +35,13 @@ async function main() {
   await prisma.testimonial.deleteMany({});
   await prisma.fAQ.deleteMany({});
   await prisma.newsletter.deleteMany({});
+  await prisma.invoicePayment.deleteMany({});
+  await prisma.invoiceLine.deleteMany({});
+  await prisma.creditNote.deleteMany({});
+  await prisma.invoice.deleteMany({});
+  await prisma.quoteItem.deleteMany({});
+  await prisma.quote.deleteMany({});
+  await prisma.signatureRequest.deleteMany({});
   await prisma.user.deleteMany({ where: { email: { contains: '@demo' } } });
   await prisma.partner.deleteMany({});
 
@@ -237,6 +244,174 @@ async function main() {
     });
   }
 
+  // ─── 8b. DEVIS ─────────────────────────────────────────────
+  console.log('📑  Devis...');
+  const quoteSeeds = [
+    {
+      number: `DEV-${new Date().getFullYear()}-0001`,
+      status: 'SENT',
+      contactName: 'Jean Dubois', contactEmail: 'client@demo.fr', contactPhone: '+33612345678',
+      companyName: 'Dubois Constructions', companySiret: '901234567',
+      items: [
+        { description: 'Honoraires courtage — Crédit-bail mini-pelle Bobcat E35', quantity: 1, unitPriceHT: 1500 },
+        { description: 'Frais de dossier', quantity: 1, unitPriceHT: 250 },
+      ],
+      sentDays: 3,
+    },
+    {
+      number: `DEV-${new Date().getFullYear()}-0002`,
+      status: 'ACCEPTED',
+      contactName: 'Dr Marie Lefebvre', contactEmail: 'marie.lefebvre@demo-medical.fr',
+      companyName: 'Cabinet Dr Lefebvre', companySiret: '812345678',
+      items: [
+        { description: 'Honoraires courtage — LOA échographe', quantity: 1, unitPriceHT: 900 },
+        { description: 'Conseil fiscal & optimisation', quantity: 1, unitPriceHT: 350 },
+      ],
+      sentDays: 8, acceptedDays: 5,
+    },
+    {
+      number: `DEV-${new Date().getFullYear()}-0003`,
+      status: 'DRAFT',
+      contactName: 'Antoine Moreau', contactEmail: 'antoine.moreau@demo-it.fr',
+      companyName: 'Moreau IT Services', companySiret: '821345671',
+      items: [
+        { description: 'Honoraires courtage — Prêt pro serveurs', quantity: 1, unitPriceHT: 600 },
+      ],
+      sentDays: null,
+    },
+  ];
+  const quotes = [];
+  for (const q of quoteSeeds) {
+    const subtotalHT = q.items.reduce((s, it) => s + it.quantity * it.unitPriceHT, 0);
+    const taxAmount = subtotalHT * 0.20;
+    const totalTTC = Math.round((subtotalHT + taxAmount) * 100) / 100;
+    const created = await prisma.quote.create({
+      data: {
+        quoteNumber: q.number,
+        contactName: q.contactName, contactEmail: q.contactEmail, contactPhone: q.contactPhone,
+        companyName: q.companyName, companySiret: q.companySiret,
+        status: q.status,
+        validUntil: daysAgo(-30),
+        subtotalHT, taxRate: 20, taxAmount, totalTTC,
+        paymentTerms: 'À réception',
+        sentAt: q.sentDays ? daysAgo(q.sentDays) : null,
+        acceptedAt: q.acceptedDays ? daysAgo(q.acceptedDays) : null,
+        items: {
+          create: q.items.map((it, i) => ({
+            description: it.description,
+            quantity: it.quantity,
+            unitPriceHT: it.unitPriceHT,
+            totalHT: it.quantity * it.unitPriceHT,
+            position: i,
+          })),
+        },
+      },
+    });
+    quotes.push(created);
+  }
+
+  // ─── 8c. FACTURES ──────────────────────────────────────────
+  console.log('💸  Factures...');
+  const invoiceSeeds = [
+    {
+      number: `FAC-${new Date().getFullYear()}-0001`,
+      status: 'PAID',
+      client: { name: 'Dubois Constructions', email: 'client@demo.fr', address: '14 rue de la République', postal: '75011', city: 'Paris', siret: '901234567' },
+      lines: [
+        { description: 'Honoraires courtage — LOA Renault Master', quantity: 1, unitPrice: 850, vatRate: 20 },
+      ],
+      issuedDays: 60, dueDays: 30, paidDays: 28, paymentMethod: 'virement',
+    },
+    {
+      number: `FAC-${new Date().getFullYear()}-0002`,
+      status: 'PARTIAL',
+      client: { name: 'Roux Logistique', email: 'isabelle.roux@demo-transport.fr', address: '4 av. des Champs', postal: '69003', city: 'Lyon', siret: '834567812' },
+      lines: [
+        { description: 'Honoraires courtage — LLD flotte 4 utilitaires', quantity: 1, unitPrice: 2400, vatRate: 20 },
+        { description: 'Frais de dossier', quantity: 1, unitPrice: 250, vatRate: 20 },
+      ],
+      issuedDays: 25, dueDays: 5, payments: [{ amount: 1500, method: 'virement', daysAgo: 10 }],
+    },
+    {
+      number: `FAC-${new Date().getFullYear()}-0003`,
+      status: 'ISSUED',
+      client: { name: 'Cabinet Dr Lefebvre', email: 'marie.lefebvre@demo-medical.fr', address: '22 rue des Médecins', postal: '13001', city: 'Marseille', siret: '812345678' },
+      lines: [
+        { description: 'Honoraires courtage — LOA échographe', quantity: 1, unitPrice: 900, vatRate: 20 },
+        { description: 'Conseil fiscal & optimisation', quantity: 1, unitPrice: 350, vatRate: 20 },
+      ],
+      issuedDays: 5, dueDays: -25, // pas encore due
+    },
+  ];
+  for (const inv of invoiceSeeds) {
+    let totalHT = 0, totalTVA = 0;
+    for (const l of inv.lines) {
+      const ht = l.quantity * l.unitPrice;
+      totalHT += ht;
+      totalTVA += ht * (l.vatRate / 100);
+    }
+    const totalTTC = Math.round((totalHT + totalTVA) * 100) / 100;
+    const paidAmount = (inv.payments || []).reduce((s, p) => s + p.amount, 0)
+      + (inv.status === 'PAID' ? totalTTC - (inv.payments || []).reduce((s, p) => s + p.amount, 0) : 0);
+
+    const created = await prisma.invoice.create({
+      data: {
+        invoiceNumber: inv.number,
+        status: inv.status,
+        issueDate: daysAgo(inv.issuedDays),
+        dueDate: daysAgo(inv.dueDays),
+        paidAt: inv.status === 'PAID' ? daysAgo(inv.paidDays || 0) : null,
+        paymentMethod: inv.paymentMethod,
+        clientName: inv.client.name,
+        clientEmail: inv.client.email,
+        clientAddress: inv.client.address,
+        clientPostal: inv.client.postal,
+        clientCity: inv.client.city,
+        clientSiret: inv.client.siret,
+        totalHT: Math.round(totalHT * 100) / 100,
+        totalTVA: Math.round(totalTVA * 100) / 100,
+        totalTTC,
+        paidAmount,
+        paymentTerms: 'Paiement à 30 jours',
+        lines: {
+          create: inv.lines.map((l, i) => ({
+            description: l.description,
+            quantity: l.quantity,
+            unitPrice: l.unitPrice,
+            vatRate: l.vatRate,
+            position: i,
+          })),
+        },
+      },
+    });
+
+    // Versements détaillés (pour PARTIAL et PAID complets)
+    if (inv.payments) {
+      for (const p of inv.payments) {
+        await prisma.invoicePayment.create({
+          data: {
+            invoiceId: created.id,
+            amount: p.amount,
+            paymentMethod: p.method,
+            paidAt: daysAgo(p.daysAgo),
+            reference: `VIR-2026-${Math.floor(Math.random() * 10000)}`,
+          },
+        });
+      }
+    }
+    if (inv.status === 'PAID') {
+      await prisma.invoicePayment.create({
+        data: {
+          invoiceId: created.id,
+          amount: totalTTC,
+          paymentMethod: inv.paymentMethod,
+          paidAt: daysAgo(inv.paidDays),
+          reference: `VIR-2026-${Math.floor(Math.random() * 10000)}`,
+        },
+      });
+    }
+  }
+
   // ─── 9. FAQ ─────────────────────────────────────────────────
   console.log('❓  FAQ...');
   const faqs = [
@@ -268,6 +443,7 @@ async function main() {
   console.log('');
   console.log('✅  Seed terminé.');
   console.log(`   ${partners.length} partenaires, ${apps.length} dossiers, ${testimonials.length} témoignages, ${faqs.length} FAQs`);
+  console.log(`   3 devis (1 DRAFT, 1 SENT, 1 ACCEPTED), 3 factures (1 ISSUED, 1 PARTIAL, 1 PAID)`);
 }
 
 main()
