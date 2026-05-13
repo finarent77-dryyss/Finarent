@@ -1,12 +1,27 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @source "../components/**/*.{js,jsx,ts,tsx}";
 @source "./**/*.{js,jsx,ts,tsx}";
 
+/* ═══════════════════════════════════════════════════════════════════
+   CHARTE FINARENT — Palette "Vibrant" (Iridescent Fintech)
+   Source : design system Claude Design — palette validée par le client.
+   Couleurs :
+     - Ink   #0F1729 (texte principal, brand mark)
+     - Indigo #6366F1 (CTA, focus, accent primaire)
+     - Sage  #22D67E (succès, accent secondaire, gradient end)
+     - Violet #A855F7 (gradient middle, hover)
+     - Bg    #FCFBFF (background avec wash iridescent radial)
+   ═══════════════════════════════════════════════════════════════════ */
+
 @theme {
-  --color-primary: #0A2540;
+  /* Brand tokens "vibrant" — mappés sur les classes Tailwind primary/secondary/accent */
+  --color-primary: #0F1729;
   --color-secondary: #6366F1;
-  --color-accent: #10B981;
+  --color-accent: #22D67E;
+  --color-violet: #A855F7;
+  /* Slate palette inchangée pour les textes secondaires */
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
   --color-slate-200: #e2e8f0;
@@ -17,25 +32,47 @@
   --color-slate-700: #334155;
   --color-slate-800: #1e293b;
   --color-slate-900: #0f172a;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Tokens internes vibrant (utilisables via var()) */
+:root {
+  --ink: #0F1729;
+  --ink-2: #1E2746;
+  --sage: #22D67E;
+  --sage-2: #16B569;
+  --sage-soft: #D6F7E5;
+  --indigo: #6366F1;
+  --indigo-soft: #EEF0FE;
+  --violet: #A855F7;
+  --paper: #FFFFFF;
+  --paper-2: #F4F2FF;
+  --paper-3: #E9E5FF;
+  --line: #ECE9F8;
+  --line-2: #DDD7F4;
+  --text-2: #4A4F66;
+  --text-3: #7C7F95;
+  --grad-cta:  linear-gradient(135deg, #6366F1 0%, #8B5CF6 45%, #22D67E 100%);
+  --grad-text: linear-gradient(90deg,  #6366F1 0%, #3B82F6 35%, #14B8A6 65%, #22D67E 100%);
+  --grad-soft: linear-gradient(135deg, #F4E8FF 0%, #E5E9FF 30%, #FFE5F0 55%, #D6F7E5 100%);
 }
 
 @layer base {
   body {
     @apply text-gray-900 font-sans antialiased;
-    /* Fond ambient brand : reprend l'indigo → teal → emerald du CTA premium
-       (cf. capture "Prêt à développer votre activité"), mais en version
-       atténuée par radial-gradients pour ne pas écraser le contenu. */
-    background-color: #ffffff;
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.005em;
+    /* Fond vibrant — wash iridescent doux : 4 radial-gradients (violet/rose/sage/indigo)
+       sur fond near-white #FCFBFF. Reproduit pixel-perfect le design Claude. */
+    background-color: #FCFBFF;
     background-image:
-      radial-gradient(ellipse 1000px 600px at -10% -10%, rgba(99, 102, 241, 0.10), transparent 60%),
-      radial-gradient(ellipse 900px 600px at 50% 0%,    rgba(20, 184, 166, 0.06), transparent 65%),
-      radial-gradient(ellipse 1000px 700px at 110% 30%, rgba(16, 185, 129, 0.10), transparent 60%),
-      radial-gradient(ellipse 800px 600px at 50% 110%,  rgba(99, 102, 241, 0.06), transparent 60%);
+      radial-gradient(at 0% 0%,     rgba(168, 85, 247, 0.08) 0%, transparent 45%),
+      radial-gradient(at 100% 0%,   rgba(236, 72, 153, 0.06) 0%, transparent 45%),
+      radial-gradient(at 100% 100%, rgba(34, 214, 126, 0.08) 0%, transparent 45%),
+      radial-gradient(at 0% 100%,   rgba(99, 102, 241, 0.06) 0%, transparent 45%);
     background-attachment: fixed;
     background-repeat: no-repeat;
   }
-  /* Sections sombres (hero, footer, dashboards) : pas de fond ambient */
   body[data-splash-active] #site-header,
   body[data-splash-active] #site-footer {
     display: none;
@@ -45,29 +82,172 @@
 }
 
 @layer utilities {
-  .glass { @apply bg-white/70 backdrop-blur-md border border-white/20; }
-  .premium-card { @apply rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl; }
-  .gradient-text { @apply text-transparent bg-clip-text bg-linear-to-r from-secondary via-teal-500 to-accent; }
-  /* Gradient brand pleine saturation : indigo → teal → emerald (cf. capture CTA "Prêt à développer") */
-  .gradient-bg { @apply bg-linear-to-r from-secondary via-teal-500 to-accent; }
-  /* Variante diagonale plus douce, pour fonds de sections décoratives */
-  .gradient-bg-soft { @apply bg-linear-to-br from-secondary/10 via-teal-500/10 to-accent/10; }
-  /* Variante page : gradient ambient très discret pour fonds de pages */
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+  .premium-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+  .premium-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px -16px rgba(99, 102, 241, 0.2);
+  }
+
+  /* ──────── GRADIENT TEXT (rainbow vibrant animé) ────────
+     Cf. capture "Estimez votre mensualité" — indigo → bleu → teal → sage.
+     Animation 6s pour effet iridescent vivant. */
+  .gradient-text {
+    background: var(--grad-text);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    animation: vibrant-shift 6s ease-in-out infinite;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+  @keyframes vibrant-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+
+  /* ──────── GRADIENT CTA (bandeaux premium, FinalCTA) ────────
+     Diagonal 135° indigo → violet → sage, comme la classe .grad-card du design. */
+  .gradient-bg {
+    background: var(--grad-cta);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .gradient-bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.15), transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Wash iridescent doux pour sections de mise en valeur */
+  .gradient-bg-soft {
+    background: var(--grad-soft);
+  }
+
+  /* Variante page : ambient pour fonds de sections discrètes */
   .gradient-page {
     background:
-      radial-gradient(circle at 0% 0%,   rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 100% 0%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 50% 100%,rgba(16, 185, 129, 0.10) 0%, transparent 60%);
+      radial-gradient(at 0% 0%,     rgba(168, 85, 247, 0.08) 0%, transparent 45%),
+      radial-gradient(at 100% 100%, rgba(34, 214, 126, 0.08) 0%, transparent 45%),
+      radial-gradient(at 0% 100%,   rgba(99, 102, 241, 0.06) 0%, transparent 45%);
   }
+
   .transition-smooth { @apply transition-all duration-300 ease-in-out; }
   .hover-scale { @apply hover:scale-105 transition-transform duration-300; }
-  .btn-primary { @apply px-4 py-2.5 sm:px-6 sm:py-3 bg-linear-to-r from-secondary to-accent text-white font-semibold rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm sm:text-base; }
-  .btn-secondary { @apply px-4 py-2.5 sm:px-6 sm:py-3 bg-white text-primary border-2 border-slate-200 font-semibold rounded-xl hover:bg-slate-50 hover:shadow-lg transition-all duration-300 text-sm sm:text-base; }
-  .btn-outline { @apply px-4 py-2.5 sm:px-6 sm:py-3 text-secondary font-semibold hover:bg-secondary hover:text-white rounded-lg transition-all duration-300 border-2 border-secondary text-sm sm:text-base; }
-  .input-field { @apply w-full px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-xl focus:border-secondary focus:outline-none transition-colors text-sm sm:text-base; }
+
+  /* ──────── BUTTONS (vibrant tokens) ────────
+     Primary = solid indigo #6366F1 avec ombre indigo (cf. design system).
+     Secondary = white + border violet, ghost pour actions secondaires.
+     Sage = bouton succès, accent émeraude. */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: var(--indigo);
+    color: white;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 24px -8px rgba(99, 102, 241, 0.5);
+    white-space: nowrap;
+  }
+  .btn-primary:hover {
+    background: #5558E6;
+    box-shadow: 0 12px 28px -8px rgba(99, 102, 241, 0.6);
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    @apply px-6 py-3 bg-white border-2 border-slate-200 text-primary font-semibold rounded-2xl hover:bg-slate-50 hover:shadow-lg transition-all duration-300 text-sm sm:text-base;
+  }
+  .btn-sage {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: var(--sage);
+    color: white;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  .btn-sage:hover { background: var(--sage-2); transform: translateY(-1px); }
+  .btn-outline { @apply px-6 py-3 text-secondary font-semibold hover:bg-secondary hover:text-white rounded-2xl transition-all duration-300 border-2 border-secondary text-sm sm:text-base; }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line-2);
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-ghost:hover { background: var(--paper-2); border-color: var(--text-3); }
+
+  /* ──────── INPUTS (vibrant) ──────── */
+  .input-field {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 14px;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .input-field:focus {
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  }
+
+  /* ──────── PILLS / BADGES vibrant ──────── */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-2);
+  }
+  .pill-sage   { background: rgba(255, 255, 255, 0.85); color: var(--sage-2); }
+  .pill-indigo { background: var(--indigo-soft);       color: var(--indigo);  border-color: transparent; }
+
   .section-padding { @apply py-12 sm:py-16 lg:py-20 px-4 sm:px-6; }
   .container-custom { @apply container mx-auto px-4 sm:px-6; }
+
+  /* ──────── SELECTION (couleur brand) ──────── */
 }
+::selection { background: rgba(99, 102, 241, 0.18); color: var(--indigo); }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
