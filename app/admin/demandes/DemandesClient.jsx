@@ -199,13 +199,14 @@ export default function DemandesClient() {
 
       {/* Results */}
       <div className="space-y-4">
-        <AnimatePresence mode="popLayout">
-          {filtered.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center bg-white rounded-2xl border border-gray-100">
-              <i className="fa-solid fa-inbox text-4xl text-gray-200 mb-3 block"></i>
-              <p className="text-sm text-gray-400">{search ? 'Aucun résultat pour cette recherche' : t('admin.noRequests')}</p>
-            </motion.div>
-          ) : filtered.map((d) => {
+        {filtered.length === 0 && (
+          <div className="py-16 text-center bg-white rounded-2xl border border-gray-100">
+            <i className="fa-solid fa-inbox text-4xl text-gray-200 mb-3 block"></i>
+            <p className="text-sm text-gray-400">{search ? 'Aucun résultat pour cette recherche' : t('admin.noRequests')}</p>
+          </div>
+        )}
+        <AnimatePresence initial={false}>
+          {filtered.map((d) => {
             const sc = STATUS_COLORS[d.status] || { bg: 'bg-gray-100 text-gray-600', dot: 'bg-gray-400' };
             const isExpanded = expandedId === d.id;
 
