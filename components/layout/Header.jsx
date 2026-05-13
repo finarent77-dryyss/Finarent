@@ -89,6 +89,8 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
+            <Link href="/" className={`${navLinkClass('/')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.home')}</Link>
+
             {/* Solutions Dropdown */}
             <div
               className="relative"
@@ -254,6 +256,7 @@ export default function Header() {
         <div className={`lg:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-[500px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}>
           <div className={`pt-4 border-t space-y-1 ${isOverDarkHero ? 'border-white/10' : 'border-gray-100'}`}>
             {[
+              { label: t('nav.home'), href: '/' },
               { label: t('nav.solutions'), href: '/solutions' },
               { label: t('nav.sectors'), href: '/sectors' },
               { label: t('nav.insurance'), href: '/assurance' },

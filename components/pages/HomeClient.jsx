@@ -7,6 +7,8 @@ import StatsCard from '@/components/ui/StatsCard';
 import TestimonialCarousel from '@/components/ui/TestimonialCarousel';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import Hero from '@/components/layout/Hero';
+import HomeQuickSimulator from '@/components/home/HomeQuickSimulator';
+import AuroraBackground from '@/components/ui/AuroraBackground';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import { sectorsData } from '@/assets/data/sectors';
@@ -29,8 +31,9 @@ export default function HomeClient() {
         <Hero />
 
         {/* Stats */}
-        <section className="py-12 sm:py-16 lg:py-24 bg-white">
-          <div className="container mx-auto px-4 sm:px-6">
+        <section className="relative py-12 sm:py-16 lg:py-24 bg-white overflow-hidden">
+          <AuroraBackground variant="soft" />
+          <div className="container mx-auto px-4 sm:px-6 relative z-10">
             <ScrollReveal>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                 {[
@@ -39,7 +42,7 @@ export default function HomeClient() {
                   { icon: 'fa-euro-sign', to: 50, suffix: 'M€', label: t('home.funded2025'), color: 'secondary' },
                   { icon: 'fa-handshake-simple', to: 98, suffix: '%', label: t('home.approvalRate'), color: 'accent' },
                 ].map((stat, i) => (
-                  <div key={i} className="group p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[32px] bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center">
+                  <div key={i} className="group p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[32px] bg-white/80 backdrop-blur-sm border border-gray-100 hover-lift hover:bg-white hover:shadow-2xl transition-all duration-500 text-center">
                     <div className={`w-10 h-10 sm:w-14 sm:h-14 bg-${stat.color}/10 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-6 group-hover:scale-110 transition-transform`}>
                       <i className={`fa-solid ${stat.icon} text-${stat.color} text-lg sm:text-2xl`}></i>
                     </div>
@@ -56,6 +59,8 @@ export default function HomeClient() {
             </ScrollReveal>
           </div>
         </section>
+
+        <HomeQuickSimulator />
 
         {/* Trust strip — partenaires bancaires (placeholder à remplacer par vrais logos SVG) */}
         <section className="py-12 sm:py-16 bg-white border-t border-gray-100">
@@ -486,12 +491,12 @@ export default function HomeClient() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 mb-8 sm:mb-12 lg:mb-16">
               {[
-                { name: 'BTP',       icon: 'fa-helmet-safety',  count: '320+', gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
-                { name: 'Médical',   icon: 'fa-stethoscope',    count: '210+', gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
                 { name: 'Transport', icon: 'fa-truck-fast',     count: '180+', gradient: 'from-sky-500/10 to-blue-500/5',       accent: 'text-sky-600',     ring: 'hover:ring-sky-400/40' },
-                { name: 'Industrie', icon: 'fa-industry',       count: '150+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
-                { name: 'IT & Tech', icon: 'fa-microchip',      count: '240+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
+                { name: 'BTP',       icon: 'fa-helmet-safety',  count: '320+', gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
                 { name: 'Services',  icon: 'fa-briefcase',      count: '290+', gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
+                { name: 'IT & Tech', icon: 'fa-microchip',      count: '240+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
+                { name: 'Industrie', icon: 'fa-industry',       count: '150+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
+                { name: 'Médical',   icon: 'fa-stethoscope',    count: '210+', gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
               ].map((s, i) => (
                 <div
                   key={i}

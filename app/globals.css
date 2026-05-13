@@ -95,3 +95,58 @@
 .animate-pulse-slow {
   animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* === Aurora / blob animations (donnent de la vie aux sections blanches) === */
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(40px, -30px) scale(1.08); }
+  66%      { transform: translate(-25px, 35px) scale(0.95); }
+}
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes tilt-soft {
+  0%, 100% { transform: rotate(-1deg); }
+  50%      { transform: rotate(1deg); }
+}
+
+.animate-blob       { animation: blob-drift 18s ease-in-out infinite; }
+.animate-blob-delay { animation: blob-drift 22s ease-in-out infinite; animation-delay: -7s; }
+.animate-gradient   {
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+.animate-bounce-soft { animation: bounce-soft 3s ease-in-out infinite; }
+.animate-tilt        { animation: tilt-soft 8s ease-in-out infinite; }
+
+/* Hover lift premium — à appliquer sur cartes */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px -15px rgba(99, 102, 241, 0.18);
+}
+
+/* Respect des préférences utilisateur (accessibilité) */
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob, .animate-blob-delay, .animate-gradient,
+  .animate-shimmer, .animate-bounce-soft, .animate-tilt,
+  .animate-float, .animate-float-delayed, .animate-pulse-slow {
+    animation: none;
+  }
+}

@@ -1,15 +1,65 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { formatEUR } from '@/lib/simulators/calculations/pret';
 
-/** Slider avec valeur affichée + champ numérique en dessous. */
+/** Slider avec valeur affichée éditable (clic pour saisir au clavier) + champ numérique en dessous. */
 export function SliderInput({ label, value, onChange, min, max, step = 1, suffix = '€', format = 'eur', accent = 'secondary' }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const inputRef = useRef(null);
+
   const displayed = format === 'eur' ? formatEUR(value) : `${value.toLocaleString('fr-FR')} ${suffix}`;
+
+  useEffect(() => {
+    if (editing) {
+      setDraft(String(value));
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [editing, value]);
+
+  const commit = () => {
+    const raw = draft.replace(/[^\d.,-]/g, '').replace(',', '.');
+    const parsed = Number(raw);
+    if (!Number.isNaN(parsed) && raw !== '') {
+      const clamped = Math.max(min, Math.min(max, parsed));
+      onChange(clamped);
+    }
+    setEditing(false);
+  };
+
   return (
     <div className="space-y-3">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between gap-3">
         <label className="text-sm font-semibold text-gray-700">{label}</label>
-        <span className={`text-2xl font-black text-${accent}`}>{displayed}</span>
+        {editing ? (
+          <div className={`flex items-baseline gap-1 text-2xl font-black text-${accent}`}>
+            <input
+              ref={inputRef}
+              type="text"
+              inputMode="decimal"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={commit}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') { e.preventDefault(); commit(); }
+                if (e.key === 'Escape') { e.preventDefault(); setEditing(false); }
+              }}
+              className={`w-32 text-right bg-transparent border-b-2 border-${accent} focus:outline-none tabular-nums`}
+            />
+            <span>{suffix}</span>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className={`text-2xl font-black text-${accent} hover:opacity-80 transition cursor-text border-b-2 border-dashed border-transparent hover:border-${accent}/30`}
+            title="Cliquer pour saisir la valeur"
+          >
+            {displayed}
+          </button>
+        )}
       </div>
       <input
         type="range"
