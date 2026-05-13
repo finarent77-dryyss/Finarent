@@ -6,6 +6,19 @@ export async function GET() {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
+  // Fenêtres temporelles communes
+  const now = new Date();
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setHours(0, 0, 0, 0);
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 3_600_000);
+  const fourHoursAgo = new Date(now.getTime() - 4 * 3_600_000);
+  const oneDayAhead = new Date(now.getTime() + 24 * 3_600_000);
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3_600_000);
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 3_600_000);
+
+  // ─── TOUTES les requêtes indépendantes en parallèle ───
   const [
     totalApplications,
     pendingApplications,
@@ -16,6 +29,19 @@ export async function GET() {
     totalPartners,
     recentApplications,
     statusCounts,
+    totalAmountAgg,
+    recentApps,
+    sectorGroups,
+    avgResult,
+    completedApps,
+    signedHistories,
+    pendingSignatureHistories,
+    stagnantCount,
+    operatorActions,
+    urgentPending,
+    urgentDocs,
+    expiringSoonOffers,
+    staleOffers,
   ] = await Promise.all([
     prisma.application.count(),
     prisma.application.count({ where: { status: { in: ['PENDING', 'DOCUMENTS_NEEDED'] } } }),
@@ -33,24 +59,64 @@ export async function GET() {
       by: ['status'],
       _count: { status: true },
     }),
+    prisma.application.aggregate({
+      where: { status: { in: ['APPROVED', 'COMPLETED'] } },
+      _sum: { amount: true },
+    }),
+    prisma.application.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true },
+    }),
+    prisma.application.groupBy({
+      by: ['sector'],
+      _count: { sector: true },
+      where: { sector: { not: null } },
+      orderBy: { _count: { sector: 'desc' } },
+      take: 5,
+    }),
+    prisma.application.aggregate({
+      where: { status: { in: ['APPROVED', 'COMPLETED'] }, amount: { not: null } },
+      _avg: { amount: true },
+    }),
+    prisma.application.findMany({
+      where: { status: { in: ['COMPLETED', 'APPROVED'] } },
+      select: { createdAt: true, updatedAt: true },
+    }),
+    prisma.statusHistory.findMany({
+      where: { toStatus: 'SIGNED' },
+      select: { applicationId: true, createdAt: true },
+    }),
+    prisma.statusHistory.findMany({
+      where: { toStatus: 'PENDING_SIGNATURE' },
+      select: { applicationId: true, createdAt: true },
+    }),
+    prisma.application.count({
+      where: {
+        status: { in: ['PENDING', 'DOCUMENTS_NEEDED'] },
+        updatedAt: { lt: thirtyDaysAgo },
+      },
+    }),
+    prisma.statusHistory.groupBy({
+      by: ['changedById'],
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 5,
+    }),
+    prisma.application.count({
+      where: { status: 'PENDING', createdAt: { lt: fourHoursAgo } },
+    }),
+    prisma.application.count({
+      where: { status: 'DOCUMENTS_NEEDED', updatedAt: { lt: sevenDaysAgo } },
+    }),
+    prisma.offer.count({
+      where: { status: { in: ['SENT', 'VIEWED'] }, expiresAt: { lt: oneDayAhead, gt: now } },
+    }),
+    prisma.offer.count({
+      where: { status: 'SENT', sentAt: { lt: twoDaysAgo } },
+    }),
   ]);
 
-  const totalAmount = await prisma.application.aggregate({
-    where: { status: { in: ['APPROVED', 'COMPLETED'] } },
-    _sum: { amount: true },
-  });
-
-  // Monthly data: last 6 months of application counts
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  sixMonthsAgo.setDate(1);
-  sixMonthsAgo.setHours(0, 0, 0, 0);
-
-  const recentApps = await prisma.application.findMany({
-    where: { createdAt: { gte: sixMonthsAgo } },
-    select: { createdAt: true },
-  });
-
+  // Monthly data: last 6 months
   const monthlyMap = {};
   for (let i = 5; i >= 0; i--) {
     const d = new Date();
@@ -65,26 +131,10 @@ export async function GET() {
   });
   const monthlyData = Object.values(monthlyMap);
 
-  // Top 5 sectors
-  const sectorGroups = await prisma.application.groupBy({
-    by: ['sector'],
-    _count: { sector: true },
-    where: { sector: { not: null } },
-    orderBy: { _count: { sector: 'desc' } },
-    take: 5,
-  });
   const topSectors = sectorGroups.map((s) => ({ sector: s.sector, count: s._count.sector }));
-
-  // Average amount of approved applications
-  const avgResult = await prisma.application.aggregate({
-    where: { status: { in: ['APPROVED', 'COMPLETED'] }, amount: { not: null } },
-    _avg: { amount: true },
-  });
   const averageAmount = avgResult._avg.amount || 0;
 
   // ─── Conversion funnel ─────────────────────────────
-  // Compte cumulatif : un dossier "passé" par le statut REVIEWING signifie qu'il
-  // est au moins en REVIEWING, ou plus loin dans le pipeline.
   const FUNNEL_ORDER = ['PENDING', 'REVIEWING', 'QUOTE_SENT', 'PENDING_SIGNATURE', 'SIGNED', 'COMPLETED'];
   const FUNNEL_LABELS = {
     PENDING: 'Dossiers reçus',
@@ -95,9 +145,6 @@ export async function GET() {
     COMPLETED: 'Fonds débloqués',
   };
   const allStatusCounts = statusCounts.reduce((acc, s) => ({ ...acc, [s.status]: s._count.status }), {});
-
-  // Approximation cumulative : on considère qu'un dossier dans un statut
-  // "aval" est aussi passé par les statuts "amont".
   const cumulativeOrder = ['PENDING', 'REVIEWING', 'DOCUMENTS_NEEDED', 'QUOTE_SENT', 'QUOTE_ACCEPTED', 'PENDING_SIGNATURE', 'SIGNED', 'TRANSMITTED', 'APPROVED', 'COMPLETED'];
   const funnel = FUNNEL_ORDER.map((step) => {
     const startIdx = cumulativeOrder.indexOf(step);
@@ -107,12 +154,7 @@ export async function GET() {
     return { status: step, label: FUNNEL_LABELS[step], count: cumulative };
   });
 
-  // ─── Délais moyens (en heures) ─────────────────────
-  // Délai traitement : createdAt → updatedAt sur dossiers COMPLETED
-  const completedApps = await prisma.application.findMany({
-    where: { status: { in: ['COMPLETED', 'APPROVED'] } },
-    select: { createdAt: true, updatedAt: true },
-  });
+  // ─── Délais moyens ─────────────────────────────────
   const avgProcessingHours = completedApps.length > 0
     ? Math.round(
         completedApps.reduce((sum, a) => sum + (new Date(a.updatedAt) - new Date(a.createdAt)), 0)
@@ -120,15 +162,6 @@ export async function GET() {
       )
     : 0;
 
-  // Délai signature : StatusHistory PENDING_SIGNATURE → SIGNED par application
-  const signedHistories = await prisma.statusHistory.findMany({
-    where: { toStatus: 'SIGNED' },
-    select: { applicationId: true, createdAt: true },
-  });
-  const pendingSignatureHistories = await prisma.statusHistory.findMany({
-    where: { toStatus: 'PENDING_SIGNATURE' },
-    select: { applicationId: true, createdAt: true },
-  });
   const pendingSigByApp = pendingSignatureHistories.reduce((acc, h) => {
     if (!acc[h.applicationId] || h.createdAt < acc[h.applicationId]) acc[h.applicationId] = h.createdAt;
     return acc;
@@ -140,26 +173,12 @@ export async function GET() {
     ? Math.round(signatureDurations.reduce((s, d) => s + d, 0) / signatureDurations.length / 3_600_000)
     : 0;
 
-  // Taux d'abandon : (REJECTED + dossiers stagnants > 30j en PENDING/DOCUMENTS_NEEDED) / total
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const stagnantCount = await prisma.application.count({
-    where: {
-      status: { in: ['PENDING', 'DOCUMENTS_NEEDED'] },
-      updatedAt: { lt: thirtyDaysAgo },
-    },
-  });
   const abandonmentRate = totalApplications > 0
     ? Math.round(((rejectedApplications + stagnantCount) / totalApplications) * 100)
     : 0;
 
   // ─── Performance par opérateur (top 5) ─────────────
-  const operatorActions = await prisma.statusHistory.groupBy({
-    by: ['changedById'],
-    _count: { id: true },
-    orderBy: { _count: { id: 'desc' } },
-    take: 5,
-  });
+  // Dépend de operatorActions, donc reste séquentiel ici.
   const operatorIds = operatorActions.map((o) => o.changedById).filter(Boolean);
   const operators = operatorIds.length > 0
     ? await prisma.user.findMany({
@@ -176,29 +195,7 @@ export async function GET() {
       role: operatorMap[o.changedById]?.role,
       actions: o._count.id,
     }))
-    .filter((o) => operatorMap[o.id]); // ignore actions par utilisateurs non-staff
-
-  // ─── À traiter aujourd'hui ─────────────────────────
-  const nowDate = new Date();
-  const fourHoursAgo = new Date(nowDate.getTime() - 4 * 3_600_000);
-  const oneDayAhead = new Date(nowDate.getTime() + 24 * 3_600_000);
-  const sevenDaysAgo = new Date(nowDate.getTime() - 7 * 24 * 3_600_000);
-  const twoDaysAgo = new Date(nowDate.getTime() - 2 * 24 * 3_600_000);
-
-  const [urgentPending, urgentDocs, expiringSoonOffers, staleOffers] = await Promise.all([
-    prisma.application.count({
-      where: { status: 'PENDING', createdAt: { lt: fourHoursAgo } },
-    }),
-    prisma.application.count({
-      where: { status: 'DOCUMENTS_NEEDED', updatedAt: { lt: sevenDaysAgo } },
-    }),
-    prisma.offer.count({
-      where: { status: { in: ['SENT', 'VIEWED'] }, expiresAt: { lt: oneDayAhead, gt: nowDate } },
-    }),
-    prisma.offer.count({
-      where: { status: 'SENT', sentAt: { lt: twoDaysAgo } },
-    }),
-  ]);
+    .filter((o) => operatorMap[o.id]);
 
   const todayActions = {
     urgentPending,
@@ -217,7 +214,7 @@ export async function GET() {
     rejectedApplications,
     totalUsers,
     totalPartners,
-    totalAmount: totalAmount._sum.amount || 0,
+    totalAmount: totalAmountAgg._sum.amount || 0,
     recentApplications,
     statusCounts: allStatusCounts,
     monthlyData,
