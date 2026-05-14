@@ -43,15 +43,17 @@ export default function Header() {
     { name: t('nav.sectors.transport'), icon: 'fa-truck', path: '/sectors/transport' }
   ];
 
-  const isOverDarkHero = pathname === '/' && !isScrolled;
+  // Hero nouvelle charte = fond clair → header toujours en mode light.
+  // (Variable conservée pour compatibilité NotificationsBell.)
+  const isOverDarkHero = false;
 
   // Les espaces admin/partenaire/assureur ont leur propre chrome (sidebar + topbar)
   if (pathname?.startsWith('/admin')) return null;
 
   const navLinkClass = (href) => {
     const isActive = pathname === href || pathname.startsWith(href + '/');
-    const base = isOverDarkHero ? 'text-white/90 hover:text-white' : 'text-gray-600 hover:text-primary';
-    const active = isOverDarkHero ? 'text-white' : 'text-primary';
+    const base = 'text-gray-600 hover:text-primary';
+    const active = 'text-primary';
     return `${isActive ? active : base} text-[15px] font-medium transition-colors relative`;
   };
 
