@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { key: 'factures', href: '/admin/factures', icon: 'fa-file-invoice', label: 'Factures' },
   { key: 'offers', href: '/admin/offers', icon: 'fa-file-invoice-dollar', label: 'Offres prêt' },
   { key: 'users', href: '/admin/users', icon: 'fa-users', label: 'Utilisateurs' },
+  { key: 'prospects', href: '/admin/prospects', icon: 'fa-user-tag', label: 'Prospection' },
   { key: 'partners', href: '/admin/partners', icon: 'fa-handshake', label: 'Partenaires' },
   { key: 'logs', href: '/admin/logs', icon: 'fa-clock-rotate-left', label: 'Logs d\'activité' },
   { key: 'faq', href: '/admin/faq', icon: 'fa-circle-question', label: 'FAQ' },

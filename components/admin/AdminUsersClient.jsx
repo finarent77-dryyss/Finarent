@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ROLES = ['CLIENT', 'ADMIN', 'PARTNER', 'INSURER'];
@@ -22,6 +23,7 @@ const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, trans
 const itemVariants = { hidden: { y: 10, opacity: 0 }, visible: { y: 0, opacity: 1 } };
 
 export default function AdminUsersClient() {
+  const router = useRouter();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
@@ -152,7 +154,11 @@ export default function AdminUsersClient() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${updatingId === u.id ? 'opacity-50' : ''}`}
+                      onClick={(e) => {
+                        if (e.target.closest('select, option')) return;
+                        router.push(`/admin/users/${u.id}`);
+                      }}
+                      className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer ${updatingId === u.id ? 'opacity-50' : ''}`}
                     >
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">

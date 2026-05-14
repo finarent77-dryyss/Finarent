@@ -488,3 +488,52 @@ model DocumentTemplate {
 
   @@index([type, isDefault])
 }
+
+// ─── PROSPECT — leads issus des simulateurs (cookie tracking) ──
+enum ProspectStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
+}
+
+model Prospect {
+  id             String          @id @default(cuid())
+  anonId         String          @unique             // UUID cookie côté navigateur
+  email          String?
+  phone          String?
+  name           String?
+  company        String?
+  status         ProspectStatus  @default(NEW)
+  source         String?                              // utm_source, referrer
+  ipAddress      String?
+  userAgent      String?
+  notes          String?
+  assignedToId   String?                              // admin/sales en charge
+  convertedUserId String?                             // si converti en user
+  events         ProspectEvent[]
+  firstSeenAt    DateTime        @default(now())
+  lastSeenAt     DateTime        @default(now())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([status])
+  @@index([lastSeenAt])
+  @@index([email])
+}
+
+model ProspectEvent {
+  id            String   @id @default(cuid())
+  prospectId    String
+  prospect      Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  simulatorSlug String                              // ex: capacite-emprunt
+  category      String?                             // ex: credit-immobilier
+  params        Json                                // valeurs du simulateur (montant, durée, taux, etc.)
+  result        Json?                               // résultat principal (capacité, mensualité…)
+  url           String?
+  createdAt     DateTime @default(now())
+
+  @@index([prospectId, createdAt])
+  @@index([simulatorSlug])
+}

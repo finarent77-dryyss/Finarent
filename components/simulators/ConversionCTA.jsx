@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { canPrefillWizard, findSimulatorBySlug } from '@/lib/simulators/prefill';
+import { trackProspectEvent } from '@/lib/prospects/tracker';
 
 /**
  * Tunnel de conversion partagé par tous les simulateurs.
@@ -12,6 +14,21 @@ export default function ConversionCTA({ simulatorName, params = {}, variant = 'd
   const sim = findSimulatorBySlug(simulatorName);
   const category = sim?.category || '';
   const showWizard = canPrefillWizard({ simulator: simulatorName });
+
+  // Tracking prospect — envoyé quand les params stabilisent (l'utilisateur voit ce CTA = simulation complète)
+  const paramsKey = JSON.stringify(params || {});
+  useEffect(() => {
+    if (!simulatorName) return;
+    const t = setTimeout(() => {
+      trackProspectEvent({
+        simulatorSlug: simulatorName,
+        category,
+        params,
+      });
+    }, 1500); // debounce — laisser le user finir d'ajuster
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simulatorName, paramsKey]);
 
   const cleanParams = Object.fromEntries(
     Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
