@@ -84,7 +84,7 @@ export async function POST(request) {
     const document = await prisma.document.create({
       data: {
         applicationId,
-        uploadedBy: dbUser.id,
+        uploadedById: dbUser.id,
         type: docType,
         fileName: file.name,
         fileUrl: stored.path, // chemin du storage (Supabase) ou chemin complet local
