@@ -15,12 +15,21 @@ function pickActiveDossier(demandes) {
   return active.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))[0];
 }
 
+// Extrait un nombre depuis "75 000€", "75000", 75000, null, etc.
+function parseAmount(amount) {
+  if (amount == null) return 0;
+  if (typeof amount === 'number') return Number.isFinite(amount) ? amount : 0;
+  const cleaned = String(amount).replace(/[^\d.,-]/g, '').replace(/\s/g, '').replace(',', '.');
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function computeSavings(demandes) {
   // Estimation simple : pour chaque dossier validé, on chiffre une économie de 100% mensualités
   // déductible (vs amortissement comptable d'un achat) = ~33% IS sur la durée du contrat.
   return demandes
     .filter((d) => ['validee', 'finalise', 'signe', 'transmis'].includes(d.status))
-    .reduce((sum, d) => sum + (d.amount || 0) * 0.33, 0);
+    .reduce((sum, d) => sum + parseAmount(d.amount) * 0.33, 0);
 }
 
 const STATUS_COLORS = {
