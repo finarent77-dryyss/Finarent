@@ -86,27 +86,26 @@ export default function HomeClient() {
           </div>
           <Marquee speed="slow">
             {[
-              { name: 'BNP Paribas', initial: 'BNP', color: 'from-emerald-700 to-emerald-800' },
-              { name: 'Société Générale', initial: 'SG', color: 'from-red-600 to-red-700' },
-              { name: 'BPCE Lease', initial: 'BPCE', color: 'from-purple-700 to-purple-800' },
-              { name: 'Crédit Agricole', initial: 'CA', color: 'from-emerald-600 to-green-700' },
-              { name: 'CIC Lease', initial: 'CIC', color: 'from-blue-600 to-blue-700' },
-              { name: 'LCL', initial: 'LCL', color: 'from-amber-500 to-orange-600' },
-              { name: 'Bpifrance', initial: 'BPI', color: 'from-sky-600 to-sky-700' },
-              { name: 'Arval', initial: 'ARV', color: 'from-cyan-600 to-cyan-700' },
-              { name: 'Ayvens', initial: 'AYV', color: 'from-indigo-600 to-indigo-700' },
-              { name: 'BNP Lease', initial: 'BNL', color: 'from-emerald-600 to-teal-700' },
-              { name: 'SG Equipment', initial: 'SGE', color: 'from-rose-600 to-pink-700' },
-              { name: 'Hello Bank', initial: 'HB', color: 'from-fuchsia-600 to-purple-700' },
+              { name: 'BNP Paribas',     domain: 'bnpparibas.fr' },
+              { name: 'Société Générale', domain: 'societegenerale.fr' },
+              { name: 'BPCE Lease',      domain: 'bpce.fr' },
+              { name: 'Crédit Agricole', domain: 'credit-agricole.fr' },
+              { name: 'CIC',             domain: 'cic.fr' },
+              { name: 'LCL',             domain: 'lcl.fr' },
+              { name: 'Bpifrance',       domain: 'bpifrance.fr' },
+              { name: 'Arval',           domain: 'arval.fr' },
+              { name: 'Ayvens',          domain: 'ayvens.com' },
+              { name: 'BNP Paribas Lease', domain: 'leasingsolutions.bnpparibas.fr' },
+              { name: 'SG Equipment',    domain: 'societegenerale-equipment-finance.com' },
+              { name: 'Hello Bank',      domain: 'hellobank.fr' },
             ].map((p) => (
-              <div key={p.name} className="group flex items-center gap-3 px-4 py-3 bg-white border border-gray-100 rounded-2xl hover:border-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shrink-0">
-                <span className={`w-12 h-12 rounded-xl bg-linear-to-br ${p.color} flex items-center justify-center text-white text-xs font-black shrink-0 shadow-md group-hover:scale-110 group-hover:rotate-6 transition-transform`}>
-                  {p.initial}
-                </span>
-                <div className="min-w-0">
-                  <div className="text-sm font-bold text-primary truncate">{p.name}</div>
-                  <div className="text-[10px] text-gray-400">Partenaire</div>
-                </div>
+              <div key={p.name} title={p.name} className="group flex items-center justify-center w-32 sm:w-36 h-16 px-4 bg-white border border-gray-100 rounded-2xl hover:border-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shrink-0">
+                <img
+                  src={`https://logo.clearbit.com/${p.domain}?size=128`}
+                  alt={p.name}
+                  loading="lazy"
+                  className="max-h-10 max-w-full object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+                />
               </div>
             ))}
           </Marquee>
