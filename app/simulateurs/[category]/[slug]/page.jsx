@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
+import { getSession } from '@auth0/nextjs-auth0';
 import { getSimulator, getCategory, SIMULATORS } from '@/lib/simulators/registry';
 import SimulatorShell from '@/components/simulators/SimulatorShell';
 import ComingSoonStub from '@/components/simulators/ComingSoonStub';
+import LoginGate from '@/components/simulators/LoginGate';
 
 // ─── 38 simulateurs fonctionnels ─────────────────────────────
 // Crédit immobilier
@@ -132,6 +134,18 @@ export default async function SimulatorPage({ params }) {
 
   const key = `${category}/${slug}`;
   const Working = WORKING[key];
+
+  // Gate les simulateurs premium derrière l'authentification.
+  if (sim.requiresAuth) {
+    const session = await getSession();
+    if (!session?.user) {
+      return (
+        <SimulatorShell category={category} simulator={sim}>
+          <LoginGate simulator={sim} returnPath={`/simulateurs/${category}/${slug}`} />
+        </SimulatorShell>
+      );
+    }
+  }
 
   return (
     <SimulatorShell category={category} simulator={sim}>

@@ -72,6 +72,11 @@ export default function SimulateursHubPage() {
                       {!s.available && (
                         <span className="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Bientôt</span>
                       )}
+                      {s.available && s.requiresAuth && (
+                        <span className="absolute top-2 right-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">
+                          <i className="fa-solid fa-lock text-[8px]"></i> Compte
+                        </span>
+                      )}
                       <div className={`w-10 h-10 rounded-xl ${COLOR_BG[cat.color]} flex items-center justify-center mb-3 group-hover:scale-110 transition`}>
                         <i className={`fa-solid ${s.icon} ${COLOR_TEXT[cat.color]} text-lg`}></i>
                       </div>
