@@ -3,104 +3,111 @@
 import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n';
 
+/**
+ * Hero hybride — pattern HeroSplit Claude Design × photo Finarent.
+ * • Fond ambient iridescent (violet/indigo/sage) au lieu de dark navy
+ * • Layout 2 colonnes : contenu gauche, photo équipe droite
+ * • Titre BOLD Plus Jakarta Sans avec dernier segment en gradient rainbow animé
+ * • Pill ORIAS + 38 partenaires bancaires
+ * • Boutons : primary solid indigo + ghost
+ * • Photo : ma photo locale d'équipe avec stats overlay
+ */
 export default function Hero() {
   const { t } = useTranslation();
 
   return (
-    <section className="relative pt-24 sm:pt-36 pb-16 sm:pb-32 bg-[#0A192F] text-white overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-secondary/15 rounded-full blur-[120px] animate-pulse-slow"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-accent/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-      </div>
+    <section className="relative pt-24 sm:pt-32 pb-16 sm:pb-24 overflow-hidden">
+      {/* Ambient iridescent — 3 radial gradients (violet / indigo / sage) */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(at 20% 30%, rgba(168, 85, 247, 0.10) 0%, transparent 45%),
+            radial-gradient(at 80% 50%, rgba(99, 102, 241, 0.10) 0%, transparent 45%),
+            radial-gradient(at 60% 90%, rgba(34, 214, 126, 0.10) 0%, transparent 45%)
+          `,
+        }}
+      />
 
-      <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
-          <div className="space-y-6 sm:space-y-10">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="inline-flex items-center space-x-2 sm:space-x-3 bg-white/5 backdrop-blur-xl px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 shadow-2xl animate-fade-in">
-                <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-accent"></span>
-                </span>
-                <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-white/80">{t('hero.badge')}</span>
-              </div>
-              <div className="inline-flex items-center gap-2 bg-emerald-500/10 backdrop-blur-xl px-3 py-1.5 rounded-full border border-emerald-400/20">
-                <span className="text-emerald-400 text-xs">★★★★★</span>
-                <span className="text-[10px] sm:text-xs font-bold text-white/80 tracking-wider"><span className="text-emerald-400">4.9/5</span> · 1500+ avis</span>
-              </div>
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+          {/* COLONNE GAUCHE — contenu */}
+          <div>
+            {/* Pill ORIAS */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide bg-emerald-100 text-emerald-700 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              Agréé ORIAS · 38 partenaires bancaires
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black leading-[1.1] tracking-tight">
-              {t('hero.title')} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-accent underline decoration-accent/30 underline-offset-4 sm:underline-offset-8">{t('hero.titleHighlight')}</span>
+            {/* Titre BOLD avec dernier mot en gradient */}
+            <h1 className="font-black text-primary leading-[0.94] tracking-tight"
+                style={{ fontSize: 'clamp(40px, 7vw, 84px)' }}>
+              {t('hero.title')}
+              <br />
+              <span className="gradient-text inline-block">{t('hero.titleHighlight')}</span>
             </h1>
 
-            <p className="text-base sm:text-xl lg:text-2xl text-white/70 leading-relaxed max-w-xl font-light">
-              {t('hero.subtitle')} <span className="text-white font-bold border-b-2 border-accent">{t('hero.subtitle48h')}</span>.
+            <p className="mt-7 text-lg sm:text-xl text-gray-600 leading-relaxed max-w-[46ch]">
+              {t('hero.subtitle')}{' '}
+              <span className="text-primary font-bold">{t('hero.subtitle48h')}</span>.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-4 lg:gap-6">
-              <Link href="/contact" className="group relative px-6 py-4 sm:px-10 sm:py-5 bg-white text-primary font-black rounded-xl sm:rounded-2xl hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)] hover:scale-105 transition-all duration-500 overflow-hidden text-center text-sm sm:text-base">
-                <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
-                  🚀 {t('hero.ctaPrimary')}
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            {/* CTA */}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/contact" className="btn-primary">
+                {t('hero.ctaPrimary')} <span>→</span>
               </Link>
-
-              <Link href="/assurance" className="px-6 py-4 sm:px-10 sm:py-5 bg-accent/10 hover:bg-accent/20 backdrop-blur-md text-accent font-bold rounded-xl sm:rounded-2xl border-2 border-accent/30 hover:border-accent transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base">
-                <i className="fa-solid fa-shield-halved"></i>
+              <Link href="/assurance" className="btn-ghost">
+                <i className="fa-solid fa-shield-halved text-xs"></i>
                 <span>{t('hero.ctaSecondary')}</span>
               </Link>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-8 lg:gap-x-10 pt-2 sm:pt-6 px-1 sm:px-2 opacity-80">
+            {/* 3 mini-features */}
+            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2">
               {[
                 { icon: 'fa-check', text: t('hero.noDeposit') },
                 { icon: 'fa-bolt', text: t('hero.fast48h') },
-                { icon: 'fa-shield', text: t('hero.approval98') }
+                { icon: 'fa-shield-check', text: t('hero.approval98') },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-accent/20 flex items-center justify-center">
-                    <i className={`fa-solid ${item.icon} text-accent text-[8px] sm:text-[10px]`}></i>
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <i className={`fa-solid ${item.icon} text-emerald-600 text-[9px]`}></i>
                   </div>
-                  <span className="text-[10px] sm:text-sm font-bold tracking-wider sm:tracking-widest uppercase">{item.text}</span>
+                  <span className="text-[11px] font-bold tracking-widest uppercase text-gray-600">
+                    {item.text}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative hidden lg:block">
-            <div className="absolute -top-20 -left-20 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-float"></div>
-            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-float-delayed"></div>
+          {/* COLONNE DROITE — photo + stats overlay */}
+          <div className="relative">
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-100 to-emerald-100 shadow-2xl">
+              <img
+                src="/hero_business_team_premium_v2_1772271137874.png"
+                alt="Équipe Finarent — courtage financement & assurance"
+                className="w-full h-full object-cover"
+              />
+              {/* Overlay sombre bas */}
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-primary/85 via-primary/30 to-transparent" />
 
-            <div className="relative group perspective-1000">
-              <div className="absolute -inset-1 bg-gradient-to-r from-accent via-secondary to-accent rounded-[48px] blur-xl opacity-30 group-hover:opacity-60 transition duration-1000"></div>
-
-              <div className="relative bg-[#0D2137] rounded-[44px] p-3 border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-700 group-hover:rotate-1 group-hover:scale-[1.02]">
-                <div className="relative h-[600px] w-full rounded-[36px] overflow-hidden">
-                  <img
-                    className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-2000"
-                    src="/hero_business_team_premium_v2_1772271137874.png"
-                    alt="Équipe de dirigeants accompagnés par Finarent pour leur financement professionnel"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
-
-                  <div className="absolute bottom-10 left-6 right-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
-                    <div className="grid grid-cols-3 gap-1 bg-white/5 backdrop-blur-2xl p-6 rounded-[32px] border border-white/10 shadow-3xl">
-                      <div className="text-center">
-                        <div className="text-3xl font-black text-accent tracking-tighter">50M€</div>
-                        <div className="text-[10px] uppercase font-bold text-white/40 tracking-widest mt-1">{t('hero.funded')}</div>
-                      </div>
-                      <div className="text-center border-x border-white/10">
-                        <div className="text-3xl font-black text-white tracking-tighter">1200+</div>
-                        <div className="text-[10px] uppercase font-bold text-white/40 tracking-widest mt-1">{t('hero.clients')}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-black text-white tracking-tighter">4.9/5</div>
-                        <div className="text-[10px] uppercase font-bold text-white/40 tracking-widest mt-1">{t('hero.reviews')}</div>
-                      </div>
-                    </div>
+              {/* Stats card flottante */}
+              <div className="absolute bottom-5 left-5 right-5">
+                <div className="grid grid-cols-3 gap-1 bg-white/95 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-2xl">
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-secondary tabular-nums tracking-tight">50M€</div>
+                    <div className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mt-1">{t('hero.funded')}</div>
+                  </div>
+                  <div className="text-center border-x border-gray-200">
+                    <div className="text-2xl font-black text-primary tabular-nums tracking-tight">1200+</div>
+                    <div className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mt-1">{t('hero.clients')}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-accent tabular-nums tracking-tight">4.9/5</div>
+                    <div className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mt-1">{t('hero.reviews')}</div>
                   </div>
                 </div>
               </div>
