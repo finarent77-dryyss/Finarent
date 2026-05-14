@@ -70,7 +70,7 @@ export default function HomeClient() {
         <HomeQuickSimulator />
 
         {/* Section 2 — Trust strip (colorée pastel) */}
-        <section className="py-12 sm:py-16 border-y border-white/40" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(168,85,247,0.05) 50%, rgba(34,214,126,0.06) 100%)' }}>
+        <section className="py-12 sm:py-16 border-y border-white/40 section-soft-bg">
           <div className="mb-8 sm:mb-10 px-4">
             <ScrollReveal>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -218,7 +218,7 @@ export default function HomeClient() {
         </section>
 
         {/* Section 4 — Sectors (colorée pastel violet/indigo) */}
-        <section className="py-12 sm:py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.07) 0%, rgba(99,102,241,0.07) 100%)' }}>
+        <section className="py-12 sm:py-16 lg:py-24 section-soft-bg">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 lg:mb-16 gap-4 sm:gap-6">
               <div className="max-w-2xl">
@@ -286,7 +286,7 @@ export default function HomeClient() {
         </section>
 
         {/* Section 6 — Leasing (colorée pastel sage/emerald) */}
-        <section className="py-12 sm:py-16 lg:py-24 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(34,214,126,0.07) 0%, rgba(99,102,241,0.05) 100%)' }}>
+        <section className="py-12 sm:py-16 lg:py-24 relative overflow-hidden section-soft-bg">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
           <div className="container mx-auto px-4 sm:px-6">
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
@@ -375,7 +375,7 @@ export default function HomeClient() {
         </section>
 
         {/* Section 8 — Cas clients (colorée pastel rose/violet) */}
-        <section className="py-12 sm:py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.05) 0%, rgba(168,85,247,0.07) 100%)' }}>
+        <section className="py-12 sm:py-16 lg:py-24 section-soft-bg">
           <div className="container mx-auto px-4 sm:px-6">
             <ScrollReveal>
               <div className="text-center mb-10 sm:mb-14">
@@ -493,7 +493,7 @@ export default function HomeClient() {
         </section>
 
         {/* Section 10 — Trust / Companies (colorée pastel teal/indigo) */}
-        <section className="py-12 sm:py-16 lg:py-20" style={{ background: 'linear-gradient(135deg, rgba(20,184,166,0.06) 0%, rgba(99,102,241,0.07) 100%)' }}>
+        <section className="py-12 sm:py-16 lg:py-20 section-soft-bg">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-3 sm:mb-4">{t('home.theyTrustUs')}</h2>
