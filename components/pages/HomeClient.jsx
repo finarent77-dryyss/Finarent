@@ -33,8 +33,8 @@ export default function HomeClient() {
       <div className="min-h-screen">
         <Hero />
 
-        {/* Stats — mesh gradient animé + tilt 3D sur les cartes */}
-        <section className="relative py-12 sm:py-16 lg:py-24 bg-white overflow-hidden">
+        {/* Section 1 — Stats (transparente, laisse voir le fond iridescent) */}
+        <section className="relative py-12 sm:py-16 lg:py-24 bg-transparent overflow-hidden">
           <div className="absolute inset-0 mesh-bg opacity-60"></div>
           <AuroraBackground variant="vivid" />
           <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -69,8 +69,8 @@ export default function HomeClient() {
 
         <HomeQuickSimulator />
 
-        {/* Trust strip — marquee infini qui défile */}
-        <section className="py-12 sm:py-16 bg-white border-t border-gray-100">
+        {/* Section 2 — Trust strip (colorée pastel) */}
+        <section className="py-12 sm:py-16 border-y border-white/40" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(168,85,247,0.05) 50%, rgba(34,214,126,0.06) 100%)' }}>
           <div className="mb-8 sm:mb-10 px-4">
             <ScrollReveal>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -112,8 +112,8 @@ export default function HomeClient() {
           </Marquee>
         </section>
 
-        {/* Showcase espace client */}
-        <section className="py-12 sm:py-16 lg:py-24 bg-gradient-to-br from-[#F8FAFC] via-white to-secondary/5 overflow-hidden">
+        {/* Section 3 — Showcase espace client (transparente) */}
+        <section className="py-12 sm:py-16 lg:py-24 bg-transparent overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               <ScrollReveal>
@@ -217,8 +217,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Sectors */}
-        <section className="py-12 sm:py-16 lg:py-24 bg-[#F8FAFC]">
+        {/* Section 4 — Sectors (colorée pastel violet/indigo) */}
+        <section className="py-12 sm:py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.07) 0%, rgba(99,102,241,0.07) 100%)' }}>
           <div className="container mx-auto px-4 sm:px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 lg:mb-16 gap-4 sm:gap-6">
               <div className="max-w-2xl">
@@ -242,8 +242,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Insurance */}
-        <section className="py-12 sm:py-16 lg:py-20 bg-white">
+        {/* Section 5 — Insurance (transparente) */}
+        <section className="py-12 sm:py-16 lg:py-20 bg-transparent">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-6xl mx-auto">
               <div className="bg-gradient-to-br from-accent/10 via-white to-secondary/10 rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-12 border-2 border-accent/20">
@@ -285,8 +285,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Leasing */}
-        <section className="py-12 sm:py-16 lg:py-24 bg-white relative overflow-hidden">
+        {/* Section 6 — Leasing (colorée pastel sage/emerald) */}
+        <section className="py-12 sm:py-16 lg:py-24 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(34,214,126,0.07) 0%, rgba(99,102,241,0.05) 100%)' }}>
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
           <div className="container mx-auto px-4 sm:px-6">
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
@@ -355,8 +355,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Process */}
-        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-slate-100">
+        {/* Section 7 — Process (transparente) */}
+        <section className="py-12 sm:py-16 lg:py-20 bg-transparent">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-3 sm:mb-4">{t('home.simpleProcess')}</h2>
@@ -374,8 +374,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Cas clients (mini-études de cas) */}
-        <section className="py-12 sm:py-16 lg:py-24 bg-white">
+        {/* Section 8 — Cas clients (colorée pastel rose/violet) */}
+        <section className="py-12 sm:py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.05) 0%, rgba(168,85,247,0.07) 100%)' }}>
           <div className="container mx-auto px-4 sm:px-6">
             <ScrollReveal>
               <div className="text-center mb-10 sm:mb-14">
@@ -458,8 +458,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Testimonials carousel */}
-        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-white">
+        {/* Section 9 — Testimonials (transparente) */}
+        <section className="py-12 sm:py-16 lg:py-20 bg-transparent">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-3 sm:mb-4">{t('home.theyTrustUs')}</h2>
@@ -492,8 +492,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Trust / Companies */}
-        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-white">
+        {/* Section 10 — Trust / Companies (colorée pastel teal/indigo) */}
+        <section className="py-12 sm:py-16 lg:py-20" style={{ background: 'linear-gradient(135deg, rgba(20,184,166,0.06) 0%, rgba(99,102,241,0.07) 100%)' }}>
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-3 sm:mb-4">{t('home.theyTrustUs')}</h2>
@@ -542,8 +542,8 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-12 sm:py-16 lg:py-20 bg-white">
+        {/* Section 11 — CTA final (transparente, le bandeau .gradient-bg intérieur fait le spot) */}
+        <section className="py-12 sm:py-16 lg:py-20 bg-transparent">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-5xl mx-auto">
               <div className="bg-gradient-to-r from-secondary to-accent rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-white text-center">
