@@ -76,7 +76,7 @@ export default function ProfileClient({ user, dbUser }) {
     'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all text-primary';
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-24 sm:pt-32 pb-12 sm:pb-20">
+    <div className="min-h-screen bg-white pt-24 sm:pt-32 pb-12 sm:pb-20">
       <motion.div
         initial="hidden"
         animate="visible"

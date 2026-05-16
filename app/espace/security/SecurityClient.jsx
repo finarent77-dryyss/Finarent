@@ -46,7 +46,7 @@ export default function SecurityClient({ user, dbUser }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-24 sm:pt-32 pb-12 sm:pb-20">
+    <div className="min-h-screen bg-white pt-24 sm:pt-32 pb-12 sm:pb-20">
       <motion.div
         initial="hidden"
         animate="visible"
