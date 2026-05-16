@@ -62,8 +62,12 @@
     @apply text-gray-900 font-sans antialiased;
     font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.005em;
-    /* Fond vibrant — wash iridescent doux : 4 radial-gradients (violet/rose/sage/indigo)
-       sur fond near-white #FCFBFF. Reproduit pixel-perfect le design Claude. */
+    /* Fond blanc par défaut sur tout le site (demande client). */
+    background-color: #FFFFFF;
+  }
+  /* Wash iridescent vibrant — réservé à l'accueil uniquement.
+     Activé en ajoutant data-vibrant-bg sur <body> (cf. HomeBgEffect). */
+  body[data-vibrant-bg] {
     background-color: #FCFBFF;
     background-image:
       radial-gradient(at 0% 0%,     rgba(168, 85, 247, 0.08) 0%, transparent 45%),

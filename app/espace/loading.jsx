@@ -1,6 +1,6 @@
 export default function EspaceLoading() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-32 pb-20">
+    <div className="min-h-screen bg-white pt-32 pb-20">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="flex items-center gap-5 mb-10 animate-pulse">
           <div className="w-18 h-18 bg-slate-200 rounded-full"></div>

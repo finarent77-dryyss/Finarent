@@ -66,7 +66,7 @@ export default function ParrainageClient({ dbUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pt-24 sm:pt-32 pb-12 sm:pb-20">
+    <div className="min-h-screen bg-white pt-24 sm:pt-32 pb-12 sm:pb-20">
       <motion.div initial="hidden" animate="visible" variants={containerVariants} className="container mx-auto px-4 sm:px-6 max-w-4xl">
         <motion.div variants={itemVariants} className="mb-6">
           <Link href="/espace" className="inline-flex items-center gap-2 text-slate-500 hover:text-secondary font-medium text-sm">

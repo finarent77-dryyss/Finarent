@@ -75,6 +75,7 @@ const PARTICULIERS = [
     covers: ['Capital décès ou rente de conjoint', 'Invalidité absolue et définitive (IAD)', 'Incapacité temporaire de travail (ITT)', 'Maintien niveau de vie famille'],
     audience: 'Tous, particulièrement parents avec enfants à charge',
     price: 'À partir de 18 €/mois',
+    fastQuote: '/contact?type=assurance&product=prevoyance&fast=1',
     quote: '/contact?type=assurance&product=prevoyance',
   },
   {
@@ -102,6 +103,7 @@ const PARTICULIERS = [
     covers: ['Frais vétérinaires (maladie + accident)', 'Chirurgie et hospitalisation', 'Médicaments et examens', 'Forfait prévention (vaccins, vermifuges)'],
     audience: 'Propriétaires de chiens, chats, NAC',
     price: 'À partir de 9 €/mois',
+    fastQuote: '/contact?type=assurance&product=animaux&fast=1',
     quote: '/contact?type=assurance&product=animaux',
   },
   {
@@ -116,6 +118,7 @@ const PARTICULIERS = [
     covers: ['Capital d\'invalidité jusqu\'à 1 M€', 'Rente d\'éducation pour les enfants', 'Frais médicaux + assistance', 'Couvre toute la famille (option)'],
     audience: 'Familles avec enfants · sportifs · bricoleurs · seniors',
     price: 'À partir de 11 €/mois',
+    fastQuote: '/contact?type=assurance&product=gav&fast=1',
     quote: '/contact?type=assurance&product=gav',
   },
   {
@@ -129,6 +132,7 @@ const PARTICULIERS = [
     covers: ['Conseil juridique illimité', 'Frais d\'avocat et d\'expertise', 'Litiges consommation, travail, voisinage', 'Recouvrement de dommages-intérêts'],
     audience: 'Particuliers, locataires, propriétaires, salariés',
     price: 'À partir de 8 €/mois',
+    fastQuote: '/contact?type=assurance&product=protection-juridique-perso&fast=1',
     quote: '/contact?type=assurance&product=protection-juridique-perso',
   },
   {
@@ -139,9 +143,11 @@ const PARTICULIERS = [
     title: 'Scolaire & Extra-scolaire',
     tagline: 'Enfant 24h/24 dans et hors école',
     status: 'recommande',
+    promo: '2 mois offerts',
     covers: ['Accidents corporels école + trajet', 'Activités extra-scolaires (sport, club)', 'Vol et casse de matériel', 'Couvre toute l\'année + vacances'],
     audience: 'Parents d\'enfants scolarisés (maternelle → université)',
     price: 'À partir de 12 €/an',
+    fastQuote: '/contact?type=assurance&product=scolaire&fast=1',
     quote: '/contact?type=assurance&product=scolaire',
   },
   {
@@ -155,6 +161,7 @@ const PARTICULIERS = [
     covers: ['Garantie loyers impayés jusqu\'à 96 000 €', 'Dégradations locataire', 'Protection juridique', 'PNO (Propriétaire Non Occupant)'],
     audience: 'Bailleurs particuliers · locations meublées, nues, saisonnières',
     price: '2 à 4 % du loyer annuel',
+    fastQuote: '/contact?type=assurance&product=gli&fast=1',
     quote: '/contact?type=assurance&product=gli',
   },
 ];
@@ -186,6 +193,7 @@ const ENTREPRISES = [
     covers: ['Incendie, dégât des eaux, catastrophes', 'Vol et vandalisme', 'Bris de machine', 'Pertes d\'exploitation (12-24 mois)'],
     audience: 'Commerçants, restaurateurs, artisans avec local',
     price: '400 à 3 000 €/an',
+    fastQuote: '/contact?type=assurance&product=multirisque&fast=1',
     quote: '/contact?type=assurance&product=multirisque',
   },
   {
@@ -200,6 +208,7 @@ const ENTREPRISES = [
     covers: ['Dommages compromettant la solidité', 'Désordres rendant l\'ouvrage impropre', 'Étanchéité (toiture, façades)', 'Sous-traitants couverts'],
     audience: 'Tous les métiers du bâtiment (loi 4 janvier 1978)',
     price: '1 200 à 3 000 €/an',
+    fastQuote: '/contact?type=assurance&product=decennale&fast=1',
     quote: '/contact?type=assurance&product=decennale',
   },
   {
@@ -213,6 +222,7 @@ const ENTREPRISES = [
     covers: ['Rançongiciel : remédiation + extorsion', 'Pertes d\'exploitation (arrêt SI)', 'Notifications RGPD & frais CNIL', 'Cyber-fraude (faux IBAN, président)'],
     audience: 'TPE/PME numériques, e-commerce, cabinets données sensibles',
     price: '500 à 2 000 €/an',
+    fastQuote: '/contact?type=assurance&product=cyber&fast=1',
     quote: '/contact?type=assurance&product=cyber',
   },
   {
@@ -226,6 +236,7 @@ const ENTREPRISES = [
     covers: ['Tous risques flotte (1 seul contrat)', 'Marchandises transportées', 'Conducteurs (gestion centralisée)', 'Auto-mission / déplacements pro'],
     audience: 'Entreprises avec 3+ véhicules : VL, VU, poids lourds',
     price: 'Économie 15-30 % vs contrats individuels',
+    fastQuote: '/contact?type=assurance&product=flotte&fast=1',
     quote: '/contact?type=assurance&product=flotte',
   },
   {
@@ -239,6 +250,7 @@ const ENTREPRISES = [
     covers: ['Conseil juridique illimité', 'Frais d\'avocat et d\'expertise', 'Recouvrement de créances', 'Contrôle URSSAF / fiscal'],
     audience: 'TPE sans juriste interne',
     price: '150 à 600 €/an',
+    fastQuote: '/contact?type=assurance&product=protection-juridique-pro&fast=1',
     quote: '/contact?type=assurance&product=protection-juridique-pro',
   },
   {
@@ -252,6 +264,7 @@ const ENTREPRISES = [
     covers: ['Capital en cas de décès/invalidité du dirigeant', 'Assurance croisée entre associés', 'Indemnité de perte d\'activité', 'Rachat de parts par les survivants'],
     audience: 'SARL, SAS, SCI avec dirigeants indispensables',
     price: '~5 ans de CA en capital assuré',
+    fastQuote: '/contact?type=assurance&product=homme-cle&fast=1',
     quote: '/contact?type=assurance&product=homme-cle',
   },
   {

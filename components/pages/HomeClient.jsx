@@ -7,6 +7,7 @@ import StatsCard from '@/components/ui/StatsCard';
 import TestimonialCarousel from '@/components/ui/TestimonialCarousel';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import Hero from '@/components/layout/Hero';
+import HomeBgEffect from '@/components/home/HomeBgEffect';
 import HomeQuickSimulator from '@/components/home/HomeQuickSimulator';
 import AuroraBackground from '@/components/ui/AuroraBackground';
 import Tilt3D from '@/components/ui/Tilt3D';
@@ -30,6 +31,7 @@ export default function HomeClient() {
 
   return (
     <PageTransition>
+      <HomeBgEffect />
       <div className="min-h-screen">
         <Hero />
 
@@ -86,18 +88,38 @@ export default function HomeClient() {
           </div>
           <Marquee speed="slow">
             {[
-              { name: 'BNP Paribas',     domain: 'bnpparibas.fr' },
+              // Banques de réseau
+              { name: 'BNP Paribas',      domain: 'bnpparibas.fr' },
+              { name: 'Crédit Agricole',  domain: 'credit-agricole.fr' },
               { name: 'Société Générale', domain: 'societegenerale.fr' },
-              { name: 'BPCE Lease',      domain: 'bpce.fr' },
-              { name: 'Crédit Agricole', domain: 'credit-agricole.fr' },
-              { name: 'CIC',             domain: 'cic.fr' },
-              { name: 'LCL',             domain: 'lcl.fr' },
-              { name: 'Bpifrance',       domain: 'bpifrance.fr' },
-              { name: 'Arval',           domain: 'arval.fr' },
-              { name: 'Ayvens',          domain: 'ayvens.com' },
-              { name: 'BNP Paribas Lease', domain: 'leasingsolutions.bnpparibas.fr' },
-              { name: 'SG Equipment',    domain: 'societegenerale-equipment-finance.com' },
-              { name: 'Hello Bank',      domain: 'hellobank.fr' },
+              { name: 'BPCE',             domain: 'bpce.fr' },
+              { name: 'Crédit Mutuel',    domain: 'creditmutuel.fr' },
+              { name: 'LCL',              domain: 'lcl.fr' },
+              { name: 'La Banque Postale',domain: 'labanquepostale.fr' },
+              { name: 'Bpifrance',        domain: 'bpifrance.fr' },
+              // Assurance majors
+              { name: 'AXA',              domain: 'axa.fr' },
+              { name: 'Allianz',          domain: 'allianz.fr' },
+              { name: 'Generali',         domain: 'generali.fr' },
+              { name: 'Groupama',         domain: 'groupama.fr' },
+              { name: 'MMA',              domain: 'mma.fr' },
+              { name: 'Swiss Life',       domain: 'swisslife.fr' },
+              { name: 'Hiscox',           domain: 'hiscox.fr' },
+              // Grossistes assurance
+              { name: 'April',            domain: 'april.com' },
+              { name: 'Alptis',           domain: 'alptis.org' },
+              { name: 'SMABTP',           domain: 'smabtp.fr' },
+              // Leasing
+              { name: 'Franfinance',      domain: 'franfinance.com' },
+              { name: 'GRENKE',           domain: 'grenke.fr' },
+              // LOA / LLD
+              { name: 'Arval',            domain: 'arval.fr' },
+              { name: 'Ayvens',           domain: 'ayvens.com' },
+              { name: 'Leasys',           domain: 'leasys.com' },
+              { name: 'Alphabet',         domain: 'alphabet.com' },
+              // Alternatives
+              { name: 'October',          domain: 'october.eu' },
+              { name: 'Qonto',            domain: 'qonto.com' },
             ].map((p) => (
               <div key={p.name} title={p.name} className="group flex items-center justify-center w-32 sm:w-36 h-16 px-4 bg-white border border-gray-100 rounded-2xl hover:border-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shrink-0">
                 <img
