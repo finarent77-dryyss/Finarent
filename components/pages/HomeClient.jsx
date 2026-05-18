@@ -580,7 +580,7 @@ export default function HomeClient() {
 
             <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-8">
               {TEASER_FAQ.map((item, i) => (
-                <ScrollReveal key={item.q} delay={i * 60}>
+                <ScrollReveal key={item.q} delay={i * 0.06}>
                   <details className="group bg-white border border-gray-100 rounded-2xl hover:border-secondary/40 hover:shadow-md transition-all open:shadow-md open:border-secondary/40">
                     <summary className="list-none cursor-pointer p-5 flex items-start justify-between gap-3">
                       <span className="text-sm sm:text-base font-bold text-primary group-hover:text-secondary transition-colors flex-1">

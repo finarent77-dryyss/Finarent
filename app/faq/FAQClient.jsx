@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import PageTransition from '@/components/animations/PageTransition';
 import { FAQ_CATEGORIES } from '@/assets/data/faq';
 
 const COLOR_MAP = {
@@ -99,6 +100,7 @@ export default function FAQClient() {
   };
 
   return (
+    <PageTransition>
     <div className="min-h-screen">
       <script
         type="application/ld+json"
@@ -257,5 +259,6 @@ export default function FAQClient() {
         </div>
       </section>
     </div>
+    </PageTransition>
   );
 }

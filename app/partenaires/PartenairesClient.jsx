@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import PageTransition from '@/components/animations/PageTransition';
 import { PARTNER_GROUPS, PARTNER_FAMILIES } from '@/assets/data/partners';
 
 const COLOR_MAP = {
@@ -79,6 +80,7 @@ export default function PartenairesClient() {
   );
 
   return (
+    <PageTransition>
     <div className="min-h-screen">
       {/* Hero */}
       <section className="pt-32 pb-12 sm:pb-16 bg-transparent">
@@ -262,5 +264,6 @@ export default function PartenairesClient() {
         </div>
       </section>
     </div>
+    </PageTransition>
   );
 }
