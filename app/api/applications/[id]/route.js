@@ -3,6 +3,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { syncUser, isAdmin } from '@/lib/users';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
+import { reveal } from '@/lib/sensitive';
 
 /**
  * GET /api/applications/[id]
@@ -19,7 +20,7 @@ export async function GET(request, { params }) {
     const dbUser = await syncUser(session.user);
     const adminAccess = await isAdmin(session.user);
 
-    const application = await prisma.application.findUnique({
+    const rawApp = await prisma.application.findUnique({
       where: { id },
       include: {
         documents: true,
@@ -27,13 +28,16 @@ export async function GET(request, { params }) {
       },
     });
 
-    if (!application) {
+    if (!rawApp) {
       return NextResponse.json({ error: 'Dossier introuvable' }, { status: 404 });
     }
 
-    if (application.userId !== dbUser?.id && !adminAccess) {
+    if (rawApp.userId !== dbUser?.id && !adminAccess) {
       return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
     }
+
+    // Déchiffre quoteDetails + adminNotes pour l'admin ; client ne verra pas adminNotes ci-dessous
+    const application = reveal('Application', rawApp);
 
     // Ne pas exposer adminNotes au client
     const { adminNotes, ...safe } = application;

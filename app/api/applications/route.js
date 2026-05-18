@@ -5,6 +5,7 @@ import { syncUser } from '@/lib/users';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
 import { generateReference } from '@/lib/reference';
 import { calculateScore } from '@/lib/scoring';
+import { protect } from '@/lib/sensitive';
 
 /**
  * GET /api/applications
@@ -140,12 +141,12 @@ export async function POST(request) {
       : null;
 
     const application = await prisma.application.create({
-      data: {
+      data: protect('Application', {
         ...applicationDraft,
         scorePreQual,
         scoreLabel,
         ...(quoteDetails ? { quoteDetails } : {}),
-      },
+      }),
     });
 
     // Update user profile if name/phone provided

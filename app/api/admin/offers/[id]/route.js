@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { protect, reveal } from '@/lib/sensitive';
 
 const VALID_STATUSES = ['DRAFT', 'SENT', 'VIEWED', 'ACCEPTED', 'REFUSED', 'EXPIRED', 'SIGNED'];
 
@@ -28,7 +29,10 @@ export async function GET(request, { params }) {
 
   if (!offer) return NextResponse.json({ error: 'Offre introuvable' }, { status: 404 });
 
-  return NextResponse.json(offer);
+  // Déchiffre conditions + adminNotes de l'application liée
+  const revealed = reveal('Offer', offer);
+  if (revealed.application) revealed.application = reveal('Application', revealed.application);
+  return NextResponse.json(revealed);
 }
 
 /**
@@ -65,7 +69,7 @@ export async function PATCH(request, { params }) {
 
   const offer = await prisma.offer.update({
     where: { id },
-    data,
+    data: protect('Offer', data),
     include: {
       application: {
         select: {
@@ -80,7 +84,7 @@ export async function PATCH(request, { params }) {
     },
   });
 
-  return NextResponse.json(offer);
+  return NextResponse.json(reveal('Offer', offer));
 }
 
 /**

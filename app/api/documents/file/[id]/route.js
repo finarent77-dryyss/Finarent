@@ -3,6 +3,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { syncUser, isAdmin } from '@/lib/users';
 import { getFileUrl, readFileBuffer, storageMode } from '@/lib/storage';
+import { logDocumentAccess } from '@/lib/audit';
 
 /**
  * GET /api/documents/file/[id]
@@ -28,6 +29,11 @@ export async function GET(request, { params }) {
       return new NextResponse('Document introuvable', { status: 404 });
     }
 
+    // Document soft-deleted : interdiction d'accès même pour les ayants-droit
+    if (document.deletedAt) {
+      return new NextResponse('Document supprimé', { status: 410 });
+    }
+
     const dbUser = await syncUser(session.user);
     const adminAccess = await isAdmin(session.user);
 
@@ -39,6 +45,14 @@ export async function GET(request, { params }) {
     if (!isOwner && !adminAccess && !isPartnerLinked && !isInsurerAccess) {
       return new NextResponse('Accès non autorisé', { status: 403 });
     }
+
+    // Audit trail RGPD : qui consulte quoi ?
+    await logDocumentAccess({
+      documentId: id,
+      accessedById: dbUser?.id,
+      action: 'VIEW',
+      request,
+    });
 
     // Supabase : redirection vers URL signée
     if (storageMode === 'supabase') {

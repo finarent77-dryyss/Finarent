@@ -3,6 +3,8 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { uploadFile } from '@/lib/storage';
 import { syncUser, isAdmin } from '@/lib/users';
+import { logDocumentAccess } from '@/lib/audit';
+import { sendDocumentReceived } from '@/lib/email';
 
 const TYPE_MAP = { kbis: 'KBIS', rib: 'RIB', cni: 'CNI', bilan: 'BILAN', contrat: 'CONTRAT', autre: 'AUTRE' };
 
@@ -92,6 +94,24 @@ export async function POST(request) {
         mimeType: file.type,
       },
     });
+
+    // Audit trail RGPD
+    await logDocumentAccess({
+      documentId: document.id,
+      accessedById: dbUser.id,
+      action: 'UPLOAD',
+      request,
+    });
+
+    // Notification e-mail confirmation document reçu (échec silencieux)
+    if (application.user?.email) {
+      sendDocumentReceived({
+        to: application.user.email,
+        fileName: file.name,
+        documentType: docType,
+        reference: application.id.slice(0, 8).toUpperCase(),
+      }).catch((e) => console.warn('sendDocumentReceived failed:', e.message));
+    }
 
     return NextResponse.json({
       success: true,
