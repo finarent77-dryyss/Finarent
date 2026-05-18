@@ -3,6 +3,22 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { getSimulator, getCategory, SIMULATORS } from '@/lib/simulators/registry';
 import SimulatorShell from '@/components/simulators/SimulatorShell';
 import ComingSoonStub from '@/components/simulators/ComingSoonStub';
+import SimulatorModeToggle from '@/components/simulators/SimulatorModeToggle';
+
+// Wizards Pretto-style (1 question / écran) pour les 5 phares
+import CapaciteEmpruntWizard from '@/components/simulators/working/CapaciteEmpruntWizard';
+import MensualiteWizard from '@/components/simulators/working/MensualiteWizard';
+import FraisNotaireWizard from '@/components/simulators/working/FraisNotaireWizard';
+import ScoringBancaireWizard from '@/components/simulators/working/ScoringBancaireWizard';
+import AssuranceEmprunteurWizard from '@/components/simulators/working/AssuranceEmprunteurWizard';
+
+const WIZARDS = {
+  'credit-immobilier/capacite-emprunt': CapaciteEmpruntWizard,
+  'credit-immobilier/mensualite': MensualiteWizard,
+  'credit-immobilier/frais-notaire': FraisNotaireWizard,
+  'credit-professionnel/scoring-bancaire': ScoringBancaireWizard,
+  'assurance-emprunteur/assurance-emprunteur': AssuranceEmprunteurWizard,
+};
 
 // ─── 38 simulateurs fonctionnels ─────────────────────────────
 // Crédit immobilier
@@ -133,6 +149,7 @@ export default async function SimulatorPage({ params }) {
 
   const key = `${category}/${slug}`;
   const Working = WORKING[key];
+  const WizardVariant = WIZARDS[key];
 
   // Gate les simulateurs premium derrière l'authentification.
   // Redirect direct vers Auth0 (signup hint) si pas de session.
@@ -146,7 +163,9 @@ export default async function SimulatorPage({ params }) {
 
   return (
     <SimulatorShell category={category} simulator={sim}>
-      {Working ? <Working /> : <ComingSoonStub simulator={sim} />}
+      {Working
+        ? <SimulatorModeToggle ExpertComponent={Working} WizardComponent={WizardVariant} />
+        : <ComingSoonStub simulator={sim} />}
     </SimulatorShell>
   );
 }
