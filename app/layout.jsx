@@ -8,6 +8,8 @@ import FloatingContactCTA from '@/components/ui/FloatingContactCTA';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { LanguageProvider } from '@/lib/i18n';
 import PostHogProvider from '@/components/providers/PostHogProvider';
+import AttributionCapture from '@/components/providers/AttributionCapture';
+import ClarityTracker from '@/components/providers/ClarityTracker';
 import './globals.css';
 
 export const metadata = {
@@ -61,6 +63,8 @@ export default function RootLayout({ children }) {
               <PostHogProvider>
                 <PublicBgEffect />
                 <AffiliateTracker />
+                <AttributionCapture />
+                <ClarityTracker />
                 <div className="min-h-screen flex flex-col">
                   <div id="site-header">
                     <Header />

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { BRAND_COLORS, BRAND_FONT, COMPANY_INFO, brandPastilleUrl, escapeHtml } from '@/lib/branding';
 
 export async function GET(request, { params }) {
   const auth = await requireAuth();
@@ -32,46 +33,59 @@ export async function GET(request, { params }) {
     LLD: 'Location longue durée', LEASING_OPS: 'Leasing opérationnel', RC_PRO: 'RC Professionnelle',
   };
 
+  const origin = new URL(request.url).origin;
+  const pastille = brandPastilleUrl(origin);
+
   const html = `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Récapitulatif Dossier - ${app.companyName || app.equipmentType || app.id}</title>
+  <title>Récapitulatif dossier ${escapeHtml(app.companyName || app.equipmentType || app.id)} — Finarent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', -apple-system, sans-serif; color: #0A2540; padding: 40px; max-width: 800px; margin: auto; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #6366F1; padding-bottom: 20px; margin-bottom: 30px; }
-    .logo { font-size: 28px; font-weight: 900; color: #0A2540; }
-    .logo span { color: #6366F1; }
-    .badge { background: #6366F1; color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    body { font-family: ${BRAND_FONT}; color: ${BRAND_COLORS.grisTexte}; padding: 40px; max-width: 820px; margin: auto; background: #ffffff; -webkit-font-smoothing: antialiased; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; margin-bottom: 30px; border-bottom: 1px solid #E4E8EC; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand img { width: 44px; height: 44px; border-radius: 12px; background: ${BRAND_COLORS.grisDoux}; padding: 6px; }
+    .brand .name { font-size: 22px; font-weight: 800; color: ${BRAND_COLORS.marine}; letter-spacing: -0.01em; }
+    .brand .tag { font-size: 11px; font-weight: 600; color: ${BRAND_COLORS.acier}; text-transform: uppercase; letter-spacing: 0.12em; margin-top: 2px; }
+    .badge { background: ${BRAND_COLORS.menthe}; color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
     .section { margin-bottom: 24px; }
-    .section-title { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #6366F1; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    .section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: ${BRAND_COLORS.acier}; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #E4E8EC; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .field { background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
-    .field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 4px; }
-    .field-value { font-size: 14px; font-weight: 600; }
-    .amount { font-size: 24px; font-weight: 900; color: #10B981; }
-    .timeline { border-left: 2px solid #e2e8f0; padding-left: 16px; }
-    .timeline-item { position: relative; margin-bottom: 12px; padding: 8px 0; }
-    .timeline-item::before { content: ''; position: absolute; left: -21px; top: 12px; width: 10px; height: 10px; background: #6366F1; border-radius: 50%; }
-    .timeline-date { font-size: 10px; color: #94a3b8; font-weight: 600; }
-    .timeline-status { font-size: 13px; font-weight: 700; }
-    .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+    .field { background: ${BRAND_COLORS.grisDoux}; padding: 12px 14px; border-radius: 10px; border: 1px solid #E4E8EC; }
+    .field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: ${BRAND_COLORS.acier}; margin-bottom: 4px; letter-spacing: 0.06em; }
+    .field-value { font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.marine}; }
+    .amount { font-size: 28px; font-weight: 800; color: ${BRAND_COLORS.vertProfond}; letter-spacing: -0.01em; }
+    .timeline { border-left: 2px solid #E4E8EC; padding-left: 16px; }
+    .timeline-item { position: relative; margin-bottom: 14px; padding: 6px 0; }
+    .timeline-item::before { content: ''; position: absolute; left: -22px; top: 12px; width: 10px; height: 10px; background: ${BRAND_COLORS.menthe}; border-radius: 50%; box-shadow: 0 0 0 2px #ffffff; }
+    .timeline-date { font-size: 10px; color: ${BRAND_COLORS.acier}; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .timeline-status { font-size: 13px; font-weight: 700; color: ${BRAND_COLORS.marine}; margin-top: 2px; }
+    .timeline-comment { font-size: 12px; color: ${BRAND_COLORS.grisTexte}; margin-top: 4px; }
+    .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #E4E8EC; text-align: center; font-size: 11px; color: ${BRAND_COLORS.acier}; line-height: 1.6; }
+    .footer strong { color: ${BRAND_COLORS.marine}; }
     .doc-list { list-style: none; }
-    .doc-list li { padding: 8px 12px; background: #f8fafc; border-radius: 6px; margin-bottom: 4px; font-size: 13px; border: 1px solid #e2e8f0; }
+    .doc-list li { padding: 10px 14px; background: ${BRAND_COLORS.grisDoux}; border-radius: 8px; margin-bottom: 6px; font-size: 13px; border: 1px solid #E4E8EC; color: ${BRAND_COLORS.marine}; }
     @media print { body { padding: 20px; } .no-print { display: none; } }
-    .print-btn { background: #6366F1; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; margin-bottom: 24px; }
-    .print-btn:hover { opacity: 0.9; }
+    .print-btn { background: ${BRAND_COLORS.menthe}; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 14px; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(88, 183, 148, 0.32); font-family: inherit; }
+    .print-btn:hover { background: ${BRAND_COLORS.vertProfond}; }
   </style>
 </head>
 <body>
-  <button class="print-btn no-print" onclick="window.print()">
-    Imprimer / Télécharger PDF
-  </button>
+  <button class="print-btn no-print" onclick="window.print()">Imprimer / Télécharger PDF</button>
 
   <div class="header">
-    <div class="logo">Fin<span>arent</span></div>
-    <div class="badge">${statusLabels[app.status] || app.status}</div>
+    <div class="brand">
+      <img src="${pastille}" alt="Finarent">
+      <div>
+        <div class="name">${escapeHtml(COMPANY_INFO.name)}</div>
+        <div class="tag">Récapitulatif de dossier</div>
+      </div>
+    </div>
+    <div class="badge">${escapeHtml(statusLabels[app.status] || app.status)}</div>
   </div>
 
   <div class="section">
@@ -79,27 +93,27 @@ export async function GET(request, { params }) {
     <div class="grid">
       <div class="field">
         <div class="field-label">Entreprise</div>
-        <div class="field-value">${app.companyName || '-'}</div>
+        <div class="field-value">${escapeHtml(app.companyName || '—')}</div>
       </div>
       <div class="field">
         <div class="field-label">Type de produit</div>
-        <div class="field-value">${productLabels[app.productType] || app.productType}</div>
+        <div class="field-value">${escapeHtml(productLabels[app.productType] || app.productType)}</div>
       </div>
       <div class="field">
         <div class="field-label">SIREN</div>
-        <div class="field-value">${app.siren || '-'}</div>
+        <div class="field-value">${escapeHtml(app.siren || '—')}</div>
       </div>
       <div class="field">
         <div class="field-label">Secteur</div>
-        <div class="field-value">${app.sector || '-'}</div>
+        <div class="field-value">${escapeHtml(app.sector || '—')}</div>
       </div>
       <div class="field">
         <div class="field-label">Équipement</div>
-        <div class="field-value">${app.equipmentType || '-'}</div>
+        <div class="field-value">${escapeHtml(app.equipmentType || '—')}</div>
       </div>
       <div class="field">
         <div class="field-label">Durée</div>
-        <div class="field-value">${app.duration ? app.duration + ' mois' : '-'}</div>
+        <div class="field-value">${app.duration ? escapeHtml(app.duration + ' mois') : '—'}</div>
       </div>
     </div>
   </div>
@@ -114,19 +128,19 @@ export async function GET(request, { params }) {
     <div class="grid">
       <div class="field">
         <div class="field-label">Nom</div>
-        <div class="field-value">${app.user.name || '-'}</div>
+        <div class="field-value">${escapeHtml(app.user.name || '—')}</div>
       </div>
       <div class="field">
         <div class="field-label">Email</div>
-        <div class="field-value">${app.user.email}</div>
+        <div class="field-value">${escapeHtml(app.user.email)}</div>
       </div>
       <div class="field">
         <div class="field-label">Téléphone</div>
-        <div class="field-value">${app.user.phone || '-'}</div>
+        <div class="field-value">${escapeHtml(app.user.phone || '—')}</div>
       </div>
       <div class="field">
         <div class="field-label">Société</div>
-        <div class="field-value">${app.user.company || '-'}</div>
+        <div class="field-value">${escapeHtml(app.user.company || '—')}</div>
       </div>
     </div>
   </div>
@@ -135,7 +149,7 @@ export async function GET(request, { params }) {
   <div class="section">
     <div class="section-title">Documents joints (${app.documents.length})</div>
     <ul class="doc-list">
-      ${app.documents.map(d => `<li>${d.fileName} (${(d.fileSize / 1024 / 1024).toFixed(1)} MB)</li>`).join('')}
+      ${app.documents.map(d => `<li>${escapeHtml(d.fileName)} (${(d.fileSize / 1024 / 1024).toFixed(1)} MB)</li>`).join('')}
     </ul>
   </div>
   ` : ''}
@@ -147,8 +161,8 @@ export async function GET(request, { params }) {
       ${app.statusHistory.map(h => `
         <div class="timeline-item">
           <div class="timeline-date">${new Date(h.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-          <div class="timeline-status">${statusLabels[h.fromStatus] || h.fromStatus} → ${statusLabels[h.toStatus] || h.toStatus}</div>
-          ${h.comment ? `<div style="font-size:12px;color:#64748b;margin-top:2px">${h.comment}</div>` : ''}
+          <div class="timeline-status">${escapeHtml(statusLabels[h.fromStatus] || h.fromStatus)} → ${escapeHtml(statusLabels[h.toStatus] || h.toStatus)}</div>
+          ${h.comment ? `<div class="timeline-comment">${escapeHtml(h.comment)}</div>` : ''}
         </div>
       `).join('')}
     </div>
@@ -158,14 +172,14 @@ export async function GET(request, { params }) {
   ${app.description ? `
   <div class="section">
     <div class="section-title">Description</div>
-    <p style="font-size:14px;line-height:1.6;color:#334155">${app.description}</p>
+    <p style="font-size:14px;line-height:1.6;color:${BRAND_COLORS.grisTexte}">${escapeHtml(app.description)}</p>
   </div>
   ` : ''}
 
   <div class="footer">
-    <p>Finarent — Courtier en financement professionnel</p>
-    <p>Document généré le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-    <p>Réf: ${app.id}</p>
+    <p><strong>${escapeHtml(COMPANY_INFO.name)} ${escapeHtml(COMPANY_INFO.legalForm)}</strong> · ${escapeHtml(COMPANY_INFO.address)}, ${escapeHtml(COMPANY_INFO.postal)} ${escapeHtml(COMPANY_INFO.city)}</p>
+    <p>SIRET ${escapeHtml(COMPANY_INFO.siret)} · ORIAS ${escapeHtml(COMPANY_INFO.orias)} · ${escapeHtml(COMPANY_INFO.phone)} · ${escapeHtml(COMPANY_INFO.email)}</p>
+    <p>Document généré le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} · Réf : ${escapeHtml(app.id)}</p>
   </div>
 </body>
 </html>`;

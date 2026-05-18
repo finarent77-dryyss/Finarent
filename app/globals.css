@@ -74,12 +74,18 @@
 }
 
 @layer base {
+  html {
+    /* Empêche tout scroll horizontal causé par un composant qui déborde
+       (cas tablette/laptop intermédiaire avec sidebar admin étendue). */
+    overflow-x: clip;
+  }
   body {
     @apply text-gray-900 font-sans antialiased;
     font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.005em;
     /* Fond blanc par défaut sur tout le site (demande client). */
     background-color: #FFFFFF;
+    overflow-x: clip;
   }
   /* Wash iridescent vibrant — appliqué sur toutes les pages publiques.
      Activé/désactivé selon la route par components/layout/PublicBgEffect.jsx.

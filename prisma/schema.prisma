@@ -561,6 +561,16 @@ model Prospect {
   company        String?
   status         ProspectStatus  @default(NEW)
   source         String?                              // utm_source, referrer
+  // Attribution marketing — premier touch, jamais écrasé
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  utmTerm        String?
+  utmContent     String?
+  referrer       String?                              // document.referrer du 1er hit
+  landingPage    String?                              // URL d'atterrissage
+  // Score d'engagement (recalculé serveur à chaque event)
+  engagementScore Int           @default(0)
   ipAddress      String?
   userAgent      String?
   notes          String?
@@ -579,6 +589,8 @@ model Prospect {
   @@index([lastSeenAt])
   @@index([email])
   @@index([affiliateId])
+  @@index([engagementScore])
+  @@index([utmSource])
 }
 
 model ProspectEvent {
@@ -630,11 +642,47 @@ model Affiliate {
   prospects         Prospect[]
   applications      Application[]
   commissions       AffiliateCommission[]
+  invites           AffiliateInvite[]
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
 
   @@index([isActive])
   @@index([email])
+}
+
+// Invitations / parrainages envoyés via l'affilié (single ou bulk CSV)
+enum AffiliateInviteStatus {
+  SENT       // email expédié SMTP
+  CLICKED    // le destinataire a cliqué sur le lien (matché via cookie côté track)
+  CONVERTED  // un prospect ou une application a été créé après le clic
+  FAILED     // échec d'envoi SMTP
+}
+
+enum AffiliateInviteSource {
+  AFFILIATE_PAGE  // envoyé depuis /affiliate/[code]
+  ADMIN_SINGLE    // envoyé par l'admin depuis /admin/affiliates/[id]
+  ADMIN_BULK      // import CSV admin
+}
+
+model AffiliateInvite {
+  id              String                @id @default(cuid())
+  affiliateId     String
+  affiliate       Affiliate             @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  recipientEmail  String
+  recipientName   String?
+  message         String?               // message personnalisé (300 chars max)
+  source          AffiliateInviteSource
+  status          AffiliateInviteStatus @default(SENT)
+  failedReason    String?
+  sentAt          DateTime              @default(now())
+  convertedAt     DateTime?
+  convertedProspectId String?
+  convertedApplicationId String?
+  createdAt       DateTime              @default(now())
+
+  @@index([affiliateId, sentAt])
+  @@index([recipientEmail])
+  @@index([status])
 }
 
 // Log des clics sur un lien d'affiliation (?ref=CODE)

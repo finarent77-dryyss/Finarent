@@ -37,10 +37,10 @@ export default function Header() {
   ];
 
   const sectors = [
+    { name: t('nav.sectors.transport'), icon: 'fa-truck', path: '/sectors/transport' },
     { name: t('nav.sectors.btp'), icon: 'fa-hard-hat', path: '/sectors/btp' },
     { name: t('nav.sectors.medical'), icon: 'fa-user-doctor', path: '/sectors/medical' },
-    { name: t('nav.sectors.it'), icon: 'fa-laptop-code', path: '/sectors/it' },
-    { name: t('nav.sectors.transport'), icon: 'fa-truck', path: '/sectors/transport' }
+    { name: t('nav.sectors.it'), icon: 'fa-laptop-code', path: '/sectors/it' }
   ];
 
   const resources = [

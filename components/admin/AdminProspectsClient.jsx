@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { scoreLabel } from '@/lib/prospects/scoring';
 
 const STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'CONVERTED', 'LOST'];
 const STATUS_COLORS = {
@@ -45,18 +46,19 @@ export default function AdminProspectsClient() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('recent'); // 'recent' | 'score'
   const [selected, setSelected] = useState(null);
 
   const load = () => {
     setLoading(true);
-    fetch('/api/admin/prospects')
+    fetch(`/api/admin/prospects?sort=${sort}`)
       .then((r) => r.json())
       .then(setProspects)
       .catch(() => {})
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [sort]);
 
   const filtered = useMemo(() => prospects.filter((p) => {
     if (filter !== 'ALL' && p.status !== filter) return false;
@@ -131,9 +133,9 @@ export default function AdminProspectsClient() {
         ))}
       </div>
 
-      {/* Search */}
-      <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-6">
-        <div className="relative">
+      {/* Search + tri */}
+      <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-6 flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-sm"></i>
           <input
             type="text"
@@ -142,6 +144,20 @@ export default function AdminProspectsClient() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
           />
+        </div>
+        <div className="flex gap-1 bg-gray-50 rounded-xl p-1">
+          <button
+            onClick={() => setSort('recent')}
+            className={`px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${sort === 'recent' ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+          >
+            <i className="fa-solid fa-clock mr-1"></i> Récents
+          </button>
+          <button
+            onClick={() => setSort('score')}
+            className={`px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${sort === 'score' ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+          >
+            <i className="fa-solid fa-fire mr-1 text-rose-500"></i> Chauds
+          </button>
         </div>
       </div>
 
@@ -161,8 +177,10 @@ export default function AdminProspectsClient() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-[10px] uppercase tracking-widest text-gray-400">
+                  <th className="py-3 px-4">Score</th>
                   <th className="py-3 px-4">Prospect</th>
                   <th className="py-3 px-4">Contact</th>
+                  <th className="py-3 px-4">Source</th>
                   <th className="py-3 px-4">Dernier simulateur</th>
                   <th className="py-3 px-4">Activité</th>
                   <th className="py-3 px-4">Statut</th>
@@ -173,6 +191,8 @@ export default function AdminProspectsClient() {
                 <AnimatePresence>
                   {filtered.map((p) => {
                     const last = p.events?.[0];
+                    const sc = scoreLabel(p.engagementScore || 0);
+                    const scoreColorMap = { rose: 'bg-rose-50 text-rose-700', amber: 'bg-amber-50 text-amber-700', sky: 'bg-sky-50 text-sky-700', gray: 'bg-gray-50 text-gray-500' };
                     return (
                       <motion.tr
                         key={p.id}
@@ -187,12 +207,33 @@ export default function AdminProspectsClient() {
                         className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer"
                       >
                         <td className="py-3 px-4">
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-bold ${scoreColorMap[sc.color]}`}>
+                            <span>{sc.emoji}</span>
+                            <span className="tabular-nums">{p.engagementScore || 0}</span>
+                          </div>
+                          <div className="text-[10px] text-gray-400 mt-0.5">{sc.label}</div>
+                        </td>
+                        <td className="py-3 px-4">
                           <div className="font-bold text-primary">{p.name || p.company || <span className="text-gray-300 italic">Anonyme</span>}</div>
                           <div className="text-[10px] text-gray-400 font-mono truncate max-w-[140px]">{p.anonId.slice(0, 12)}…</div>
                         </td>
                         <td className="py-3 px-4">
                           {p.email ? <div className="text-primary">{p.email}</div> : <div className="text-gray-300 text-xs italic">aucun email</div>}
                           {p.phone && <div className="text-xs text-gray-500">{p.phone}</div>}
+                        </td>
+                        <td className="py-3 px-4">
+                          {p.utmSource ? (
+                            <>
+                              <div className="text-xs font-semibold text-primary truncate max-w-[120px]">{p.utmSource}</div>
+                              {p.utmCampaign && <div className="text-[10px] text-gray-400 truncate max-w-[120px]">{p.utmCampaign}</div>}
+                            </>
+                          ) : p.referrer ? (
+                            <div className="text-xs text-gray-500 truncate max-w-[120px]" title={p.referrer}>
+                              {new URL(p.referrer).hostname}
+                            </div>
+                          ) : (
+                            <span className="text-gray-300 text-xs">direct</span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           {last ? (

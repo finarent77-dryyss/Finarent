@@ -163,8 +163,11 @@ export default function AffiliatePublicClient({ code }) {
             </div>
           </div>
 
+          {/* Form invitation */}
+          <InviteForm code={code} affiliateName={data.name} />
+
           {/* Disclaimer */}
-          <p className="text-xs text-gray-400 text-center leading-relaxed">
+          <p className="text-xs text-gray-400 text-center leading-relaxed mt-8">
             <i className="fa-solid fa-shield-halved mr-1"></i>
             Cette page est accessible via votre code unique. Les statistiques sont anonymisées et
             n'exposent aucune donnée personnelle de prospect.
@@ -173,6 +176,144 @@ export default function AffiliatePublicClient({ code }) {
         </div>
       </div>
     </PageTransition>
+  );
+}
+
+const SESSION_LIMIT = 5;
+const SESSION_KEY = 'finarent_affiliate_invites';
+
+function InviteForm({ code, affiliateName }) {
+  const [form, setForm] = useState({ email: '', name: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [count, setCount] = useState(0);
+
+  useState(() => {
+    if (typeof window === 'undefined') return;
+    setCount(parseInt(sessionStorage.getItem(SESSION_KEY) || '0', 10));
+  });
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setFeedback(null);
+
+    const sent = parseInt(sessionStorage.getItem(SESSION_KEY) || '0', 10);
+    if (sent >= SESSION_LIMIT) {
+      setFeedback({ type: 'error', text: `Limite de ${SESSION_LIMIT} invitations par session atteinte. Reconnectez-vous plus tard.` });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const r = await fetch(`/api/affiliate/${code}/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientEmail: form.email,
+          recipientName: form.name || undefined,
+          message: form.message || undefined,
+        }),
+      });
+      const data = await r.json();
+      if (r.ok) {
+        const next = sent + 1;
+        sessionStorage.setItem(SESSION_KEY, String(next));
+        setCount(next);
+        setFeedback({ type: data.skipped ? 'info' : 'success', text: data.message });
+        setForm({ email: '', name: '', message: '' });
+      } else {
+        setFeedback({ type: 'error', text: data.error || "Échec d'envoi" });
+      }
+    } catch {
+      setFeedback({ type: 'error', text: 'Erreur réseau' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm">
+      <div className="flex items-start justify-between gap-3 mb-1 flex-wrap">
+        <div>
+          <h2 className="font-bold text-primary text-xl">Inviter un prospect par email</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            L'email part en votre nom avec votre lien de tracking auto-injecté. Réponses dirigées vers Finarent.
+          </p>
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {count} / {SESSION_LIMIT} envoyés cette session
+        </div>
+      </div>
+
+      <form onSubmit={submit} className="grid sm:grid-cols-2 gap-3 mt-5">
+        <label className="block">
+          <span className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Email destinataire *</span>
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
+            placeholder="dirigeant@entreprise.fr"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-secondary focus:outline-none"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Prénom (optionnel)</span>
+          <input
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="Marie"
+            maxLength={100}
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-secondary focus:outline-none"
+          />
+        </label>
+        <label className="block sm:col-span-2">
+          <span className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Message personnel (optionnel)</span>
+          <textarea
+            value={form.message}
+            onChange={(e) => setForm({ ...form, message: e.target.value })}
+            placeholder={`Hello, je travaille avec Finarent pour mon financement pro et c'est top, je te partage le lien.`}
+            maxLength={500}
+            rows={3}
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-secondary focus:outline-none"
+          />
+          <span className="text-[10px] text-gray-400 mt-1 block">{form.message.length}/500</span>
+        </label>
+
+        {feedback && (
+          <div
+            className={`sm:col-span-2 text-sm p-3 rounded-xl ${
+              feedback.type === 'success'
+                ? 'bg-emerald-50 text-emerald-700'
+                : feedback.type === 'info'
+                ? 'bg-amber-50 text-amber-700'
+                : 'bg-red-50 text-red-700'
+            }`}
+          >
+            <i className={`fa-solid ${
+              feedback.type === 'success' ? 'fa-check-circle' :
+              feedback.type === 'info' ? 'fa-circle-info' : 'fa-circle-exclamation'
+            } mr-2`}></i>
+            {feedback.text}
+          </div>
+        )}
+
+        <div className="sm:col-span-2 flex justify-end">
+          <button
+            type="submit"
+            disabled={submitting || count >= SESSION_LIMIT}
+            className="px-6 py-3 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
+          >
+            {submitting ? (
+              <><i className="fa-solid fa-spinner fa-spin mr-2"></i>Envoi en cours…</>
+            ) : (
+              <><i className="fa-solid fa-paper-plane mr-2"></i>Envoyer l'invitation</>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
 

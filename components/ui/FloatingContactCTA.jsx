@@ -2,10 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
 
 export default function FloatingContactCTA() {
   const [open, setOpen] = useState(false);
   const [show, setShow] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 400);
@@ -13,6 +17,11 @@ export default function FloatingContactCTA() {
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Pas de CTA flottant dans les espaces privés (admin, espace client, partner, insurer)
+  if (PRIVATE_PREFIXES.some((p) => pathname === p || pathname?.startsWith(p + '/'))) {
+    return null;
+  }
 
   if (!show) return null;
 

@@ -522,10 +522,10 @@ export default function HomeClient() {
               {[
                 { name: 'Transport', icon: 'fa-truck-fast',     count: '40+', gradient: 'from-sky-500/10 to-blue-500/5',       accent: 'text-sky-600',     ring: 'hover:ring-sky-400/40' },
                 { name: 'BTP',       icon: 'fa-helmet-safety',  count: '80+', gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
-                { name: 'Services',  icon: 'fa-briefcase',      count: '70+', gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
-                { name: 'IT & Tech', icon: 'fa-microchip',      count: '60+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
-                { name: 'Industrie', icon: 'fa-industry',       count: '35+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
                 { name: 'Médical',   icon: 'fa-stethoscope',    count: '50+', gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
+                { name: 'IT & Tech', icon: 'fa-microchip',      count: '60+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
+                { name: 'Services',  icon: 'fa-briefcase',      count: '70+', gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
+                { name: 'Industrie', icon: 'fa-industry',       count: '35+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
               ].map((s, i) => (
                 <div
                   key={i}

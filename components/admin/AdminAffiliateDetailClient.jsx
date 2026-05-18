@@ -8,6 +8,8 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [invites, setInvites] = useState([]);
+  const [invitesLoaded, setInvitesLoaded] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -27,6 +29,22 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
     load();
   }, [affiliateId]);
 
+  const loadInvites = async () => {
+    try {
+      const r = await fetch(`/api/admin/affiliates/${affiliateId}/invite`);
+      if (r.ok) {
+        setInvites(await r.json());
+        setInvitesLoaded(true);
+      }
+    } catch {
+      /* échec silencieux */
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'invites' && !invitesLoaded) loadInvites();
+  }, [activeTab, invitesLoaded]);
+
   const markPaid = async (commissionId) => {
     if (!confirm('Marquer cette commission comme payée ?')) return;
     const r = await fetch(`/api/admin/affiliates/commissions/${commissionId}`, {
@@ -35,6 +53,10 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
       body: JSON.stringify({ status: 'PAID' }),
     });
     if (r.ok) load();
+  };
+
+  const exportCsv = () => {
+    window.open(`/api/admin/affiliates/${affiliateId}/export`, '_blank');
   };
 
   const toggleActive = async () => {
@@ -68,6 +90,15 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
             </div>
           </div>
           <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="px-4 py-2 rounded-xl font-bold text-sm bg-white border border-gray-200 text-gray-700 hover:border-secondary hover:text-secondary"
+              title="Télécharger l'historique complet (clics + leads + dossiers + commissions + invitations)"
+            >
+              <i className="fa-solid fa-file-csv mr-1.5"></i>
+              Export CSV
+            </button>
             <button
               type="button"
               onClick={toggleActive}
@@ -125,6 +156,7 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
             { id: 'leads', label: 'Leads', icon: 'fa-user-plus' },
             { id: 'applications', label: 'Dossiers', icon: 'fa-folder-open' },
             { id: 'clicks', label: 'Clics', icon: 'fa-mouse-pointer' },
+            { id: 'invites', label: 'Invitations', icon: 'fa-paper-plane' },
           ].map((t) => (
             <button
               key={t.id}
@@ -264,7 +296,252 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
           ]}
         />
       )}
+
+      {activeTab === 'invites' && (
+        <InvitesTab
+          affiliateId={affiliateId}
+          affiliateName={data.name}
+          invites={invites}
+          onChange={loadInvites}
+        />
+      )}
     </div>
+  );
+}
+
+function InvitesTab({ affiliateId, affiliateName, invites, onChange }) {
+  const [mode, setMode] = useState('single'); // 'single' | 'bulk'
+  const [form, setForm] = useState({ email: '', name: '', message: '' });
+  const [csvText, setCsvText] = useState('');
+  const [feedback, setFeedback] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const submitSingle = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setFeedback(null);
+    try {
+      const r = await fetch(`/api/admin/affiliates/${affiliateId}/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientEmail: form.email,
+          recipientName: form.name || undefined,
+          message: form.message || undefined,
+        }),
+      });
+      const data = await r.json();
+      if (r.ok) {
+        setFeedback({ type: data.skipped ? 'info' : 'success', text: data.skipped ? 'Invitation déjà envoyée cette semaine' : 'Invitation envoyée' });
+        setForm({ email: '', name: '', message: '' });
+        onChange();
+      } else {
+        setFeedback({ type: 'error', text: data.error || 'Échec' });
+      }
+    } catch {
+      setFeedback({ type: 'error', text: 'Erreur réseau' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitBulk = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setFeedback(null);
+    try {
+      const r = await fetch(`/api/admin/affiliates/${affiliateId}/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csv: csvText, message: form.message || undefined }),
+      });
+      const data = await r.json();
+      if (r.ok) {
+        setFeedback({
+          type: 'success',
+          text: `${data.sent} envoyés, ${data.skipped} déjà invités cette semaine, ${data.failed} échecs`,
+        });
+        setCsvText('');
+        onChange();
+      } else {
+        setFeedback({ type: 'error', text: data.error || 'Échec' });
+      }
+    } catch {
+      setFeedback({ type: 'error', text: 'Erreur réseau' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCsvText(String(reader.result || ''));
+    reader.readAsText(file);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Form invite */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h3 className="font-bold text-primary">
+            <i className="fa-solid fa-paper-plane mr-2 text-secondary"></i>
+            Envoyer une invitation au nom de {affiliateName}
+          </h3>
+          <div className="flex gap-1 bg-gray-100 rounded-lg p-1 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setMode('single')}
+              className={`px-3 py-1.5 rounded-md ${mode === 'single' ? 'bg-white text-primary shadow' : 'text-gray-500'}`}
+            >
+              Un destinataire
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('bulk')}
+              className={`px-3 py-1.5 rounded-md ${mode === 'bulk' ? 'bg-white text-primary shadow' : 'text-gray-500'}`}
+            >
+              Import CSV (jusqu'à 200)
+            </button>
+          </div>
+        </div>
+
+        {mode === 'single' ? (
+          <form onSubmit={submitSingle} className="grid sm:grid-cols-2 gap-3">
+            <Input label="Email destinataire *" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} required />
+            <Input label="Prénom" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
+            <Textarea label="Message personnel" value={form.message} onChange={(v) => setForm({ ...form, message: v })} className="sm:col-span-2" />
+            <SubmitButton submitting={submitting} className="sm:col-span-2 sm:justify-self-end">
+              Envoyer l'invitation
+            </SubmitButton>
+          </form>
+        ) : (
+          <form onSubmit={submitBulk} className="space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+                CSV — format : <code className="bg-gray-100 px-1 rounded">email,nom</code> (1 par ligne)
+              </label>
+              <textarea
+                value={csvText}
+                onChange={(e) => setCsvText(e.target.value)}
+                placeholder={`marie@exemple.fr,Marie Durand\npierre@exemple.fr,Pierre Martin\n...`}
+                rows={8}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:border-secondary focus:outline-none"
+              />
+              <div className="mt-2">
+                <input type="file" accept=".csv,.txt" onChange={handleFileUpload} className="text-xs" />
+              </div>
+            </div>
+            <Textarea
+              label="Message personnel (s'applique à tous)"
+              value={form.message}
+              onChange={(v) => setForm({ ...form, message: v })}
+            />
+            <SubmitButton submitting={submitting} className="float-right">
+              Envoyer en masse
+            </SubmitButton>
+            <div className="clear-both"></div>
+          </form>
+        )}
+
+        {feedback && (
+          <div
+            className={`mt-3 text-sm p-3 rounded-xl ${
+              feedback.type === 'success'
+                ? 'bg-emerald-50 text-emerald-700'
+                : feedback.type === 'info'
+                ? 'bg-amber-50 text-amber-700'
+                : 'bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.text}
+          </div>
+        )}
+      </div>
+
+      {/* Historique */}
+      <DataTable
+        rows={invites}
+        empty="Aucune invitation envoyée pour cet affilié."
+        columns={[
+          { label: 'Date', render: (i) => new Date(i.sentAt).toLocaleString('fr-FR') },
+          { label: 'Destinataire', render: (i) => i.recipientEmail },
+          { label: 'Nom', render: (i) => i.recipientName || '—' },
+          { label: 'Source', render: (i) => <SourceBadge source={i.source} /> },
+          { label: 'Statut', render: (i) => <InviteStatusBadge status={i.status} reason={i.failedReason} /> },
+        ]}
+      />
+    </div>
+  );
+}
+
+function Input({ label, type = 'text', value, onChange, required }) {
+  return (
+    <label className="block">
+      <span className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-secondary focus:outline-none"
+      />
+    </label>
+  );
+}
+
+function Textarea({ label, value, onChange, className = '' }) {
+  return (
+    <label className={`block ${className}`}>
+      <span className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">{label}</span>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={500}
+        rows={3}
+        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-secondary focus:outline-none"
+      />
+    </label>
+  );
+}
+
+function SubmitButton({ submitting, children, className = '' }) {
+  return (
+    <button
+      type="submit"
+      disabled={submitting}
+      className={`px-5 py-2.5 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 disabled:opacity-50 text-sm ${className}`}
+    >
+      {submitting ? <><i className="fa-solid fa-spinner fa-spin mr-1.5"></i>Envoi…</> : children}
+    </button>
+  );
+}
+
+function SourceBadge({ source }) {
+  const map = {
+    AFFILIATE_PAGE: { label: 'Page perso', cls: 'bg-violet-100 text-violet-700' },
+    ADMIN_SINGLE: { label: 'Admin', cls: 'bg-sky-100 text-sky-700' },
+    ADMIN_BULK: { label: 'Bulk CSV', cls: 'bg-amber-100 text-amber-700' },
+  };
+  const m = map[source] || { label: source, cls: 'bg-gray-100 text-gray-600' };
+  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${m.cls}`}>{m.label}</span>;
+}
+
+function InviteStatusBadge({ status, reason }) {
+  const map = {
+    SENT: { cls: 'bg-emerald-100 text-emerald-700', icon: 'fa-check' },
+    CLICKED: { cls: 'bg-sky-100 text-sky-700', icon: 'fa-mouse-pointer' },
+    CONVERTED: { cls: 'bg-green-100 text-green-700', icon: 'fa-trophy' },
+    FAILED: { cls: 'bg-red-100 text-red-700', icon: 'fa-xmark' },
+  };
+  const m = map[status] || { cls: 'bg-gray-100 text-gray-600', icon: 'fa-circle' };
+  return (
+    <span title={reason || ''} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${m.cls}`}>
+      <i className={`fa-solid ${m.icon}`}></i>
+      {status}
+    </span>
   );
 }
 

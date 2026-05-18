@@ -25,9 +25,14 @@ export async function GET(request) {
     where.events = { some: { simulatorSlug: simulator } };
   }
 
+  const sort = searchParams.get('sort') || 'recent';
+  const orderBy = sort === 'score'
+    ? [{ engagementScore: 'desc' }, { lastSeenAt: 'desc' }]
+    : [{ lastSeenAt: 'desc' }];
+
   const prospects = await prisma.prospect.findMany({
     where,
-    orderBy: { lastSeenAt: 'desc' },
+    orderBy,
     take: 200,
     include: {
       events: {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { currentAffiliateId } from '@/lib/affiliate';
+import { computeEngagementScore } from '@/lib/prospects/scoring';
 
 const COOKIE_NAME = 'finarent_anon';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 an
@@ -16,7 +17,12 @@ export async function POST(request) {
     return NextResponse.json({ error: 'invalid body' }, { status: 400 });
   }
 
-  const { simulatorSlug, category, params, result, email, phone, name, company, source } = body || {};
+  const {
+    simulatorSlug, category, params, result,
+    email, phone, name, company, source,
+    utmSource, utmMedium, utmCampaign, utmTerm, utmContent,
+    referrer, landingPage,
+  } = body || {};
 
   if (!simulatorSlug || typeof simulatorSlug !== 'string') {
     return NextResponse.json({ error: 'simulatorSlug required' }, { status: 400 });
@@ -38,26 +44,30 @@ export async function POST(request) {
   const userAgent = request.headers.get('user-agent') || null;
   const url = body.url || request.headers.get('referer') || null;
 
-  // Upsert prospect
-  const data = {
-    anonId,
-    lastSeenAt: new Date(),
-    ipAddress,
-    userAgent,
-  };
+  // Upsert prospect — données identitaires écrasables, attribution first-touch.
+  const data = { anonId, lastSeenAt: new Date(), ipAddress, userAgent };
   if (email) data.email = String(email).trim().toLowerCase().slice(0, 200);
   if (phone) data.phone = String(phone).trim().slice(0, 30);
   if (name) data.name = String(name).trim().slice(0, 100);
   if (company) data.company = String(company).trim().slice(0, 150);
   if (source) data.source = String(source).slice(0, 100);
 
-  // Affiliation : attribue le prospect à l'apporteur si cookie présent
+  // Attribution marketing — uniquement en CREATE (first-touch)
+  const attribCreate = {};
+  if (utmSource) attribCreate.utmSource = String(utmSource).slice(0, 80);
+  if (utmMedium) attribCreate.utmMedium = String(utmMedium).slice(0, 80);
+  if (utmCampaign) attribCreate.utmCampaign = String(utmCampaign).slice(0, 80);
+  if (utmTerm) attribCreate.utmTerm = String(utmTerm).slice(0, 80);
+  if (utmContent) attribCreate.utmContent = String(utmContent).slice(0, 80);
+  if (referrer) attribCreate.referrer = String(referrer).slice(0, 500);
+  if (landingPage) attribCreate.landingPage = String(landingPage).slice(0, 500);
+
   const affiliateId = await currentAffiliateId();
   if (affiliateId) data.affiliateId = affiliateId;
 
-  const prospect = await prisma.prospect.upsert({
+  let prospect = await prisma.prospect.upsert({
     where: { anonId },
-    create: data,
+    create: { ...data, ...attribCreate },
     update: {
       lastSeenAt: data.lastSeenAt,
       ...(data.email ? { email: data.email } : {}),
@@ -65,7 +75,7 @@ export async function POST(request) {
       ...(data.name ? { name: data.name } : {}),
       ...(data.company ? { company: data.company } : {}),
       ...(data.source ? { source: data.source } : {}),
-      // Pas d'affiliateId en update : premier-touch wins, attribué seulement à la création
+      // attribution + affiliateId : not updated (first-touch wins)
     },
   });
 
@@ -80,11 +90,23 @@ export async function POST(request) {
     },
   });
 
+  // Recompute engagement score (lit tous les events du prospect)
+  const events = await prisma.prospectEvent.findMany({
+    where: { prospectId: prospect.id },
+    select: { simulatorSlug: true, params: true },
+    take: 50,
+  });
+  const engagementScore = computeEngagementScore({ prospect, events });
+  await prisma.prospect.update({
+    where: { id: prospect.id },
+    data: { engagementScore },
+  });
+
   const res = NextResponse.json({ ok: true, anonId });
   if (setCookie) {
     res.cookies.set(COOKIE_NAME, anonId, {
       maxAge: COOKIE_MAX_AGE,
-      httpOnly: false, // accessible côté client pour debug si besoin
+      httpOnly: false,
       sameSite: 'lax',
       path: '/',
     });

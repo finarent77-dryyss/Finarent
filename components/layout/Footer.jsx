@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
+
+const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
 
 function FooterNewsletter() {
   const [email, setEmail] = useState('');
@@ -74,7 +77,13 @@ const SOCIALS = [
 
 export default function Footer() {
   const { t } = useTranslation();
+  const pathname = usePathname();
   const linkClass = 'text-white/55 hover:text-white transition-colors duration-200';
+
+  // Les espaces privés ont leur propre chrome (sidebar/topbar) — pas de footer global.
+  if (PRIVATE_PREFIXES.some((p) => pathname === p || pathname?.startsWith(p + '/'))) {
+    return null;
+  }
 
   return (
     <footer className="bg-[#0A192F] text-white">
