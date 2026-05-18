@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { key: 'users', href: '/admin/users', icon: 'fa-users', label: 'Utilisateurs' },
   { key: 'prospects', href: '/admin/prospects', icon: 'fa-user-tag', label: 'Prospection' },
   { key: 'partners', href: '/admin/partners', icon: 'fa-handshake', label: 'Partenaires' },
+  { key: 'affiliates', href: '/admin/affiliates', icon: 'fa-share-nodes', label: 'Affiliation' },
   { key: 'logs', href: '/admin/logs', icon: 'fa-clock-rotate-left', label: 'Logs d\'activité' },
   { key: 'faq', href: '/admin/faq', icon: 'fa-circle-question', label: 'FAQ' },
   { key: 'testimonials', href: '/admin/testimonials', icon: 'fa-comment-dots', label: 'Témoignages' },

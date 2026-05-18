@@ -129,6 +129,10 @@ model Application {
   transmittedAt DateTime?
   scorePreQual  Int?              @default(0)
   scoreLabel    String?
+  // Affiliation : commercial qui a ramené cette demande
+  affiliateId   String?
+  affiliate     Affiliate?        @relation(fields: [affiliateId], references: [id])
+  affiliateCommissions AffiliateCommission[]
   documents     Document[]
   messages      Message[]
   statusHistory StatusHistory[]
@@ -145,6 +149,7 @@ model Application {
   @@index([productType])
   @@index([status, createdAt])
   @@index([status, updatedAt])
+  @@index([affiliateId])
 }
 
 model Offer {
@@ -561,6 +566,9 @@ model Prospect {
   notes          String?
   assignedToId   String?                              // admin/sales en charge
   convertedUserId String?                             // si converti en user
+  // Affiliation : commercial / apporteur d'affaires qui a ramené ce prospect
+  affiliateId    String?
+  affiliate      Affiliate?      @relation(fields: [affiliateId], references: [id])
   events         ProspectEvent[]
   firstSeenAt    DateTime        @default(now())
   lastSeenAt     DateTime        @default(now())
@@ -570,6 +578,7 @@ model Prospect {
   @@index([status])
   @@index([lastSeenAt])
   @@index([email])
+  @@index([affiliateId])
 }
 
 model ProspectEvent {
@@ -585,4 +594,81 @@ model ProspectEvent {
 
   @@index([prospectId, createdAt])
   @@index([simulatorSlug])
+}
+
+// ─── AFFILIATION — Apporteurs d'affaires internes ─────────
+// Système de tracking pour les commerciaux/apporteurs internes Finarent.
+// Flow : visiteur arrive avec ?ref=CODE → cookie 90 jours → tout Prospect/Application
+// créé pendant la période est attribué à l'affilié → commission auto sur SIGNED.
+
+enum AffiliateCommissionType {
+  FIXED      // montant fixe en € par dossier signé
+  PERCENT    // pourcentage du montant financé
+}
+
+enum AffiliateCommissionStatus {
+  PENDING    // dossier signé, commission calculée, en attente de paiement
+  PAID       // commission versée à l'apporteur
+  CANCELLED  // dossier annulé / refusé
+}
+
+model Affiliate {
+  id                String                @id @default(cuid())
+  code              String                @unique          // slug court utilisé dans ?ref=CODE
+  name              String
+  email             String                @unique
+  phone             String?
+  // Configuration commission
+  commissionType    AffiliateCommissionType @default(FIXED)
+  commissionValue   Float                 @default(0)      // € si FIXED, % si PERCENT (0-100)
+  // Visibilité publique
+  isActive          Boolean               @default(true)
+  publicStatsEnabled Boolean              @default(true)   // permet d'exposer /affiliate/[code]
+  notes             String?
+  // Relations
+  clicks            AffiliateClick[]
+  prospects         Prospect[]
+  applications      Application[]
+  commissions       AffiliateCommission[]
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@index([isActive])
+  @@index([email])
+}
+
+// Log des clics sur un lien d'affiliation (?ref=CODE)
+model AffiliateClick {
+  id          String    @id @default(cuid())
+  affiliateId String
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  landingPath String?                   // ex: "/simulateurs/credit-bail"
+  referer     String?
+  ip          String?
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+
+  @@index([affiliateId, createdAt])
+}
+
+// Commission calculée à la signature d'une application
+model AffiliateCommission {
+  id            String                    @id @default(cuid())
+  affiliateId   String
+  affiliate     Affiliate                 @relation(fields: [affiliateId], references: [id])
+  applicationId String
+  application   Application               @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  // Snapshot des conditions au moment du calcul (immuable même si l'affilié change ses taux)
+  type          AffiliateCommissionType
+  rate          Float                                       // value du taux au moment du calcul
+  amount        Float                                       // montant final calculé en €
+  status        AffiliateCommissionStatus @default(PENDING)
+  paidAt        DateTime?
+  notes         String?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+
+  @@unique([applicationId])  // une seule commission par dossier
+  @@index([affiliateId, status])
+  @@index([status, createdAt])
 }

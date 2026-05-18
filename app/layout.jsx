@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PublicBgEffect from '@/components/layout/PublicBgEffect';
+import AffiliateTracker from '@/components/AffiliateTracker';
 import CookieBanner from '@/components/ui/CookieBanner';
 import FloatingContactCTA from '@/components/ui/FloatingContactCTA';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
@@ -59,6 +60,7 @@ export default function RootLayout({ children }) {
             <Suspense fallback={null}>
               <PostHogProvider>
                 <PublicBgEffect />
+                <AffiliateTracker />
                 <div className="min-h-screen flex flex-col">
                   <div id="site-header">
                     <Header />

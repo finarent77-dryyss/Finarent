@@ -6,6 +6,7 @@ import { STATUS_TO_LEGACY } from '@/lib/statusMap';
 import { generateReference } from '@/lib/reference';
 import { calculateScore } from '@/lib/scoring';
 import { protect } from '@/lib/sensitive';
+import { currentAffiliateId } from '@/lib/affiliate';
 
 /**
  * GET /api/applications
@@ -140,12 +141,16 @@ export async function POST(request) {
         }
       : null;
 
+    // Affiliation : attribue la demande à l'apporteur si cookie présent
+    const affiliateId = await currentAffiliateId();
+
     const application = await prisma.application.create({
       data: protect('Application', {
         ...applicationDraft,
         scorePreQual,
         scoreLabel,
         ...(quoteDetails ? { quoteDetails } : {}),
+        ...(affiliateId ? { affiliateId } : {}),
       }),
     });
 
