@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { logRgpdAction } from '@/lib/audit';
 
 export async function GET() {
   const auth = await requireAuth();
@@ -35,6 +36,15 @@ export async function PATCH(request) {
   const user = await prisma.user.update({
     where: { id: auth.dbUser.id },
     data,
+  });
+
+  // Audit RGPD : trace la rectification (art. 16 RGPD)
+  await logRgpdAction({
+    userId: auth.dbUser.id,
+    email: user.email,
+    action: 'RECTIFY',
+    details: { fields: Object.keys(data) },
+    request,
   });
 
   return NextResponse.json(user);

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { protect, reveal } from '@/lib/sensitive';
 
 export async function POST(request, { params }) {
   const auth = await requireAdmin();
@@ -26,14 +27,14 @@ export async function POST(request, { params }) {
     if (!invoice) throw new Error('Facture introuvable');
 
     const payment = await tx.invoicePayment.create({
-      data: {
+      data: protect('InvoicePayment', {
         invoiceId: id,
         amount: Number(amount),
         paymentMethod,
         reference,
         notes,
         paidAt: paidAt ? new Date(paidAt) : new Date(),
-      },
+      }),
     });
 
     const newPaidAmount = invoice.payments.reduce((s, p) => s + p.amount, 0) + Number(amount);
@@ -52,7 +53,10 @@ export async function POST(request, { params }) {
       include: { lines: true, payments: { orderBy: { paidAt: 'desc' } } },
     });
 
-    return { payment, invoice: updated };
+    return {
+      payment: reveal('InvoicePayment', payment),
+      invoice: { ...updated, payments: reveal('InvoicePayment', updated.payments) },
+    };
   });
 
   return NextResponse.json(result, { status: 201 });

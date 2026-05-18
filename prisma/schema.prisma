@@ -87,6 +87,8 @@ model User {
   creditNotes  CreditNote[]
   signaturesToSign  SignatureRequest[] @relation("SignatureRequestTo")
   signaturesRequested SignatureRequest[] @relation("SignatureRequestBy")
+  documentAccesses  DocumentAccess[] @relation("DocumentAccessedBy")
+  rgpdActions       RgpdAction[]     @relation("UserRgpdActions")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -182,7 +184,54 @@ model Document {
   fileUrl       String       // Chemin Supabase Storage
   fileSize      Int
   mimeType      String
+  // Soft-delete : on conserve le record 30 jours pour rétention légale
+  deletedAt     DateTime?
+  deletedById   String?
+  accesses      DocumentAccess[]
   createdAt     DateTime     @default(now())
+
+  @@index([deletedAt])
+}
+
+// Audit trail RGPD : qui a consulté/téléchargé quel document, quand, d'où
+model DocumentAccess {
+  id           String   @id @default(cuid())
+  documentId   String
+  document     Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  accessedById String
+  accessedBy   User     @relation("DocumentAccessedBy", fields: [accessedById], references: [id])
+  action       String   // UPLOAD | VIEW | DOWNLOAD | DELETE
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([documentId, createdAt])
+  @@index([accessedById])
+  @@index([action])
+}
+
+// Audit trail RGPD : export, suppression, rectification, consentement
+enum RgpdActionType {
+  EXPORT
+  DELETE_ACCOUNT
+  RECTIFY
+  CONSENT_GRANT
+  CONSENT_REVOKE
+}
+
+model RgpdAction {
+  id        String         @id @default(cuid())
+  userId    String?
+  user      User?          @relation("UserRgpdActions", fields: [userId], references: [id])
+  email     String?        // pour les actions sans user (newsletter unsubscribe par exemple)
+  action    RgpdActionType
+  details   Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime       @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action])
 }
 
 model Message {

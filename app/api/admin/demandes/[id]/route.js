@@ -3,6 +3,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/users';
 import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES } from '@/lib/statusMap';
+import { protect, reveal } from '@/lib/sensitive';
 
 export async function PATCH(request, { params }) {
   try {
@@ -36,7 +37,7 @@ export async function PATCH(request, { params }) {
 
     const application = await prisma.application.update({
       where: { id },
-      data: updateData,
+      data: protect('Application', updateData),
     });
 
     // Enregistrer l'historique du changement de statut
@@ -52,9 +53,10 @@ export async function PATCH(request, { params }) {
       });
     }
 
+    const revealed = reveal('Application', application);
     const response = {
-      ...application,
-      status: STATUS_TO_LEGACY[application.status] || application.status,
+      ...revealed,
+      status: STATUS_TO_LEGACY[revealed.status] || revealed.status,
     };
     return NextResponse.json(response);
   } catch (err) {
