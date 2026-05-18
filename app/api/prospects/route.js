@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { prisma } from '@/lib/prisma';
+import { currentAffiliateId } from '@/lib/affiliate';
 
 const COOKIE_NAME = 'finarent_anon';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 an
@@ -50,6 +51,10 @@ export async function POST(request) {
   if (company) data.company = String(company).trim().slice(0, 150);
   if (source) data.source = String(source).slice(0, 100);
 
+  // Affiliation : attribue le prospect à l'apporteur si cookie présent
+  const affiliateId = await currentAffiliateId();
+  if (affiliateId) data.affiliateId = affiliateId;
+
   const prospect = await prisma.prospect.upsert({
     where: { anonId },
     create: data,
@@ -60,6 +65,7 @@ export async function POST(request) {
       ...(data.name ? { name: data.name } : {}),
       ...(data.company ? { company: data.company } : {}),
       ...(data.source ? { source: data.source } : {}),
+      // Pas d'affiliateId en update : premier-touch wins, attribué seulement à la création
     },
   });
 

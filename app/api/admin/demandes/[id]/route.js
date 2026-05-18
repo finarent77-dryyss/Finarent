@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/users';
 import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES } from '@/lib/statusMap';
 import { protect, reveal } from '@/lib/sensitive';
+import { computeCommission } from '@/lib/affiliate';
 
 export async function PATCH(request, { params }) {
   try {
@@ -51,6 +52,43 @@ export async function PATCH(request, { params }) {
           comment: adminNotes || null,
         },
       });
+
+      // Affiliation : calcul auto de la commission quand un dossier passe en SIGNED
+      if (updateData.status === 'SIGNED' && application.affiliateId) {
+        const existing = await prisma.affiliateCommission.findUnique({
+          where: { applicationId: id },
+        });
+        if (!existing) {
+          const affiliate = await prisma.affiliate.findUnique({
+            where: { id: application.affiliateId },
+            select: { commissionType: true, commissionValue: true },
+          });
+          if (affiliate) {
+            const amount = computeCommission(
+              { type: affiliate.commissionType, value: affiliate.commissionValue },
+              application.amount,
+            );
+            await prisma.affiliateCommission.create({
+              data: {
+                affiliateId: application.affiliateId,
+                applicationId: id,
+                type: affiliate.commissionType,
+                rate: affiliate.commissionValue,
+                amount,
+                status: 'PENDING',
+              },
+            });
+          }
+        }
+      }
+
+      // Affiliation : annule la commission si le dossier passe en REJECTED après signature
+      if (updateData.status === 'REJECTED' && application.affiliateId) {
+        await prisma.affiliateCommission.updateMany({
+          where: { applicationId: id, status: 'PENDING' },
+          data: { status: 'CANCELLED' },
+        });
+      }
     }
 
     const revealed = reveal('Application', application);
