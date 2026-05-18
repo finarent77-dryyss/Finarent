@@ -60,7 +60,7 @@ const Sub = ({ children }) => <h3 className="text-base sm:text-lg font-bold text
 
 export default function CgvPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-28 pb-20">
         {/* Header */}
         <header className="border-b-2 border-emerald-500 pb-6 mb-8">

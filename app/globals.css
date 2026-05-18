@@ -1,26 +1,34 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import "./finarent-animations.css";
 
 @source "../components/**/*.{js,jsx,ts,tsx}";
 @source "./**/*.{js,jsx,ts,tsx}";
 
 /* ═══════════════════════════════════════════════════════════════════
-   CHARTE FINARENT — Palette "Vibrant" (Iridescent Fintech)
-   Source : design system Claude Design — palette validée par le client.
-   Couleurs :
-     - Ink   #0F1729 (texte principal, brand mark)
-     - Indigo #6366F1 (CTA, focus, accent primaire)
-     - Sage  #22D67E (succès, accent secondaire, gradient end)
-     - Violet #A855F7 (gradient middle, hover)
-     - Bg    #FCFBFF (background avec wash iridescent radial)
-   ═══════════════════════════════════════════════════════════════════ */
+   CHARTE FINARENT — Palette officielle (source : "FINARENT Partenaires.pdf" §1)
+   - Bleu Marine #10253C — couleur principale, titres, logo, structure
+   - Bleu Acier  #1C3654 — secondaire, sous-titres, accents
+   - Vert Menthe #58B794 — accent (≤15% de surface), filets, chiffres clés
+   - Vert Profond #3E9D7A — hover, liens actifs
+   - Gris Texte  #404040 — corps de texte
+   - Gris Doux   #F2F5F4 — backgrounds doux
+   Tokens additionnels "Vibrant Fintech" (indigo/violet/sage) conservés pour les
+   CTA, gradients hero et accents lumineux validés en V1. */
 
 @theme {
-  /* Brand tokens "vibrant" — mappés sur les classes Tailwind primary/secondary/accent */
-  --color-primary: #0F1729;
+  /* Tokens Finarent officiels — mappés sur les classes Tailwind primary/secondary/accent */
+  --color-primary: #10253C;
   --color-secondary: #6366F1;
-  --color-accent: #22D67E;
+  --color-accent: #58B794;
   --color-violet: #A855F7;
+  /* Couleurs charte additionnelles utilisables via fn-* */
+  --color-fn-marine: #10253C;
+  --color-fn-acier: #1C3654;
+  --color-fn-menthe: #58B794;
+  --color-fn-vert-profond: #3E9D7A;
+  --color-fn-gris-texte: #404040;
+  --color-fn-gris-doux: #F2F5F4;
   /* Slate palette inchangée pour les textes secondaires */
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
@@ -37,10 +45,18 @@
 
 /* Tokens internes vibrant (utilisables via var()) */
 :root {
-  --ink: #0F1729;
-  --ink-2: #1E2746;
-  --sage: #22D67E;
-  --sage-2: #16B569;
+  /* Tokens Finarent officiels (PDF Partenaires §1) */
+  --fn-marine: #10253C;
+  --fn-acier: #1C3654;
+  --fn-menthe: #58B794;
+  --fn-vert-profond: #3E9D7A;
+  --fn-gris-texte: #404040;
+  --fn-gris-doux: #F2F5F4;
+  /* Anciens tokens internes vibrant — conservés pour compatibilité */
+  --ink: #10253C;
+  --ink-2: #1C3654;
+  --sage: #58B794;
+  --sage-2: #3E9D7A;
   --sage-soft: #D6F7E5;
   --indigo: #6366F1;
   --indigo-soft: #EEF0FE;
@@ -65,8 +81,9 @@
     /* Fond blanc par défaut sur tout le site (demande client). */
     background-color: #FFFFFF;
   }
-  /* Wash iridescent vibrant — réservé à l'accueil uniquement.
-     Activé en ajoutant data-vibrant-bg sur <body> (cf. HomeBgEffect). */
+  /* Wash iridescent vibrant — appliqué sur toutes les pages publiques.
+     Activé/désactivé selon la route par components/layout/PublicBgEffect.jsx.
+     Désactivé sur /admin, /espace, /partner, /insurer (sidebars + dashboards). */
   body[data-vibrant-bg] {
     background-color: #FCFBFF;
     background-image:

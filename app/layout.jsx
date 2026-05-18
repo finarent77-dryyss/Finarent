@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import PublicBgEffect from '@/components/layout/PublicBgEffect';
 import CookieBanner from '@/components/ui/CookieBanner';
 import FloatingContactCTA from '@/components/ui/FloatingContactCTA';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
@@ -20,9 +21,10 @@ export const metadata = {
   authors: [{ name: 'Finarent' }],
   icons: {
     icon: [
+      { url: '/finarent-pastille.svg', type: 'image/svg+xml' },
       { url: '/finarent-logo.jpg', type: 'image/jpeg' },
     ],
-    shortcut: '/finarent-logo.jpg',
+    shortcut: '/finarent-pastille.svg',
     apple: '/finarent-logo.jpg',
   },
   openGraph: {
@@ -30,7 +32,7 @@ export const metadata = {
     locale: 'fr_FR',
     siteName: 'Finarent',
     title: 'Finarent | Financement & Assurance Professionnel',
-    description: 'Crédit-bail, leasing, assurance pro. Réponse en 48h. 1200+ entreprises accompagnées, 98% d\'accords.',
+    description: 'Crédit-bail, leasing, assurance pro. Réponse en 48h. 300+ entreprises accompagnées, 95% d\'accords.',
     images: [{ url: '/hero_business_team_premium_v2_1772271137874.png', width: 1200, height: 630, alt: 'Finarent — Financement professionnel' }],
   },
   twitter: {
@@ -56,6 +58,7 @@ export default function RootLayout({ children }) {
           <LanguageProvider>
             <Suspense fallback={null}>
               <PostHogProvider>
+                <PublicBgEffect />
                 <div className="min-h-screen flex flex-col">
                   <div id="site-header">
                     <Header />

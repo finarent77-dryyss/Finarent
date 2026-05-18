@@ -108,8 +108,8 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-7">
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-auto rounded-lg overflow-hidden bg-white shadow-sm">
-                <img src="/finarent-logo.jpg" alt="Finarent" className="h-full w-auto object-contain" />
+              <div className="inline-flex bg-white rounded-xl px-4 py-2 shadow-sm">
+                <img src="/finarent-logo.svg" alt="Finarent" className="h-8 w-auto object-contain" />
               </div>
             </div>
             <p className="text-white/50 text-sm leading-relaxed mb-5 max-w-lg">

@@ -203,7 +203,7 @@ export default function ComparateurClient() {
   const sliderPercent = ((amount - 5000) / (500000 - 5000)) * 100;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       {/* ─── HERO ─────────────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-[#0A2540] to-[#0A2540]/80 pt-28 pb-16 overflow-hidden">
         <div className="absolute inset-0">

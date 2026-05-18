@@ -176,7 +176,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-secondary via-accent to-secondary rounded-full blur opacity-40 group-hover:opacity-80 transition duration-500"></div>
                 <img
-                  src={user.picture || '/finarent-logo.jpg'}
+                  src={user.picture || '/finarent-pastille.svg'}
                   alt={user.name}
                   className="relative w-14 h-14 sm:w-18 sm:h-18 rounded-full border-3 border-white shadow-xl object-cover"
                 />

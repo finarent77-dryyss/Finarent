@@ -10,7 +10,7 @@ export default function SolutionsClient() {
 
   return (
     <div className="min-h-screen">
-      <section className="pt-32 pb-20 bg-white">
+      <section className="pt-32 pb-20 bg-transparent">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block px-4 py-2 bg-secondary/10 rounded-full mb-6">
@@ -21,7 +21,7 @@ export default function SolutionsClient() {
           </div>
         </div>
       </section>
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-transparent">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {solutionsData.map((sol, idx) => {

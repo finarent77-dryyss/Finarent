@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { LoadingIcon, ValidationStamp } from '@/components/animations/FinarentAnimation';
 
 const STATUS_LABELS = {
   DRAFT:     { label: 'Brouillon',  cls: 'bg-slate-100 text-slate-700' },
@@ -56,7 +57,7 @@ export default function InvoiceDetailClient({ id }) {
     finally { setAddingPayment(false); }
   };
 
-  if (loading) return <div className="py-16 text-center"><i className="fa-solid fa-spinner fa-spin text-3xl text-secondary"></i></div>;
+  if (loading) return <div className="py-16 text-center"><LoadingIcon size={56} /></div>;
   if (!invoice) return <div className="py-16 text-center text-gray-400">Facture introuvable</div>;
 
   const status = STATUS_LABELS[invoice.status] || STATUS_LABELS.DRAFT;
@@ -64,7 +65,12 @@ export default function InvoiceDetailClient({ id }) {
   const pctPaid = invoice.totalTTC > 0 ? (invoice.paidAmount / invoice.totalTTC) * 100 : 0;
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto relative">
+      {invoice.status === 'PAID' && (
+        <div className="pointer-events-none absolute top-8 right-2 sm:right-6 z-10 rotate-[-8deg]">
+          <ValidationStamp size={140} />
+        </div>
+      )}
       <Link href="/admin/factures" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary mb-4">
         <i className="fa-solid fa-arrow-left text-xs"></i> Toutes les factures
       </Link>

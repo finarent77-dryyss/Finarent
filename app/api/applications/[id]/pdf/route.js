@@ -70,7 +70,7 @@ export async function GET(request, { params }) {
   </button>
 
   <div class="header">
-    <div class="logo">Fin<span>assur</span></div>
+    <div class="logo">Fin<span>arent</span></div>
     <div class="badge">${statusLabels[app.status] || app.status}</div>
   </div>
 

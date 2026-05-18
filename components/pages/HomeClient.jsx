@@ -7,7 +7,6 @@ import StatsCard from '@/components/ui/StatsCard';
 import TestimonialCarousel from '@/components/ui/TestimonialCarousel';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 import Hero from '@/components/layout/Hero';
-import HomeBgEffect from '@/components/home/HomeBgEffect';
 import HomeQuickSimulator from '@/components/home/HomeQuickSimulator';
 import AuroraBackground from '@/components/ui/AuroraBackground';
 import Tilt3D from '@/components/ui/Tilt3D';
@@ -17,7 +16,30 @@ import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import { sectorsData } from '@/assets/data/sectors';
 import { testimonialsData } from '@/assets/data/testimonials';
+import { FAQ_CATEGORIES } from '@/assets/data/faq';
+import { PARTNER_GROUPS } from '@/assets/data/partners';
 import { useTranslation } from '@/lib/i18n';
+
+// Marquee = 2 partenaires phares par groupe, dans l'ordre des familles
+const MARQUEE_PARTNERS = PARTNER_GROUPS.flatMap((g) => g.items.slice(0, 2));
+const TOTAL_PARTNERS = PARTNER_GROUPS.reduce((sum, g) => sum + g.items.length, 0);
+
+// 6 questions stratégiques pour le teaser home (gratuit, délai, montant, ORIAS, accord, apport)
+const TEASER_QUESTION_KEYS = [
+  ['finarent', "Combien coûtent les services de Finarent ?"],
+  ['procedure', "Combien de temps pour obtenir une réponse ?"],
+  ['credit-bail', "Quel montant peut-on financer avec Finarent ?"],
+  ['finarent', "Finarent est-il inscrit à l'ORIAS ?"],
+  ['procedure', "Quels sont les taux d'acceptation observés ?"],
+  ['credit-bail', "Faut-il un apport pour un crédit-bail ?"],
+];
+
+const TEASER_FAQ = TEASER_QUESTION_KEYS
+  .map(([catId, q]) => {
+    const cat = FAQ_CATEGORIES.find((c) => c.id === catId);
+    return cat?.questions.find((it) => it.q === q);
+  })
+  .filter(Boolean);
 
 export default function HomeClient() {
   const { t } = useTranslation();
@@ -31,7 +53,6 @@ export default function HomeClient() {
 
   return (
     <PageTransition>
-      <HomeBgEffect />
       <div className="min-h-screen">
         <Hero />
 
@@ -77,7 +98,7 @@ export default function HomeClient() {
             <ScrollReveal>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-primary text-center">
-                  30+ partenaires bancaires & assureurs
+                  {TOTAL_PARTNERS}+ partenaires bancaires & assureurs
                 </p>
                 <span className="hidden sm:inline text-gray-300">|</span>
                 <p className="text-xs sm:text-sm text-gray-500">
@@ -87,41 +108,8 @@ export default function HomeClient() {
             </ScrollReveal>
           </div>
           <Marquee speed="slow">
-            {[
-              // Banques de réseau
-              { name: 'BNP Paribas',      domain: 'bnpparibas.fr' },
-              { name: 'Crédit Agricole',  domain: 'credit-agricole.fr' },
-              { name: 'Société Générale', domain: 'societegenerale.fr' },
-              { name: 'BPCE',             domain: 'bpce.fr' },
-              { name: 'Crédit Mutuel',    domain: 'creditmutuel.fr' },
-              { name: 'LCL',              domain: 'lcl.fr' },
-              { name: 'La Banque Postale',domain: 'labanquepostale.fr' },
-              { name: 'Bpifrance',        domain: 'bpifrance.fr' },
-              // Assurance majors
-              { name: 'AXA',              domain: 'axa.fr' },
-              { name: 'Allianz',          domain: 'allianz.fr' },
-              { name: 'Generali',         domain: 'generali.fr' },
-              { name: 'Groupama',         domain: 'groupama.fr' },
-              { name: 'MMA',              domain: 'mma.fr' },
-              { name: 'Swiss Life',       domain: 'swisslife.fr' },
-              { name: 'Hiscox',           domain: 'hiscox.fr' },
-              // Grossistes assurance
-              { name: 'April',            domain: 'april.com' },
-              { name: 'Alptis',           domain: 'alptis.org' },
-              { name: 'SMABTP',           domain: 'smabtp.fr' },
-              // Leasing
-              { name: 'Franfinance',      domain: 'franfinance.com' },
-              { name: 'GRENKE',           domain: 'grenke.fr' },
-              // LOA / LLD
-              { name: 'Arval',            domain: 'arval.fr' },
-              { name: 'Ayvens',           domain: 'ayvens.com' },
-              { name: 'Leasys',           domain: 'leasys.com' },
-              { name: 'Alphabet',         domain: 'alphabet.com' },
-              // Alternatives
-              { name: 'October',          domain: 'october.eu' },
-              { name: 'Qonto',            domain: 'qonto.com' },
-            ].map((p) => (
-              <div key={p.name} title={p.name} className="group flex items-center justify-center w-32 sm:w-36 h-16 px-4 bg-white border border-gray-100 rounded-2xl hover:border-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shrink-0">
+            {MARQUEE_PARTNERS.map((p) => (
+              <div key={p.name} title={`${p.name} — ${p.specialty}`} className="group flex items-center justify-center w-32 sm:w-36 h-16 px-4 bg-white border border-gray-100 rounded-2xl hover:border-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shrink-0">
                 <img
                   src={`https://logo.clearbit.com/${p.domain}?size=128`}
                   alt={p.name}
@@ -131,6 +119,16 @@ export default function HomeClient() {
               </div>
             ))}
           </Marquee>
+          <div className="mt-8 sm:mt-10 text-center px-4">
+            <Link
+              href="/partenaires"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-primary bg-white border border-gray-200 rounded-full hover:border-secondary hover:text-secondary hover:shadow-md transition-all duration-300"
+            >
+              <i className="fa-solid fa-handshake-angle"></i>
+              <span>Découvrir nos {TOTAL_PARTNERS} partenaires</span>
+              <i className="fa-solid fa-arrow-right text-xs"></i>
+            </Link>
+          </div>
         </section>
 
         {/* Section 3 — Showcase espace client (transparente) */}
@@ -492,15 +490,15 @@ export default function HomeClient() {
                 <div className="flex justify-center space-x-1 sm:space-x-2 mb-4 sm:mb-6">
                   {[...Array(5)].map((_, i) => <i key={i} className="fa-solid fa-star text-accent text-lg sm:text-2xl"></i>)}
                 </div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">4.9/5</div>
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">4.8/5</div>
                 <p className="text-sm sm:text-base lg:text-xl text-white/90 mb-6 sm:mb-8">{t('home.averageRating')}</p>
                 <div className="grid grid-cols-3 gap-4 sm:gap-8">
                   <div>
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">98%</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">95%</div>
                     <div className="text-white/80 text-xs sm:text-sm">{t('home.satisfactionRate')}</div>
                   </div>
                   <div>
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">1200+</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">300+</div>
                     <div className="text-white/80 text-xs sm:text-sm">{t('home.fundedCompanies')}</div>
                   </div>
                   <div>
@@ -522,12 +520,12 @@ export default function HomeClient() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 mb-8 sm:mb-12 lg:mb-16">
               {[
-                { name: 'Transport', icon: 'fa-truck-fast',     count: '180+', gradient: 'from-sky-500/10 to-blue-500/5',       accent: 'text-sky-600',     ring: 'hover:ring-sky-400/40' },
-                { name: 'BTP',       icon: 'fa-helmet-safety',  count: '320+', gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
-                { name: 'Services',  icon: 'fa-briefcase',      count: '290+', gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
-                { name: 'IT & Tech', icon: 'fa-microchip',      count: '240+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
-                { name: 'Industrie', icon: 'fa-industry',       count: '150+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
-                { name: 'Médical',   icon: 'fa-stethoscope',    count: '210+', gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
+                { name: 'Transport', icon: 'fa-truck-fast',     count: '40+', gradient: 'from-sky-500/10 to-blue-500/5',       accent: 'text-sky-600',     ring: 'hover:ring-sky-400/40' },
+                { name: 'BTP',       icon: 'fa-helmet-safety',  count: '80+', gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
+                { name: 'Services',  icon: 'fa-briefcase',      count: '70+', gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
+                { name: 'IT & Tech', icon: 'fa-microchip',      count: '60+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
+                { name: 'Industrie', icon: 'fa-industry',       count: '35+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
+                { name: 'Médical',   icon: 'fa-stethoscope',    count: '50+', gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
               ].map((s, i) => (
                 <div
                   key={i}
@@ -546,10 +544,10 @@ export default function HomeClient() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {[
-                { icon: 'fa-award', num: '15+', label: t('home.yearsExperience'), color: 'secondary' },
-                { icon: 'fa-building', num: '1200+', label: t('home.clientCompanies'), color: 'accent' },
-                { icon: 'fa-euro-sign', num: '50M€', label: t('home.fundedAmount'), color: 'secondary' },
-                { icon: 'fa-handshake', num: '98%', label: t('home.satisfactionRate'), color: 'accent' },
+                { icon: 'fa-award', num: '5+', label: t('home.yearsExperience'), color: 'secondary' },
+                { icon: 'fa-building', num: '300+', label: t('home.clientCompanies'), color: 'accent' },
+                { icon: 'fa-euro-sign', num: '12M€', label: t('home.fundedAmount'), color: 'secondary' },
+                { icon: 'fa-handshake', num: '95%', label: t('home.satisfactionRate'), color: 'accent' },
               ].map((item, i) => (
                 <div key={i} className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg text-center">
                   <div className={`w-10 h-10 sm:w-16 sm:h-16 bg-${item.color === 'secondary' ? 'secondary' : item.color === 'accent' ? 'accent' : 'secondary'}/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
@@ -563,7 +561,55 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Section 11 — CTA final (transparente, le bandeau .gradient-bg intérieur fait le spot) */}
+        {/* Section 11 — FAQ teaser (transparente) */}
+        <section className="py-12 sm:py-16 lg:py-20 bg-transparent">
+          <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
+            <ScrollReveal>
+              <div className="text-center mb-10 sm:mb-12">
+                <div className="inline-block px-3 py-1.5 bg-secondary/10 rounded-full mb-4">
+                  <span className="text-secondary font-bold text-[10px] sm:text-xs uppercase tracking-widest">Questions fréquentes</span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-primary mb-4 tracking-tight leading-tight">
+                  Les <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent">questions clés</span> avant de se lancer
+                </h2>
+                <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+                  Coût, délai, montants, garanties : tout ce que les pros nous demandent en premier.
+                </p>
+              </div>
+            </ScrollReveal>
+
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-8">
+              {TEASER_FAQ.map((item, i) => (
+                <ScrollReveal key={item.q} delay={i * 60}>
+                  <details className="group bg-white border border-gray-100 rounded-2xl hover:border-secondary/40 hover:shadow-md transition-all open:shadow-md open:border-secondary/40">
+                    <summary className="list-none cursor-pointer p-5 flex items-start justify-between gap-3">
+                      <span className="text-sm sm:text-base font-bold text-primary group-hover:text-secondary transition-colors flex-1">
+                        {item.q}
+                      </span>
+                      <i className="fa-solid fa-plus text-xs text-gray-400 mt-1.5 shrink-0 transition-transform duration-300 group-open:rotate-45 group-open:text-secondary"></i>
+                    </summary>
+                    <div className="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+                      {item.a}
+                    </div>
+                  </details>
+                </ScrollReveal>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Link
+                href="/faq"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold text-sm rounded-full hover:bg-primary/90 hover:shadow-lg hover:scale-105 transition-all duration-300"
+              >
+                <i className="fa-solid fa-comments"></i>
+                <span>Voir les 62 questions / réponses</span>
+                <i className="fa-solid fa-arrow-right text-xs"></i>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 12 — CTA final (transparente, le bandeau .gradient-bg intérieur fait le spot) */}
         <section className="py-12 sm:py-16 lg:py-20 bg-transparent">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-5xl mx-auto">

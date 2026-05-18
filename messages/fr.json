@@ -41,7 +41,7 @@
     "ctaSecondary": "Nos assurances",
     "noDeposit": "Sans apport",
     "fast48h": "Réponse 48h",
-    "approval98": "98% acceptés",
+    "approval98": "95% acceptés",
     "funded": "Financés",
     "clients": "Clients",
     "reviews": "Avis clients"
@@ -112,8 +112,8 @@
     "financingDesc": "Financez vos équipements professionnels",
     "welcome": "Bienvenue chez",
     "48hChrono": "48h chrono",
-    "clients1200": "1200+ clients",
-    "approval98": "98% accords"
+    "clients1200": "300+ clients",
+    "approval98": "95% accords"
   },
   "contact": {
     "badge": "Contactez-nous",

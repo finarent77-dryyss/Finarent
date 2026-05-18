@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { LoadingIcon, SuccessIcon } from '@/components/animations/FinarentAnimation';
 import BrandGrid from './fields/BrandGrid';
 import MonthYear from './fields/MonthYear';
 import PostalCity from './fields/PostalCity';
@@ -133,7 +134,7 @@ export default function QuoteWizard({ title, product, icon = 'fa-shield-halved',
             className="inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-white font-bold px-12 py-4 rounded-full text-base shadow-lg transition-all hover:scale-105 disabled:bg-gray-300 disabled:hover:scale-100 disabled:cursor-not-allowed min-w-[240px]"
           >
             {submitting ? (
-              <><i className="fa-solid fa-spinner fa-spin"></i> Envoi…</>
+              <><LoadingIcon size={20} /> Envoi…</>
             ) : isLast ? (
               <>Envoyer ma demande <i className="fa-solid fa-paper-plane"></i></>
             ) : (
@@ -142,6 +143,13 @@ export default function QuoteWizard({ title, product, icon = 'fa-shield-halved',
           </button>
         </div>
       </main>
+
+      {submitting && (
+        <div className="fin-loader-overlay" aria-live="polite">
+          <div className="fin-loader-overlay__icon" />
+          <p className="fin-loader-overlay__text">Envoi de votre demande à nos partenaires…</p>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-gray-100 py-6 mt-8">
@@ -248,8 +256,8 @@ function DoneScreen({ title, values, product }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 py-12">
       <div className="max-w-md w-full text-center">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center text-white mx-auto mb-6 shadow-xl">
-          <i className="fa-solid fa-check text-3xl"></i>
+        <div className="mx-auto mb-6 flex items-center justify-center">
+          <SuccessIcon size={120} />
         </div>
         <h1 className="text-3xl font-black text-primary mb-3">Demande envoyée !</h1>
         <p className="text-gray-600 mb-8 leading-relaxed">

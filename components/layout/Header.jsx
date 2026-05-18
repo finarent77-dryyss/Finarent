@@ -43,6 +43,13 @@ export default function Header() {
     { name: t('nav.sectors.transport'), icon: 'fa-truck', path: '/sectors/transport' }
   ];
 
+  const resources = [
+    { name: t('nav.whyFinarent'), icon: 'fa-circle-question', desc: 'Notre approche et nos engagements', path: '/why-leasing' },
+    { name: 'Nos partenaires', icon: 'fa-handshake-angle', desc: '108+ banques, assureurs, leasing', path: '/partenaires' },
+    { name: 'FAQ', icon: 'fa-comments', desc: '62 questions / réponses', path: '/faq' },
+    { name: t('nav.blog'), icon: 'fa-newspaper', desc: 'Actualités du financement pro', path: '/blog' },
+  ];
+
   // Hero nouvelle charte = fond clair → header toujours en mode light.
   // (Variable conservée pour compatibilité NotificationsBell.)
   const isOverDarkHero = false;
@@ -80,13 +87,11 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 sm:h-[72px]">
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
-            <div className="h-10 sm:h-11 w-auto rounded-lg overflow-hidden bg-white shadow-sm">
-              <img
-                src="/finarent-logo.jpg"
-                alt="Finarent"
-                className="h-full w-auto object-contain"
-              />
-            </div>
+            <img
+              src="/finarent-logo.svg"
+              alt="Finarent"
+              className="h-10 sm:h-11 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -204,8 +209,36 @@ export default function Header() {
             </div>
 
             <Link href="/assurance" className={`${navLinkClass('/assurance')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.insurance')}</Link>
-            <Link href="/why-leasing" className={`${navLinkClass('/why-leasing')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.whyFinarent')}</Link>
-            <Link href="/blog" className={`${navLinkClass('/blog')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.blog')}</Link>
+
+            {/* Ressources Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleDropdownEnter('resources')}
+              onMouseLeave={handleDropdownLeave}
+            >
+              <button className={`${navLinkClass('/resources')} flex items-center gap-1.5 px-4 py-2 rounded-lg hover:bg-white/10`}>
+                <span>Ressources</span>
+                <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-200 ${openDropdown === 'resources' ? 'rotate-180' : ''}`}></i>
+              </button>
+              <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-3 transition-all duration-200 ${openDropdown === 'resources' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                <div className="w-[320px] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden">
+                  <div className="p-2">
+                    {resources.map((r, i) => (
+                      <Link key={i} href={r.path} className="flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group">
+                        <div className="w-9 h-9 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary/20 transition-colors">
+                          <i className={`fa-solid ${r.icon} text-secondary text-sm`}></i>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-sm text-gray-900">{r.name}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{r.desc}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <Link href="/contact" className={`${navLinkClass('/contact')} px-4 py-2 rounded-lg hover:bg-white/10`}>{t('nav.contact')}</Link>
           </div>
 
@@ -255,14 +288,17 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={`lg:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-[500px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}>
+        <div className={`lg:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-[800px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}>
           <div className={`pt-4 border-t space-y-1 ${isOverDarkHero ? 'border-white/10' : 'border-gray-100'}`}>
             {[
               { label: t('nav.home'), href: '/' },
               { label: t('nav.solutions'), href: '/solutions' },
               { label: t('nav.sectors'), href: '/sectors' },
+              { label: 'Simulateurs', href: '/simulateurs' },
               { label: t('nav.insurance'), href: '/assurance' },
               { label: t('nav.whyFinarent'), href: '/why-leasing' },
+              { label: 'Nos partenaires', href: '/partenaires' },
+              { label: 'FAQ', href: '/faq' },
               { label: t('nav.blog'), href: '/blog' },
               { label: t('nav.contact'), href: '/contact' },
               { label: t('comparator.navLabel'), href: '/comparateur' },

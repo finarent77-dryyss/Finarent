@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useFinancingCalculator } from '@/hooks/useFinancingCalculator';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
+import { LoadingIcon } from '@/components/animations/FinarentAnimation';
 import AmortizationChart from '@/components/ui/AmortizationChart';
 import { useTranslation } from '@/lib/i18n';
 
@@ -87,7 +88,7 @@ export default function SimulatorClient() {
                     >
                       {isChecking ? (
                         <>
-                          <i className="fa-solid fa-spinner fa-spin"></i>
+                          <LoadingIcon size={20} />
                           <span>{t('simulator.checking')}</span>
                         </>
                       ) : (

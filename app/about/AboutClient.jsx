@@ -44,11 +44,11 @@ export default function AboutClient() {
                   <p className="text-gray-600 text-lg leading-relaxed">{t('about.partnerDesc2')}</p>
                   <div className="grid grid-cols-2 gap-6 mt-8">
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="text-3xl font-bold text-secondary mb-1">1200+</div>
+                      <div className="text-3xl font-bold text-secondary mb-1">300+</div>
                       <div className="text-sm text-gray-500">{t('about.fundedCompanies')}</div>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="text-3xl font-bold text-accent mb-1">98%</div>
+                      <div className="text-3xl font-bold text-accent mb-1">95%</div>
                       <div className="text-sm text-gray-500">{t('about.approvalRate')}</div>
                     </div>
                   </div>

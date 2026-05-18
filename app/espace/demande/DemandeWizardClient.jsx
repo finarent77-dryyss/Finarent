@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
 import { buildPrefillFromParams } from '@/lib/simulators/prefill';
+import { LoadingIcon } from '@/components/animations/FinarentAnimation';
 
 const DRAFT_KEY = 'finarent.wizard.draft.v1';
 
@@ -466,7 +467,7 @@ function DemandeWizardInner({ user, dbUser }) {
             >
               {submitting ? (
                 <>
-                  <i className="fa-solid fa-spinner fa-spin" />
+                  <LoadingIcon size={18} />
                   {t('espace.wizard.submitting')}
                 </>
               ) : (
@@ -479,6 +480,13 @@ function DemandeWizardInner({ user, dbUser }) {
           )}
         </div>
       </div>
+
+      {submitting && (
+        <div className="fin-loader-overlay" aria-live="polite">
+          <div className="fin-loader-overlay__icon" />
+          <p className="fin-loader-overlay__text">Envoi de votre demande à nos partenaires…</p>
+        </div>
+      )}
     </div>
   );
 }

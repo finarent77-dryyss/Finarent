@@ -79,9 +79,9 @@ export default function PartenairesClient() {
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       {/* Hero */}
-      <section className="pt-32 pb-12 sm:pb-16 bg-white">
+      <section className="pt-32 pb-12 sm:pb-16 bg-transparent">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block px-4 py-2 bg-secondary/10 rounded-full mb-6">
@@ -127,7 +127,7 @@ export default function PartenairesClient() {
       </section>
 
       {/* Pills famille */}
-      <section className="border-y border-gray-100 sticky top-0 z-20 backdrop-blur-md bg-white/95">
+      <section className="sticky top-0 z-20 backdrop-blur-md bg-white/40">
         <div className="container mx-auto px-6 py-4">
           <div className="flex flex-wrap justify-center gap-2">
             {PARTNER_FAMILIES.map((f) => {
@@ -151,7 +151,7 @@ export default function PartenairesClient() {
       </section>
 
       {/* Groupes */}
-      <section className="py-12 sm:py-16 bg-white">
+      <section className="py-12 sm:py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-7xl">
           {filtered.length === 0 ? (
             <div className="text-center py-16">
@@ -185,19 +185,54 @@ export default function PartenairesClient() {
         </div>
       </section>
 
-      {/* Note disclaimer */}
-      <section className="py-8 bg-gray-50 border-t border-gray-100">
-        <div className="container mx-auto px-6 max-w-3xl text-center">
-          <p className="text-xs text-gray-500 leading-relaxed">
-            <i className="fa-solid fa-circle-info mr-1.5"></i>
-            La liste des partenaires évolue régulièrement. Finarent est un courtier indépendant immatriculé à l'ORIAS (IOBSP + IAS).
-            La mention d'un acteur n'implique pas nécessairement un accord exclusif. Détails sur demande.
-          </p>
+      {/* Comment nous travaillons — Stratégie & critères de sélection */}
+      <section className="py-16 sm:py-20 bg-transparent">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-12">
+            <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mb-4">
+              <span className="text-accent font-semibold text-xs uppercase tracking-widest">Notre méthode</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-primary mb-4 tracking-tight">
+              Comment nous travaillons avec <span className="gradient-text">nos partenaires</span>
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Un seul interlocuteur, plusieurs offres comparées. Notre rôle : challenger le marché pour vous trouver les meilleures conditions.
+            </p>
+          </div>
+
+          {/* Critères de sélection */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+            {[
+              { icon: 'fa-percent',           title: 'Taux de commission compétitifs',  desc: 'Volume négocié, rétro-commissions pour répercuter de meilleures conditions client.' },
+              { icon: 'fa-bolt',              title: 'Outils digitaux performants',     desc: 'Tarification en ligne, devis et souscription rapides chez le partenaire.' },
+              { icon: 'fa-clock',             title: 'Délai de réponse < 48 h',         desc: 'Critère éliminatoire : pour tenir notre promesse, le partenaire doit suivre le rythme.' },
+              { icon: 'fa-map-location-dot',  title: 'Couverture nationale',            desc: 'Géographique et sectorielle, pour couvrir tous les profils d\'entreprise.' },
+              { icon: 'fa-handshake',         title: 'Support commercial dédié',        desc: 'Inspecteurs partenariats joignables, formation produit, hotline souscription.' },
+              { icon: 'fa-shield-halved',     title: 'Solidité financière auditée',     desc: 'Rating, ancienneté, encours : seuls les acteurs solides intègrent notre panel.' },
+            ].map((c) => (
+              <div key={c.title} className="bg-white border border-gray-100 rounded-2xl p-5 hover:border-accent/30 hover:shadow-md transition-all">
+                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center mb-3">
+                  <i className={`fa-solid ${c.icon} text-accent`}></i>
+                </div>
+                <h3 className="font-bold text-primary text-sm mb-1.5">{c.title}</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">{c.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Disclaimer */}
+          <div className="text-center pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 leading-relaxed max-w-3xl mx-auto">
+              <i className="fa-solid fa-circle-info mr-1.5"></i>
+              Cartographie indicative à jour de Mai 2026. La liste évolue régulièrement. Finarent est un courtier indépendant immatriculé à l'ORIAS (IOBSP + IAS), soumis au contrôle de l'ACPR.
+              La mention d'un acteur n'implique pas un accord commercial exclusif. Pour connaître nos partenaires sous mandat pour votre projet, contactez-nous.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* CTA bas */}
-      <section className="py-16 sm:py-20 bg-linear-to-br from-secondary/5 via-white to-accent/5 border-t border-gray-100">
+      <section className="py-16 sm:py-20 bg-transparent">
         <div className="container mx-auto px-6 max-w-3xl text-center">
           <h2 className="text-3xl sm:text-4xl font-black text-primary mb-4 tracking-tight">
             Un seul interlocuteur, <span className="gradient-text">tous les partenaires</span>.
@@ -214,6 +249,15 @@ export default function PartenairesClient() {
               <i className="fa-solid fa-calculator"></i>
               <span>Faire une simulation</span>
             </Link>
+            <a
+              href="/finarent-partenaires.pdf"
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-2 px-5 py-3 text-sm font-bold text-primary border-2 border-gray-200 rounded-full hover:border-primary hover:bg-primary hover:text-white transition-all"
+            >
+              <i className="fa-solid fa-file-pdf"></i>
+              <span>Cartographie complète (PDF)</span>
+            </a>
           </div>
         </div>
       </section>

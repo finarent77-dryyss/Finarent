@@ -86,7 +86,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
       </section>
 
       {/* Equipements */}
-      <section className="py-12 sm:py-16 lg:py-24 bg-white">
+      <section className="py-12 sm:py-16 lg:py-24 bg-transparent">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10 sm:mb-14">
@@ -120,7 +120,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
       </section>
 
       {/* Avantages */}
-      <section className="py-12 sm:py-16 lg:py-24 bg-linear-to-b from-slate-50 to-white">
+      <section className="py-12 sm:py-16 lg:py-24 bg-transparent">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10 sm:mb-14">
@@ -149,7 +149,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
       </section>
 
       {/* Processus */}
-      <section className="py-12 sm:py-16 lg:py-24 bg-white">
+      <section className="py-12 sm:py-16 lg:py-24 bg-transparent">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10 sm:mb-14">
@@ -183,7 +183,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
       </section>
 
       {/* FAQ */}
-      <section className="py-12 sm:py-16 lg:py-24 bg-linear-to-b from-slate-50 to-white">
+      <section className="py-12 sm:py-16 lg:py-24 bg-transparent">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-10 sm:mb-14">
@@ -248,7 +248,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
       </section>
 
       {/* Autres secteurs */}
-      <section className="py-12 sm:py-16 lg:py-24 bg-white">
+      <section className="py-12 sm:py-16 lg:py-24 bg-transparent">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center mb-10 sm:mb-14">
             <h2 className="text-2xl sm:text-3xl font-black text-primary">

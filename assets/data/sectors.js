@@ -8,7 +8,7 @@ export const sectorsData = [
     description: 'Financez vos engins de chantier, véhicules utilitaires et outillage professionnel pour développer votre activité dans le bâtiment et les travaux publics.',
     shortDesc: 'Engins de chantier, véhicules utilitaires, outillage professionnel',
     equipments: ['Pelles et mini-pelles', 'Camions et VUL', 'Nacelles et échafaudages', 'Compacteurs et rouleaux', 'Grues et engins de levage'],
-    stats: { avgAmount: '120 000€', clients: '350+', approval: '96%', delay: '48h' },
+    stats: { avgAmount: '120 000€', clients: '80+', approval: '93%', delay: '48h' },
     benefits: [
       { title: 'Préservez votre trésorerie', desc: 'Étalez le coût de vos équipements sur 24 à 60 mois sans impacter vos fonds propres.', icon: 'fa-piggy-bank' },
       { title: 'Renouvellement facilité', desc: 'Renouvelez votre parc matériel régulièrement pour rester compétitif sur vos chantiers.', icon: 'fa-arrows-rotate' },
@@ -36,7 +36,7 @@ export const sectorsData = [
     description: 'Solutions de financement adaptées aux professionnels de santé pour l\'acquisition d\'équipements médicaux, d\'imagerie et de diagnostic de dernière génération.',
     shortDesc: 'Équipements médicaux, imagerie, matériel dentaire et de diagnostic',
     equipments: ['Scanners et IRM', 'Équipement dentaire', 'Matériel de laboratoire', 'Échographes', 'Mobilier médical'],
-    stats: { avgAmount: '85 000€', clients: '280+', approval: '98%', delay: '48h' },
+    stats: { avgAmount: '85 000€', clients: '50+', approval: '95%', delay: '48h' },
     benefits: [
       { title: 'Technologie de pointe', desc: 'Accédez aux dernières innovations médicales sans mobiliser l\'intégralité de votre capital.', icon: 'fa-microchip' },
       { title: 'Conformité garantie', desc: 'Renouvelez vos équipements pour rester conforme aux normes sanitaires en vigueur.', icon: 'fa-clipboard-check' },
@@ -64,7 +64,7 @@ export const sectorsData = [
     description: 'Financez votre infrastructure IT, serveurs, postes de travail et solutions cloud pour rester à la pointe de la technologie sans impacter votre trésorerie.',
     shortDesc: 'Serveurs, postes de travail, solutions cloud et infrastructure IT',
     equipments: ['Serveurs et stockage', 'Postes de travail', 'Équipement réseau', 'Solutions cloud', 'Matériel audiovisuel'],
-    stats: { avgAmount: '45 000€', clients: '200+', approval: '97%', delay: '24h' },
+    stats: { avgAmount: '45 000€', clients: '60+', approval: '94%', delay: '24h' },
     benefits: [
       { title: 'Obsolescence maîtrisée', desc: 'Renouvelez votre parc informatique tous les 3 ans pour rester performant et sécurisé.', icon: 'fa-shield-halved' },
       { title: 'Scalabilité', desc: 'Adaptez vos ressources IT à la croissance de votre entreprise sans investissement massif.', icon: 'fa-chart-line' },
@@ -92,7 +92,7 @@ export const sectorsData = [
     description: 'Solutions de financement pour flottes de véhicules, équipements de manutention et infrastructures logistiques. Développez votre capacité opérationnelle.',
     shortDesc: 'Véhicules utilitaires, flottes, équipements de manutention',
     equipments: ['Camions et VUL', 'Remorques', 'Chariots élévateurs', 'Entrepôts automatisés', 'Systèmes de tracking'],
-    stats: { avgAmount: '95 000€', clients: '180+', approval: '95%', delay: '48h' },
+    stats: { avgAmount: '95 000€', clients: '40+', approval: '92%', delay: '48h' },
     benefits: [
       { title: 'Flotte optimisée', desc: 'Renouvelez et agrandissez votre flotte sans immobiliser votre capital.', icon: 'fa-truck-fast' },
       { title: 'Conformité réglementaire', desc: 'Respectez les normes environnementales avec des véhicules récents et propres.', icon: 'fa-leaf' },
@@ -120,7 +120,7 @@ export const sectorsData = [
     description: 'Financez vos machines-outils, robots industriels et lignes de production pour moderniser votre outil de travail et gagner en productivité.',
     shortDesc: 'Machines-outils, robots, lignes de production',
     equipments: ['CNC et machines-outils', 'Robots industriels', 'Convoyeurs', 'Systèmes de contrôle', 'Équipement de test'],
-    stats: { avgAmount: '200 000€', clients: '150+', approval: '94%', delay: '72h' },
+    stats: { avgAmount: '200 000€', clients: '35+', approval: '92%', delay: '72h' },
     benefits: [
       { title: 'Modernisation continue', desc: 'Investissez dans les dernières technologies de production sans puiser dans vos réserves.', icon: 'fa-gears' },
       { title: 'Productivité accrue', desc: 'Des équipements performants pour augmenter vos cadences et votre qualité de production.', icon: 'fa-gauge-high' },
@@ -148,7 +148,7 @@ export const sectorsData = [
     description: 'Des solutions de financement conçues pour le monde agricole : tracteurs, moissonneuses, serres et équipements d\'élevage adaptés à vos cycles d\'exploitation.',
     shortDesc: 'Tracteurs, matériel agricole, serres et équipements',
     equipments: ['Tracteurs', 'Moissonneuses', 'Irrigation', 'Serres', 'Équipement d\'élevage'],
-    stats: { avgAmount: '110 000€', clients: '220+', approval: '95%', delay: '48h' },
+    stats: { avgAmount: '110 000€', clients: '45+', approval: '93%', delay: '48h' },
     benefits: [
       { title: 'Saisonnalité respectée', desc: 'Des échéances adaptées à vos cycles de récolte et de revenus agricoles.', icon: 'fa-calendar' },
       { title: 'Matériel performant', desc: 'Accédez aux dernières technologies agricoles pour optimiser vos rendements.', icon: 'fa-seedling' },
@@ -176,7 +176,7 @@ export const sectorsData = [
     description: 'Équipez votre point de vente avec les meilleurs outils : caisses, vitrines, systèmes de gestion et agencement pour maximiser votre chiffre d\'affaires.',
     shortDesc: 'Caisse enregistreuse, vitrines, équipement de vente',
     equipments: ['TPE et caisses', 'Vitrines réfrigérées', 'Systèmes de gestion', 'Éclairage', 'Sécurité'],
-    stats: { avgAmount: '35 000€', clients: '300+', approval: '97%', delay: '24h' },
+    stats: { avgAmount: '35 000€', clients: '70+', approval: '94%', delay: '24h' },
     benefits: [
       { title: 'Ouverture rapide', desc: 'Équipez votre commerce sans attendre d\'avoir réuni tout le capital nécessaire.', icon: 'fa-door-open' },
       { title: 'Image professionnelle', desc: 'Un agencement moderne qui attire les clients et booste vos ventes.', icon: 'fa-star' },
@@ -204,7 +204,7 @@ export const sectorsData = [
     description: 'Solutions de financement pour les professionnels de la restauration : cuisines équipées, froid professionnel, mobilier et systèmes de commande.',
     shortDesc: 'Équipement de cuisine, mobilier, matériel professionnel',
     equipments: ['Fourneaux et fours', 'Froid professionnel', 'Mobilier', 'Vaisselle', 'Systèmes de commande'],
-    stats: { avgAmount: '40 000€', clients: '250+', approval: '96%', delay: '24h' },
+    stats: { avgAmount: '40 000€', clients: '55+', approval: '94%', delay: '24h' },
     benefits: [
       { title: 'Cuisine professionnelle', desc: 'Du matériel haut de gamme pour une cuisine de qualité, sans investissement initial massif.', icon: 'fa-fire-burner' },
       { title: 'Normes respectées', desc: 'Équipements conformes aux normes d\'hygiène HACCP et de sécurité alimentaire.', icon: 'fa-certificate' },

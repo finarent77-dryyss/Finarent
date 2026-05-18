@@ -26,7 +26,7 @@ export default function SimulateursHubPage() {
   const available = SIMULATORS.filter((s) => s.available).length;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       {/* Hero */}
       <section className="pt-32 pb-12 sm:pb-16">
         <div className="container mx-auto px-4 sm:px-6 text-center">

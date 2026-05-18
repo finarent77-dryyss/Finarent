@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const NAV_ITEMS = [
   { key: 'dashboard', href: '/admin', icon: 'fa-chart-pie', label: 'Tableau de bord' },
   { key: 'demandes', href: '/admin/demandes', icon: 'fa-folder-open', label: 'Demandes' },
+  { key: 'centre-appel', href: '/admin/centre-appel', icon: 'fa-headset', label: "Centre d'appel" },
   { key: 'devis', href: '/admin/devis', icon: 'fa-file-signature', label: 'Devis' },
   { key: 'factures', href: '/admin/factures', icon: 'fa-file-invoice', label: 'Factures' },
   { key: 'offers', href: '/admin/offers', icon: 'fa-file-invoice-dollar', label: 'Offres prêt' },

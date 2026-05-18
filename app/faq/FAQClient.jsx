@@ -99,14 +99,14 @@ export default function FAQClient() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
 
       {/* Hero */}
-      <section className="pt-32 pb-12 sm:pb-16 bg-white">
+      <section className="pt-32 pb-12 sm:pb-16 bg-transparent">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-block px-4 py-2 bg-secondary/10 rounded-full mb-6">
@@ -186,7 +186,7 @@ export default function FAQClient() {
       </section>
 
       {/* Catégories */}
-      <section className="py-12 sm:py-16 bg-white">
+      <section className="py-12 sm:py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-4xl">
           {filtered.length === 0 ? (
             <div className="text-center py-16">
@@ -244,6 +244,15 @@ export default function FAQClient() {
               <i className="fa-solid fa-calculator"></i>
               <span>Faire une simulation</span>
             </Link>
+            <a
+              href="/finarent-faq.pdf"
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-2 px-5 py-3 text-sm font-bold text-primary border-2 border-gray-200 rounded-full hover:border-primary hover:bg-primary hover:text-white transition-all"
+            >
+              <i className="fa-solid fa-file-pdf"></i>
+              <span>Télécharger la FAQ (PDF)</span>
+            </a>
           </div>
         </div>
       </section>

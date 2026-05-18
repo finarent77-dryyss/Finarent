@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { validateForm } from '@/utils/validation';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
+import { LoadingIcon, SuccessIcon, CancelIcon } from '@/components/animations/FinarentAnimation';
 import FAQItem from '@/components/ui/FAQItem';
 import { useTranslation } from '@/lib/i18n';
 import { buildPrefillFromParams } from '@/lib/simulators/prefill';
@@ -351,23 +352,25 @@ export default function ContactClient() {
                       {errors.consent && <p className="text-red-500 text-xs">{errors.consent}</p>}
 
                       <button type="submit" disabled={isSubmitting} className="btn-primary w-full py-2.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        {isSubmitting ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i>{t('contact.sending')}</> : <><span>{t('contact.submit')}</span><i className="fa-solid fa-arrow-right ml-2"></i></>}
+                        {isSubmitting ? <><LoadingIcon size={18} className="mr-2" />{t('contact.sending')}</> : <><span>{t('contact.submit')}</span><i className="fa-solid fa-arrow-right ml-2"></i></>}
                       </button>
 
                       {errors._general && (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm">
-                          <i className="fa-solid fa-exclamation-circle mr-2"></i>{errors._general}
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm flex items-center gap-2">
+                          <CancelIcon size={20} />
+                          <span>{errors._general}</span>
                         </div>
                       )}
                       {submitStatus === 'success' && (
-                        <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-green-800 text-sm">
-                          <i className="fa-solid fa-check-circle mr-2"></i>
-                          {t('contact.successPrefix')} {reference ? `(${reference}) ` : ''}{t('contact.successMessage')}
+                        <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-green-800 text-sm flex items-center gap-2">
+                          <SuccessIcon size={20} />
+                          <span>{t('contact.successPrefix')} {reference ? `(${reference}) ` : ''}{t('contact.successMessage')}</span>
                         </div>
                       )}
                       {submitStatus === 'error' && !errors._general && (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm">
-                          <i className="fa-solid fa-exclamation-circle mr-2"></i>{t('contact.errorMessage')}
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm flex items-center gap-2">
+                          <CancelIcon size={20} />
+                          <span>{t('contact.errorMessage')}</span>
                         </div>
                       )}
                     </form>

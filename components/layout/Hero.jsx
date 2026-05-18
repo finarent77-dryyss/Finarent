@@ -98,15 +98,15 @@ export default function Hero() {
               <div className="absolute bottom-5 left-5 right-5">
                 <div className="grid grid-cols-3 gap-1 bg-white/95 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-2xl">
                   <div className="text-center">
-                    <div className="text-2xl font-black text-secondary tabular-nums tracking-tight">50M€</div>
+                    <div className="text-2xl font-black text-secondary tabular-nums tracking-tight">12M€</div>
                     <div className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mt-1">{t('hero.funded')}</div>
                   </div>
                   <div className="text-center border-x border-gray-200">
-                    <div className="text-2xl font-black text-primary tabular-nums tracking-tight">1200+</div>
+                    <div className="text-2xl font-black text-primary tabular-nums tracking-tight">300+</div>
                     <div className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mt-1">{t('hero.clients')}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-black text-accent tabular-nums tracking-tight">4.9/5</div>
+                    <div className="text-2xl font-black text-accent tabular-nums tracking-tight">4.8/5</div>
                     <div className="text-[9px] uppercase font-bold text-gray-500 tracking-widest mt-1">{t('hero.reviews')}</div>
                   </div>
                 </div>
