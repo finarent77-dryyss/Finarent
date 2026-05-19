@@ -14,23 +14,26 @@ export default function AssuranceAutoSimulator() {
   const [annualKm, setAnnualKm] = useState(15000);
 
   const annual = useMemo(() => {
-    // Base : 2% de la valeur véhicule
-    let p = vehicleValue * 0.025;
+    // Base 2025-2026 : prime moyenne FR ≈ 650€/an pour tous risques voiture ~25k€.
+    // Soit ~2.6% de la valeur. On part sur une fourchette plancher + part valeur.
+    let p = 380 + vehicleValue * 0.028;
     // Formule
-    if (formula === 'auTiers')         p *= 0.45;
-    else if (formula === 'intermediaire') p *= 0.70;
+    if (formula === 'auTiers')         p *= 0.55;
+    else if (formula === 'intermediaire') p *= 0.78;
     // Tous risques = 1.0 (base)
-    // Ajustement âge véhicule
-    p *= Math.max(0.5, 1 - vehicleAge * 0.05);
-    // Bonus / CRM
-    p *= bonus;
+    // Ajustement âge véhicule (décote douce, plancher 0.65)
+    p *= Math.max(0.65, 1 - vehicleAge * 0.035);
+    // Bonus / CRM (effet borné — un bon CRM ne descend pas en dessous de -45%)
+    p *= Math.max(0.55, bonus);
     // Âge conducteur
-    if (driverAge < 25) p *= 1.6;
-    else if (driverAge < 30) p *= 1.2;
-    else if (driverAge >= 65) p *= 1.15;
+    if (driverAge < 25) p *= 1.75;
+    else if (driverAge < 30) p *= 1.25;
+    else if (driverAge >= 70) p *= 1.20;
+    else if (driverAge >= 65) p *= 1.10;
     // Kilométrage
-    if (annualKm > 20000) p *= 1.15;
-    else if (annualKm < 8000) p *= 0.85;
+    if (annualKm > 25000) p *= 1.25;
+    else if (annualKm > 20000) p *= 1.15;
+    else if (annualKm < 8000) p *= 0.90;
     return Math.round(p);
   }, [formula, vehicleValue, vehicleAge, bonus, driverAge, annualKm]);
 

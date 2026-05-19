@@ -11,13 +11,17 @@ export const LOAN_TYPES = [
   { id: 'auto',       label: 'Auto',       emoji: '🚗', rateRange: '5–8 %',   defaultRate: 6.0 },
   { id: 'conso',      label: 'Conso',      emoji: '💳', rateRange: '8–15 %',  defaultRate: 10  },
   { id: 'revolving',  label: 'Revolving',  emoji: '🔁', rateRange: '15–21 %', defaultRate: 18  },
+  { id: 'lld',        label: 'LLD',        emoji: '🔑', rateRange: '15 % apport', defaultRate: 5.5, apportPercent: 15, isLeasing: true,
+                       hint: 'Location Longue Durée — 15 % d\'apport, puis loyers normaux' },
+  { id: 'loa',        label: 'LOA',        emoji: '🚙', rateRange: '10 % apport', defaultRate: 5.5, apportPercent: 10, isLeasing: true,
+                       hint: 'Location avec Option d\'Achat — 10 % d\'apport + loyer mensuel' },
 ];
 
 export function LoanTypeSelector({ value, onChange, onRateChange }) {
   return (
     <div className="space-y-2">
       <label className="block text-sm font-semibold text-gray-700">Type de prêt</label>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
         {LOAN_TYPES.map((t) => {
           const active = value === t.id;
           return (
