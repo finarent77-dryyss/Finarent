@@ -9,7 +9,7 @@ export default function SolutionDetailClient({ sol, otherSolutions }) {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative pt-28 pb-16 sm:pt-40 sm:pb-32 overflow-hidden bg-[#0A192F] text-white">
+      <section className="relative pt-28 pb-16 sm:pt-40 sm:pb-32 overflow-hidden bg-[#10253C] text-white">
         {sol.heroImage && (
           <div className="absolute inset-0 overflow-hidden">
             <img
@@ -18,7 +18,7 @@ export default function SolutionDetailClient({ sol, otherSolutions }) {
               aria-hidden="true"
               className="absolute inset-0 w-full h-full object-cover opacity-25"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0A192F] via-[#0A192F]/85 to-[#0A192F]/40"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-[#10253C] via-[#10253C]/85 to-[#10253C]/40"></div>
           </div>
         )}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

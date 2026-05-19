@@ -93,7 +93,7 @@ export default function PartnerDashboardClient() {
 
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         {/* Commissions & Performance */}
-        <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#0A2540] rounded-2xl p-6 text-white relative overflow-hidden">
+        <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#10253C] rounded-2xl p-6 text-white relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-2xl"></div>
           <div className="relative z-10 space-y-6">
             <div>

@@ -29,7 +29,7 @@ export default function FloatingContactCTA() {
     <div className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40">
       {open && (
         <div className="mb-3 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in">
-          <div className="bg-gradient-to-br from-primary to-[#0A2540] p-5 text-white">
+          <div className="bg-gradient-to-br from-primary to-[#10253C] p-5 text-white">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
                 <i className="fa-solid fa-headset text-white text-sm"></i>

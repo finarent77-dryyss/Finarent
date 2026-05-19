@@ -240,7 +240,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
 
               {/* Quick Start Banner (only if no demandes) */}
               {demandes.length === 0 && (
-                <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#0A2540] rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl">
+                <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#10253C] rounded-2xl sm:rounded-3xl p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl">
                   <div className="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
                   <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
                     <div className="flex-1">
@@ -502,7 +502,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               <motion.div
                 variants={itemVariants}
                 whileHover={{ y: -3 }}
-                className="bg-gradient-to-br from-[#0A2540] to-primary rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white relative shadow-xl overflow-hidden"
+                className="bg-gradient-to-br from-[#10253C] to-primary rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white relative shadow-xl overflow-hidden"
               >
                 <div className="absolute -top-16 -right-16 w-48 h-48 bg-secondary/10 rounded-full blur-3xl"></div>
                 <div className="relative z-10">

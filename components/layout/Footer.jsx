@@ -86,7 +86,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-[#0A192F] text-white">
+    <footer className="bg-[#10253C] text-white">
       {/* CTA Banner */}
       <div className="border-b border-white/5">
         <div className="container mx-auto px-4 sm:px-6">

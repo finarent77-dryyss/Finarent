@@ -9,7 +9,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative pt-28 pb-16 sm:pt-40 sm:pb-28 overflow-hidden bg-[#0A192F] text-white">
+      <section className="relative pt-28 pb-16 sm:pt-40 sm:pb-28 overflow-hidden bg-[#10253C] text-white">
         {sector.heroImage && (
           <div className="absolute inset-0 overflow-hidden">
             <img
@@ -18,7 +18,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
               aria-hidden="true"
               className="absolute inset-0 w-full h-full object-cover opacity-30"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0A192F] via-[#0A192F]/85 to-[#0A192F]/40"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#10253C] via-[#10253C]/85 to-[#10253C]/40"></div>
           </div>
         )}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -214,7 +214,7 @@ export default function SectorDetailClient({ sector, otherSectors }) {
       </section>
 
       {/* CTA */}
-      <section className="py-12 sm:py-16 lg:py-24 bg-[#0A192F] text-white relative overflow-hidden">
+      <section className="py-12 sm:py-16 lg:py-24 bg-[#10253C] text-white relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px]"></div>
           <div className="absolute bottom-[-20%] left-[-10%] w-[300px] h-[300px] bg-secondary/10 rounded-full blur-[80px]"></div>

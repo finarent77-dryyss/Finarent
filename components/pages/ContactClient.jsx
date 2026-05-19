@@ -177,7 +177,7 @@ export default function ContactClient() {
               {[
                 { icon: 'fa-phone', title: 'Téléphone', value: t('common.phone'), sub: 'Lun-Ven 9h-18h', href: 'tel:0123456789', color: 'from-secondary to-secondary/80' },
                 { icon: 'fa-envelope', title: 'Email', value: 'contact@finarent.fr', sub: 'Réponse sous 1h ouvrée', href: 'mailto:contact@finarent.fr', color: 'from-accent to-emerald-700' },
-                { icon: 'fa-location-dot', title: 'Adresse', value: '12 rue de la République', sub: '75011 Paris', href: '#map', color: 'from-primary to-[#0A2540]' },
+                { icon: 'fa-location-dot', title: 'Adresse', value: '12 rue de la République', sub: '75011 Paris', href: '#map', color: 'from-primary to-[#10253C]' },
               ].map((c, i) => (
                 <ScrollReveal key={i} delay={i * 0.07}>
                   <a href={c.href} className="group flex items-start gap-4 p-5 bg-white rounded-2xl shadow-md hover:shadow-2xl border border-gray-100 hover:border-secondary/30 hover:-translate-y-1 transition-all duration-300">
@@ -417,7 +417,7 @@ export default function ContactClient() {
                   ></iframe>
                 </div>
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-br from-primary to-[#0A2540] rounded-2xl p-6 text-white shadow-xl">
+                  <div className="bg-gradient-to-br from-primary to-[#10253C] rounded-2xl p-6 text-white shadow-xl">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                         <i className="fa-solid fa-location-dot text-accent"></i>

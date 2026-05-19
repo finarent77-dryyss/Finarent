@@ -112,7 +112,7 @@ function FaqItem({ question, answer }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50 transition-colors"
       >
-        <span className="font-semibold text-[#0A2540]">{question}</span>
+        <span className="font-semibold text-[#10253C]">{question}</span>
         <i
           className={`fa-solid fa-chevron-down text-sm text-slate-400 transition-transform duration-300 ${
             open ? 'rotate-180' : ''
@@ -205,10 +205,10 @@ export default function ComparateurClient() {
   return (
     <div className="min-h-screen">
       {/* ─── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-[#0A2540] to-[#0A2540]/80 pt-28 pb-16 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-[#10253C] to-[#10253C]/80 pt-28 pb-16 overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-20 right-10 w-72 h-72 bg-[#6366F1]/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#10B981]/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#58B794]/10 rounded-full blur-3xl" />
         </div>
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <motion.div
@@ -217,7 +217,7 @@ export default function ComparateurClient() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-[#10B981] text-sm font-semibold mb-6 border border-white/10">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-[#58B794] text-sm font-semibold mb-6 border border-white/10">
               <i className="fa-solid fa-scale-balanced" />
               {t('comparator.badge')}
             </span>
@@ -241,7 +241,7 @@ export default function ComparateurClient() {
           >
             {/* Amount */}
             <div className="mb-8">
-              <label className="block text-sm font-semibold text-[#0A2540] mb-3">
+              <label className="block text-sm font-semibold text-[#10253C] mb-3">
                 {t('comparator.amount')}
               </label>
               <div className="flex items-center gap-4 mb-3">
@@ -257,7 +257,7 @@ export default function ComparateurClient() {
                     v = Math.max(5000, Math.min(500000, v));
                     setAmount(v);
                   }}
-                  className="w-40 px-4 py-3 border border-slate-200 rounded-xl text-[#0A2540] font-bold text-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition"
+                  className="w-40 px-4 py-3 border border-slate-200 rounded-xl text-[#10253C] font-bold text-lg focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] outline-none transition"
                 />
                 <span className="text-slate-500 font-medium text-lg">&euro;</span>
               </div>
@@ -271,7 +271,7 @@ export default function ComparateurClient() {
                   onChange={(e) => setAmount(parseInt(e.target.value, 10))}
                   className="comparator-slider w-full h-2 rounded-full appearance-none cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, #10B981 0%, #10B981 ${sliderPercent}%, #e2e8f0 ${sliderPercent}%, #e2e8f0 100%)`,
+                    background: `linear-gradient(to right, #58B794 0%, #58B794 ${sliderPercent}%, #e2e8f0 ${sliderPercent}%, #e2e8f0 100%)`,
                   }}
                 />
                 <div className="flex justify-between text-xs text-slate-400 mt-1">
@@ -283,7 +283,7 @@ export default function ComparateurClient() {
 
             {/* Duration */}
             <div className="mb-8">
-              <label className="block text-sm font-semibold text-[#0A2540] mb-3">
+              <label className="block text-sm font-semibold text-[#10253C] mb-3">
                 {t('comparator.duration')}
               </label>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -308,7 +308,7 @@ export default function ComparateurClient() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleCompare}
-              className="w-full py-4 bg-[#10B981] hover:bg-[#10B981]/90 text-white font-bold text-lg rounded-xl shadow-lg shadow-[#10B981]/25 transition-colors"
+              className="w-full py-4 bg-[#58B794] hover:bg-[#58B794]/90 text-white font-bold text-lg rounded-xl shadow-lg shadow-[#58B794]/25 transition-colors"
             >
               <i className="fa-solid fa-scale-balanced mr-2" />
               {t('comparator.compare')}
@@ -329,7 +329,7 @@ export default function ComparateurClient() {
                 transition={{ duration: 0.5 }}
                 className="text-center mb-10"
               >
-                <h2 className="text-2xl sm:text-3xl font-bold text-[#0A2540]">
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#10253C]">
                   {t('comparator.resultsTitle')}
                 </h2>
                 <p className="text-slate-500 mt-2">
@@ -345,8 +345,8 @@ export default function ComparateurClient() {
                     onClick={() => setViewMode('cards')}
                     className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
                       viewMode === 'cards'
-                        ? 'bg-white text-[#0A2540] shadow-sm'
-                        : 'text-slate-500 hover:text-[#0A2540]'
+                        ? 'bg-white text-[#10253C] shadow-sm'
+                        : 'text-slate-500 hover:text-[#10253C]'
                     }`}
                   >
                     <i className="fa-solid fa-th-large mr-2" />
@@ -356,8 +356,8 @@ export default function ComparateurClient() {
                     onClick={() => setViewMode('table')}
                     className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
                       viewMode === 'table'
-                        ? 'bg-white text-[#0A2540] shadow-sm'
-                        : 'text-slate-500 hover:text-[#0A2540]'
+                        ? 'bg-white text-[#10253C] shadow-sm'
+                        : 'text-slate-500 hover:text-[#10253C]'
                     }`}
                   >
                     <i className="fa-solid fa-table mr-2" />
@@ -387,14 +387,14 @@ export default function ComparateurClient() {
                           transition={{ delay: idx * 0.1, duration: 0.4 }}
                           className={`relative bg-white rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
                             isRecommended
-                              ? 'border-[#10B981] shadow-lg shadow-[#10B981]/10'
+                              ? 'border-[#58B794] shadow-lg shadow-[#58B794]/10'
                               : 'border-slate-200 hover:border-[#6366F1]/40'
                           }`}
                         >
                           {/* Recommended badge */}
                           {isRecommended && (
                             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                              <span className="inline-flex items-center gap-1.5 px-4 py-1 bg-[#10B981] text-white text-xs font-bold rounded-full shadow-lg shadow-[#10B981]/30">
+                              <span className="inline-flex items-center gap-1.5 px-4 py-1 bg-[#58B794] text-white text-xs font-bold rounded-full shadow-lg shadow-[#58B794]/30">
                                 <i className="fa-solid fa-star text-[10px]" />
                                 {t('comparator.recommended')}
                               </span>
@@ -405,16 +405,16 @@ export default function ComparateurClient() {
                           <div className="text-center mb-6 pt-2">
                             <div
                               className={`w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center ${
-                                isRecommended ? 'bg-[#10B981]/10' : 'bg-[#6366F1]/10'
+                                isRecommended ? 'bg-[#58B794]/10' : 'bg-[#6366F1]/10'
                               }`}
                             >
                               <i
                                 className={`fa-solid ${sol.icon} text-xl ${
-                                  isRecommended ? 'text-[#10B981]' : 'text-[#6366F1]'
+                                  isRecommended ? 'text-[#58B794]' : 'text-[#6366F1]'
                                 }`}
                               />
                             </div>
-                            <h3 className="text-lg font-bold text-[#0A2540]">
+                            <h3 className="text-lg font-bold text-[#10253C]">
                               {solutionName(sol.id)}
                             </h3>
                             <p className="text-xs text-slate-400 mt-1">{t(`comparator.${sol.bestFor}`)}</p>
@@ -423,7 +423,7 @@ export default function ComparateurClient() {
                           {/* Monthly payment */}
                           <div className="text-center bg-slate-50 rounded-xl py-4 mb-4">
                             <div className="text-sm text-slate-500 mb-1">{t('comparator.monthly')}</div>
-                            <div className="text-2xl font-bold text-[#0A2540]">
+                            <div className="text-2xl font-bold text-[#10253C]">
                               <AnimatedNumber value={sol.monthly} decimals={2} suffix=" &euro;" />
                             </div>
                           </div>
@@ -432,18 +432,18 @@ export default function ComparateurClient() {
                           <div className="space-y-3 mb-6">
                             <div className="flex justify-between text-sm">
                               <span className="text-slate-500">{t('comparator.totalCost')}</span>
-                              <span className="font-semibold text-[#0A2540]">
+                              <span className="font-semibold text-[#10253C]">
                                 <AnimatedNumber value={sol.totalCost} decimals={0} suffix=" &euro;" />
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-slate-500">{t('comparator.rate')}</span>
-                              <span className="font-semibold text-[#0A2540]">{sol.rate} %</span>
+                              <span className="font-semibold text-[#10253C]">{sol.rate} %</span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-slate-500">{t('comparator.purchaseOption')}</span>
                               <span
-                                className={`font-semibold ${sol.purchaseOption ? 'text-[#10B981]' : 'text-red-500'}`}
+                                className={`font-semibold ${sol.purchaseOption ? 'text-[#58B794]' : 'text-red-500'}`}
                               >
                                 {yesNo(sol.purchaseOption)}
                               </span>
@@ -451,14 +451,14 @@ export default function ComparateurClient() {
                             <div className="flex justify-between text-sm">
                               <span className="text-slate-500">{t('comparator.ownershipEnd')}</span>
                               <span
-                                className={`font-semibold ${sol.ownershipEnd ? 'text-[#10B981]' : 'text-red-500'}`}
+                                className={`font-semibold ${sol.ownershipEnd ? 'text-[#58B794]' : 'text-red-500'}`}
                               >
                                 {yesNo(sol.ownershipEnd)}
                               </span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-slate-500">{t('comparator.taxDeductible')}</span>
-                              <span className="font-semibold text-[#0A2540]">
+                              <span className="font-semibold text-[#10253C]">
                                 {taxLabel(sol.taxDeductible)}
                               </span>
                             </div>
@@ -469,8 +469,8 @@ export default function ComparateurClient() {
                             href="/contact"
                             className={`block text-center py-3 rounded-xl font-semibold text-sm transition-all ${
                               isRecommended
-                                ? 'bg-[#10B981] text-white hover:bg-[#10B981]/90 shadow-md shadow-[#10B981]/20'
-                                : 'bg-[#0A2540] text-white hover:bg-[#0A2540]/90'
+                                ? 'bg-[#58B794] text-white hover:bg-[#58B794]/90 shadow-md shadow-[#58B794]/20'
+                                : 'bg-[#10253C] text-white hover:bg-[#10253C]/90'
                             }`}
                           >
                             {t('comparator.chooseSolution')}
@@ -502,15 +502,15 @@ export default function ComparateurClient() {
                                 idx === results.length - 1 ? 'rounded-tr-xl' : ''
                               } ${
                                 idx === recommendedIdx
-                                  ? 'bg-[#10B981]/5 text-[#10B981]'
-                                  : 'bg-slate-50 text-[#0A2540]'
+                                  ? 'bg-[#58B794]/5 text-[#58B794]'
+                                  : 'bg-slate-50 text-[#10253C]'
                               }`}
                             >
                               <div className="flex flex-col items-center gap-1">
                                 <i className={`fa-solid ${sol.icon} text-lg`} />
                                 <span>{solutionName(sol.id)}</span>
                                 {idx === recommendedIdx && (
-                                  <span className="text-[10px] bg-[#10B981] text-white px-2 py-0.5 rounded-full">
+                                  <span className="text-[10px] bg-[#58B794] text-white px-2 py-0.5 rounded-full">
                                     {t('comparator.recommended')}
                                   </span>
                                 )}
@@ -535,12 +535,12 @@ export default function ComparateurClient() {
                           {
                             label: t('comparator.purchaseOption'),
                             render: (sol) => yesNo(sol.purchaseOption),
-                            color: (sol) => (sol.purchaseOption ? 'text-[#10B981]' : 'text-red-500'),
+                            color: (sol) => (sol.purchaseOption ? 'text-[#58B794]' : 'text-red-500'),
                           },
                           {
                             label: t('comparator.ownershipEnd'),
                             render: (sol) => yesNo(sol.ownershipEnd),
-                            color: (sol) => (sol.ownershipEnd ? 'text-[#10B981]' : 'text-red-500'),
+                            color: (sol) => (sol.ownershipEnd ? 'text-[#58B794]' : 'text-red-500'),
                           },
                           {
                             label: t('comparator.taxDeductible'),
@@ -557,7 +557,7 @@ export default function ComparateurClient() {
                           {
                             label: t('comparator.depositRequired'),
                             render: (sol) => yesNo(sol.depositRequired),
-                            color: (sol) => (sol.depositRequired ? 'text-red-500' : 'text-[#10B981]'),
+                            color: (sol) => (sol.depositRequired ? 'text-red-500' : 'text-[#58B794]'),
                           },
                         ].map((row, rIdx) => (
                           <tr key={rIdx} className={rIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
@@ -568,8 +568,8 @@ export default function ComparateurClient() {
                               <td
                                 key={sol.id}
                                 className={`p-4 text-center text-sm font-semibold border-t border-slate-100 ${
-                                  cIdx === recommendedIdx ? 'bg-[#10B981]/5' : ''
-                                } ${row.color ? row.color(sol) : 'text-[#0A2540]'}`}
+                                  cIdx === recommendedIdx ? 'bg-[#58B794]/5' : ''
+                                } ${row.color ? row.color(sol) : 'text-[#10253C]'}`}
                               >
                                 {row.render(sol)}
                               </td>
@@ -583,15 +583,15 @@ export default function ComparateurClient() {
                             <td
                               key={sol.id}
                               className={`p-4 text-center border-t border-slate-100 ${
-                                idx === recommendedIdx ? 'bg-[#10B981]/5' : ''
+                                idx === recommendedIdx ? 'bg-[#58B794]/5' : ''
                               }`}
                             >
                               <Link
                                 href="/contact"
                                 className={`inline-block px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                                   idx === recommendedIdx
-                                    ? 'bg-[#10B981] text-white hover:bg-[#10B981]/90'
-                                    : 'bg-[#0A2540] text-white hover:bg-[#0A2540]/90'
+                                    ? 'bg-[#58B794] text-white hover:bg-[#58B794]/90'
+                                    : 'bg-[#10253C] text-white hover:bg-[#10253C]/90'
                                 }`}
                               >
                                 {t('comparator.chooseSolution')}
@@ -617,7 +617,7 @@ export default function ComparateurClient() {
                 transition={{ duration: 0.5 }}
                 className="text-center mb-10"
               >
-                <h2 className="text-2xl sm:text-3xl font-bold text-[#0A2540]">
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#10253C]">
                   {t('comparator.faqTitle')}
                 </h2>
               </motion.div>
