@@ -38,7 +38,7 @@ export async function POST(request) {
   } = body;
 
   if (!contactName || !contactEmail) {
-    return NextResponse.json({ error: 'contactName et contactEmail requis' }, { status: 400 });
+    return NextResponse.json({ error: 'Nom et email du contact requis' }, { status: 400 });
   }
 
   // Calculs

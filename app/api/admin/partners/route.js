@@ -24,7 +24,7 @@ export async function POST(request) {
   const { name, type, contactEmail, notes } = body;
 
   if (!name || !type || !contactEmail) {
-    return NextResponse.json({ error: 'Champs requis : name, type, contactEmail' }, { status: 400 });
+    return NextResponse.json({ error: 'Champs requis : nom, type, email du contact' }, { status: 400 });
   }
 
   if (!['BANK', 'INSURANCE', 'LEASING'].includes(type)) {

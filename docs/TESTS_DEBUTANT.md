@@ -9,31 +9,33 @@ Pas besoin de connaissances techniques. Si vous savez utiliser un site internet,
 - Une case ☐ à cocher : si ça correspond, cochez. Sinon, **notez ce que vous voyez** à la place.
 
 > Pas la peine de tout faire d'un coup. Faites une partie, faites une pause, reprenez plus tard.
+> Vous pouvez sauter les tests qui ne vous intéressent pas.
 
 ---
 
 ## Avant de commencer — 5 minutes
 
-### Vous aurez besoin de 3 "comptes"
+### Vous aurez besoin de plusieurs "comptes"
 
 Un compte = un email + un mot de passe pour se connecter au site.
 
-Vous avez 3 comptes parce qu'il y a **3 façons d'utiliser Finarent** :
+Il y a **4 façons d'utiliser Finarent**, donc 4 comptes pour tester :
 
 | Le rôle | C'est qui ? | Email à utiliser |
 |---|---|---|
 | **Client** | Un dirigeant d'entreprise qui veut un financement | andrys972@gmail.com |
 | **Admin** | Quelqu'un de chez Finarent qui s'occupe des dossiers | andrys.magar@hotmail.fr |
 | **Partenaire** | Une banque ou un assureur qui reçoit les dossiers | andrys.developper@gmail.com |
+| **Assureur** | Une compagnie d'assurance qui voit uniquement les RC Pro | (sur demande) |
 
-> 💡 **Le mot de passe est le même pour les 3 comptes** — il vous est envoyé séparément par SMS.
+> 💡 **Le mot de passe est le même pour tous les comptes** — il vous est envoyé séparément par SMS.
 
 ### Conseil pratique
 
-Ouvrez **3 navigateurs différents** (par exemple : Chrome pour le Client, Edge pour l'Admin, Firefox pour le Partenaire).
-Comme ça, vous n'avez pas besoin de vous déconnecter à chaque fois.
+Ouvrez **plusieurs navigateurs différents** (Chrome pour le Client, Edge pour l'Admin, Firefox pour le Partenaire…).
+Comme ça, pas besoin de vous déconnecter à chaque fois.
 
-Si vous n'avez qu'un seul navigateur, ouvrez **3 fenêtres en "navigation privée"** (ou "InPrivate").
+Si vous n'avez qu'un seul navigateur, ouvrez **plusieurs fenêtres en "navigation privée"** (ou "InPrivate").
 
 ### Comment ouvrir le site
 
@@ -42,312 +44,694 @@ Tapez dans la barre d'adresse : **finarent.fr**
 
 ---
 
-## Partie 1 — Tester le site comme un visiteur
+# Partie 1 — Tester le site comme un visiteur
 
 > **Vous êtes** : un internaute qui découvre Finarent. Vous n'êtes **pas connecté**.
+> **Durée estimée** : 25 minutes pour les 16 tests.
 
-### Test 1 — Le site s'affiche
+## Test 1 — Le site s'affiche
 
-**👉 Ce que vous devez faire** : Ouvrir le site (taper finarent.fr).
+**👉** : Ouvrir le site (taper finarent.fr).
 
-**👀 Ce que vous devez voir** :
+**👀** :
 - ☐ Le logo Finarent en haut à gauche
 - ☐ Un grand titre avec des mots comme "Financement" ou "Assurance"
 - ☐ Une photo ou un dessin en grand
 - ☐ Un bouton bleu marqué **"Faire ma demande"**
 - ☐ Tout en bas : une zone bleu marine (le "footer") avec des liens
 
-**👉 Test pratique** : Faites défiler de haut en bas avec la molette de la souris.
-**👀 Vous devez voir** : différentes zones avec des chiffres, des témoignages, des questions/réponses. Rien ne doit être cassé ou bizarre.
+**👉** : Faites défiler de haut en bas avec la molette.
+**👀** : différentes zones avec des chiffres, des témoignages, des questions/réponses. Rien ne doit être cassé ou bizarre.
 
-### Test 2 — Le menu en haut
+## Test 2 — Le menu en haut
 
-**👉 Ce que vous devez faire** : En haut du site, vous voyez un menu. Passer la souris sur chaque mot.
+**👉** : Passer la souris sur chaque mot du menu en haut.
 
-**👀 Ce que vous devez voir** :
-- ☐ Quand vous passez sur **"Solutions"** → une petite fenêtre s'ouvre avec : Crédit-bail · LOA · Crédit pro · Assurance pro
-- ☐ Quand vous passez sur **"Secteurs"** → une fenêtre avec : Transport · BTP · Médical · Informatique
-- ☐ Quand vous passez sur **"Ressources"** → une fenêtre avec : Pourquoi Finarent · Nos partenaires · FAQ · Actualités
-- ☐ Cliquer sur **"FAQ"** dans le menu Ressources → vous arrivez sur la page des questions fréquentes
+**👀** :
+- ☐ Sur **"Solutions"** → fenêtre avec : Crédit-bail · LOA · Crédit pro · Assurance pro · Comparateur
+- ☐ Sur **"Secteurs"** → fenêtre avec : Transport · BTP · Médical · Informatique
+- ☐ Sur **"Simulateurs"** → grande fenêtre avec 5 catégories
+- ☐ Sur **"Ressources"** → fenêtre avec : Pourquoi Finarent · Nos partenaires · FAQ · Actualités
 
-### Test 3 — Le calculateur de mensualités
+## Test 3 — Les 5 Solutions de financement
 
-**👉 Ce que vous devez faire** :
-1. Dans le menu en haut, cliquer sur **"Simulateurs"**
-2. Cliquer sur **"Mensualité d'un prêt immobilier"**
-3. Dans le formulaire, taper :
-   - Montant : **150 000**
-   - Taux : **3,5**
-   - Durée : **20** ans
-4. Cliquer sur le bouton **"Calculer"**
+**👉** : Menu **"Solutions"** → cliquer sur **"Crédit-bail"**.
 
-**👀 Ce que vous devez voir** :
-- ☐ Un grand chiffre s'affiche, autour de **870 €** (mensualité)
-- ☐ Un autre montant pour le coût total du crédit
-- ☐ Un bouton en bas pour "Démarrer ma demande" ou similaire
+**👀** :
+- ☐ Vous arrivez sur une page dédiée au crédit-bail
+- ☐ Une grande image en haut, un titre
+- ☐ Des sections expliquant les avantages, comment ça marche, les montants possibles
+- ☐ Un bouton vert/menthe **"Démarrer ma demande"** ou similaire
+- ☐ Tout en bas : des questions fréquentes sur le crédit-bail
 
-**Si ça ne marche pas** : notez ce qui s'affiche à la place (ou rien) et passez au test suivant.
+**👉** : Faites le même test pour **LOA**, **LLD**, **Crédit pro** dans le menu Solutions.
+**👀** : Chaque page s'affiche correctement avec contenu différent.
 
-### Test 4 — La page Partenaires
+## Test 4 — Les 4 Secteurs
 
-**👉 Ce que vous devez faire** : Dans le menu Ressources → cliquer sur **"Nos partenaires"**.
+**👉** : Menu **"Secteurs"** → cliquer sur **"BTP"**.
 
-**👀 Ce que vous devez voir** :
+**👀** :
+- ☐ Page dédiée avec une grande photo de chantier
+- ☐ Liste d'équipements typiques BTP qu'on peut financer
+- ☐ Avantages spécifiques au BTP
+- ☐ Questions/réponses BTP en bas
+
+**👉** : Idem pour Médical, Informatique, Transport.
+
+## Test 5 — La page Assurance Pro (22 produits)
+
+**👉** : Menu **"Solutions"** → cliquer sur **"Assurance pro"**.
+
+**👀** :
+- ☐ Deux grandes sections : **"Particuliers"** et **"Professionnels"**
+- ☐ Des cartes pour : RC Pro, Multirisque, Flotte auto, Décennale, Cyber, Prévoyance TNS, etc.
+- ☐ Chaque carte particulière a un badge **"obligatoire"** ou **"recommandée"**
+- ☐ Cliquer une carte (ex. **"RC Pro"**) → vous arrivez sur un formulaire pour faire un devis
+
+## Test 6 — Le comparateur de financements
+
+**👉** :
+1. Aller sur la page **"Comparateur"** (depuis le menu Solutions ou le footer)
+2. Saisir : Montant **50 000 €**, Durée **36 mois**
+3. Cliquer **"Comparer"**
+
+**👀** :
+- ☐ Un tableau ou des cartes s'affichent comparant **4 solutions** : Prêt pro · Crédit-bail · LOA · LLD
+- ☐ Pour chaque solution : taux, mensualité, coût total
+- ☐ Une solution est mise en avant comme **"Recommandée"** (la moins chère pour ces paramètres)
+
+## Test 7 — Le calculateur de mensualités
+
+**👉** :
+1. Menu **"Simulateurs"** → cliquer sur **"Mensualité d'un prêt immobilier"**
+2. Saisir : Montant **150 000**, Taux **3,5**, Durée **20** ans
+3. Cliquer **"Calculer"**
+
+**👀** :
+- ☐ Une grande mensualité s'affiche, autour de **870 €**
+- ☐ Le coût total du crédit affiché
+- ☐ Bouton en bas pour démarrer une demande
+
+## Test 8 — La page "Pourquoi Finarent"
+
+**👉** : Menu **"Ressources"** → cliquer sur **"Pourquoi Finarent"**.
+
+**👀** :
+- ☐ Page qui explique ce que fait Finarent
+- ☐ Liste d'avantages, chiffres clés, processus en étapes
+- ☐ Témoignages clients (avec étoiles)
+
+## Test 9 — Le blog / actualités
+
+**👉** : Menu **"Ressources"** → cliquer sur **"Actualités"** (ou "Blog").
+
+**👀** :
+- ☐ Une grille d'articles avec image, titre, date, durée de lecture
+- ☐ Cliquer sur un article → page complète avec le contenu, des chapitres, des photos
+- ☐ En bas de l'article : un bloc "Besoin d'aide ?" avec bouton
+
+## Test 10 — Le glossaire financier
+
+**👉** : Aller sur la page **Glossaire** (cherchez le lien dans le footer ou dans le menu Ressources).
+
+**👀** :
+- ☐ Un titre **"Glossaire financier"** avec un badge indiquant ~33 définitions
+- ☐ Une barre de recherche en haut
+- ☐ Des boutons pour filtrer : Crédit · Assurance · Professionnel · Fiscalité
+- ☐ Un index avec les lettres A, B, C, D...
+
+**👉** : Dans la recherche, taper **"taeg"**.
+**👀** : Seul le terme **"TAEG"** reste visible. Cliquer dessus → la définition se déplie.
+
+## Test 11 — Les guides pédagogiques
+
+**👉** : Aller sur la page **Guides** (footer ou menu).
+
+**👀** :
+- ☐ **5 cartes guides** : Crédit-bail, Prêt pro, Assurance emprunteur, LOA/LLD/Crédit, RC Pro
+- ☐ Chaque carte a un titre + une durée de lecture
+- ☐ Cliquer sur **"Crédit-bail"** → un guide complet avec sommaire et 5 chapitres
+
+## Test 12 — Le quiz "Quelle solution est faite pour moi ?"
+
+**👉** : Aller sur la page **Quiz** (cherchez le lien).
+
+**👀** :
+- ☐ Question 1 affichée avec 4 réponses au choix
+- ☐ Une barre de progression en haut
+
+**👉 Répondez** dans l'ordre :
+1. "Un véhicule"
+2. "Peu importe, c'est l'usage"
+3. "Préserver la trésorerie"
+4. "Maximiser les déductions fiscales"
+5. "Moyen terme (4-7 ans)"
+
+**👀** : Un écran de résultat avec **un produit recommandé**, un **pourcentage de compatibilité**, et une **alternative**.
+
+## Test 13 — La page Partenaires
+
+**👉** : Menu **"Ressources"** → cliquer **"Nos partenaires"**.
+
+**👀** :
 - ☐ Un grand titre **"Nos partenaires bancaires & assureurs"**
-- ☐ Beaucoup de logos d'entreprises (banques, assurances)
-- ☐ Des boutons pour filtrer : "Tous", "Assurance", "Banque", "Leasing", "LOA/LLD"
+- ☐ Beaucoup de logos d'entreprises (~100)
+- ☐ Boutons pour filtrer : Tous · Assurance · Banque · Leasing · LOA/LLD
 - ☐ Une barre pour chercher un partenaire par nom
+- ☐ Plusieurs sous-sections : Grands assureurs · Spécialistes · Assurtechs · Grossistes…
+- ☐ En bas : un bouton **"Télécharger la cartographie (PDF)"**
 
-### Test 5 — La FAQ
+## Test 14 — La FAQ
 
-**👉 Ce que vous devez faire** : Dans le menu Ressources → **"FAQ"**.
+**👉** : Menu **"Ressources"** → cliquer **"FAQ"**.
 
-**👀 Ce que vous devez voir** :
-- ☐ Beaucoup de questions sont listées par catégorie
-- ☐ Cliquer sur une question → la réponse apparaît juste en dessous
+**👀** :
+- ☐ ~62 questions classées par thématiques (Finarent, Crédit-bail, LOA, LLD, Assurance, etc.)
+- ☐ Cliquer sur une question → la réponse se déplie
 - ☐ Re-cliquer → la réponse se cache
 
-**👉 Test pratique** : Dans la barre de recherche, taper **"orias"**.
-**👀 Vous devez voir** : Seulement 1 ou 2 questions restent affichées, et le mot "orias" est surligné en jaune dans la réponse.
+**👉** : Dans la barre de recherche, taper **"orias"**.
+**👀** : Seules 1-2 questions restent affichées, le mot "orias" est surligné en jaune.
+
+## Test 15 — Les pages légales
+
+**👉** : Aller tout en bas du site (le footer). Cliquer dans l'ordre :
+
+1. **"Mentions légales"**
+2. **"CGV"** (Conditions générales de vente)
+3. **"Politique de confidentialité"**
+4. **"CGU"** (Conditions générales d'utilisation)
+
+**👀** : Chacune de ces 4 pages s'affiche avec du texte structuré (titres, paragraphes). Aucune page d'erreur.
+
+**Sur la page "Politique de confidentialité"**, vous devez voir :
+- ☐ Un sommaire en haut avec 9 sections
+- ☐ Une section **"Vos droits"** qui mentionne le droit d'accès, rectification, effacement
+- ☐ Un email de contact DPO en bas
+
+## Test 16 — Le bandeau cookies (1ère visite)
+
+**👉** : Ouvrir une fenêtre de **navigation privée**, aller sur finarent.fr.
+
+**👀** :
+- ☐ Après ~1 seconde, un bandeau apparaît en bas avec **"Cookies & confidentialité"**
+- ☐ 3 boutons : **"Personnaliser"** · **"Essentiels uniquement"** · **"Tout accepter"**
+- ☐ Cliquer **"Personnaliser"** → un écran avec 3 cases (Essentiels coché grisé, Analytics, Marketing)
+- ☐ Cocher juste "Essentiels", cliquer **"Enregistrer mes choix"**
+- ☐ Le bandeau disparaît et ne revient pas
 
 ---
 
-## Partie 2 — Tester en tant que Client
+# Partie 2 — Tester en tant que Client
 
 > **Vous êtes** : un dirigeant qui veut un financement professionnel.
-> **Connectez-vous** avec l'email **andrys972@gmail.com**.
+> **Connectez-vous** avec **andrys972@gmail.com**.
+> **Durée estimée** : 30 minutes pour les 12 tests.
 
-### Comment se connecter
+## Comment se connecter
 
-1. En haut à droite du site, cliquer sur **"Mon espace"** (bouton avec une icône bonhomme)
+1. En haut à droite du site, cliquer sur **"Mon espace"** (bouton avec icône bonhomme)
 2. Une page de connexion s'affiche : taper l'email et le mot de passe
 3. Cliquer **"Continuer"** ou **"Se connecter"**
 
-✅ **Si tout va bien** : vous arrivez sur une page avec votre prénom en haut à droite et le menu "Mon espace".
+✅ Vous arrivez sur une page avec votre prénom en haut à droite et le menu "Mon espace".
 
-### Test 6 — Faire une demande de financement
+## Test 17 — Le tableau de bord client
 
-**👉 Ce que vous devez faire** :
-1. En haut de votre espace, cliquer le gros bouton **"+ Nouvelle demande"**
-2. **Étape 1** : choisir **"Crédit-bail"** (le bouton avec l'icône poignée de main)
-3. Cliquer **"Suivant"**
-4. **Étape 2** : remplir
-   - Équipement : **Machine industrielle**
-   - Montant : **45 000**
-   - Durée : **48 mois**
-5. Cliquer **"Suivant"**
-6. **Étape 3** : remplir
-   - SIREN : **552120222** (c'est celui de Renault, pour le test)
-   - Attendre 2 secondes → le nom **"Société Générale"** ou similaire doit apparaître tout seul
-   - Forme : **SAS**
-   - Secteur : **Industrie**
-7. Cliquer **"Suivant"**
-8. **Étape 4** : tous les champs (nom, email, téléphone) sont **déjà remplis**. Ne touchez à rien. Cliquer **"Suivant"**.
-9. **Étape 5** :
-   - Cocher la petite case en bas : **"J'accepte la politique de confidentialité"** ⚠️ **À ne pas oublier**
-   - Cliquer le bouton vert **"Envoyer ma demande"**
+**👉** : Vous êtes sur la page **/espace** après connexion.
 
-**👀 Ce que vous devez voir** :
-- ☐ Une animation rapide pendant l'envoi (le logo qui tourne 1 seconde)
-- ☐ Vous arrivez sur la page Mon espace avec **une nouvelle ligne** dans votre liste de demandes
-- ☐ Le statut affiché : **"En attente"**
+**👀** :
+- ☐ Votre prénom et photo en haut
+- ☐ Une liste de vos demandes (vide si premier essai)
+- ☐ Un bouton vert/menthe **"+ Nouvelle demande"**
+- ☐ Un menu de gauche avec : Mes demandes · Profil · Documents · Parrainage · Notifications
 
-**Test bonus** : Allez voir votre boîte email (sur andrys972@gmail.com).
-- ☐ Vous avez reçu un email **"Votre demande est enregistrée"** avec le logo Finarent
+## Test 18 — Faire une demande de financement (wizard 5 étapes)
 
-> ⚠️ **Bug noté précédemment** : la case "J'accepte" est à cocher AVANT le récap, pas pendant. Si vous voyez ce problème, c'est normal, c'est connu.
+**👉** :
+1. Cliquer **"+ Nouvelle demande"**
+2. **Étape 1** : choisir **"Crédit-bail"** → **"Suivant"**
+3. **Étape 2** : Équipement = **Machine industrielle** · Montant = **45 000** · Durée = **48 mois** → **"Suivant"**
+4. **Étape 3** : SIREN = **552120222** (Renault, test). Attendre 2 secondes → le nom de l'entreprise apparaît tout seul. Forme = **SAS**, Secteur = **Industrie** → **"Suivant"**
+5. **Étape 4** : tous les champs déjà remplis (nom, email, téléphone). Ne rien toucher → **"Suivant"**
+6. **Étape 5** : Cocher **"J'accepte la politique de confidentialité"** ⚠️ **À ne pas oublier**. Cliquer **"Envoyer ma demande"**
 
-### Test 7 — Ajouter un document
+**👀** :
+- ☐ Animation rapide pendant l'envoi (logo qui tourne 1 sec)
+- ☐ Retour sur **Mon espace** avec une nouvelle ligne dans la liste
+- ☐ Statut affiché : **"En attente"**
 
-**👉 Ce que vous devez faire** :
-1. Cliquer sur la demande que vous venez de créer (cliquer la ligne)
-2. En haut de la page, trouver l'onglet **"Documents"** et cliquer dessus
-3. Faire glisser un fichier PDF dans la zone (ou cliquer pour parcourir)
+**Test bonus** : Aller voir votre boîte email.
+- ☐ Email reçu **"Votre demande est enregistrée"** avec le logo Finarent
+
+## Test 19 — Ajouter un document
+
+**👉** :
+1. Cliquer sur la demande créée
+2. En haut, onglet **"Documents"**
+3. Glisser-déposer un PDF (ex. votre Kbis) ou cliquer pour parcourir
 4. Choisir le type : **"Kbis"**
 5. Cliquer **"Valider"** ou **"Téléverser"**
 
-**👀 Ce que vous devez voir** :
-- ☐ Votre fichier apparaît dans la liste avec son nom et sa taille
-- ☐ Un email arrive dans votre boîte : **"Document bien reçu"**
+**👀** :
+- ☐ Le fichier apparaît dans la liste avec son nom et sa taille
+- ☐ Email reçu : **"Document bien reçu"** dans votre boîte
 
-**Test bonus — un fichier qui doit échouer** :
-**👉** : essayez d'envoyer un fichier **plus de 10 Mo** ou un fichier qui se termine en **.exe**.
-**👀** : un message rouge doit apparaître : "Type de fichier non autorisé" ou "trop volumineux".
+**Test bonus — fichier interdit** :
+**👉** : Essayer d'envoyer un fichier **.exe** ou plus de 10 Mo.
+**👀** : Message rouge "Type non autorisé" ou "Trop volumineux".
 
-> ⚠️ **Bug noté** : actuellement message d'erreur affiché même pour un fichier valide. À vérifier de nouveau.
+## Test 20 — Télécharger le récap PDF de mon dossier
 
-### Test 8 — Le parrainage / affiliation
+**👉** : Sur la fiche de votre demande, cherchez un bouton **"Télécharger le récapitulatif"** ou **"PDF"**.
 
-**👉 Ce que vous devez faire** :
-1. Dans le menu de gauche de votre espace, cliquer **"Parrainage"**
-2. Vous voyez votre **lien personnel** qui ressemble à `finarent.fr/?ref=XXXX`
-3. Cliquer le bouton **"Copier"** à côté
-4. Dans la zone "Inviter un contact", taper :
-   - Email : **votre propre email perso** (pour tester la réception)
-   - Prénom : votre prénom
-5. Cliquer **"Envoyer l'invitation"**
+**👀** :
+- ☐ Le PDF s'ouvre dans un nouvel onglet
+- ☐ En haut : pastille Finarent + nom + tagline
+- ☐ Badge statut en vert menthe
+- ☐ Police "Plus Jakarta Sans" sur tout le document
+- ☐ Footer avec SIRET, ORIAS, adresse
+- ☐ Bouton "Imprimer / Télécharger PDF" au-dessus du contenu
 
-**👀 Ce que vous devez voir** :
+## Test 21 — Envoyer un message au conseiller
+
+**👉** : Sur votre demande, onglet **"Messages"**. Taper un texte et envoyer.
+
+**👀** :
+- ☐ Votre message apparaît dans la conversation (avec votre nom et l'heure)
+- ☐ Compteur de messages non lus à 0
+
+## Test 22 — Accepter un devis envoyé par l'admin
+
+> ⚠️ Ce test requiert qu'un admin ait préalablement créé et envoyé un devis pour vous (cf. Partie 3, Test 33).
+
+**👉** : Sur votre demande, onglet **"Devis"**. Cliquer **"Voir le devis"** sur le devis envoyé.
+
+**👀** :
+- ☐ Le PDF du devis s'ouvre
+- ☐ Boutons **"Accepter"** et **"Refuser"** en haut
+- ☐ Cliquer **"Accepter"** → confirmation → le statut du devis passe en **"Accepté"**
+
+## Test 23 — Signer électroniquement un contrat
+
+> ⚠️ Ce test requiert que YouSign soit configuré et qu'un contrat ait été envoyé.
+
+**👉** : Vous recevez un email avec un lien vers YouSign. Cliquer dessus.
+
+**👀** :
+- ☐ Une page YouSign s'ouvre avec votre contrat à signer
+- ☐ Suivre le processus de signature (code SMS, dessin de signature)
+- ☐ Confirmation visuelle "Document signé"
+- ☐ Retour sur Mon espace : le statut de votre demande passe à **"Signé"**
+
+## Test 24 — Voir mes factures
+
+**👉** : Menu de gauche → **"Mes factures"** (si l'onglet existe pour un client).
+
+**👀** :
+- ☐ Liste des factures émises avec : numéro, date, montant, statut
+- ☐ Cliquer sur une facture → ouvre le PDF
+- ☐ Statut **"Payée"** affiche un tampon vert **"VALIDÉ"** sur la facture
+
+## Test 25 — Modifier mon profil
+
+**👉** : Menu gauche → **"Mon profil"**.
+
+**👀** :
+- ☐ Vos infos personnelles affichées (nom, email, téléphone, société)
+- ☐ Modifier le téléphone : nouveau numéro
+- ☐ Cliquer **"Sauvegarder"**
+- ☐ Message de confirmation
+- ☐ Recharger la page → la modification est conservée
+
+## Test 26 — Le parrainage / affiliation
+
+**👉** :
+1. Menu gauche → **"Parrainage"**
+2. Cliquer **"Copier"** à côté de votre lien personnel
+3. Dans la zone "Inviter un contact" : entrer **votre propre email perso** + votre prénom
+4. Cliquer **"Envoyer l'invitation"**
+
+**👀** :
 - ☐ Message vert "Invitation envoyée"
-- ☐ Dans **votre email perso** : un email **"X vous recommande Finarent"** avec le bouton vert **"Découvrir Finarent"**
-- ☐ Cliquer le bouton dans l'email → vous arrivez sur le site Finarent (la page d'accueil)
+- ☐ Dans **votre email perso** : email reçu **"X vous recommande Finarent"** avec bouton vert **"Découvrir Finarent"**
+- ☐ Cliquer le bouton dans l'email → arrive sur le site Finarent
 
-> ⚠️ **Bug noté** : l'email a mis 10 minutes à arriver. Normal pour un envoi en test, mais doit être plus rapide en production.
+## Test 27 — Exporter mes données (RGPD)
 
-### Test 9 — Récupérer mes données (droit RGPD)
+**👉** : Menu gauche → **"Mon profil"** → tout en bas, bouton **"Exporter mes données"**.
 
-**👉 Ce que vous devez faire** :
-1. Dans le menu de gauche, cliquer **"Mon profil"**
-2. Faire défiler tout en bas
-3. Cliquer le bouton **"Exporter mes données"**
+**👀** :
+- ☐ Un fichier se télécharge automatiquement (nom : `finarent-data-xxx.json`)
+- ☐ Ouvert avec le Bloc-notes : on voit votre nom, demandes, documents — lisible
 
-**👀 Ce que vous devez voir** :
-- ☐ Un fichier se télécharge automatiquement (nom du genre `finarent-data-xxx.json`)
-- ☐ Si vous l'ouvrez avec le Bloc-notes : vous voyez votre nom, vos demandes, vos documents — tout est lisible
+## Test 28 — Supprimer mon compte (RGPD)
+
+**⚠️ Attention** : ne le faites que sur un compte de test, pas votre vrai compte.
+
+**👉** : Menu gauche → **"Sécurité"** → bouton **"Supprimer mon compte"**.
+
+**👀** :
+- ☐ Demande de confirmation
+- ☐ Après confirmation : déconnexion automatique
+- ☐ Impossible de se reconnecter avec ce compte (ou message "Compte anonymisé")
 
 ---
 
-## Partie 3 — Tester en tant qu'Admin
+# Partie 3 — Tester en tant qu'Admin
 
-> **Vous êtes** : la personne chez Finarent qui gère les dossiers des clients.
+> **Vous êtes** : la personne chez Finarent qui gère les dossiers.
 > **Connectez-vous** avec **andrys.magar@hotmail.fr**.
+> **Durée estimée** : 40 minutes pour les 12 tests.
 
-### Test 10 — Le tableau de bord
+## Test 29 — Le tableau de bord admin
 
-**👉 Ce que vous devez faire** : Vous arrivez sur le tableau de bord après connexion. Si ce n'est pas le cas, cliquer **"Tableau de bord"** dans le menu de gauche.
+**👉** : Après connexion, vous arrivez sur le tableau de bord (sinon menu gauche → **"Tableau de bord"**).
 
-**👀 Ce que vous devez voir** :
-- ☐ Un bandeau "À traiter aujourd'hui" si des dossiers attendent
-- ☐ Plusieurs cartes avec des chiffres : nombre de demandes, taux de conversion, commissions
-- ☐ Dans le menu de gauche : Demandes · Devis · Factures · Offres · Partenaires · Apporteurs · Centre d'appel · Prospects · Utilisateurs · FAQ · Témoignages · Logs · Paramètres
+**👀** :
+- ☐ Bandeau **"À traiter aujourd'hui"** si des dossiers attendent
+- ☐ Cartes statistiques : demandes du mois · taux de conversion · commissions générées
+- ☐ Menu de gauche avec : Demandes · Devis · Factures · Offres · Partenaires · Apporteurs · Centre d'appel · Prospects · Utilisateurs · FAQ · Témoignages · Logs · Paramètres
 
-### Test 11 — Traiter une demande
+## Test 30 — Traiter une nouvelle demande
 
-**👉 Ce que vous devez faire** :
-1. Dans le menu de gauche, cliquer **"Demandes"**
-2. Cliquer sur la demande créée par andrys972 (la dernière de la liste, statut "En attente")
-3. Tout en haut, vous voyez un **menu déroulant pour changer le statut**. Cliquer dessus → choisir **"En cours d'étude"**
-4. Dans la zone "Notes internes" (texte multilignes), écrire : **"Test de validation"**
-5. Cliquer **"Sauvegarder"** ou **"Enregistrer"**
+**👉** :
+1. Menu gauche → **"Demandes"**
+2. Cliquer la demande créée par andrys972 (la dernière, statut "En attente")
+3. Tout en haut : menu déroulant **"Statut"** → choisir **"En cours d'étude"**
+4. Zone "Notes internes" : écrire **"Test de validation"**
+5. Cliquer **"Sauvegarder"**
 
-**👀 Ce que vous devez voir** :
-- ☐ Le statut a changé en haut de la fiche
-- ☐ Dans l'historique du dossier (en bas), une nouvelle ligne : "En attente → En cours d'étude" avec la date et votre nom
-- ☐ Le client n'a **pas reçu d'email** (les notes restent privées)
+**👀** :
+- ☐ Statut mis à jour
+- ☐ Historique en bas : nouvelle ligne "En attente → En cours d'étude" avec date et votre nom
+- ☐ Le client n'a pas reçu d'email (notes restent privées)
 
-> ⚠️ **Bug noté précédemment** : impossible de sauvegarder le commentaire dans les notes (message d'erreur). À retester.
+## Test 31 — Demander des pièces complémentaires
 
-### Test 12 — Demander des pièces complémentaires
-
-**👉 Ce que vous devez faire** :
-1. Sur la même demande, changer le statut → **"Documents manquants"**
-2. Une zone apparaît avec des cases à cocher. Cocher **"Bilans 2 derniers exercices"** et **"RIB"**
+**👉** :
+1. Sur la même demande, changer statut → **"Documents manquants"**
+2. Zone qui apparaît : cocher **"Bilans 2 derniers exercices"** + **"RIB"**
 3. Cliquer **"Notifier le client"**
 
-**👀 Ce que vous devez voir** :
-- ☐ Le statut a changé
-- ☐ Dans l'email du client : un message **"Action requise — Documents manquants"** avec un bouton vert **"Téléverser mes documents"**
+**👀** :
+- ☐ Statut mis à jour
+- ☐ Email reçu par le client : **"Action requise — Documents manquants"** avec bouton vert **"Téléverser mes documents"**
 
-> ⚠️ **Bug noté** : Assya n'a pas trouvé où cocher les pièces manquantes. À vérifier si l'interface a évolué.
+## Test 32 — Créer un devis
 
-### Test 13 — Créer un devis
-
-**👉 Ce que vous devez faire** :
-1. Dans le menu de gauche, cliquer **"Devis"**
+**👉** :
+1. Menu gauche → **"Devis"**
 2. Cliquer **"Nouveau devis"**
-3. Sélectionner la demande (celle créée plus tôt)
-4. Ajouter une ligne :
-   - Description : **Crédit-bail Machine**
-   - Montant HT : **45 000**
-   - TVA : **20**
-5. Définir validité : **30 jours**
+3. Sélectionner la demande
+4. Ajouter ligne : Description = **Crédit-bail Machine** · Montant HT = **45 000** · TVA = **20**
+5. Validité = **30 jours**
 6. Cliquer **"Générer le PDF"**
 
-**👀 Ce que vous devez voir** :
-- ☐ Le PDF s'ouvre dans un nouvel onglet
-- ☐ En haut : un bandeau bleu marine avec le **logo Finarent** (pas juste du texte)
-- ☐ Le tableau des lignes avec un en-tête bleu marine et un total en bas
-- ☐ La mention **"Bon pour accord"** + zones de signature
-- ☐ Tout en bas : un petit footer avec SIRET, RCS, ORIAS, TVA, adresse, téléphone, email
-- ☐ Une fine ligne verte (couleur menthe) juste au-dessus du footer
+**👀** :
+- ☐ PDF s'ouvre dans un nouvel onglet
+- ☐ Bandeau bleu marine avec **logo Finarent** (pas juste du texte)
+- ☐ Tableau des lignes avec en-tête marine + total en bas
+- ☐ Mention **"Bon pour accord"** + zones de signature
+- ☐ Footer avec SIRET, RCS, ORIAS, TVA, adresse, téléphone, email
+- ☐ Fine ligne verte menthe juste au-dessus du footer
 
-### Test 14 — Créer une facture et enregistrer un paiement
+## Test 33 — Émettre une facture et enregistrer un paiement
 
-**👉 Ce que vous devez faire** :
+**👉** :
 1. Menu gauche → **"Factures"**
 2. **"Nouvelle facture"** liée à la demande
 3. Émettre la facture (statut **"Émise"**)
-4. Enregistrer un paiement partiel : **50 % du montant**
-5. Enregistrer un autre paiement : **le solde restant**
+4. Enregistrer un paiement = **50 %** du montant
+5. Enregistrer un autre paiement = **le solde**
 
-**👀 Ce que vous devez voir** :
-- ☐ Après chaque paiement, une barre de progression se met à jour
-- ☐ Quand le total est atteint, le statut passe à **"Payée"**
-- ☐ Un **tampon vert "VALIDÉ"** apparaît en haut à droite de la facture
-- ☐ Le PDF montre la mention "Déjà réglé : X €" en vert
+**👀** :
+- ☐ Après chaque paiement, barre de progression mise à jour
+- ☐ Quand total atteint, statut passe à **"Payée"**
+- ☐ Tampon vert **"VALIDÉ"** en haut à droite de la facture
+- ☐ PDF montre **"Déjà réglé : X €"** en vert menthe
 
-> ⚠️ **Bug noté** : la demande n'apparaissait pas dans la liste. À retester après les corrections.
+## Test 34 — Transmettre un dossier à un partenaire
 
-### Test 15 — Ajouter un nouvel apporteur d'affaires
+**👉** :
+1. Sur une demande au statut **"Signé"**, en bas : zone "Transmission"
+2. Sélectionner un partenaire dans la liste
+3. Cliquer **"Transmettre"**
 
-**👉 Ce que vous devez faire** :
+**👀** :
+- ☐ Statut passe à **"Transmis"**
+- ☐ La demande disparaît du tableau de bord "À traiter"
+- ☐ Notification email envoyée au partenaire (vérifiable côté Partenaire — voir Partie 4)
+
+## Test 35 — Centre d'appel : enregistrer un appel sortant
+
+**👉** :
+1. Menu gauche → **"Centre d'appel"**
+2. Cliquer sur un prospect ou une demande
+3. Bouton **"Appeler"** ou **"Logger un appel"**
+4. Choisir l'issue : ex. **"Rappel à programmer"**
+5. Ajouter un commentaire et une date de rappel
+6. Sauvegarder
+
+**👀** :
+- ☐ L'appel apparaît dans l'historique du prospect/demande
+- ☐ Statut mis à jour automatiquement selon l'issue choisie
+
+## Test 36 — Voir les prospects (leads des simulateurs)
+
+**👉** : Menu gauche → **"Prospects"**.
+
+**👀** :
+- ☐ Liste de toutes les personnes qui ont utilisé un simulateur (anonymes ou identifiés)
+- ☐ Pour chacun : score d'engagement, date dernière visite, nombre d'événements
+- ☐ Cliquer sur un prospect → fiche détaillée avec liste des simulateurs utilisés
+
+## Test 37 — Gérer les utilisateurs (changer un rôle)
+
+**👉** :
+1. Menu gauche → **"Utilisateurs"**
+2. Chercher un utilisateur dans la liste
+3. Cliquer dessus
+4. Modifier son rôle : ex. CLIENT → PARTNER
+
+**👀** :
+- ☐ Liste de tous les utilisateurs avec leur rôle (CLIENT, ADMIN, PARTNER, INSURER)
+- ☐ Filtres par rôle disponibles
+- ☐ Après modification, l'utilisateur a accès à son nouvel espace (à vérifier en se connectant avec son compte)
+
+## Test 38 — Modérer un témoignage client
+
+**👉** :
+1. Menu gauche → **"Témoignages"**
+2. Section "En attente de validation"
+3. Cliquer **"Approuver"** ou **"Refuser"** sur un témoignage
+
+**👀** :
+- ☐ Si Approuvé : le témoignage apparaît sur la home publique du site
+- ☐ Si Refusé : il disparaît de la liste
+
+## Test 39 — Gérer les partenaires (ajouter une banque)
+
+**👉** :
+1. Menu gauche → **"Partenaires"**
+2. **"Nouveau partenaire"** : Nom = **Banque Test** · Type = **BANK** · Email = **test@banque.fr**
+3. Sauvegarder
+
+**👀** :
+- ☐ Le partenaire apparaît dans la liste avec statut "Actif"
+- ☐ Possible de désactiver (toggle Actif/Inactif)
+
+## Test 40 — Créer un apporteur d'affaires + invitations en masse
+
+**👉** :
 1. Menu gauche → **"Apporteurs"** (ou "Affiliation")
-2. Cliquer le bouton **"+ Nouvel apporteur"**
-3. Remplir :
-   - Nom : **Marie Test**
-   - Email : **marie.test@example.fr**
-   - Commission : **5** (en %)
-4. Cliquer **"Créer l'apporteur"**
-5. Dans la liste, cliquer sur Marie Test
-6. Cliquer l'onglet **"Invitations"**
-7. Choisir l'onglet **"Import CSV"**
-8. Coller dans la zone :
+2. **"+ Nouvel apporteur"** : Nom = **Marie Test**, Email = **marie.test@example.fr**, Commission = **5** (%)
+3. **"Créer l'apporteur"**
+4. Dans la liste, cliquer sur Marie Test
+5. Onglet **"Invitations"** → onglet **"Import CSV"**
+6. Coller :
    ```
    ami1@example.fr,Pierre
    ami2@example.fr,Sophie
    ami3@example.fr,Lucas
    ```
-9. Cliquer **"Envoyer en masse"**
+7. Cliquer **"Envoyer en masse"**
 
-**👀 Ce que vous devez voir** :
+**👀** :
 - ☐ Message **"3 envoyés, 0 déjà invités, 0 échecs"**
-- ☐ Dans l'historique en dessous : 3 lignes avec les 3 emails
-
-> ⚠️ **Bug noté** : Assya n'a pas trouvé "Envoyer en masse". Il y a maintenant un onglet dédié dans la fiche apporteur.
+- ☐ Dans l'historique : 3 lignes avec les 3 emails
+- ☐ Bouton **"Export CSV"** en haut télécharge tout l'historique de l'apporteur
 
 ---
 
-## Partie 4 — Quand quelque chose ne va pas
+# Partie 4 — Tester en tant que Partenaire
 
-### Comment me dire qu'il y a un problème
+> **Vous êtes** : une banque ou un assureur qui reçoit les dossiers Finarent.
+> **Connectez-vous** avec **andrys.developper@gmail.com**.
+> **Durée estimée** : 10 minutes pour les 3 tests.
 
-Pas la peine de connaître les termes techniques. Envoyez-moi juste :
+## Test 41 — Voir mes dossiers
+
+**👉** : Après connexion, vous arrivez sur **/partner**.
+
+**👀** :
+- ☐ Liste des dossiers qui vous ont été transmis (par l'admin)
+- ☐ Pour chaque dossier : entreprise, type, montant, date de transmission
+- ☐ Menu de gauche : Tableau de bord · Dossiers · Commissions · Offres
+
+> ⚠️ **Important** : Vous ne devez voir QUE les dossiers qui vous ont été transmis. Pas ceux d'autres partenaires.
+
+## Test 42 — Approuver ou refuser un dossier
+
+**👉** :
+1. Cliquer sur un dossier
+2. En haut : menu déroulant statut → choisir **"Approuvé"** ou **"Refusé"**
+3. Ajouter un commentaire si refus
+4. Sauvegarder
+
+**👀** :
+- ☐ Statut mis à jour
+- ☐ Notification envoyée à l'admin (vérifiable côté Admin)
+
+## Test 43 — Voir mes commissions
+
+**👉** : Menu gauche → **"Commissions"**.
+
+**👀** :
+- ☐ Liste des commissions liées aux dossiers que vous avez approuvés
+- ☐ Total des commissions du mois affiché
+- ☐ Statut : "En attente" / "Payée"
+
+---
+
+# Partie 5 — Tester en tant qu'Assureur
+
+> **Vous êtes** : une compagnie d'assurance qui voit uniquement les dossiers RC Pro.
+> **Connectez-vous** avec le compte assureur fourni.
+> **Durée estimée** : 5 minutes pour les 2 tests.
+
+## Test 44 — Voir uniquement les dossiers RC Pro
+
+**👉** : Après connexion, vous arrivez sur **/insurer**.
+
+**👀** :
+- ☐ Liste des dossiers **uniquement de type "RC Pro"**
+- ☐ Aucun dossier de financement (Crédit-bail, LOA, etc.)
+- ☐ Menu de gauche simplifié
+
+> ⚠️ **Test de sécurité** : essayer d'accéder à une URL admin (ex. `/admin/demandes`).
+> **👀** : Vous devez être redirigé ou voir une erreur **403** (accès interdit).
+
+## Test 45 — Mettre à jour un dossier
+
+**👉** : Sur un dossier RC Pro, mettre à jour le statut → **"Devis envoyé"**.
+
+**👀** :
+- ☐ Statut mis à jour
+- ☐ Notification envoyée à l'admin et au client
+
+---
+
+# Partie 6 — La page personnelle d'un apporteur d'affaires
+
+> **Vous êtes** : un apporteur d'affaires (commercial Finarent).
+> Vous testez la page publique de votre suivi (pas besoin de connexion).
+
+## Test 46 — Visiter la page publique d'un apporteur
+
+**👉** :
+1. L'admin (Partie 3, Test 40) a créé un apporteur "Marie Test" avec un code, par exemple **ABC12345**
+2. Aller sur **finarent.fr/affiliate/ABC12345** (remplacer par le vrai code)
+
+**👀** :
+- ☐ Une page personnalisée **"Bonjour Marie Test"**
+- ☐ Votre lien de tracking à copier : **finarent.fr/?ref=ABC12345**
+- ☐ 4 cartes statistiques : Clics · Leads générés · Dossiers · Gains totaux
+- ☐ Tunnel de conversion (3 barres de progression)
+- ☐ Commissions "À verser" et "Déjà versé"
+- ☐ Un formulaire en bas pour **inviter un prospect par email**
+
+**Test bonus** : Cliquer le bouton **"Copier"** du lien → coller dans le navigateur → vous arrivez sur la home Finarent. Le cookie de tracking est posé (l'admin verra +1 clic dans le tableau de bord apporteur).
+
+---
+
+# Partie 7 — Tester sur téléphone et tablette
+
+> **Durée estimée** : 15 minutes.
+
+## Test 47 — Le site sur téléphone
+
+**👉** : Ouvrir le site sur votre smartphone.
+
+**👀** :
+- ☐ Tout s'affiche correctement (pas de texte coupé, pas de bouton trop petit)
+- ☐ Menu en haut remplacé par une icône **"hamburger"** (3 barres horizontales)
+- ☐ Cliquer le hamburger → menu déroulant vertical avec toutes les sections
+- ☐ Le marquee des partenaires défile fluide
+- ☐ Les formulaires sont remplissables (clavier mobile s'ouvre normalement)
+
+## Test 48 — Connexion lente
+
+**👉** : Activer le mode "Wifi lent" sur votre téléphone (Réglages → Wifi → Détails du réseau), ou utiliser les outils dev du navigateur (réseau "Slow 3G").
+
+**👀** :
+- ☐ Le site affiche des **indicateurs de chargement** (animations, squelettes)
+- ☐ Rien ne plante, on voit juste que c'est plus lent
+- ☐ Pas d'écran blanc figé
+
+---
+
+# Partie 8 — Quand quelque chose ne va pas
+
+## Comment me dire qu'il y a un problème
+
+Pas besoin de termes techniques. Envoyez-moi juste :
 
 1. **Sur quelle page** vous étiez (par exemple : "la page des partenaires", "ma fiche profil")
 2. **Ce que vous avez fait** (1-2 phrases : "j'ai cliqué sur 'Envoyer ma demande'…")
-3. **Ce qui s'est passé** (1 phrase : "rien ne se passe", "un message rouge s'affiche", "ça plante")
-4. **Une photo de l'écran** si possible (touche **Impr Écran** ou **⌘ + Shift + 3** sur Mac, puis coller dans un email)
+3. **Ce qui s'est passé** (1 phrase : "rien ne se passe", "message rouge", "ça plante")
+4. **Une photo de l'écran** si possible
+   - Sur PC Windows : touche **Impr Écran**, puis coller dans un email
+   - Sur Mac : **⌘ + Shift + 3** (une image s'enregistre sur le bureau)
+   - Sur téléphone : appui simultané sur **Volume bas + Power** (Android) ou **Volume haut + Power** (iPhone)
 
 C'est largement suffisant. **L'équipe technique fera le diagnostic à partir de ça.**
 
-### Échelle de gravité (pour aider l'équipe à prioriser)
+## Échelle de gravité
 
-- 🔴 **Bloquant** : je ne peux pas continuer (par exemple : je ne peux pas envoyer ma demande)
+Pour aider à prioriser, indiquez aussi :
+
+- 🔴 **Bloquant** : je ne peux pas continuer (par exemple : impossible d'envoyer ma demande)
 - 🟠 **Gênant** : ça fonctionne mais c'est compliqué ou ça met du temps
 - 🟡 **Bizarre** : c'est étrange mais ça ne m'empêche pas d'utiliser
-- 🟢 **Joli à corriger** : faute de frappe, couleur bizarre, alignement de travers
+- 🟢 **À corriger** : faute de frappe, couleur bizarre, alignement de travers
+
+## Bugs déjà connus (pas la peine de les re-signaler)
+
+| Bug | Page | Statut |
+|---|---|---|
+| Case "J'accepte" à cocher avant le récap, pas pendant | Wizard nouvelle demande étape 5 | ⚠️ Connu |
+| Message d'erreur même pour un fichier valide à l'upload | Documents espace client | 🔄 En cours de correction |
+| Email de parrainage arrive après 10 min | Service email production | 🔄 Config SMTP à finaliser |
+| "Je ne trouve pas Télécharger le récap PDF" | Fiche demande client | 🔄 Bouton à mettre plus visible |
+| "Je ne trouve pas la demande dans Factures" | Création facture admin | 🔄 Filtre à ajouter |
+| 2 boutons "Nouvelle demande" — celui en haut à droite va sur contact | Espace client | ⚠️ Connu |
+| Footer affiche SIREN mais pas ACPR ni adresse | Footer tout le site | ⚠️ Attente infos client |
 
 ---
 
-## Et si je veux faire plus ?
+# Et si je veux faire plus ?
 
-Vous avez fini les 15 tests ? Bravo !
+Vous avez fini les 48 tests ? Bravo ! 🎉
 
-Si vous voulez aller plus loin, voici 3 idées :
+Idées pour aller encore plus loin :
 
-1. **Tester sur téléphone** : ouvrez le site depuis votre mobile. Tout doit rester lisible et cliquable.
-2. **Tester sur tablette** : pareil sur tablette.
-3. **Tester avec une mauvaise connexion** : mettez votre wifi en mode lent (les Réglages permettent ça). Le site doit afficher des indicateurs de chargement.
+1. **Tester en différentes langues** : si le site propose un toggle EN/FR, tester en anglais
+2. **Tester l'accessibilité** : utiliser un lecteur d'écran (VoiceOver sur Mac, Narrator sur Windows)
+3. **Tester l'impression** : imprimer une fiche dossier ou un devis depuis le navigateur — la mise en page doit rester correcte
+4. **Tester les cas limites** : taper des caractères spéciaux dans les formulaires (apostrophes, émoji, accents)
+5. **Tester en mode sombre** : si votre OS est en mode sombre, vérifier que le site reste lisible
 
 ---
 

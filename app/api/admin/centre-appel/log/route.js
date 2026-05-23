@@ -41,10 +41,10 @@ export async function POST(request) {
   const { kind, id, outcome, comment, callbackAt, durationSec, statusOverride } = body;
 
   if (!kind || !id || !outcome) {
-    return NextResponse.json({ error: 'kind, id et outcome sont requis' }, { status: 400 });
+    return NextResponse.json({ error: 'Type, identifiant et issue de l\'appel sont requis' }, { status: 400 });
   }
   if (!OUTCOMES[outcome]) {
-    return NextResponse.json({ error: 'outcome invalide' }, { status: 400 });
+    return NextResponse.json({ error: 'Issue d\'appel invalide' }, { status: 400 });
   }
 
   const agent = auth.dbUser?.email || auth.dbUser?.name || null;
@@ -55,7 +55,7 @@ export async function POST(request) {
       where: { id },
       select: { notes: true, status: true },
     });
-    if (!current) return NextResponse.json({ error: 'prospect introuvable' }, { status: 404 });
+    if (!current) return NextResponse.json({ error: 'Prospect introuvable' }, { status: 404 });
 
     const nextStatus = statusOverride || OUTCOMES[outcome].nextProspect || current.status;
     const newNotes = [logBlock, current.notes].filter(Boolean).join('\n\n---\n\n');
@@ -72,7 +72,7 @@ export async function POST(request) {
       where: { id },
       select: { adminNotes: true, status: true },
     });
-    if (!current) return NextResponse.json({ error: 'demande introuvable' }, { status: 404 });
+    if (!current) return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 });
 
     const nextStatus = statusOverride || APP_NEXT_STATUS[outcome] || current.status;
     const newNotes = [logBlock, current.adminNotes].filter(Boolean).join('\n\n---\n\n');
@@ -84,5 +84,5 @@ export async function POST(request) {
     return NextResponse.json({ ok: true, kind: 'demande', item: updated });
   }
 
-  return NextResponse.json({ error: 'kind doit être prospect ou demande' }, { status: 400 });
+  return NextResponse.json({ error: 'Le type doit être prospect ou demande' }, { status: 400 });
 }

@@ -42,7 +42,7 @@ export async function POST(request) {
     lines = [],
   } = body;
 
-  if (!clientName) return NextResponse.json({ error: 'clientName requis' }, { status: 400 });
+  if (!clientName) return NextResponse.json({ error: 'Nom du client requis' }, { status: 400 });
 
   // Calcul des totaux
   let totalHT = 0, totalTVA = 0;

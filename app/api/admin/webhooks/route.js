@@ -35,7 +35,7 @@ export async function POST(request) {
   const { partnerId, webhookUrl, events } = await request.json();
 
   if (!partnerId) {
-    return NextResponse.json({ error: 'partnerId requis' }, { status: 400 });
+    return NextResponse.json({ error: 'Identifiant du partenaire requis' }, { status: 400 });
   }
 
   const partner = await prisma.partner.findUnique({ where: { id: partnerId } });

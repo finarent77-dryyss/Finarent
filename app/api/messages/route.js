@@ -10,7 +10,7 @@ export async function GET(request) {
   const applicationId = searchParams.get('applicationId');
 
   if (!applicationId) {
-    return NextResponse.json({ error: 'applicationId requis' }, { status: 400 });
+    return NextResponse.json({ error: 'Identifiant du dossier requis' }, { status: 400 });
   }
 
   // Vérifier l'accès au dossier

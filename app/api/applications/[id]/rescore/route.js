@@ -12,7 +12,7 @@ export async function POST(request, { params }) {
     where: { id },
     include: { documents: true },
   });
-  if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (!app) return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 });
 
   const { score, label } = calculateScore(app, app.documents);
   const updated = await prisma.application.update({

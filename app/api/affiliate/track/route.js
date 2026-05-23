@@ -15,7 +15,7 @@ export async function POST(request) {
     const body = await request.json();
     const code = (body?.code || '').trim().slice(0, 64);
     if (!code) {
-      return NextResponse.json({ ok: false, error: 'code manquant' }, { status: 400 });
+      return NextResponse.json({ ok: false, error: 'Code manquant' }, { status: 400 });
     }
 
     const affiliate = await prisma.affiliate.findUnique({

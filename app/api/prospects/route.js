@@ -14,7 +14,7 @@ export async function POST(request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'invalid body' }, { status: 400 });
+    return NextResponse.json({ error: 'Corps de requête invalide' }, { status: 400 });
   }
 
   const {
@@ -25,7 +25,7 @@ export async function POST(request) {
   } = body || {};
 
   if (!simulatorSlug || typeof simulatorSlug !== 'string') {
-    return NextResponse.json({ error: 'simulatorSlug required' }, { status: 400 });
+    return NextResponse.json({ error: 'Identifiant du simulateur requis' }, { status: 400 });
   }
 
   // Récup cookie existant ou nouveau UUID

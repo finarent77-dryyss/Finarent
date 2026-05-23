@@ -13,7 +13,7 @@ export async function GET(_request, { params }) {
       _count: { select: { events: true } },
     },
   });
-  if (!prospect) return NextResponse.json({ error: 'not found' }, { status: 404 });
+  if (!prospect) return NextResponse.json({ error: 'Prospect introuvable' }, { status: 404 });
   return NextResponse.json(prospect);
 }
 
@@ -26,7 +26,7 @@ export async function PATCH(request, { params }) {
   const data = {};
   for (const k of allowed) if (body[k] !== undefined) data[k] = body[k];
   if (data.status && !['NEW', 'CONTACTED', 'QUALIFIED', 'CONVERTED', 'LOST'].includes(data.status)) {
-    return NextResponse.json({ error: 'invalid status' }, { status: 400 });
+    return NextResponse.json({ error: 'Statut invalide' }, { status: 400 });
   }
   const prospect = await prisma.prospect.update({ where: { id }, data });
   return NextResponse.json(prospect);

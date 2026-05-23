@@ -72,10 +72,10 @@ export async function POST(request) {
   const name = String(body.name || '').trim();
   const email = String(body.email || '').trim().toLowerCase();
   if (!name || !email) {
-    return NextResponse.json({ error: 'name et email requis' }, { status: 400 });
+    return NextResponse.json({ error: 'Nom et email requis' }, { status: 400 });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: 'email invalide' }, { status: 400 });
+    return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
   }
 
   // Code court (8 caractères alphanumériques) ou code fourni

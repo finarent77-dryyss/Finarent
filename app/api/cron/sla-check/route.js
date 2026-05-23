@@ -45,7 +45,7 @@ async function createAlert(applicationId, currentStatus, level, message) {
 
 export async function GET(request) {
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
   try {
     const now = new Date();
