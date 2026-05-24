@@ -207,7 +207,7 @@ export default function Footer() {
               <li><Link href="/faq" className={linkClass}>{t('footer.faq')}</Link></li>
               <li><Link href="/glossaire" className={linkClass}>Glossaire</Link></li>
               <li><Link href="/guides" className={linkClass}>Guides</Link></li>
-              <li><Link href="/quiz" className={linkClass}>Quiz</Link></li>
+              <li><Link href="/quiz" className={linkClass}>Diagnostic</Link></li>
               <li><Link href="/blog" className={linkClass}>{t('footer.blog')}</Link></li>
               <li><Link href="/legal" className={linkClass}>{t('footer.legalNotice')}</Link></li>
               <li><Link href="/cgv" className={linkClass}>CGV</Link></li>

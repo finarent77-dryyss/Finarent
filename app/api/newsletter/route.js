@@ -3,10 +3,19 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Corps de requête invalide' }, { status: 400 });
+    }
     const email = body?.email?.trim()?.toLowerCase();
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || email.length > 254) {
+      return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
+    }
+    // Regex stricte : lettres/chiffres/. + - _ ; pas de < > pour éviter HTML injection
+    if (!/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
     }
 

@@ -44,14 +44,24 @@ export default function Header() {
     { name: t('nav.sectors.it'), icon: 'fa-laptop-code', path: '/sectors/it' }
   ];
 
-  const resources = [
-    { name: t('nav.whyFinarent'), icon: 'fa-circle-question', desc: 'Notre approche et nos engagements', path: '/why-leasing' },
-    { name: 'Nos partenaires', icon: 'fa-handshake-angle', desc: '108+ banques, assureurs, leasing', path: '/partenaires' },
-    { name: 'FAQ', icon: 'fa-comments', desc: '62 questions / réponses', path: '/faq' },
-    { name: 'Glossaire', icon: 'fa-book-open', desc: '33 termes financiers expliqués', path: '/glossaire' },
-    { name: 'Guides', icon: 'fa-graduation-cap', desc: '5 guides pédagogiques complets', path: '/guides' },
-    { name: 'Quiz', icon: 'fa-circle-question', desc: 'Trouver la bonne solution en 5 questions', path: '/quiz' },
-    { name: t('nav.blog'), icon: 'fa-newspaper', desc: 'Actualités du financement pro', path: '/blog' },
+  const resourceGroups = [
+    {
+      label: 'À propos',
+      items: [
+        { name: t('nav.whyFinarent'), icon: 'fa-hand-holding-heart', desc: 'Notre approche et nos engagements', path: '/why-leasing' },
+        { name: 'Nos partenaires', icon: 'fa-handshake-angle', desc: '108+ banques, assureurs, leasing', path: '/partenaires' },
+      ],
+    },
+    {
+      label: 'Outils & contenus',
+      items: [
+        { name: 'Diagnostic', icon: 'fa-list-check', desc: 'Trouvez votre solution en 5 questions', path: '/quiz' },
+        { name: 'FAQ', icon: 'fa-comments', desc: '62 questions / réponses', path: '/faq' },
+        { name: 'Glossaire', icon: 'fa-book-open', desc: '33 termes financiers expliqués', path: '/glossaire' },
+        { name: 'Guides', icon: 'fa-graduation-cap', desc: '5 guides pédagogiques complets', path: '/guides' },
+        { name: t('nav.blog'), icon: 'fa-newspaper', desc: 'Actualités du financement pro', path: '/blog' },
+      ],
+    },
   ];
 
   // Hero nouvelle charte = fond clair → header toujours en mode light.
@@ -226,19 +236,26 @@ export default function Header() {
               </button>
               <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-3 transition-all duration-200 ${openDropdown === 'resources' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
                 <div className="w-[320px] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden">
-                  <div className="p-2">
-                    {resources.map((r, i) => (
-                      <Link key={i} href={r.path} className="flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group">
-                        <div className="w-9 h-9 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary/20 transition-colors">
-                          <i className={`fa-solid ${r.icon} text-secondary text-sm`}></i>
-                        </div>
-                        <div>
-                          <div className="font-semibold text-sm text-gray-900">{r.name}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">{r.desc}</div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                  {resourceGroups.map((group, gi) => (
+                    <div key={group.label} className={gi > 0 ? 'border-t border-gray-100' : ''}>
+                      <div className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {group.label}
+                      </div>
+                      <div className="p-2">
+                        {group.items.map((r, i) => (
+                          <Link key={i} href={r.path} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                            <div className="w-9 h-9 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary/20 transition-colors">
+                              <i className={`fa-solid ${r.icon} text-secondary text-sm`}></i>
+                            </div>
+                            <div>
+                              <div className="font-semibold text-sm text-gray-900">{r.name}</div>
+                              <div className="text-xs text-gray-500 mt-0.5">{r.desc}</div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
