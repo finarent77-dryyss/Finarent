@@ -205,7 +205,9 @@ export default function AdminInvoicesClient() {
 // ─── Modal de création ──────────────────────────────────────
 function CreateInvoiceModal({ onClose, onCreated }) {
   const [submitting, setSubmitting] = useState(false);
+  const [applications, setApplications] = useState([]);
   const [form, setForm] = useState({
+    applicationId: '',
     clientName: '',
     clientEmail: '',
     clientAddress: '',
@@ -217,6 +219,29 @@ function CreateInvoiceModal({ onClose, onCreated }) {
     notes: '',
     lines: [{ description: 'Frais de dossier Finarent', quantity: 1, unitPrice: 0, vatRate: 20 }],
   });
+
+  // Charge la liste des demandes pour le sélecteur
+  useEffect(() => {
+    fetch('/api/admin/demandes')
+      .then((r) => r.ok ? r.json() : { items: [] })
+      .then((d) => setApplications(d.items || d || []))
+      .catch(() => {});
+  }, []);
+
+  // Quand une demande est sélectionnée, auto-remplit les champs client
+  const selectApplication = (appId) => {
+    setForm((f) => ({ ...f, applicationId: appId }));
+    if (!appId) return;
+    const app = applications.find((a) => a.id === appId);
+    if (!app) return;
+    setForm((f) => ({
+      ...f,
+      applicationId: appId,
+      clientName: app.user?.name || app.companyName || f.clientName,
+      clientEmail: app.user?.email || f.clientEmail,
+      clientSiret: app.siren || f.clientSiret,
+    }));
+  };
 
   const updateLine = (i, patch) => {
     setForm((f) => ({ ...f, lines: f.lines.map((l, idx) => idx === i ? { ...l, ...patch } : l) }));
@@ -268,6 +293,26 @@ function CreateInvoiceModal({ onClose, onCreated }) {
         </div>
 
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          {/* Lier à une demande existante */}
+          {applications.length > 0 && (
+            <div>
+              <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Lier à une demande (optionnel)</div>
+              <select
+                value={form.applicationId}
+                onChange={(e) => selectApplication(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-200 rounded-xl text-sm focus:border-secondary focus:outline-none"
+              >
+                <option value="">— Aucune demande liée —</option>
+                {applications.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.companyName || a.user?.name || a.id.slice(0, 8)} · {a.productType} · {a.amount ? `${a.amount}€` : '—'}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-gray-400 mt-1.5">Auto-remplit nom, email et SIRET du client.</p>
+            </div>
+          )}
+
           {/* Client */}
           <div>
             <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Client</div>

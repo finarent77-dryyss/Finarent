@@ -31,6 +31,7 @@ export default function Header() {
   const solutions = [
     { name: t('nav.solutions.creditBail'), icon: 'fa-handshake', desc: t('nav.solutions.creditBailDesc'), path: '/solutions/credit-bail' },
     { name: t('nav.solutions.loa'), icon: 'fa-file-contract', desc: t('nav.solutions.loaDesc'), path: '/solutions/loa' },
+    { name: 'Location longue durée (LLD)', icon: 'fa-calendar-days', desc: 'Location avec services tout-inclus', path: '/solutions/lld' },
     { name: t('nav.solutions.creditPro'), icon: 'fa-coins', desc: t('nav.solutions.creditProDesc'), path: '/solutions/credit-pro' },
     { name: t('nav.solutions.insurancePro'), icon: 'fa-shield-halved', desc: t('nav.solutions.insuranceProDesc'), path: '/assurance' },
     { name: t('comparator.navLabel'), icon: 'fa-scale-balanced', desc: t('comparator.subtitle'), path: '/comparateur' }
@@ -47,6 +48,9 @@ export default function Header() {
     { name: t('nav.whyFinarent'), icon: 'fa-circle-question', desc: 'Notre approche et nos engagements', path: '/why-leasing' },
     { name: 'Nos partenaires', icon: 'fa-handshake-angle', desc: '108+ banques, assureurs, leasing', path: '/partenaires' },
     { name: 'FAQ', icon: 'fa-comments', desc: '62 questions / réponses', path: '/faq' },
+    { name: 'Glossaire', icon: 'fa-book-open', desc: '33 termes financiers expliqués', path: '/glossaire' },
+    { name: 'Guides', icon: 'fa-graduation-cap', desc: '5 guides pédagogiques complets', path: '/guides' },
+    { name: 'Quiz', icon: 'fa-circle-question', desc: 'Trouver la bonne solution en 5 questions', path: '/quiz' },
     { name: t('nav.blog'), icon: 'fa-newspaper', desc: 'Actualités du financement pro', path: '/blog' },
   ];
 

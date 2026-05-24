@@ -28,12 +28,12 @@ export async function GET(_request, { params }) {
       invoices: {
         orderBy: { createdAt: 'desc' },
         take: 20,
-        select: { id: true, number: true, total: true, status: true, issuedAt: true },
+        select: { id: true, invoiceNumber: true, totalTTC: true, status: true, issueDate: true },
       },
       quotes: {
         orderBy: { createdAt: 'desc' },
         take: 20,
-        select: { id: true, number: true, total: true, status: true, issuedAt: true },
+        select: { id: true, quoteNumber: true, totalTTC: true, status: true, createdAt: true },
       },
       messages: {
         orderBy: { createdAt: 'desc' },
@@ -41,7 +41,7 @@ export async function GET(_request, { params }) {
         select: { id: true, content: true, createdAt: true, applicationId: true },
       },
       referralsMade: {
-        select: { id: true, status: true, referredEmail: true, createdAt: true },
+        select: { id: true, status: true, refereeEmail: true, createdAt: true },
       },
       _count: {
         select: {

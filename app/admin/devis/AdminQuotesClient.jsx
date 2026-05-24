@@ -171,7 +171,9 @@ export default function AdminQuotesClient() {
 
 function CreateQuoteModal({ onClose, onCreated }) {
   const [submitting, setSubmitting] = useState(false);
+  const [applications, setApplications] = useState([]);
   const [form, setForm] = useState({
+    applicationId: '',
     contactName: '',
     contactEmail: '',
     contactPhone: '',
@@ -184,6 +186,28 @@ function CreateQuoteModal({ onClose, onCreated }) {
     notes: '',
     items: [{ description: 'Honoraires de courtage Finarent', quantity: 1, unitPriceHT: 0 }],
   });
+
+  useEffect(() => {
+    fetch('/api/admin/demandes')
+      .then((r) => r.ok ? r.json() : { items: [] })
+      .then((d) => setApplications(d.items || d || []))
+      .catch(() => {});
+  }, []);
+
+  const selectApplication = (appId) => {
+    setForm((f) => ({ ...f, applicationId: appId }));
+    if (!appId) return;
+    const app = applications.find((a) => a.id === appId);
+    if (!app) return;
+    setForm((f) => ({
+      ...f,
+      applicationId: appId,
+      contactName: app.user?.name || f.contactName,
+      contactEmail: app.user?.email || f.contactEmail,
+      companyName: app.companyName || f.companyName,
+      companySiret: app.siren || f.companySiret,
+    }));
+  };
 
   const updateItem = (i, patch) => setForm((f) => ({ ...f, items: f.items.map((it, idx) => idx === i ? { ...it, ...patch } : it) }));
   const addItem = () => setForm((f) => ({ ...f, items: [...f.items, { description: '', quantity: 1, unitPriceHT: 0 }] }));
@@ -223,6 +247,25 @@ function CreateQuoteModal({ onClose, onCreated }) {
         </div>
 
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          {applications.length > 0 && (
+            <div>
+              <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Lier à une demande (optionnel)</div>
+              <select
+                value={form.applicationId}
+                onChange={(e) => selectApplication(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-200 rounded-xl text-sm focus:border-secondary focus:outline-none"
+              >
+                <option value="">— Aucune demande liée —</option>
+                {applications.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.companyName || a.user?.name || a.id.slice(0, 8)} · {a.productType} · {a.amount ? `${a.amount}€` : '—'}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-gray-400 mt-1.5">Auto-remplit nom, email, entreprise et SIRET.</p>
+            </div>
+          )}
+
           <div>
             <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Contact</div>
             <div className="grid sm:grid-cols-2 gap-3">

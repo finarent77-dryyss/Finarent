@@ -123,6 +123,22 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: "Erreur lors de l'upload" }, { status: 500 });
+    // Erreurs typiques :
+    // - Supabase non configuré + filesystem read-only (Vercel) → EROFS / EACCES
+    // - Supabase mal configuré → "Invalid API key"
+    const msg = error?.message || '';
+    if (msg.includes('EROFS') || msg.includes('EACCES') || msg.includes('read-only')) {
+      return NextResponse.json(
+        { error: "Le stockage des documents n'est pas configuré sur ce serveur. Contactez l'administrateur." },
+        { status: 500 },
+      );
+    }
+    if (msg.includes('Invalid API key') || msg.includes('bucket') || msg.includes('storage')) {
+      return NextResponse.json(
+        { error: 'Erreur de stockage Supabase : ' + msg.slice(0, 100) },
+        { status: 500 },
+      );
+    }
+    return NextResponse.json({ error: 'Erreur lors du téléversement : ' + msg.slice(0, 100) }, { status: 500 });
   }
 }

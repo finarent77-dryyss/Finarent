@@ -188,10 +188,10 @@ function InviteForm({ code, affiliateName }) {
   const [feedback, setFeedback] = useState(null);
   const [count, setCount] = useState(0);
 
-  useState(() => {
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     setCount(parseInt(sessionStorage.getItem(SESSION_KEY) || '0', 10));
-  });
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();

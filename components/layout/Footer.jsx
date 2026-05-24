@@ -205,8 +205,12 @@ export default function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-4">{t('footer.help')}</h4>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/faq" className={linkClass}>{t('footer.faq')}</Link></li>
+              <li><Link href="/glossaire" className={linkClass}>Glossaire</Link></li>
+              <li><Link href="/guides" className={linkClass}>Guides</Link></li>
+              <li><Link href="/quiz" className={linkClass}>Quiz</Link></li>
               <li><Link href="/blog" className={linkClass}>{t('footer.blog')}</Link></li>
               <li><Link href="/legal" className={linkClass}>{t('footer.legalNotice')}</Link></li>
+              <li><Link href="/cgv" className={linkClass}>CGV</Link></li>
               <li><Link href="/terms" className={linkClass}>{t('footer.terms')}</Link></li>
               <li><Link href="/privacy" className={linkClass}>{t('footer.privacy')}</Link></li>
             </ul>
