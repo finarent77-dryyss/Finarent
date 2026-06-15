@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { logAdminActivity } from '@/lib/admin-activity-log';
 
 /**
  * GET /api/admin/call-centers
@@ -130,6 +131,16 @@ export async function POST(request) {
         isActive: body.isActive !== false,
         notes: body.notes ? String(body.notes).slice(0, 1000) : null,
       },
+    });
+    await logAdminActivity({
+      actorId: auth.dbUser?.id,
+      module: 'call_center',
+      action: 'CENTER_CREATED',
+      entityType: 'CallCenter',
+      entityId: center.id,
+      summary: `Centre « ${center.name} » créé (${center.code}, ${center.type})`,
+      details: { code: center.code, type: center.type, commissionType: center.commissionType, commissionValue: center.commissionValue },
+      request,
     });
     return NextResponse.json(center, { status: 201 });
   } catch (err) {

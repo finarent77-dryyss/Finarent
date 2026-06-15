@@ -21,6 +21,53 @@ const APP_NEXT_STATUS = {
   refused: 'REJECTED',
 };
 
+// Mappe l'issue legacy vers l'enum outcome de CallCenterInteraction
+const OUTCOME_TO_INTERACTION = {
+  reached: 'ANSWERED',
+  voicemail: 'VOICEMAIL',
+  no_answer: 'MISSED',
+  callback: 'CALLBACK',
+  qualified: 'INTERESTED',
+  converted: 'INTERESTED',
+  refused: 'NOT_INTERESTED',
+};
+
+/**
+ * Crée une CallCenterInteraction reliée à l'agent (admin courant) et, si
+ * l'agent est membre d'un centre, au centre correspondant. Best-effort :
+ * une erreur ici ne doit jamais casser le log d'appel principal.
+ */
+async function logInteraction({ agentUserId, kind, refId, outcome, comment, callbackAt, durationSec }) {
+  try {
+    let callCenterId = null;
+    if (agentUserId) {
+      const membership = await prisma.callCenterMember.findFirst({
+        where: { userId: agentUserId, isActive: true },
+        orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
+        select: { callCenterId: true },
+      });
+      callCenterId = membership?.callCenterId || null;
+    }
+
+    await prisma.callCenterInteraction.create({
+      data: {
+        callCenterId,
+        agentId: agentUserId || null,
+        prospectId: kind === 'prospect' ? refId : null,
+        applicationId: kind === 'demande' ? refId : null,
+        channel: 'CALL',
+        direction: 'OUTBOUND',
+        outcome: OUTCOME_TO_INTERACTION[outcome] || null,
+        durationSec: durationSec ? Math.round(durationSec) : null,
+        notes: comment ? String(comment).slice(0, 1000) : null,
+        callbackAt: callbackAt ? new Date(callbackAt) : null,
+      },
+    });
+  } catch (err) {
+    console.error('logInteraction (CallCenterInteraction) error:', err);
+  }
+}
+
 function buildLogEntry({ outcome, comment, callbackAt, durationSec, agent }) {
   const stamp = new Date().toISOString();
   const lines = [
@@ -64,6 +111,15 @@ export async function POST(request) {
       where: { id },
       data: { notes: newNotes, status: nextStatus },
     });
+    await logInteraction({
+      agentUserId: auth.dbUser?.id,
+      kind: 'prospect',
+      refId: id,
+      outcome,
+      comment,
+      callbackAt,
+      durationSec,
+    });
     return NextResponse.json({ ok: true, kind: 'prospect', item: updated });
   }
 
@@ -80,6 +136,15 @@ export async function POST(request) {
     const updated = await prisma.application.update({
       where: { id },
       data: { adminNotes: newNotes, status: nextStatus },
+    });
+    await logInteraction({
+      agentUserId: auth.dbUser?.id,
+      kind: 'demande',
+      refId: id,
+      outcome,
+      comment,
+      callbackAt,
+      durationSec,
     });
     return NextResponse.json({ ok: true, kind: 'demande', item: updated });
   }

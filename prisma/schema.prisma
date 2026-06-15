@@ -91,6 +91,8 @@ model User {
   rgpdActions       RgpdAction[]     @relation("UserRgpdActions")
   callCenterMemberships CallCenterMember[] @relation("CallCenterMemberships")
   callCenterInteractions CallCenterInteraction[] @relation("CallCenterAgent")
+  assignedProspects     Prospect[]         @relation("ProspectAssignedAgent")
+  adminActivityLogs     AdminActivityLog[] @relation("AdminActivityActor")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -587,6 +589,11 @@ model Prospect {
   // Affiliation : commercial / apporteur d'affaires qui a ramené ce prospect
   affiliateId    String?
   affiliate      Affiliate?      @relation(fields: [affiliateId], references: [id])
+  // Rattachement à un centre d'appel + agent en charge (file de prospection téléphonique)
+  callCenterId   String?
+  callCenter     CallCenter?     @relation("CallCenterProspects", fields: [callCenterId], references: [id], onDelete: SetNull)
+  assignedAgentId String?
+  assignedAgent  User?           @relation("ProspectAssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
   callCenterInteractions CallCenterInteraction[] @relation("CallCenterInteractions")
   events         ProspectEvent[]
   firstSeenAt    DateTime        @default(now())
@@ -600,6 +607,8 @@ model Prospect {
   @@index([affiliateId])
   @@index([engagementScore])
   @@index([utmSource])
+  @@index([callCenterId])
+  @@index([assignedAgentId])
 }
 
 model ProspectEvent {
@@ -766,6 +775,7 @@ model CallCenter {
   // Relations
   members         CallCenterMember[]
   applications    Application[]           @relation("CallCenterApplications")
+  prospects       Prospect[]              @relation("CallCenterProspects")
   interactions    CallCenterInteraction[]
   commissions     CallCenterCommission[]
   createdAt       DateTime                @default(now())
@@ -819,6 +829,32 @@ model CallCenterInteraction {
 }
 
 // Commission calculée à la signature d'une demande attribuée à un centre
+// ─── JOURNAL D'ACTIVITÉ OWNER ─────────────────────────────
+// Journal centralisé des actions sensibles de l'admin/owner (best-effort,
+// ne bloque jamais l'action métier). Agrégé dans /admin/logs avec les audits
+// RGPD (RgpdAction) et l'historique des statuts (StatusHistory).
+// Inspiré du modèle slformations (AdminActivityLog).
+model AdminActivityLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation("AdminActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+  module     String   // security | finance | settings | demandes | crm | call_center | affiliations | exports | rgpd
+  action     String   // ex: COMMISSION_PAID, PROSPECT_ASSIGNED, EXPORT, CENTER_CREATED…
+  entityType String?  // ex: CallCenterCommission, Prospect, Application
+  entityId   String?
+  summary    String   // phrase lisible (max 500)
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([module])
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
+
 model CallCenterCommission {
   id            String                    @id @default(cuid())
   callCenterId  String

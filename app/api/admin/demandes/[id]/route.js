@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/users';
 import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES } from '@/lib/statusMap';
 import { protect, reveal } from '@/lib/sensitive';
 import { computeCommission } from '@/lib/affiliate';
+import { logAdminActivity } from '@/lib/admin-activity-log';
 
 export async function PATCH(request, { params }) {
   try {
@@ -20,13 +21,17 @@ export async function PATCH(request, { params }) {
 
     const { id } = await params;
     const body = await request.json();
-    const { status, adminNotes } = body;
+    const { status, adminNotes, callCenterId } = body;
 
     const updateData = {};
     if (status && VALID_LEGACY_STATUSES.includes(status)) {
       updateData.status = STATUS_TO_DB[status];
     }
     if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
+    // Rattachement / détachement d'un centre d'appel
+    if (callCenterId !== undefined) {
+      updateData.callCenterId = callCenterId ? String(callCenterId) : null;
+    }
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'Aucune modification' }, { status: 400 });
@@ -126,6 +131,27 @@ export async function PATCH(request, { params }) {
           data: { status: 'CANCELLED' },
         });
       }
+    }
+
+    // Journal : rattachement / détachement d'un centre d'appel
+    if (callCenterId !== undefined && dbUser) {
+      let centerName = null;
+      if (application.callCenterId) {
+        const c = await prisma.callCenter.findUnique({ where: { id: application.callCenterId }, select: { name: true } });
+        centerName = c?.name || application.callCenterId;
+      }
+      await logAdminActivity({
+        actorId: dbUser.id,
+        module: 'call_center',
+        action: 'DEMANDE_ASSIGNED_CENTER',
+        entityType: 'Application',
+        entityId: id,
+        summary: centerName
+          ? `Demande ${application.companyName || id} rattachée au centre ${centerName}`
+          : `Demande ${application.companyName || id} détachée de tout centre`,
+        details: { callCenterId: application.callCenterId },
+        request,
+      });
     }
 
     const revealed = reveal('Application', application);

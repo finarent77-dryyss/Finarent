@@ -175,17 +175,7 @@ export default function AdminCallCenterDetailClient({ centerId }) {
         />
       )}
       {activeTab === 'commissions' && (
-        <DataTable
-          rows={data.commissions}
-          empty="Aucune commission. Une commission est calculée automatiquement à la signature d'un dossier rattaché au centre."
-          columns={[
-            { label: 'Date', render: (c) => new Date(c.createdAt).toLocaleDateString('fr-FR') },
-            { label: 'Dossier', render: (c) => c.application?.companyName || '—' },
-            { label: 'Financé', render: (c) => c.application?.amount != null ? `${c.application.amount.toLocaleString()} €` : '—' },
-            { label: 'Commission', render: (c) => <strong className="text-primary">{c.amount.toFixed(2)} €</strong> },
-            { label: 'Statut', render: (c) => <Badge label={c.status} type={c.status === 'PAID' ? 'green' : c.status === 'CANCELLED' ? 'gray' : 'amber'} /> },
-          ]}
-        />
+        <CommissionsTab centerId={centerId} commissions={data.commissions} onChange={load} />
       )}
     </div>
   );
@@ -352,6 +342,124 @@ function MembersTab({ centerId, members, onChange }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function CommissionsTab({ centerId, commissions, onChange }) {
+  const [selected, setSelected] = useState([]);
+  const [busy, setBusy] = useState(false);
+
+  const toggle = (id) => setSelected((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
+  const selectablePending = commissions.filter((c) => c.status === 'PENDING').map((c) => c.id);
+  const allPendingSelected = selectablePending.length > 0 && selectablePending.every((id) => selected.includes(id));
+
+  const totals = commissions.reduce((acc, c) => {
+    if (c.status === 'PENDING') acc.pending += c.amount;
+    if (c.status === 'PAID') acc.paid += c.amount;
+    return acc;
+  }, { pending: 0, paid: 0 });
+
+  const run = async (action) => {
+    if (selected.length === 0) return;
+    setBusy(true);
+    try {
+      const r = await fetch(`/api/admin/call-centers/${centerId}/commissions`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commissionIds: selected, action }),
+      });
+      if (r.ok) { setSelected([]); onChange(); }
+      else alert('Erreur : ' + ((await r.json()).error || 'inconnue'));
+    } finally { setBusy(false); }
+  };
+
+  if (!commissions || commissions.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center text-gray-400 text-sm">
+        Aucune commission. Une commission est calculée automatiquement à la signature d'un dossier rattaché au centre.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex gap-2">
+          <button
+            onClick={() => run('pay')}
+            disabled={busy || selected.length === 0}
+            className="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 disabled:opacity-40"
+          >
+            <i className="fa-solid fa-check mr-1.5"></i> Marquer payé{selected.length > 0 ? ` (${selected.length})` : ''}
+          </button>
+          <button
+            onClick={() => run('cancel')}
+            disabled={busy || selected.length === 0}
+            className="px-4 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl text-sm hover:bg-gray-50 disabled:opacity-40"
+          >
+            Annuler
+          </button>
+        </div>
+        <a
+          href={`/api/admin/call-centers/${centerId}/commissions/export?status=PENDING`}
+          className="px-4 py-2 bg-white border border-gray-200 text-primary font-bold rounded-xl text-sm hover:bg-gray-50"
+        >
+          <i className="fa-solid fa-file-export mr-1.5"></i> Exporter virements (à verser)
+        </a>
+      </div>
+
+      <div className="flex gap-4 text-xs text-gray-500">
+        <span>À verser : <strong className="text-amber-600">{totals.pending.toFixed(2)} €</strong></span>
+        <span>Versé : <strong className="text-emerald-600">{totals.paid.toFixed(2)} €</strong></span>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+              <tr>
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    aria-label="Tout sélectionner"
+                    checked={allPendingSelected}
+                    onChange={(e) => setSelected(e.target.checked ? selectablePending : [])}
+                  />
+                </th>
+                <th className="text-left px-5 py-3 whitespace-nowrap">Date</th>
+                <th className="text-left px-5 py-3 whitespace-nowrap">Dossier</th>
+                <th className="text-left px-5 py-3 whitespace-nowrap">Financé</th>
+                <th className="text-left px-5 py-3 whitespace-nowrap">Commission</th>
+                <th className="text-left px-5 py-3 whitespace-nowrap">Statut</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {commissions.map((c) => (
+                <tr key={c.id} className="hover:bg-gray-50/50">
+                  <td className="px-4 py-3">
+                    {c.status === 'PENDING' && (
+                      <input
+                        type="checkbox"
+                        aria-label="Sélectionner la commission"
+                        checked={selected.includes(c.id)}
+                        onChange={() => toggle(c.id)}
+                      />
+                    )}
+                  </td>
+                  <td className="px-5 py-3">{new Date(c.createdAt).toLocaleDateString('fr-FR')}</td>
+                  <td className="px-5 py-3">{c.application?.companyName || '—'}</td>
+                  <td className="px-5 py-3">{c.application?.amount != null ? `${c.application.amount.toLocaleString()} €` : '—'}</td>
+                  <td className="px-5 py-3"><strong className="text-primary">{c.amount.toFixed(2)} €</strong></td>
+                  <td className="px-5 py-3">
+                    <Badge label={c.status} type={c.status === 'PAID' ? 'green' : c.status === 'CANCELLED' ? 'gray' : 'amber'} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

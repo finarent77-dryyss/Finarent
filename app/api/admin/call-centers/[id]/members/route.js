@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { logAdminActivity } from '@/lib/admin-activity-log';
 
 /**
  * GET /api/admin/call-centers/[id]/members
@@ -70,6 +71,17 @@ export async function POST(request, { params }) {
       include: { user: { select: { id: true, name: true, email: true, role: true } } },
     });
 
+    await logAdminActivity({
+      actorId: auth.dbUser?.id,
+      module: 'call_center',
+      action: 'MEMBER_ADDED',
+      entityType: 'CallCenterMember',
+      entityId: id,
+      summary: `${member.user?.name || member.user?.email || userId} ajouté comme ${role}`,
+      details: { userId, role },
+      request,
+    });
+
     return NextResponse.json(member, { status: 201 });
   } catch (err) {
     console.error('POST /api/admin/call-centers/[id]/members error:', err);
@@ -93,9 +105,22 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: 'Identifiant utilisateur requis' }, { status: 400 });
   }
 
-  await prisma.callCenterMember.deleteMany({
+  const removed = await prisma.callCenterMember.deleteMany({
     where: { callCenterId: id, userId },
   });
+
+  if (removed.count > 0) {
+    await logAdminActivity({
+      actorId: auth.dbUser?.id,
+      module: 'call_center',
+      action: 'MEMBER_REMOVED',
+      entityType: 'CallCenterMember',
+      entityId: id,
+      summary: `Membre ${userId} retiré du centre`,
+      details: { userId },
+      request,
+    });
+  }
 
   return NextResponse.json({ success: true });
 }

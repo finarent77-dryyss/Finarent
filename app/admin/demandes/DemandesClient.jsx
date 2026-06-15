@@ -48,9 +48,17 @@ export default function DemandesClient() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
+  const [centers, setCenters] = useState([]);
   const { t, locale } = useTranslation();
 
   useEffect(() => { fetchDemandes(); }, []);
+
+  useEffect(() => {
+    fetch('/api/admin/call-centers?active=true')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setCenters(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, []);
 
   const fetchDemandes = async () => {
     try {
@@ -71,6 +79,19 @@ export default function DemandesClient() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error(t('admin.updateError'));
+      const updated = await res.json();
+      setDemandes(prev => prev.map(d => d.id === id ? updated : d));
+    } catch (err) { alert(err.message); }
+  };
+
+  const assignCenter = async (id, callCenterId) => {
+    try {
+      const res = await fetch(`/api/admin/demandes/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callCenterId: callCenterId || null }),
       });
       if (!res.ok) throw new Error(t('admin.updateError'));
       const updated = await res.json();
@@ -385,6 +406,29 @@ export default function DemandesClient() {
                             ))}
                           </select>
                         </div>
+
+                        {/* Centre d'appel */}
+                        {centers.length > 0 && (
+                          <div>
+                            <div className="text-xs font-bold text-gray-400 uppercase mb-2">
+                              <i className="fa-solid fa-headset text-[10px] mr-1.5"></i>
+                              Centre d'appel attribué
+                            </div>
+                            <select
+                              value={d.callCenterId || ''}
+                              onChange={(e) => assignCenter(d.id, e.target.value)}
+                              className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all w-full sm:w-auto"
+                            >
+                              <option value="">— Aucun centre —</option>
+                              {centers.map((c) => (
+                                <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
+                              ))}
+                            </select>
+                            <p className="text-[11px] text-gray-400 mt-1.5">
+                              Une commission sera calculée automatiquement pour le centre à la signature du dossier.
+                            </p>
+                          </div>
+                        )}
 
                         {/* Admin notes */}
                         <div className="bg-gray-50 rounded-xl p-4">
