@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { logAdminActivity } from '@/lib/admin-activity-log';
 
 /**
  * GET /api/admin/call-centers/[id]
@@ -121,6 +122,15 @@ export async function DELETE(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  await prisma.callCenter.update({ where: { id }, data: { isActive: false } });
+  const center = await prisma.callCenter.update({ where: { id }, data: { isActive: false } });
+  await logAdminActivity({
+    actorId: auth.dbUser?.id,
+    module: 'call_center',
+    action: 'CENTER_DEACTIVATED',
+    entityType: 'CallCenter',
+    entityId: id,
+    summary: `Centre « ${center.name} » désactivé`,
+    request,
+  });
   return NextResponse.json({ success: true, message: 'Centre désactivé (historique conservé)' });
 }

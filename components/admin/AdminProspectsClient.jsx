@@ -48,17 +48,37 @@ export default function AdminProspectsClient() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('recent'); // 'recent' | 'score'
   const [selected, setSelected] = useState(null);
+  const [showImport, setShowImport] = useState(false);
+  const [centers, setCenters] = useState([]);
+  const [centerFilter, setCenterFilter] = useState('ALL'); // 'ALL' | 'none' | centerId
+
+  useEffect(() => {
+    fetch('/api/admin/call-centers?active=true')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setCenters(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, []);
+
+  const exportUrl = useMemo(() => {
+    const params = new URLSearchParams({ sort });
+    if (filter !== 'ALL') params.set('status', filter);
+    if (search) params.set('q', search);
+    if (centerFilter !== 'ALL') params.set('callCenterId', centerFilter);
+    return `/api/admin/prospects/export?${params.toString()}`;
+  }, [sort, filter, search, centerFilter]);
 
   const load = () => {
     setLoading(true);
-    fetch(`/api/admin/prospects?sort=${sort}`)
+    const params = new URLSearchParams({ sort });
+    if (centerFilter !== 'ALL') params.set('callCenterId', centerFilter);
+    fetch(`/api/admin/prospects?${params.toString()}`)
       .then((r) => r.json())
       .then(setProspects)
       .catch(() => {})
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [sort]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [sort, centerFilter]);
 
   const filtered = useMemo(() => prospects.filter((p) => {
     if (filter !== 'ALL' && p.status !== filter) return false;
@@ -105,12 +125,26 @@ export default function AdminProspectsClient() {
             Leads issus des simulateurs · {prospects.length} prospects · cookie tracking anonyme
           </p>
         </div>
-        <button
-          onClick={load}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-primary hover:bg-gray-50 transition"
-        >
-          <i className="fa-solid fa-arrows-rotate"></i> Actualiser
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setShowImport(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-xl text-sm font-bold hover:bg-secondary/90 transition"
+          >
+            <i className="fa-solid fa-file-import"></i> Importer CSV
+          </button>
+          <a
+            href={exportUrl}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-primary hover:bg-gray-50 transition"
+          >
+            <i className="fa-solid fa-file-export"></i> Exporter CSV
+          </a>
+          <button
+            onClick={load}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-primary hover:bg-gray-50 transition"
+          >
+            <i className="fa-solid fa-arrows-rotate"></i> Actualiser
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -145,6 +179,19 @@ export default function AdminProspectsClient() {
             className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
           />
         </div>
+        {centers.length > 0 && (
+          <select
+            value={centerFilter}
+            onChange={(e) => setCenterFilter(e.target.value)}
+            className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary"
+          >
+            <option value="ALL">Tous les centres</option>
+            <option value="none">Non rattachés</option>
+            {centers.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        )}
         <div className="flex gap-1 bg-gray-50 rounded-xl p-1">
           <button
             onClick={() => setSort('recent')}
@@ -269,6 +316,16 @@ export default function AdminProspectsClient() {
         )}
       </div>
 
+      {/* Modale d'import CSV */}
+      <AnimatePresence>
+        {showImport && (
+          <ImportModal
+            onClose={() => setShowImport(false)}
+            onDone={() => { setShowImport(false); load(); }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Drawer détail */}
       <AnimatePresence>
         {selected && (
@@ -285,11 +342,166 @@ export default function AdminProspectsClient() {
   );
 }
 
+function ImportModal({ onClose, onDone }) {
+  const [csvText, setCsvText] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [centers, setCenters] = useState([]);
+  const [callCenterId, setCallCenterId] = useState('');
+
+  useEffect(() => {
+    fetch('/api/admin/call-centers?active=true')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setCenters(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, []);
+
+  const onFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setCsvText(String(reader.result || ''));
+    reader.readAsText(file);
+  };
+
+  const submit = async () => {
+    if (!csvText.trim()) { setError('Sélectionnez un fichier ou collez le contenu CSV.'); return; }
+    setSubmitting(true);
+    setError(null);
+    setResult(null);
+    try {
+      const r = await fetch('/api/admin/prospects/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csv: csvText, callCenterId: callCenterId || null }),
+      });
+      const data = await r.json();
+      if (r.ok) setResult(data);
+      else setError(data.error || (data.errors && data.errors[0]) || 'Échec de l\'import');
+    } catch {
+      setError('Erreur réseau');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.96, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8"
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-black text-primary">Importer des prospects</h2>
+            <p className="text-xs text-gray-400 mt-1">Fichier CSV — colonnes reconnues : nom, email, téléphone, société, statut, source, notes.</p>
+          </div>
+          <button onClick={onClose} aria-label="Fermer" className="text-gray-400 hover:text-gray-700">
+            <i className="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        {result ? (
+          <div className="space-y-4">
+            <div className="bg-emerald-50 text-emerald-800 rounded-xl p-4 text-sm">
+              <div className="font-bold mb-1"><i className="fa-solid fa-circle-check mr-1.5"></i> Import terminé</div>
+              <ul className="space-y-0.5">
+                <li>Créés : <strong>{result.created}</strong></li>
+                <li>Mis à jour : <strong>{result.updated}</strong></li>
+                {result.skipped > 0 && <li>Échoués : <strong>{result.skipped}</strong></li>}
+                <li className="text-emerald-700/70">Lignes traitées : {result.total}</li>
+              </ul>
+            </div>
+            {result.errors?.length > 0 && (
+              <div className="bg-amber-50 text-amber-800 rounded-xl p-3 text-xs max-h-40 overflow-y-auto">
+                <div className="font-bold mb-1">Avertissements ({result.errors.length})</div>
+                <ul className="space-y-0.5 list-disc pl-4">
+                  {result.errors.slice(0, 30).map((e, i) => <li key={i}>{e}</li>)}
+                </ul>
+              </div>
+            )}
+            <button
+              onClick={onDone}
+              className="w-full px-5 py-3 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 text-sm"
+            >
+              Voir les prospects
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {error && <div className="bg-red-50 text-red-700 text-sm p-3 rounded-xl">{error}</div>}
+
+            <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-2xl p-6 cursor-pointer hover:border-secondary/50 hover:bg-gray-50/50 transition">
+              <i className="fa-solid fa-cloud-arrow-up text-2xl text-gray-300"></i>
+              <span className="text-sm font-bold text-primary">{fileName || 'Choisir un fichier .csv'}</span>
+              <span className="text-[11px] text-gray-400">ou glissez le contenu ci-dessous</span>
+              <input type="file" accept=".csv,.txt,text/csv" onChange={onFile} className="hidden" />
+            </label>
+
+            {centers.length > 0 && (
+              <div>
+                <label className="block text-[10px] font-mono uppercase tracking-[0.12em] text-gray-400 mb-1.5">
+                  Affecter à un centre d'appel (optionnel)
+                </label>
+                <select
+                  value={callCenterId}
+                  onChange={(e) => setCallCenterId(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary"
+                >
+                  <option value="">— Aucun —</option>
+                  {centers.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <textarea
+              value={csvText}
+              onChange={(e) => setCsvText(e.target.value)}
+              rows={6}
+              placeholder={'nom,email,telephone,societe,statut\nJean Martin,jean@exemple.fr,0612345678,Martin SAS,NEW'}
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary"
+            />
+
+            <div className="flex gap-3">
+              <button onClick={onClose} className="flex-1 px-5 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 text-sm">
+                Annuler
+              </button>
+              <button
+                onClick={submit}
+                disabled={submitting}
+                className="flex-1 px-5 py-3 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 disabled:opacity-50 text-sm"
+              >
+                {submitting ? 'Import…' : 'Importer'}
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function ProspectDrawer({ prospect, onClose, onUpdate, onDelete, onChangeStatus }) {
   const [notes, setNotes] = useState(prospect.notes || '');
   const [savingNotes, setSavingNotes] = useState(false);
   const [fullProspect, setFullProspect] = useState(prospect);
   const [tab, setTab] = useState('events');
+  const [centers, setCenters] = useState([]);
+  const [agents, setAgents] = useState([]);
 
   useEffect(() => {
     fetch(`/api/admin/prospects/${prospect.id}`)
@@ -297,6 +509,36 @@ function ProspectDrawer({ prospect, onClose, onUpdate, onDelete, onChangeStatus 
       .then(setFullProspect)
       .catch(() => {});
   }, [prospect.id]);
+
+  useEffect(() => {
+    fetch('/api/admin/call-centers?active=true')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setCenters(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, []);
+
+  const currentCenterId = fullProspect.callCenterId || '';
+
+  useEffect(() => {
+    if (!currentCenterId) { setAgents([]); return; }
+    fetch(`/api/admin/call-centers/${currentCenterId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setAgents(d?.members || []))
+      .catch(() => setAgents([]));
+  }, [currentCenterId]);
+
+  const assign = async (patch) => {
+    const res = await fetch(`/api/admin/prospects/${prospect.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setFullProspect((p) => ({ ...p, ...updated }));
+      onUpdate(updated);
+    }
+  };
 
   const saveNotes = async () => {
     setSavingNotes(true);
@@ -337,7 +579,7 @@ function ProspectDrawer({ prospect, onClose, onUpdate, onDelete, onChangeStatus 
               {prospect.name || prospect.company || 'Anonyme'}
             </h2>
           </div>
-          <button onClick={onClose} className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500">
+          <button onClick={onClose} aria-label="Fermer" className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500">
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -369,6 +611,42 @@ function ProspectDrawer({ prospect, onClose, onUpdate, onDelete, onChangeStatus 
                   {STATUS_LABEL[s]}
                 </button>
               ))}
+            </div>
+          </section>
+
+          {/* Assignation centre d'appel */}
+          <section>
+            <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-gray-400 mb-3">Centre d'appel</div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] text-gray-400 mb-1">Centre</label>
+                <select
+                  value={currentCenterId}
+                  onChange={(e) => assign({ callCenterId: e.target.value || null, assignedAgentId: null })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary"
+                >
+                  <option value="">— Non rattaché —</option>
+                  {centers.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] text-gray-400 mb-1">Agent en charge</label>
+                <select
+                  value={fullProspect.assignedAgentId || ''}
+                  onChange={(e) => assign({ assignedAgentId: e.target.value || null })}
+                  disabled={!currentCenterId}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary disabled:opacity-50"
+                >
+                  <option value="">— Aucun —</option>
+                  {agents.map((m) => (
+                    <option key={m.user?.id || m.id} value={m.user?.id}>
+                      {(m.user?.name || m.user?.email)} · {m.role === 'MANAGER' ? 'Manager' : 'Agent'}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </section>
 

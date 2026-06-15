@@ -10,9 +10,12 @@ export async function GET(request) {
   const status = searchParams.get('status');
   const simulator = searchParams.get('simulator');
   const search = searchParams.get('q');
+  const callCenterId = searchParams.get('callCenterId');
 
   const where = {};
   if (status && status !== 'ALL') where.status = status;
+  if (callCenterId === 'none') where.callCenterId = null;
+  else if (callCenterId) where.callCenterId = callCenterId;
   if (search) {
     where.OR = [
       { email: { contains: search, mode: 'insensitive' } },
@@ -40,6 +43,8 @@ export async function GET(request) {
         take: 5,
         select: { id: true, simulatorSlug: true, category: true, params: true, result: true, createdAt: true },
       },
+      callCenter: { select: { id: true, name: true, code: true } },
+      assignedAgent: { select: { id: true, name: true, email: true } },
       _count: { select: { events: true } },
     },
   });
