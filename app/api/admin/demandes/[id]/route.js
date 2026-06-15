@@ -89,6 +89,43 @@ export async function PATCH(request, { params }) {
           data: { status: 'CANCELLED' },
         });
       }
+
+      // Centre d'appel : commission auto au passage SIGNED
+      if (updateData.status === 'SIGNED' && application.callCenterId) {
+        const existing = await prisma.callCenterCommission.findUnique({
+          where: { applicationId: id },
+        });
+        if (!existing) {
+          const center = await prisma.callCenter.findUnique({
+            where: { id: application.callCenterId },
+            select: { commissionType: true, commissionValue: true },
+          });
+          if (center) {
+            const amount = computeCommission(
+              { type: center.commissionType, value: center.commissionValue },
+              application.amount,
+            );
+            await prisma.callCenterCommission.create({
+              data: {
+                callCenterId: application.callCenterId,
+                applicationId: id,
+                type: center.commissionType,
+                rate: center.commissionValue,
+                amount,
+                status: 'PENDING',
+              },
+            });
+          }
+        }
+      }
+
+      // Centre d'appel : annule la commission si REJECTED
+      if (updateData.status === 'REJECTED' && application.callCenterId) {
+        await prisma.callCenterCommission.updateMany({
+          where: { applicationId: id, status: 'PENDING' },
+          data: { status: 'CANCELLED' },
+        });
+      }
     }
 
     const revealed = reveal('Application', application);

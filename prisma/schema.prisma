@@ -89,6 +89,8 @@ model User {
   signaturesRequested SignatureRequest[] @relation("SignatureRequestBy")
   documentAccesses  DocumentAccess[] @relation("DocumentAccessedBy")
   rgpdActions       RgpdAction[]     @relation("UserRgpdActions")
+  callCenterMemberships CallCenterMember[] @relation("CallCenterMemberships")
+  callCenterInteractions CallCenterInteraction[] @relation("CallCenterAgent")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -133,6 +135,11 @@ model Application {
   affiliateId   String?
   affiliate     Affiliate?        @relation(fields: [affiliateId], references: [id])
   affiliateCommissions AffiliateCommission[]
+  // Rattachement à un centre d'appel
+  callCenterId  String?
+  callCenter    CallCenter?       @relation("CallCenterApplications", fields: [callCenterId], references: [id])
+  callCenterCommission CallCenterCommission? @relation("CallCenterCommissionApp")
+  callCenterInteractions CallCenterInteraction[] @relation("CallCenterInteractions")
   documents     Document[]
   messages      Message[]
   statusHistory StatusHistory[]
@@ -149,6 +156,7 @@ model Application {
   @@index([productType])
   @@index([status, createdAt])
   @@index([status, updatedAt])
+  @@index([callCenterId])
   @@index([affiliateId])
 }
 
@@ -579,6 +587,7 @@ model Prospect {
   // Affiliation : commercial / apporteur d'affaires qui a ramené ce prospect
   affiliateId    String?
   affiliate      Affiliate?      @relation(fields: [affiliateId], references: [id])
+  callCenterInteractions CallCenterInteraction[] @relation("CallCenterInteractions")
   events         ProspectEvent[]
   firstSeenAt    DateTime        @default(now())
   lastSeenAt     DateTime        @default(now())
@@ -718,5 +727,113 @@ model AffiliateCommission {
 
   @@unique([applicationId])  // une seule commission par dossier
   @@index([affiliateId, status])
+  @@index([status, createdAt])
+}
+
+// ─── CENTRES D'APPEL ──────────────────────────────────────
+// Hiérarchie : Centre → 1 Manager + N Agents
+// Un centre peut être INTERNAL (équipe Finarent) ou EXTERNAL (partenaire télémarketing)
+// Quand un agent du centre crée/qualifie une demande, celle-ci est attribuée
+// au centre. À la signature → commission auto pour le centre (le manager
+// répartit ensuite manuellement entre ses agents hors plateforme).
+
+enum CallCenterType {
+  INTERNAL  // équipe interne Finarent (ex: "Centre Paris")
+  EXTERNAL  // société partenaire externe (télémarketing, prestataire)
+}
+
+enum CallCenterMemberRole {
+  MANAGER  // gère le centre, voit les stats, ajoute/retire des agents
+  AGENT    // passe des appels, qualifie les demandes
+}
+
+model CallCenter {
+  id              String                  @id @default(cuid())
+  code            String                  @unique          // ex: CC-PARIS, CC-LYON, CC-CALLZONE
+  name            String
+  type            CallCenterType          @default(INTERNAL)
+  // Coordonnées
+  address         String?
+  phone           String?
+  email           String?
+  // Externe uniquement : pour les virements de commission
+  iban            String?
+  // Configuration commission (par défaut PERCENT 5%)
+  commissionType  AffiliateCommissionType @default(PERCENT)
+  commissionValue Float                   @default(5)
+  isActive        Boolean                 @default(true)
+  notes           String?
+  // Relations
+  members         CallCenterMember[]
+  applications    Application[]           @relation("CallCenterApplications")
+  interactions    CallCenterInteraction[]
+  commissions     CallCenterCommission[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@index([type, isActive])
+  @@index([isActive])
+}
+
+model CallCenterMember {
+  id            String                @id @default(cuid())
+  callCenterId  String
+  callCenter    CallCenter            @relation(fields: [callCenterId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User                  @relation("CallCenterMemberships", fields: [userId], references: [id], onDelete: Cascade)
+  role          CallCenterMemberRole  @default(AGENT)
+  isActive      Boolean               @default(true)
+  joinedAt      DateTime              @default(now())
+
+  @@unique([callCenterId, userId])
+  @@index([userId])
+  @@index([callCenterId, role])
+}
+
+// Log des interactions (appels, emails, SMS) déclenchées par un agent
+// Étend le système existant /api/admin/centre-appel/log avec rattachement
+// explicite à un centre et à un agent.
+model CallCenterInteraction {
+  id            String        @id @default(cuid())
+  callCenterId  String?
+  callCenter    CallCenter?   @relation(fields: [callCenterId], references: [id], onDelete: SetNull)
+  agentId       String?
+  agent         User?         @relation("CallCenterAgent", fields: [agentId], references: [id], onDelete: SetNull)
+  prospectId    String?
+  prospect      Prospect?     @relation("CallCenterInteractions", fields: [prospectId], references: [id], onDelete: SetNull)
+  applicationId String?
+  application   Application?  @relation("CallCenterInteractions", fields: [applicationId], references: [id], onDelete: SetNull)
+  channel       String        // CALL | EMAIL | SMS
+  direction     String?       // INBOUND | OUTBOUND
+  outcome       String?       // ANSWERED | MISSED | VOICEMAIL | INTERESTED | NOT_INTERESTED | CALLBACK | NO_SHOW
+  durationSec   Int?
+  notes         String?
+  callbackAt    DateTime?     // si outcome = CALLBACK
+  createdAt     DateTime      @default(now())
+
+  @@index([callCenterId, createdAt])
+  @@index([agentId, createdAt])
+  @@index([prospectId])
+  @@index([applicationId])
+  @@index([outcome])
+}
+
+// Commission calculée à la signature d'une demande attribuée à un centre
+model CallCenterCommission {
+  id            String                    @id @default(cuid())
+  callCenterId  String
+  callCenter    CallCenter                @relation(fields: [callCenterId], references: [id])
+  applicationId String                    @unique
+  application   Application               @relation("CallCenterCommissionApp", fields: [applicationId], references: [id], onDelete: Cascade)
+  type          AffiliateCommissionType
+  rate          Float                                       // snapshot au moment du calcul
+  amount        Float
+  status        AffiliateCommissionStatus @default(PENDING)
+  paidAt        DateTime?
+  notes         String?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+
+  @@index([callCenterId, status])
   @@index([status, createdAt])
 }
