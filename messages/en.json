@@ -1,7 +1,7 @@
 {
   "common": {
     "requestQuote": "Request a quote",
-    "phone": "01 23 45 67 89",
+    "phone": "01 60 28 59 41",
     "email": "contact@finarent.fr",
     "select": "Select",
     "other": "Other"
@@ -41,7 +41,7 @@
     "ctaSecondary": "Our insurance",
     "noDeposit": "No deposit",
     "fast48h": "48h response",
-    "approval98": "95% approved",
+    "approval98": "88% approved",
     "funded": "Funded",
     "clients": "Clients",
     "reviews": "Reviews"
@@ -112,8 +112,8 @@
     "financingDesc": "Finance your professional equipment",
     "welcome": "Welcome to",
     "48hChrono": "48h fast",
-    "clients1200": "300+ clients",
-    "approval98": "95% approved"
+    "clients1200": "120+ clients",
+    "approval98": "88% approved"
   },
   "contact": {
     "badge": "Contact us",
@@ -389,7 +389,7 @@
     "title": "Legal notice",
     "editor": "Website publisher",
     "companyType": "SAS with share capital of €10,000",
-    "address": "123 Avenue des Champs-Élysées, 75008 Paris",
+    "address": "39 Avenue de la République, 77340 Pontault-Combault",
     "sirenRcs": "SIREN: 123 456 789 — RCS Paris",
     "tva": "Intra-community VAT: FR 12 345678901",
     "director": "Publication director",

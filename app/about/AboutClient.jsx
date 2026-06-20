@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import { useTranslation } from '@/lib/i18n';
+import { MARKETING_STATS } from '@/lib/marketing-stats';
 
 export default function AboutClient() {
   const { t } = useTranslation();
@@ -44,11 +45,11 @@ export default function AboutClient() {
                   <p className="text-gray-600 text-lg leading-relaxed">{t('about.partnerDesc2')}</p>
                   <div className="grid grid-cols-2 gap-6 mt-8">
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="text-3xl font-bold text-secondary mb-1">300+</div>
+                      <div className="text-3xl font-bold text-secondary mb-1">{MARKETING_STATS.clients}</div>
                       <div className="text-sm text-gray-500">{t('about.fundedCompanies')}</div>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="text-3xl font-bold text-accent mb-1">95%</div>
+                      <div className="text-3xl font-bold text-accent mb-1">{MARKETING_STATS.approvalRateLabel}</div>
                       <div className="text-sm text-gray-500">{t('about.approvalRate')}</div>
                     </div>
                   </div>

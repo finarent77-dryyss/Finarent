@@ -119,11 +119,15 @@ Le site envoie : confirmation demande, alerte admin, document reçu, relance doc
 
 Mentionnée dans le PDF *"10 Finarent Integration API Ringover.pdf"*.
 
+> **Côté dev** : l'intégration webhook est implémentée (voir [`docs/SETUP_RINGOVER.md`](./SETUP_RINGOVER.md)).
+> Il reste à fournir les accès Ringover prod.
+
 - [ ] **Intégration prévue** ? Si oui :
-- [ ] **Compte Ringover** + API key
+- [ ] **Compte Ringover** + clé webhook (`RINGOVER_WEBHOOK_KEY`)
 - [ ] **Numéros entrants/sortants** Finarent
-- [ ] **Logs d'appels** à logger en DB ? (modèle Prisma à créer si oui)
-- [ ] **Click-to-call** depuis l'admin ?
+- [ ] **Emails agents Ringover** = emails comptes Finarent (membres centres d'appel)
+- [x] **Logs d'appels** en DB (`CallCenterInteraction`, provider `RINGOVER`)
+- [x] **Recherche contacts** depuis Ringover smartdialer (prospects Finarent)
 
 ## 12. Partenaires bancaires & assureurs
 

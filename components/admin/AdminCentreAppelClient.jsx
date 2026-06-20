@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import RingoverBanner from '@/components/admin/RingoverBanner';
 
 const OUTCOMES = [
   { id: 'reached',   label: 'Décroché',           icon: 'fa-phone-volume',      active: 'bg-emerald-50 border-emerald-400 text-emerald-700' },
@@ -103,6 +104,7 @@ export default function AdminCentreAppelClient() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-7xl mx-auto">
+      <RingoverBanner />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-primary flex items-center gap-3">

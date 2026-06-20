@@ -1,7 +1,7 @@
 {
   "common": {
     "requestQuote": "Demander un devis",
-    "phone": "01 23 45 67 89",
+    "phone": "01 60 28 59 41",
     "email": "contact@finarent.fr",
     "select": "Sélectionner",
     "other": "Autre"
@@ -41,7 +41,7 @@
     "ctaSecondary": "Nos assurances",
     "noDeposit": "Sans apport",
     "fast48h": "Réponse 48h",
-    "approval98": "95% acceptés",
+    "approval98": "88% acceptés",
     "funded": "Financés",
     "clients": "Clients",
     "reviews": "Avis clients"
@@ -112,8 +112,8 @@
     "financingDesc": "Financez vos équipements professionnels",
     "welcome": "Bienvenue chez",
     "48hChrono": "48h chrono",
-    "clients1200": "300+ clients",
-    "approval98": "95% accords"
+    "clients1200": "120+ clients",
+    "approval98": "88% accords"
   },
   "contact": {
     "badge": "Contactez-nous",
@@ -389,7 +389,7 @@
     "title": "Mentions légales",
     "editor": "Éditeur du site",
     "companyType": "SAS au capital de 10 000€",
-    "address": "123 Avenue des Champs-Élysées, 75008 Paris",
+    "address": "39 Avenue de la République, 77340 Pontault-Combault",
     "sirenRcs": "SIREN : 123 456 789 — RCS Paris",
     "tva": "TVA Intracommunautaire : FR 12 345678901",
     "director": "Directeur de la publication",

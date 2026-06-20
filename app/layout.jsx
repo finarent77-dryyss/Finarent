@@ -35,7 +35,7 @@ export const metadata = {
     locale: 'fr_FR',
     siteName: 'Finarent',
     title: 'Finarent | Financement & Assurance Professionnel',
-    description: 'Crédit-bail, leasing, assurance pro. Réponse en 48h. 300+ entreprises accompagnées, 95% d\'accords.',
+    description: 'Crédit-bail, leasing, assurance pro. Réponse en 48h. 120+ entreprises accompagnées, 88% d\'accords.',
     images: [{ url: '/hero_business_team_premium_v2_1772271137874.png', width: 1200, height: 630, alt: 'Finarent — Financement professionnel' }],
   },
   twitter: {

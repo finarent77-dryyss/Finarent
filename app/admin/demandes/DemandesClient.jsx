@@ -456,7 +456,7 @@ export default function DemandesClient() {
                               <p className="text-sm text-gray-600">{d.adminNotes || <span className="italic text-gray-400">{t('admin.none')}</span>}</p>
                               <button
                                 onClick={() => { setEditingId(d.id); setEditNotes(d.adminNotes || ''); }}
-                                className="text-xs font-bold text-secondary hover:underline flex-shrink-0"
+                                className="text-xs font-bold text-secondary hover:underline shrink-0"
                               >
                                 <i className="fa-solid fa-pen text-[10px] mr-1"></i>{t('admin.edit')}
                               </button>

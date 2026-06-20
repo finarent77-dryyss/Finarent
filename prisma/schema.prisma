@@ -376,12 +376,14 @@ model Invoice {
   paidAmount    Float           @default(0)
   paidAt        DateTime?
   paymentMethod String?
-  pdfUrl        String?
-  notes         String?
-  sentAt        DateTime?
-  sentTo        String?
-  archivedAt    DateTime?
-  createdAt     DateTime        @default(now())
+  pdfUrl               String?
+  notes                String?
+  sentAt               DateTime?
+  sentTo               String?
+  archivedAt           DateTime?
+  stripePaymentLinkId  String?
+  stripePaymentLinkUrl String?
+  createdAt            DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   lines         InvoiceLine[]
   payments      InvoicePayment[]
@@ -594,6 +596,10 @@ model Prospect {
   callCenter     CallCenter?     @relation("CallCenterProspects", fields: [callCenterId], references: [id], onDelete: SetNull)
   assignedAgentId String?
   assignedAgent  User?           @relation("ProspectAssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
+  // Suivi téléphonie (sync Ringover ou log manuel centre d'appel)
+  callAttempts    Int           @default(0)
+  lastCallAt      DateTime?
+  lastCallOutcome String?       // NO_ANSWER | CALLBACK | INTERESTED | NOT_INTERESTED | ANSWERED | VOICEMAIL
   callCenterInteractions CallCenterInteraction[] @relation("CallCenterInteractions")
   events         ProspectEvent[]
   firstSeenAt    DateTime        @default(now())
@@ -819,6 +825,12 @@ model CallCenterInteraction {
   durationSec   Int?
   notes         String?
   callbackAt    DateTime?     // si outcome = CALLBACK
+  // Sync téléphonie (Ringover, etc.) — inspiré SL Formations
+  provider      String        @default("MANUAL") // MANUAL | RINGOVER | OTHER
+  externalId    String?       // idempotence webhook (ex. ringover:channel:hangup)
+  summary       String?       // libellé lisible (ex. Ringover · Sortant · Décroché · 42s)
+  metadata      Json?
+  occurredAt    DateTime?     // horodatage réel de l'appel (≠ createdAt si sync différée)
   createdAt     DateTime      @default(now())
 
   @@index([callCenterId, createdAt])
@@ -826,6 +838,8 @@ model CallCenterInteraction {
   @@index([prospectId])
   @@index([applicationId])
   @@index([outcome])
+  @@index([provider, occurredAt])
+  @@index([externalId, provider])
 }
 
 // Commission calculée à la signature d'une demande attribuée à un centre

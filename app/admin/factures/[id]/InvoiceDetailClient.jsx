@@ -21,6 +21,8 @@ export default function InvoiceDetailClient({ id }) {
   const [loading, setLoading] = useState(true);
   const [addingPayment, setAddingPayment] = useState(false);
   const [payForm, setPayForm] = useState({ amount: '', paymentMethod: 'virement', reference: '', notes: '' });
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,6 +41,34 @@ export default function InvoiceDetailClient({ id }) {
       body: JSON.stringify({ status, sentAt: status === 'ISSUED' ? new Date().toISOString() : undefined }),
     });
     if (res.ok) load();
+  };
+
+  const generateStripeLink = async () => {
+    setStripeLoading(true);
+    try {
+      const res = await fetch(`/api/admin/invoices/${id}/stripe-link`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur Stripe');
+      load();
+    } catch (err) { alert(err.message); }
+    finally { setStripeLoading(false); }
+  };
+
+  const revokeStripeLink = async () => {
+    if (!confirm('Désactiver ce lien de paiement ?')) return;
+    setStripeLoading(true);
+    try {
+      const res = await fetch(`/api/admin/invoices/${id}/stripe-link`, { method: 'DELETE' });
+      if (!res.ok) throw new Error((await res.json()).error);
+      load();
+    } catch (err) { alert(err.message); }
+    finally { setStripeLoading(false); }
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(invoice.stripePaymentLinkUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const addPayment = async (e) => {
@@ -208,8 +238,66 @@ export default function InvoiceDetailClient({ id }) {
           </div>
         </div>
 
-        {/* Ajouter paiement */}
+        {/* Sidebar droite */}
         <div className="space-y-6">
+
+          {/* Stripe Payment Link */}
+          {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
+            <div className="bg-white rounded-2xl p-6 border-2 border-violet-200 shadow-sm">
+              <h2 className="text-sm font-bold text-violet-700 mb-1 flex items-center gap-2">
+                <i className="fa-brands fa-stripe-s"></i>
+                Lien de paiement Stripe
+              </h2>
+              <p className="text-xs text-gray-400 mb-4">
+                Envoyez ce lien au client pour payer par carte en ligne. La facture se solde automatiquement.
+              </p>
+              {invoice.stripePaymentLinkUrl ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 p-3 bg-violet-50 rounded-xl border border-violet-100">
+                    <i className="fa-solid fa-link text-violet-500 text-xs shrink-0"></i>
+                    <span className="text-xs text-violet-700 font-mono truncate flex-1">{invoice.stripePaymentLinkUrl}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={copyLink}
+                      className="flex-1 py-2 text-xs font-bold bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors"
+                    >
+                      <i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'} mr-1`}></i>
+                      {copied ? 'Copié !' : 'Copier le lien'}
+                    </button>
+                    <button
+                      onClick={revokeStripeLink}
+                      disabled={stripeLoading}
+                      className="px-3 py-2 text-xs font-bold bg-white border-2 border-rose-200 text-rose-500 rounded-xl hover:border-rose-400 transition-colors disabled:opacity-50"
+                      title="Désactiver le lien"
+                    >
+                      <i className="fa-solid fa-ban"></i>
+                    </button>
+                  </div>
+                  <button
+                    onClick={generateStripeLink}
+                    disabled={stripeLoading}
+                    className="w-full py-1.5 text-xs text-violet-500 hover:underline disabled:opacity-50"
+                  >
+                    Regénérer un nouveau lien
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={generateStripeLink}
+                  disabled={stripeLoading}
+                  className="w-full py-2.5 bg-violet-600 text-white font-bold text-sm rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-colors"
+                >
+                  {stripeLoading
+                    ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i>Génération...</>
+                    : <><i className="fa-solid fa-link mr-2"></i>Générer le lien</>
+                  }
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Ajouter paiement */}
           {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
             <form onSubmit={addPayment} className="bg-white rounded-2xl p-6 border-2 border-emerald-200 shadow-sm">
               <h2 className="text-sm font-bold text-emerald-700 mb-4 flex items-center gap-2">

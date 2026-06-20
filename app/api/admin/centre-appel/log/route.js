@@ -61,6 +61,8 @@ async function logInteraction({ agentUserId, kind, refId, outcome, comment, call
         durationSec: durationSec ? Math.round(durationSec) : null,
         notes: comment ? String(comment).slice(0, 1000) : null,
         callbackAt: callbackAt ? new Date(callbackAt) : null,
+        provider: 'MANUAL',
+        occurredAt: new Date(),
       },
     });
   } catch (err) {
@@ -109,7 +111,13 @@ export async function POST(request) {
 
     const updated = await prisma.prospect.update({
       where: { id },
-      data: { notes: newNotes, status: nextStatus },
+      data: {
+        notes: newNotes,
+        status: nextStatus,
+        callAttempts: { increment: 1 },
+        lastCallAt: new Date(),
+        lastCallOutcome: OUTCOME_TO_INTERACTION[outcome] || null,
+      },
     });
     await logInteraction({
       agentUserId: auth.dbUser?.id,

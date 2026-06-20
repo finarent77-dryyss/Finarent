@@ -165,10 +165,16 @@ export default function AdminCallCenterDetailClient({ centerId }) {
           rows={data.recentInteractions}
           empty="Aucune interaction enregistrée."
           columns={[
-            { label: 'Date', render: (i) => new Date(i.createdAt).toLocaleString('fr-FR') },
+            { label: 'Date', render: (i) => new Date(i.occurredAt || i.createdAt).toLocaleString('fr-FR') },
+            { label: 'Source', render: (i) => (
+              <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                i.provider === 'RINGOVER' ? 'bg-violet-100 text-violet-700' : 'bg-gray-100 text-gray-600'
+              }`}>
+                {i.provider || 'MANUAL'}
+              </span>
+            ) },
             { label: 'Agent', render: (i) => i.agent?.name || i.agent?.email || '—' },
-            { label: 'Canal', render: (i) => <Badge label={i.channel} /> },
-            { label: 'Issue', render: (i) => i.outcome || '—' },
+            { label: 'Résumé', render: (i) => i.summary || i.outcome || '—' },
             { label: 'Cible', render: (i) => i.prospect?.name || i.application?.companyName || '—' },
             { label: 'Durée', render: (i) => i.durationSec ? `${i.durationSec}s` : '—' },
           ]}
@@ -256,7 +262,7 @@ function MembersTab({ centerId, members, onChange }) {
                 <th className="text-left px-5 py-3">Email</th>
                 <th className="text-center px-5 py-3">Rôle dans le centre</th>
                 <th className="text-left px-5 py-3">Rôle global</th>
-                <th className="px-5 py-3"></th>
+                <th className="px-5 py-3"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -298,7 +304,7 @@ function MembersTab({ centerId, members, onChange }) {
           <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-xl font-black text-primary">Ajouter un membre</h2>
-              <button onClick={() => setShowAdd(false)} className="text-gray-400 hover:text-gray-700">
+              <button onClick={() => setShowAdd(false)} aria-label="Fermer" className="text-gray-400 hover:text-gray-700">
                 <i className="fa-solid fa-xmark text-xl"></i>
               </button>
             </div>

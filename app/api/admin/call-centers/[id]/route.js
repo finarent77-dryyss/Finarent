@@ -39,7 +39,7 @@ export async function GET(request, { params }) {
     }),
     prisma.callCenterInteraction.findMany({
       where: { callCenterId: id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ occurredAt: 'desc' }, { createdAt: 'desc' }],
       take: 30,
       include: {
         agent: { select: { id: true, name: true, email: true } },

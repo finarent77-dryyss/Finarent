@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 /**
  * Compteur qui s'anime de 0 vers `to` quand l'élément entre dans le viewport.
- * Utilisé pour les chiffres clés (1500+ clients, 50M€, 98%, etc.).
+ * Utilisé pour les chiffres clés (120+ clients, 5M€, 88%, etc.).
  */
 export default function AnimatedCounter({ to, duration = 1800, prefix = '', suffix = '', className = '' }) {
   const [value, setValue] = useState(0);

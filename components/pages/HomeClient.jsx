@@ -18,6 +18,7 @@ import { sectorsData } from '@/assets/data/sectors';
 import { testimonialsData } from '@/assets/data/testimonials';
 import { FAQ_CATEGORIES } from '@/assets/data/faq';
 import { PARTNER_GROUPS } from '@/assets/data/partners';
+import { MARKETING_STATS } from '@/lib/marketing-stats';
 import { useTranslation } from '@/lib/i18n';
 
 // Marquee = 2 partenaires phares par groupe, dans l'ordre des familles
@@ -64,10 +65,10 @@ export default function HomeClient() {
             <ScrollReveal>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                 {[
-                  { icon: 'fa-users', to: 1500, suffix: '+', label: t('home.satisfiedClients'), color: 'secondary' },
-                  { icon: 'fa-clock', to: 48, suffix: 'h', label: t('home.responseTime'), color: 'accent', duration: 1200 },
-                  { icon: 'fa-euro-sign', to: 50, suffix: 'M€', label: t('home.funded2025'), color: 'secondary' },
-                  { icon: 'fa-handshake-simple', to: 98, suffix: '%', label: t('home.approvalRate'), color: 'accent' },
+                  { icon: 'fa-users', to: MARKETING_STATS.clientsCounter, suffix: '+', label: t('home.satisfiedClients'), color: 'secondary' },
+                  { icon: 'fa-clock', ...MARKETING_STATS.responseHours, label: t('home.responseTime'), color: 'accent' },
+                  { icon: 'fa-euro-sign', ...MARKETING_STATS.funded2025Counter, label: t('home.funded2025'), color: 'secondary' },
+                  { icon: 'fa-handshake-simple', ...MARKETING_STATS.approvalRate, label: t('home.approvalRate'), color: 'accent' },
                 ].map((stat, i) => (
                   <Tilt3D key={i} max={14} className="rounded-2xl sm:rounded-[32px]">
                     <div className="group p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[32px] bg-white/90 backdrop-blur-md border border-white shadow-xl text-center hover:shadow-2xl transition-shadow duration-500">
@@ -490,15 +491,15 @@ export default function HomeClient() {
                 <div className="flex justify-center space-x-1 sm:space-x-2 mb-4 sm:mb-6">
                   {[...Array(5)].map((_, i) => <i key={i} className="fa-solid fa-star text-accent text-lg sm:text-2xl"></i>)}
                 </div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">4.8/5</div>
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4">{MARKETING_STATS.reviewScore}</div>
                 <p className="text-sm sm:text-base lg:text-xl text-white/90 mb-6 sm:mb-8">{t('home.averageRating')}</p>
                 <div className="grid grid-cols-3 gap-4 sm:gap-8">
                   <div>
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">95%</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">{MARKETING_STATS.satisfactionRate}</div>
                     <div className="text-white/80 text-xs sm:text-sm">{t('home.satisfactionRate')}</div>
                   </div>
                   <div>
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">300+</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">{MARKETING_STATS.clients}</div>
                     <div className="text-white/80 text-xs sm:text-sm">{t('home.fundedCompanies')}</div>
                   </div>
                   <div>
@@ -520,12 +521,12 @@ export default function HomeClient() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 mb-8 sm:mb-12 lg:mb-16">
               {[
-                { name: 'Transport', icon: 'fa-truck-fast',     count: '40+', gradient: 'from-sky-500/10 to-blue-500/5',       accent: 'text-sky-600',     ring: 'hover:ring-sky-400/40' },
-                { name: 'BTP',       icon: 'fa-helmet-safety',  count: '80+', gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
-                { name: 'Médical',   icon: 'fa-stethoscope',    count: '50+', gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
-                { name: 'IT & Tech', icon: 'fa-microchip',      count: '60+', gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
-                { name: 'Services',  icon: 'fa-briefcase',      count: '70+', gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
-                { name: 'Industrie', icon: 'fa-industry',       count: '35+', gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
+                { name: 'Transport', icon: 'fa-truck-fast',     count: MARKETING_STATS.sectorCounts.transport, gradient: 'from-sky-500/10 to-blue-500/5',       accent: 'text-sky-600',     ring: 'hover:ring-sky-400/40' },
+                { name: 'BTP',       icon: 'fa-helmet-safety',  count: MARKETING_STATS.sectorCounts.btp, gradient: 'from-amber-500/10 to-orange-500/5',   accent: 'text-amber-600',   ring: 'hover:ring-amber-400/40' },
+                { name: 'Médical',   icon: 'fa-stethoscope',    count: MARKETING_STATS.sectorCounts.medical, gradient: 'from-rose-500/10 to-pink-500/5',      accent: 'text-rose-600',    ring: 'hover:ring-rose-400/40' },
+                { name: 'IT & Tech', icon: 'fa-microchip',      count: MARKETING_STATS.sectorCounts.tech, gradient: 'from-violet-500/10 to-indigo-500/5',  accent: 'text-violet-600',  ring: 'hover:ring-violet-400/40' },
+                { name: 'Services',  icon: 'fa-briefcase',      count: MARKETING_STATS.sectorCounts.services, gradient: 'from-emerald-500/10 to-teal-500/5',   accent: 'text-emerald-600', ring: 'hover:ring-emerald-400/40' },
+                { name: 'Industrie', icon: 'fa-industry',       count: MARKETING_STATS.sectorCounts.industry, gradient: 'from-slate-500/10 to-zinc-500/5',     accent: 'text-slate-700',   ring: 'hover:ring-slate-400/40' },
               ].map((s, i) => (
                 <div
                   key={i}
@@ -545,9 +546,9 @@ export default function HomeClient() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
               {[
                 { icon: 'fa-award', num: '5+', label: t('home.yearsExperience'), color: 'secondary' },
-                { icon: 'fa-building', num: '300+', label: t('home.clientCompanies'), color: 'accent' },
-                { icon: 'fa-euro-sign', num: '12M€', label: t('home.fundedAmount'), color: 'secondary' },
-                { icon: 'fa-handshake', num: '95%', label: t('home.satisfactionRate'), color: 'accent' },
+                { icon: 'fa-building', num: MARKETING_STATS.clients, label: t('home.clientCompanies'), color: 'accent' },
+                { icon: 'fa-euro-sign', num: MARKETING_STATS.fundedAmount, label: t('home.fundedAmount'), color: 'secondary' },
+                { icon: 'fa-handshake', num: MARKETING_STATS.satisfactionRate, label: t('home.satisfactionRate'), color: 'accent' },
               ].map((item, i) => (
                 <div key={i} className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg text-center">
                   <div className={`w-10 h-10 sm:w-16 sm:h-16 bg-${item.color === 'secondary' ? 'secondary' : item.color === 'accent' ? 'accent' : 'secondary'}/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4`}>
