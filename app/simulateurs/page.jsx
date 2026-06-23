@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { CATEGORIES, SIMULATORS } from '@/lib/simulators/registry';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Simulateurs financiers et assurance',
-  description: 'Tous les simulateurs Finarent : capacité d\'emprunt, mensualité, coût total, assurance emprunteur, taux d\'endettement, frais de notaire et plus encore.',
-  alternates: { canonical: '/simulateurs' },
-};
+export const metadata = pageMetadata({
+  title: 'Simulateurs financement & assurance pro',
+  description:
+    'Simulateurs Finarent : capacité d\'emprunt, mensualité, coût total, assurance emprunteur, taux d\'endettement, frais de notaire, RC Pro et plus.',
+  path: '/simulateurs',
+});
 
 const COLOR_BG = {
   indigo: 'bg-indigo-50',  amber: 'bg-amber-50', sky: 'bg-sky-50',

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { GUIDES, getGuide } from '@/lib/guides/catalog';
+import { pageMetadata } from '@/lib/seo';
 
 const COLOR_BG = {
   indigo: 'bg-indigo-50', emerald: 'bg-emerald-50', violet: 'bg-violet-50',
@@ -19,12 +20,12 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const g = getGuide(slug);
   if (!g) return { title: 'Guide introuvable' };
-  return {
+  return pageMetadata({
     title: g.title,
     description: g.tagline,
-    alternates: { canonical: `/guides/${slug}` },
-    openGraph: { title: `${g.title} | Finarent`, description: g.tagline, url: `/guides/${slug}`, type: 'article' },
-  };
+    path: `/guides/${slug}`,
+    keywords: [g.title, 'guide financement', 'Finarent'],
+  });
 }
 
 function renderRichText(text) {

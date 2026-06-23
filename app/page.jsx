@@ -1,9 +1,12 @@
 import HomeClient from '@/components/pages/HomeClient';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Financement professionnel — Crédit-bail & LOA | Finarent',
-  description: 'Finarent accompagne les entreprises : crédit-bail, LOA, solutions de financement. De 3 000€ à 500 000€, réponse en 48h. Simulez votre projet en ligne.',
-};
+export const metadata = pageMetadata({
+  title: 'Financement professionnel — Crédit-bail, LOA & assurance pro',
+  description:
+    'Finarent accompagne les TPE/PME : crédit-bail, LOA, LLD, crédit pro et assurance RC Pro. De 3 000 € à 2 M€, réponse sous 48h. Simulez votre projet en ligne.',
+  path: '/',
+});
 
 export default function Home() {
   return <HomeClient />;

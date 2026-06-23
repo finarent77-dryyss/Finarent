@@ -1,9 +1,12 @@
 import type { MetadataRoute } from 'next';
 // @ts-ignore — JS module
 import { SIMULATORS } from '../lib/simulators/registry.js';
+// @ts-ignore — JS module
+import { GUIDES } from '../lib/guides/catalog.js';
+import { SITE_URL } from '../lib/seo.js';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.AUTH0_BASE_URL || 'http://localhost:3000';
+  const baseUrl = SITE_URL;
   const now = new Date();
 
   const staticPaths = [
@@ -23,6 +26,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/legal',
     '/privacy',
     '/terms',
+    '/guides',
+    '/glossaire',
+    '/partenaires',
+    '/quiz/quelle-solution',
+    '/cgv',
   ];
 
   const sectors = ['btp', 'medical', 'it', 'transport', 'industrie', 'services'];
@@ -33,7 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}${path}`,
       lastModified: now,
       changeFrequency: path === '' ? ('weekly' as const) : ('monthly' as const),
-      priority: path === '' ? 1.0 : path === '/simulateurs' ? 0.9 : 0.7,
+      priority: path === '' ? 1.0 : path === '/simulateurs' || path === '/guides' ? 0.9 : 0.7,
     })),
     ...sectors.map((slug) => ({
       url: `${baseUrl}/sectors/${slug}`,
@@ -46,6 +54,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
+    })),
+    ...GUIDES.map((g: { slug: string }) => ({
+      url: `${baseUrl}/guides/${g.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.75,
     })),
     ...SIMULATORS.map((s: { category: string; slug: string; available: boolean }) => ({
       url: `${baseUrl}/simulateurs/${s.category}/${s.slug}`,
