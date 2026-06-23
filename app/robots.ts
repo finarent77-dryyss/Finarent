@@ -1,15 +1,23 @@
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '../lib/seo.js';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.AUTH0_BASE_URL || 'http://localhost:3000';
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/api', '/espace', '/partner', '/insurer'],
+        disallow: [
+          '/admin',
+          '/api',
+          '/espace',
+          '/partner',
+          '/insurer',
+          '/affiliate',
+          '/paiement-confirme',
+        ],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

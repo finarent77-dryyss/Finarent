@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@auth0/nextjs-auth0';
 import { getSimulator, getCategory, SIMULATORS } from '@/lib/simulators/registry';
+import { pageMetadata } from '@/lib/seo';
 import SimulatorShell from '@/components/simulators/SimulatorShell';
 import ComingSoonStub from '@/components/simulators/ComingSoonStub';
 import SimulatorModeToggle from '@/components/simulators/SimulatorModeToggle';
@@ -129,17 +130,12 @@ export async function generateMetadata({ params }) {
   const { category, slug } = await params;
   const sim = getSimulator(category, slug);
   if (!sim) return { title: 'Simulateur introuvable' };
-  return {
+  return pageMetadata({
     title: `Simulateur ${sim.name}`,
     description: sim.desc,
-    alternates: { canonical: `/simulateurs/${category}/${slug}` },
-    openGraph: {
-      title: `Simulateur ${sim.name} | Finarent`,
-      description: sim.desc,
-      url: `/simulateurs/${category}/${slug}`,
-      type: 'website',
-    },
-  };
+    path: `/simulateurs/${category}/${slug}`,
+    keywords: [sim.name, 'simulateur financement', 'Finarent'],
+  });
 }
 
 export default async function SimulatorPage({ params }) {

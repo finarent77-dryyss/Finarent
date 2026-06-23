@@ -10,10 +10,12 @@ import { LanguageProvider } from '@/lib/i18n';
 import PostHogProvider from '@/components/providers/PostHogProvider';
 import AttributionCapture from '@/components/providers/AttributionCapture';
 import ClarityTracker from '@/components/providers/ClarityTracker';
+import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
+import { SITE_URL } from '@/lib/seo';
 import './globals.css';
 
 export const metadata = {
-  metadataBase: new URL(process.env.AUTH0_BASE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Finarent | Financement & Assurance Professionnel',
     template: '%s | Finarent',
@@ -55,6 +57,8 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
       </head>
       <body>
         <UserProvider>

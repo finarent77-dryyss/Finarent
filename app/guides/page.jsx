@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { GUIDES } from '@/lib/guides/catalog';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Guides pédagogiques',
-  description: 'Apprenez tout sur le crédit-bail, le prêt professionnel, l\'assurance emprunteur, la LOA et la RC Pro. Des guides clairs écrits par les experts Finarent.',
-  alternates: { canonical: '/guides' },
-};
+export const metadata = pageMetadata({
+  title: 'Guides financement & assurance professionnels',
+  description:
+    'Guides experts Finarent : crédit-bail, LOA, LLD, RC Pro, assurance emprunteur. Comprendre les solutions avant de signer, mis à jour 2026.',
+  path: '/guides',
+});
 
 const COLOR_BG = {
   indigo: 'bg-indigo-50', emerald: 'bg-emerald-50', violet: 'bg-violet-50',

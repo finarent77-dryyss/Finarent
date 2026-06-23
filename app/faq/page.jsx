@@ -1,10 +1,12 @@
 import FAQClient from './FAQClient';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'FAQ | Finarent - Vos questions sur le financement pro',
-  description: 'Retrouvez toutes les réponses à vos questions sur le crédit-bail, la LOA, l\'assurance professionnelle et le processus de demande.',
-  alternates: { canonical: '/faq' },
-};
+export const metadata = pageMetadata({
+  title: 'FAQ financement & assurance professionnels',
+  description:
+    'Réponses sur le crédit-bail, la LOA, la LLD, l\'assurance RC Pro, les délais et le processus de demande Finarent.',
+  path: '/faq',
+});
 
 export default function FAQPage() {
   return <FAQClient />;
