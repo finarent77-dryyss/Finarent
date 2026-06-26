@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { stripe } from '@/lib/stripe';
+import { getStripe, isStripeConfigured } from '@/lib/stripe';
 
 export async function POST(request, { params }) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
+
+  if (!isStripeConfigured()) {
+    return NextResponse.json({ error: 'Stripe non configuré (STRIPE_SECRET_KEY manquante)' }, { status: 503 });
+  }
+  const stripe = getStripe();
 
   const { id } = await params;
 
@@ -57,6 +62,11 @@ export async function POST(request, { params }) {
 export async function DELETE(request, { params }) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
+
+  if (!isStripeConfigured()) {
+    return NextResponse.json({ error: 'Stripe non configuré (STRIPE_SECRET_KEY manquante)' }, { status: 503 });
+  }
+  const stripe = getStripe();
 
   const { id } = await params;
 

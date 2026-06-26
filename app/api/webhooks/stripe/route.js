@@ -1,9 +1,14 @@
-import { stripe } from '@/lib/stripe';
+import { getStripe, isStripeConfigured } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
 export async function POST(request) {
+  if (!isStripeConfigured() || !process.env.STRIPE_WEBHOOK_SECRET?.trim()) {
+    return Response.json({ error: 'Stripe non configuré' }, { status: 503 });
+  }
+
+  const stripe = getStripe();
   const body = await request.text();
   const sig = request.headers.get('stripe-signature');
 
