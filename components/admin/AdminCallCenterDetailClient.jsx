@@ -120,6 +120,11 @@ export default function AdminCallCenterDetailClient({ centerId }) {
                 <p className="text-sm text-gray-600 whitespace-pre-wrap">{data.notes}</p>
               </div>
             )}
+            <RingoverNumbersEditor
+              centerId={centerId}
+              initialNumbers={(data.ringoverPhoneNumbers || []).join('\n')}
+              onSaved={load}
+            />
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <h3 className="font-bold text-primary mb-3">Aperçu équipe</h3>
@@ -506,6 +511,61 @@ function Badge({ label, type }) {
     <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${map[type] || 'bg-gray-100 text-gray-600'}`}>
       {label}
     </span>
+  );
+}
+
+function RingoverNumbersEditor({ centerId, initialNumbers, onSaved }) {
+  const [numbers, setNumbers] = useState(initialNumbers);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState(null);
+
+  useEffect(() => { setNumbers(initialNumbers); }, [initialNumbers]);
+
+  const save = async () => {
+    setSaving(true);
+    setMsg(null);
+    try {
+      const r = await fetch(`/api/admin/call-centers/${centerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ringoverPhoneNumbers: numbers }),
+      });
+      if (r.ok) {
+        setMsg({ type: 'ok', text: 'Numéros Ringover enregistrés.' });
+        onSaved();
+      } else {
+        setMsg({ type: 'err', text: 'Erreur lors de l\'enregistrement.' });
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="text-xs font-bold text-gray-500 uppercase mb-2">Numéros Ringover (SMS)</div>
+      <textarea
+        value={numbers}
+        onChange={(e) => setNumbers(e.target.value)}
+        rows={3}
+        placeholder="+33745893128"
+        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono"
+      />
+      <p className="text-[10px] text-gray-400 mt-1">Un numéro par ligne, format E.164</p>
+      {msg && (
+        <p className={`text-xs mt-2 font-semibold ${msg.type === 'ok' ? 'text-emerald-600' : 'text-rose-600'}`}>
+          {msg.text}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={save}
+        disabled={saving}
+        className="mt-2 px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl disabled:opacity-50"
+      >
+        {saving ? 'Enregistrement…' : 'Enregistrer numéros'}
+      </button>
+    </div>
   );
 }
 

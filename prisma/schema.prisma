@@ -600,6 +600,8 @@ model Prospect {
   callAttempts    Int           @default(0)
   lastCallAt      DateTime?
   lastCallOutcome String?       // NO_ANSWER | CALLBACK | INTERESTED | NOT_INTERESTED | ANSWERED | VOICEMAIL
+  ringoverContactId String?
+  ringoverSyncedAt  DateTime?
   callCenterInteractions CallCenterInteraction[] @relation("CallCenterInteractions")
   events         ProspectEvent[]
   firstSeenAt    DateTime        @default(now())
@@ -778,6 +780,10 @@ model CallCenter {
   commissionValue Float                   @default(5)
   isActive        Boolean                 @default(true)
   notes           String?
+  /// Numéros Ringover du centre (SMS / click-to-call), format E.164 ex. +33123456789
+  ringoverPhoneNumbers String[]           @default([])
+  /// ID liste Brevo marketing — optionnel par centre
+  brevoMarketingListId Int?
   // Relations
   members         CallCenterMember[]
   applications    Application[]           @relation("CallCenterApplications")

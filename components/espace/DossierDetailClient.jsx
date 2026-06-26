@@ -294,7 +294,7 @@ export default function DossierDetailClient({ dossier, user }) {
             {/* Documents Tab */}
             {activeTab === 'documents' && (
               <motion.div key="documents" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                   <h3 className="text-lg font-black text-primary">{t('dossierDetail.documents')} ({documents.length})</h3>
                   <label className={`cursor-pointer px-5 py-2.5 bg-secondary text-white font-bold rounded-xl text-sm hover:bg-secondary/90 transition-all flex items-center gap-2 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                     <i className="fa-solid fa-cloud-arrow-up"></i>
@@ -302,6 +302,10 @@ export default function DossierDetailClient({ dossier, user }) {
                     <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => handleFileUpload(e.target.files[0], 'AUTRE')} />
                   </label>
                 </div>
+                <p className="text-xs text-gray-400 mb-6 flex items-center gap-1.5">
+                  <i className="fa-solid fa-circle-info text-gray-300"></i>
+                  Formats acceptés : <strong className="text-gray-500">PDF, JPG, PNG</strong> · Taille max : <strong className="text-gray-500">10 Mo</strong>
+                </p>
 
                 {documents.length > 0 ? (
                   <div className="grid sm:grid-cols-2 gap-3">
