@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Mode standalone : requis pour Clever Cloud (serveur Node.js autonome)
+  output: 'standalone',
   async redirects() {
     return [
       // Ancien /simulator → nouvelle architecture simulateurs

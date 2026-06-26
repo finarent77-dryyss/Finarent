@@ -46,3 +46,5 @@ private/uploads/
 # Double SQLite résiduel
 prisma/prisma/
 test-e2e-report.json
+
+.vercel

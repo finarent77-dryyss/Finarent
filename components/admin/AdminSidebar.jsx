@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { key: 'demandes', href: '/admin/demandes', icon: 'fa-folder-open', label: 'Demandes' },
   { key: 'centre-appel', href: '/admin/centre-appel', icon: 'fa-phone-volume', label: "File d'appels" },
   { key: 'call-centers', href: '/admin/call-centers', icon: 'fa-headset', label: "Centres d'appel" },
+  { key: 'call-center-space', href: '/call-center', icon: 'fa-headset', label: 'Espace agents' },
   { key: 'devis', href: '/admin/devis', icon: 'fa-file-signature', label: 'Devis' },
   { key: 'factures', href: '/admin/factures', icon: 'fa-file-invoice', label: 'Factures' },
   { key: 'offers', href: '/admin/offers', icon: 'fa-file-invoice-dollar', label: 'Offres prêt' },

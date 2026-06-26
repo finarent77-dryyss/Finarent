@@ -26,6 +26,16 @@ export async function middleware(request: NextRequest) {
   const res = NextResponse.next();
   const session = await getSession(request, res);
 
+  // ── /call-center : admin ou membre d'un centre d'appel ──
+  if (pathname.startsWith('/call-center')) {
+    if (!session?.user) {
+      const loginUrl = new URL('/api/auth/login', request.url);
+      loginUrl.searchParams.set('returnTo', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return res;
+  }
+
   // ── /admin : ADMIN uniquement ──────────────────────────
   if (pathname.startsWith('/admin')) {
     if (!session?.user) {
@@ -82,5 +92,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/partner/:path*', '/insurer/:path*', '/dashboard/:path*', '/espace/:path*'],
+  matcher: ['/admin/:path*', '/partner/:path*', '/insurer/:path*', '/dashboard/:path*', '/espace/:path*', '/call-center/:path*'],
 };

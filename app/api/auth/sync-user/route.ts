@@ -40,6 +40,7 @@ export async function POST(): Promise<NextResponse> {
         email,
         name: name ?? undefined,
         role,
+        lastLoginAt: new Date(),
       },
     });
 

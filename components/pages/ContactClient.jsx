@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { validateForm } from '@/utils/validation';
+import { validateForm, validateEmail, validatePhone, validateSIREN } from '@/utils/validation';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import { LoadingIcon, SuccessIcon, CancelIcon } from '@/components/animations/FinarentAnimation';
@@ -80,6 +80,26 @@ export default function ContactClient() {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    if (!value) return;
+    if (name === 'siren') {
+      if (!validateSIREN(value.replace(/\s/g, ''))) {
+        setErrors(prev => ({ ...prev, siren: 'SIREN invalide (9 chiffres requis)' }));
+      }
+    }
+    if (name === 'phone') {
+      if (!validatePhone(value)) {
+        setErrors(prev => ({ ...prev, phone: 'Numéro de téléphone invalide (ex : 06 12 34 56 78)' }));
+      }
+    }
+    if (name === 'email') {
+      if (!validateEmail(value)) {
+        setErrors(prev => ({ ...prev, email: 'Adresse email invalide' }));
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -264,7 +284,7 @@ export default function ContactClient() {
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">{t('contact.siren')}</label>
-                          <input type="text" name="siren" value={formData.siren} onChange={handleChange} placeholder="123 456 789" className={`input-field py-2.5 text-sm ${errors.siren ? 'border-red-500' : ''}`} />
+                          <input type="text" name="siren" value={formData.siren} onChange={handleChange} onBlur={handleBlur} placeholder="123 456 789" className={`input-field py-2.5 text-sm ${errors.siren ? 'border-red-500' : ''}`} />
                           {errors.siren && <p className="text-red-500 text-xs mt-0.5">{errors.siren}</p>}
                         </div>
                         <div>
@@ -328,12 +348,12 @@ export default function ContactClient() {
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">{t('contact.emailLabel')}</label>
-                          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="jean.dupont@entreprise.fr" className={`input-field py-2.5 text-sm ${errors.email ? 'border-red-500' : ''}`} />
+                          <input type="email" name="email" value={formData.email} onChange={handleChange} onBlur={handleBlur} placeholder="jean.dupont@entreprise.fr" className={`input-field py-2.5 text-sm ${errors.email ? 'border-red-500' : ''}`} />
                           {errors.email && <p className="text-red-500 text-xs mt-0.5">{errors.email}</p>}
                         </div>
                         <div>
                           <label className="block text-xs font-semibold text-gray-700 mb-1">{t('contact.phoneLabel')}</label>
-                          <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="06 12 34 56 78" className={`input-field py-2.5 text-sm ${errors.phone ? 'border-red-500' : ''}`} />
+                          <input type="tel" name="phone" value={formData.phone} onChange={handleChange} onBlur={handleBlur} placeholder="06 12 34 56 78" className={`input-field py-2.5 text-sm ${errors.phone ? 'border-red-500' : ''}`} />
                           {errors.phone && <p className="text-red-500 text-xs mt-0.5">{errors.phone}</p>}
                         </div>
                       </div>

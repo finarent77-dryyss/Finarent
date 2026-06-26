@@ -104,6 +104,19 @@ export async function PATCH(request, { params }) {
   }
   if (body.isActive !== undefined) data.isActive = !!body.isActive;
   if (body.notes !== undefined) data.notes = body.notes ? String(body.notes).slice(0, 1000) : null;
+  if (body.ringoverPhoneNumbers !== undefined) {
+    const { parseRingoverPhoneNumbersInput } = await import('@/lib/ringover/center-numbers');
+    const raw = Array.isArray(body.ringoverPhoneNumbers)
+      ? body.ringoverPhoneNumbers.join('\n')
+      : String(body.ringoverPhoneNumbers || '');
+    data.ringoverPhoneNumbers = parseRingoverPhoneNumbersInput(raw);
+  }
+  if (body.brevoMarketingListId !== undefined) {
+    const n = body.brevoMarketingListId === null || body.brevoMarketingListId === ''
+      ? null
+      : Number(body.brevoMarketingListId);
+    data.brevoMarketingListId = Number.isFinite(n) ? n : null;
+  }
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: 'Aucune modification' }, { status: 400 });
