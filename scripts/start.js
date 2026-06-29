@@ -6,6 +6,12 @@ import fs from 'fs';
  * Inspiré de slformations/scripts/start.js
  */
 
+// Addon PostgreSQL Clever Cloud → DATABASE_URL pour Prisma (runtime)
+if (process.env.POSTGRESQL_ADDON_URI && !process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.POSTGRESQL_ADDON_URI;
+  console.log('✓ DATABASE_URL ← POSTGRESQL_ADDON_URI');
+}
+
 const standaloneDir = '.next/standalone';
 const standaloneServer = '.next/standalone/server.js';
 

@@ -125,6 +125,7 @@ export default function AdminCallCenterDetailClient({ centerId }) {
               initialNumbers={(data.ringoverPhoneNumbers || []).join('\n')}
               onSaved={load}
             />
+            <RingoverSyncPanel centerId={centerId} />
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <h3 className="font-bold text-primary mb-3">Aperçu équipe</h3>
@@ -565,6 +566,61 @@ function RingoverNumbersEditor({ centerId, initialNumbers, onSaved }) {
       >
         {saving ? 'Enregistrement…' : 'Enregistrer numéros'}
       </button>
+    </div>
+  );
+}
+
+function RingoverSyncPanel({ centerId }) {
+  const [stats, setStats] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => {
+    fetch(`/api/admin/call-centers/${centerId}/ringover-sync`)
+      .then((r) => r.json())
+      .then(setStats)
+      .catch(() => {});
+  }, [centerId]);
+
+  const sync = async () => {
+    setSyncing(true);
+    setMsg('');
+    try {
+      const r = await fetch(`/api/admin/call-centers/${centerId}/ringover-sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 500 }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Échec sync');
+      setMsg(`${data.synced} synchronisé(s), ${data.failed} échec(s).`);
+      const s = await fetch(`/api/admin/call-centers/${centerId}/ringover-sync`).then((x) => x.json());
+      setStats(s);
+    } catch (e) {
+      setMsg(e.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="text-xs font-bold text-gray-500 uppercase mb-2">Sync contacts Ringover</div>
+      {stats && (
+        <p className="text-xs text-gray-500 mb-2">
+          {stats.synced}/{stats.total} synchronisés · {stats.pendingSync} en attente
+          {!stats.apiConfigured && ' · API non configurée'}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={sync}
+        disabled={syncing}
+        className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl disabled:opacity-50"
+      >
+        {syncing ? 'Synchronisation…' : 'Synchroniser les prospects'}
+      </button>
+      {msg && <p className="text-xs mt-2 text-gray-600">{msg}</p>}
     </div>
   );
 }

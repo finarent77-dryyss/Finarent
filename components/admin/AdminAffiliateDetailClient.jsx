@@ -45,6 +45,15 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
     if (activeTab === 'invites' && !invitesLoaded) loadInvites();
   }, [activeTab, invitesLoaded]);
 
+  const markValidated = async (commissionId) => {
+    const r = await fetch(`/api/admin/affiliates/commissions/${commissionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'VALIDATED' }),
+    });
+    if (r.ok) load();
+  };
+
   const markPaid = async (commissionId) => {
     if (!confirm('Marquer cette commission comme payée ?')) return;
     const r = await fetch(`/api/admin/affiliates/commissions/${commissionId}`, {
@@ -224,6 +233,8 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
                   className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                     c.status === 'PAID'
                       ? 'bg-emerald-100 text-emerald-700'
+                      : c.status === 'VALIDATED'
+                      ? 'bg-sky-100 text-sky-700'
                       : c.status === 'CANCELLED'
                       ? 'bg-gray-100 text-gray-500'
                       : 'bg-amber-100 text-amber-700'
@@ -236,14 +247,18 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
             {
               label: '',
               render: (c) =>
-                c.status === 'PENDING' && (
+                c.status === 'PENDING' ? (
                   <button
-                    onClick={() => markPaid(c.id)}
-                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                    onClick={() => markValidated(c.id)}
+                    className="text-xs font-bold text-sky-600 hover:text-sky-700"
                   >
-                    Marquer payé
+                    Valider
                   </button>
-                ),
+                ) : c.status === 'VALIDATED' ? (
+                  <Link href="/admin/affiliates/payouts" className="text-xs font-bold text-secondary hover:underline">
+                    Verser →
+                  </Link>
+                ) : null,
             },
           ]}
         />

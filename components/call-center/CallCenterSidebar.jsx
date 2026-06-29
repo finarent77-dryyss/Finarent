@@ -7,6 +7,7 @@ const NAV = [
   { href: '/call-center', label: 'Tableau de bord', icon: 'fa-gauge-high', exact: true },
   { href: '/call-center/prospects', label: 'Prospects', icon: 'fa-users' },
   { href: '/call-center/interactions', label: 'Appels & SMS', icon: 'fa-phone-volume' },
+  { href: '/call-center/emails', label: 'Emails Brevo', icon: 'fa-envelope' },
 ];
 
 const MANAGER_NAV = [

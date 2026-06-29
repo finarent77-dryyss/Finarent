@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "app_id": "app_c4036512-5707-4b4c-86d4-ff5d9c385124",
+      "org_id": "user_0bab92c8-1e8e-4424-a21c-af4a90acd593",
+      "deploy_url": "https://push-n3-par-clevercloud-customers.services.clever-cloud.com/app_c4036512-5707-4b4c-86d4-ff5d9c385124.git",
+      "git_ssh_url": "git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_c4036512-5707-4b4c-86d4-ff5d9c385124.git",
+      "name": "finarent",
+      "alias": "finarent"
+    }
+  ]
+}

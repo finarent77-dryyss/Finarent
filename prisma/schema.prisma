@@ -93,6 +93,8 @@ model User {
   callCenterInteractions CallCenterInteraction[] @relation("CallCenterAgent")
   assignedProspects     Prospect[]         @relation("ProspectAssignedAgent")
   adminActivityLogs     AdminActivityLog[] @relation("AdminActivityActor")
+  emailLogsSent         EmailLog[]         @relation("EmailLogSender")
+  affiliateAuditActions AffiliateAuditLog[] @relation("AffiliateAuditActor")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -602,7 +604,9 @@ model Prospect {
   lastCallOutcome String?       // NO_ANSWER | CALLBACK | INTERESTED | NOT_INTERESTED | ANSWERED | VOICEMAIL
   ringoverContactId String?
   ringoverSyncedAt  DateTime?
+  brevoContactId    String?
   callCenterInteractions CallCenterInteraction[] @relation("CallCenterInteractions")
+  emailLogs         EmailLog[]
   events         ProspectEvent[]
   firstSeenAt    DateTime        @default(now())
   lastSeenAt     DateTime        @default(now())
@@ -645,9 +649,31 @@ enum AffiliateCommissionType {
 }
 
 enum AffiliateCommissionStatus {
-  PENDING    // dossier signé, commission calculée, en attente de paiement
+  PENDING    // dossier signé, commission calculée, en attente de validation
+  VALIDATED  // validée par l'admin (après délai rétractation)
   PAID       // commission versée à l'apporteur
   CANCELLED  // dossier annulé / refusé
+}
+
+enum AffiliateFiscalStatus {
+  PARTICULIER
+  MICRO
+  SOCIETE
+}
+
+enum EmailLogStatus {
+  SENT
+  DELIVERED
+  OPENED
+  BOUNCED
+  FAILED
+  COMPLAINED
+}
+
+enum EmailLogType {
+  OUTBOUND_CALL_CENTER
+  OUTBOUND_AFFILIATE
+  TRANSACTIONAL
 }
 
 model Affiliate {
@@ -663,17 +689,40 @@ model Affiliate {
   isActive          Boolean               @default(true)
   publicStatsEnabled Boolean              @default(true)   // permet d'exposer /affiliate/[code]
   notes             String?
+  // Profil fiscal (onboarding + versements SEPA)
+  fiscalStatus      AffiliateFiscalStatus?
+  legalName         String?
+  siret             String?
+  tvaNumber         String?
+  tvaApplicable     Boolean               @default(false)
+  fiscalAddress     String?
+  fiscalPostalCode  String?
+  fiscalCity        String?
+  fiscalCountry     String?               @default("France")
+  mandateSignedAt   DateTime?
+  mandateSignedIp   String?
+  mandateVersion    String?
+  onboardingCompletedAt DateTime?
+  payoutMinAmount   Float                 @default(20)
+  iban              String?
+  bic               String?
+  payoutHolder      String?
   // Relations
   clicks            AffiliateClick[]
   prospects         Prospect[]
   applications      Application[]
   commissions       AffiliateCommission[]
   invites           AffiliateInvite[]
+  payouts           AffiliatePayout[]
+  invoices          AffiliateInvoice[]
+  auditLogs         AffiliateAuditLog[]
+  emailLogs         EmailLog[]
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
 
   @@index([isActive])
   @@index([email])
+  @@index([onboardingCompletedAt])
 }
 
 // Invitations / parrainages envoyés via l'affilié (single ou bulk CSV)
@@ -737,7 +786,10 @@ model AffiliateCommission {
   rate          Float                                       // value du taux au moment du calcul
   amount        Float                                       // montant final calculé en €
   status        AffiliateCommissionStatus @default(PENDING)
+  validatedAt   DateTime?
   paidAt        DateTime?
+  payoutId      String?
+  payout        AffiliatePayout?          @relation(fields: [payoutId], references: [id], onDelete: SetNull)
   notes         String?
   createdAt     DateTime                  @default(now())
   updatedAt     DateTime                  @updatedAt
@@ -745,6 +797,92 @@ model AffiliateCommission {
   @@unique([applicationId])  // une seule commission par dossier
   @@index([affiliateId, status])
   @@index([status, createdAt])
+  @@index([payoutId])
+}
+
+model AffiliatePayout {
+  id            String                @id @default(cuid())
+  affiliateId   String
+  affiliate     Affiliate             @relation(fields: [affiliateId], references: [id])
+  amount        Float                 // HT
+  amountTTC     Float?
+  reference     String?
+  method        String                @default("BANK_TRANSFER")
+  paidAt        DateTime?
+  status        String                @default("COMPLETED")
+  commissions   AffiliateCommission[]
+  invoice       AffiliateInvoice?
+  createdAt     DateTime              @default(now())
+
+  @@index([affiliateId, createdAt])
+}
+
+model AffiliateInvoice {
+  id              String          @id @default(cuid())
+  affiliateId     String
+  affiliate       Affiliate       @relation(fields: [affiliateId], references: [id])
+  payoutId        String          @unique
+  payout          AffiliatePayout @relation(fields: [payoutId], references: [id], onDelete: Cascade)
+  invoiceNumber   String          @unique
+  amountHT        Float
+  vatRate         Float           @default(0)
+  vatAmount       Float           @default(0)
+  amountTTC       Float
+  fiscalSnapshot  Json
+  pdfPath         String?
+  status          String          @default("ISSUED")
+  issuedAt        DateTime        @default(now())
+
+  @@index([affiliateId, issuedAt])
+}
+
+model AffiliateAuditLog {
+  id          String    @id @default(cuid())
+  affiliateId String?
+  affiliate   Affiliate? @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  actorId     String?
+  actor       User?     @relation("AffiliateAuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  entityType  String
+  entityId    String?
+  action      String
+  reason      String?
+  before      Json?
+  after       Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([affiliateId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model EmailLog {
+  id              String         @id @default(cuid())
+  type            EmailLogType
+  subject         String
+  recipientEmail  String
+  recipientName   String?
+  status          EmailLogStatus @default(SENT)
+  brevoMessageId  String?
+  senderUserId    String?
+  sender          User?          @relation("EmailLogSender", fields: [senderUserId], references: [id], onDelete: SetNull)
+  affiliateId     String?
+  affiliate       Affiliate?     @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  callCenterId    String?
+  callCenter      CallCenter?    @relation(fields: [callCenterId], references: [id], onDelete: SetNull)
+  prospectId      String?
+  prospect        Prospect?      @relation(fields: [prospectId], references: [id], onDelete: SetNull)
+  source          String?
+  sentAt          DateTime       @default(now())
+  deliveredAt     DateTime?
+  openedAt        DateTime?
+  failedAt        DateTime?
+  errorMessage    String?
+  metadata        Json?
+
+  @@index([brevoMessageId])
+  @@index([callCenterId, sentAt])
+  @@index([affiliateId, sentAt])
+  @@index([prospectId])
+  @@index([recipientEmail])
 }
 
 // ─── CENTRES D'APPEL ──────────────────────────────────────
@@ -790,6 +928,7 @@ model CallCenter {
   prospects       Prospect[]              @relation("CallCenterProspects")
   interactions    CallCenterInteraction[]
   commissions     CallCenterCommission[]
+  emailLogs       EmailLog[]
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
 
@@ -835,6 +974,8 @@ model CallCenterInteraction {
   provider      String        @default("MANUAL") // MANUAL | RINGOVER | OTHER
   externalId    String?       // idempotence webhook (ex. ringover:channel:hangup)
   summary       String?       // libellé lisible (ex. Ringover · Sortant · Décroché · 42s)
+  subject       String?       // objet email ou extrait SMS
+  status        String?       // SENT | DELIVERED | OPENED | etc.
   metadata      Json?
   occurredAt    DateTime?     // horodatage réel de l'appel (≠ createdAt si sync différée)
   createdAt     DateTime      @default(now())

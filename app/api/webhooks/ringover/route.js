@@ -72,6 +72,12 @@ export async function POST(request) {
       return NextResponse.json({ ...result, ok: true });
     }
 
+    if ((resource === 'sms' || ressource === 'sms') && event && data) {
+      const { processRingoverSmsEvent } = await import('@/lib/ringover/process-sms-event.js');
+      const result = await processRingoverSmsEvent(event, data, payload.timestamp);
+      return NextResponse.json({ ...result, ok: true });
+    }
+
     return NextResponse.json({ ok: true, ignored: event || 'unknown' });
   } catch (err) {
     console.error('[ringover] webhook error:', err);

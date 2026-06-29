@@ -99,6 +99,13 @@ export default function AffiliatePublicClient({ code }) {
                 {copied ? 'Copié !' : 'Copier'}
               </button>
             </div>
+            <Link
+              href={`/affiliate/${code}/onboarding`}
+              className="inline-flex items-center gap-2 mt-4 text-sm font-bold text-secondary hover:underline"
+            >
+              <i className="fa-solid fa-file-signature" />
+              Compléter mon profil fiscal (obligatoire pour les versements)
+            </Link>
             <p className="text-xs text-gray-500 mt-3 leading-relaxed">
               Partagez ce lien : chaque visiteur qui clique est suivi pendant 90 jours. Toute demande
               déposée dans ce délai est attribuée à votre compte et génère une commission de{' '}

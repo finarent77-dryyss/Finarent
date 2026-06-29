@@ -149,6 +149,11 @@ export async function POST(request) {
         },
       });
 
+      const { scheduleRingoverProspectSync } = await import('@/lib/ringover/sync-contact.js');
+      const { scheduleProspectBrevoSync } = await import('@/lib/brevo/sync-prospect.js');
+      scheduleRingoverProspectSync(prospectId);
+      scheduleProspectBrevoSync(prospectId);
+
       return NextResponse.json({ ok: true });
     }
 

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { syncUser, isAdmin } from '@/lib/users';
-import { getFileUrl, readFileBuffer, storageMode } from '@/lib/storage';
+import { getFileUrl, readFileBuffer, usesSignedUrl } from '@/lib/storage';
 import { logDocumentAccess } from '@/lib/audit';
 
 /**
@@ -54,8 +54,8 @@ export async function GET(request, { params }) {
       request,
     });
 
-    // Supabase : redirection vers URL signée
-    if (storageMode === 'supabase') {
+    // Cellar / Supabase : redirection vers URL signée temporaire
+    if (usesSignedUrl) {
       const signedUrl = await getFileUrl(document.fileUrl, 3600);
       return NextResponse.redirect(signedUrl, 302);
     }
