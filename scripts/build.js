@@ -22,26 +22,6 @@ function sleep(ms) {
   while (Date.now() < end) { /* sync wait */ }
 }
 
-function resolveFailedMigrations(env) {
-  try {
-    const raw = execSync(
-      `npx prisma db execute --stdin --url "${env.DATABASE_URL}"`,
-      {
-        input: `SELECT migration_name FROM "_prisma_migrations" WHERE finished_at IS NULL AND started_at IS NOT NULL AND rolled_back_at IS NULL;`,
-        stdio: 'pipe',
-        env,
-      }
-    ).toString();
-    const names = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('migration_name') && l !== '---');
-    for (const name of names) {
-      try {
-        execSync(`npx prisma migrate resolve --rolled-back ${name}`, { stdio: 'pipe', env });
-        console.log(`✓ Migration résolue (rolled-back): ${name}`);
-      } catch { /* déjà résolue */ }
-    }
-  } catch { /* table absente ou pas de failed — ignoré */ }
-}
-
 function syncDatabase() {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
@@ -55,8 +35,20 @@ function syncDatabase() {
 
   const env = { ...process.env, DATABASE_URL: limitedDbUrl };
 
-  // Résoudre les migrations en échec avant toute tentative
-  resolveFailedMigrations(env);
+  // Résoudre les migrations connues en échec (idempotent — ignoré si déjà résolu)
+  const knownFailed = [
+    '20260513120000_dashboard_perf_indexes',
+    '20260623220000_call_center_ringover_fields',
+    '20260626230000_admin_activity_log_prospect_center',
+    '20260627120000_brevo_affiliate_fiscal',
+    '20260629000000_commission_table',
+  ];
+  for (const name of knownFailed) {
+    try {
+      execSync(`npx prisma migrate resolve --rolled-back ${name}`, { stdio: 'pipe', env });
+      console.log(`✓ Migration résolue: ${name}`);
+    } catch { /* déjà résolue ou jamais appliquée */ }
+  }
 
   // Tenter migrate deploy
   console.log('🔄 prisma migrate deploy...');
@@ -65,11 +57,11 @@ function syncDatabase() {
     console.log('✅ Migrations appliquées');
     return;
   } catch (err) {
-    console.warn('⚠️  migrate deploy échoué:', err.message.split('\n')[0]);
+    console.warn('⚠️  migrate deploy échoué — fallback db push');
   }
 
   // Fallback : db push (DB fraîche ou historique migrations corrompu)
-  console.log('🔀 Fallback — prisma db push --accept-data-loss...');
+  console.log('🔀 prisma db push --accept-data-loss...');
   execSync('npx prisma db push --accept-data-loss --skip-generate', {
     stdio: 'inherit',
     env,
