@@ -22,10 +22,10 @@ function sleep(ms) {
   while (Date.now() < end) { /* sync wait */ }
 }
 
-function runMigrateDeploy() {
+function syncDatabase() {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
-    console.warn('⚠️  DATABASE_URL absent — migrations ignorées');
+    console.warn('⚠️  DATABASE_URL absent — sync DB ignorée');
     return;
   }
 
@@ -33,28 +33,37 @@ function runMigrateDeploy() {
     ? `${dbUrl}&connection_limit=1`
     : `${dbUrl}?connection_limit=1`;
 
-  // Résout les migrations en échec connues (first-deploy uniquement — ignoré si déjà résolu)
-  const knownFailedMigrations = ['20260513120000_dashboard_perf_indexes'];
-  for (const name of knownFailedMigrations) {
-    try {
-      execSync(`npx prisma migrate resolve --rolled-back ${name}`, {
-        stdio: 'pipe',
-        env: { ...process.env, DATABASE_URL: limitedDbUrl },
-      });
-      console.log(`✓ Migration ${name} résolue (rolled-back)`);
-    } catch {
-      // Déjà résolue ou jamais échouée — ignoré
-    }
+  const env = { ...process.env, DATABASE_URL: limitedDbUrl };
+
+  // Détecte si la DB est vierge (table _prisma_migrations absente)
+  let isFreshDb = false;
+  try {
+    execSync(
+      `npx prisma db execute --stdin --url "${limitedDbUrl}"`,
+      { input: 'SELECT 1 FROM "_prisma_migrations" LIMIT 1;', stdio: 'pipe', env }
+    );
+  } catch {
+    isFreshDb = true;
   }
 
+  if (isFreshDb) {
+    // DB fraîche : db push applique le schéma directement (pas de migration history)
+    console.log('🆕 DB vierge détectée — prisma db push...');
+    execSync('npx prisma db push --accept-data-loss --skip-generate', {
+      stdio: 'inherit',
+      env,
+    });
+    console.log('✅ Schema synchronisé via db push');
+    return;
+  }
+
+  // DB existante : migrate deploy (données à préserver)
+  console.log('🔄 DB existante — prisma migrate deploy...');
   const maxRetries = 3;
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`🔄 prisma migrate deploy (${attempt}/${maxRetries})...`);
-      execSync('npx prisma migrate deploy', {
-        stdio: 'inherit',
-        env: { ...process.env, DATABASE_URL: limitedDbUrl },
-      });
+      console.log(`   Tentative ${attempt}/${maxRetries}...`);
+      execSync('npx prisma migrate deploy', { stdio: 'inherit', env });
       return;
     } catch (err) {
       console.error(`⚠️  Migration échec tentative ${attempt}:`, err.message);
@@ -95,7 +104,7 @@ try {
   console.log('📦 prisma generate...');
   execSync('npx prisma generate', { stdio: 'inherit' });
 
-  runMigrateDeploy();
+  syncDatabase();
 
   console.log('⏳ Pause 3s (libération connexions DB)...');
   sleep(3000);
