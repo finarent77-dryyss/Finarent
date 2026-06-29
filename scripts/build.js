@@ -33,6 +33,20 @@ function runMigrateDeploy() {
     ? `${dbUrl}&connection_limit=1`
     : `${dbUrl}?connection_limit=1`;
 
+  // Résout les migrations en échec connues (first-deploy uniquement — ignoré si déjà résolu)
+  const knownFailedMigrations = ['20260513120000_dashboard_perf_indexes'];
+  for (const name of knownFailedMigrations) {
+    try {
+      execSync(`npx prisma migrate resolve --rolled-back ${name}`, {
+        stdio: 'pipe',
+        env: { ...process.env, DATABASE_URL: limitedDbUrl },
+      });
+      console.log(`✓ Migration ${name} résolue (rolled-back)`);
+    } catch {
+      // Déjà résolue ou jamais échouée — ignoré
+    }
+  }
+
   const maxRetries = 3;
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
