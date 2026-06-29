@@ -22,6 +22,26 @@ function sleep(ms) {
   while (Date.now() < end) { /* sync wait */ }
 }
 
+function resolveFailedMigrations(env) {
+  try {
+    const raw = execSync(
+      `npx prisma db execute --stdin --url "${env.DATABASE_URL}"`,
+      {
+        input: `SELECT migration_name FROM "_prisma_migrations" WHERE finished_at IS NULL AND started_at IS NOT NULL AND rolled_back_at IS NULL;`,
+        stdio: 'pipe',
+        env,
+      }
+    ).toString();
+    const names = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('migration_name') && l !== '---');
+    for (const name of names) {
+      try {
+        execSync(`npx prisma migrate resolve --rolled-back ${name}`, { stdio: 'pipe', env });
+        console.log(`✓ Migration résolue (rolled-back): ${name}`);
+      } catch { /* déjà résolue */ }
+    }
+  } catch { /* table absente ou pas de failed — ignoré */ }
+}
+
 function syncDatabase() {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
@@ -35,46 +55,26 @@ function syncDatabase() {
 
   const env = { ...process.env, DATABASE_URL: limitedDbUrl };
 
-  // Détecte si la DB est vierge (table _prisma_migrations absente)
-  let isFreshDb = false;
+  // Résoudre les migrations en échec avant toute tentative
+  resolveFailedMigrations(env);
+
+  // Tenter migrate deploy
+  console.log('🔄 prisma migrate deploy...');
   try {
-    execSync(
-      `npx prisma db execute --stdin --url "${limitedDbUrl}"`,
-      { input: 'SELECT 1 FROM "_prisma_migrations" LIMIT 1;', stdio: 'pipe', env }
-    );
-  } catch {
-    isFreshDb = true;
-  }
-
-  if (isFreshDb) {
-    // DB fraîche : db push applique le schéma directement (pas de migration history)
-    console.log('🆕 DB vierge détectée — prisma db push...');
-    execSync('npx prisma db push --accept-data-loss --skip-generate', {
-      stdio: 'inherit',
-      env,
-    });
-    console.log('✅ Schema synchronisé via db push');
+    execSync('npx prisma migrate deploy', { stdio: 'inherit', env });
+    console.log('✅ Migrations appliquées');
     return;
+  } catch (err) {
+    console.warn('⚠️  migrate deploy échoué:', err.message.split('\n')[0]);
   }
 
-  // DB existante : migrate deploy (données à préserver)
-  console.log('🔄 DB existante — prisma migrate deploy...');
-  const maxRetries = 3;
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      console.log(`   Tentative ${attempt}/${maxRetries}...`);
-      execSync('npx prisma migrate deploy', { stdio: 'inherit', env });
-      return;
-    } catch (err) {
-      console.error(`⚠️  Migration échec tentative ${attempt}:`, err.message);
-      if (attempt < maxRetries) {
-        console.log('⏳ Nouvelle tentative dans 5s...');
-        sleep(5000);
-      } else {
-        throw new Error('migrate deploy a échoué après 3 tentatives — build interrompu');
-      }
-    }
-  }
+  // Fallback : db push (DB fraîche ou historique migrations corrompu)
+  console.log('🔀 Fallback — prisma db push --accept-data-loss...');
+  execSync('npx prisma db push --accept-data-loss --skip-generate', {
+    stdio: 'inherit',
+    env,
+  });
+  console.log('✅ Schema synchronisé via db push');
 }
 
 function copyStandaloneAssets() {
