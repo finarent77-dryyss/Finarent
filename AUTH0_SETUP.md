@@ -5,10 +5,10 @@
 L'app tourne sur :
 
 - **Local** : `http://localhost:3000`
-- **Vercel (prod)** : `https://finarrent.vercel.app`
-- **Domaine custom (futur)** : `https://finarent.fr` (à ajouter quand le DNS sera prêt)
+- **Clever Cloud (prod)** : `https://finarent.com` (domaine Primary)
+- Domaines secondaires liés à l'app Clever : `finarent.fr`, `finarent.org` (servent aussi le site en direct)
 
-> ⚠️ Le slug Vercel s'écrit `finarrent` (deux `r`), pas `finarent`. Ne pas confondre.
+> ⚠️ Domaine = `finarent` (un seul `r`). L'ancien slug Vercel `finarrent` (deux `r`) n'est plus utilisé.
 
 ## Dashboard Auth0 → Applications → Finarent → Settings
 
@@ -20,34 +20,48 @@ Coller **tel quel** (une URL par ligne, virgule entre chaque dans Auth0) :
 
 ```
 http://localhost:3000/api/auth/callback,
-https://finarrent.vercel.app/api/auth/callback,
-https://*.vercel.app/api/auth/callback
+https://finarent.com/api/auth/callback,
+https://www.finarent.com/api/auth/callback,
+https://finarent.fr/api/auth/callback,
+https://www.finarent.fr/api/auth/callback,
+https://finarent.org/api/auth/callback,
+https://www.finarent.org/api/auth/callback
 ```
-
-> La 3ᵉ ligne (wildcard `*.vercel.app`) autorise les URLs de preview que Vercel génère à chaque PR / branche. Optionnelle mais bien pratique.
 
 ### Allowed Logout URLs
 
 ```
 http://localhost:3000,
-https://finarrent.vercel.app,
-https://*.vercel.app
+https://finarent.com,
+https://www.finarent.com,
+https://finarent.fr,
+https://www.finarent.fr,
+https://finarent.org,
+https://www.finarent.org
 ```
 
 ### Allowed Web Origins
 
 ```
 http://localhost:3000,
-https://finarrent.vercel.app,
-https://*.vercel.app
+https://finarent.com,
+https://www.finarent.com,
+https://finarent.fr,
+https://www.finarent.fr,
+https://finarent.org,
+https://www.finarent.org
 ```
 
 ### Allowed Origins (CORS)
 
 ```
 http://localhost:3000,
-https://finarrent.vercel.app,
-https://*.vercel.app
+https://finarent.com,
+https://www.finarent.com,
+https://finarent.fr,
+https://www.finarent.fr,
+https://finarent.org,
+https://www.finarent.org
 ```
 
 → Clique **Save Changes** en bas de la page.
@@ -68,9 +82,9 @@ exports.onExecutePostLogin = async (event, api) => {
 
 → **Deploy** l'Action, puis vérifie qu'elle est bien attachée au flow **Login**.
 
-## Variables d'env côté Vercel
+## Variables d'env côté Clever Cloud
 
-Dans Vercel → Project Settings → Environment Variables (les 3 environnements) :
+Dans Clever Cloud → app finarent → **Environment variables** :
 
 ```
 AUTH0_DOMAIN=dev-44jsict2grc7s0jn.eu.auth0.com
@@ -78,16 +92,16 @@ AUTH0_ISSUER_BASE_URL=https://dev-44jsict2grc7s0jn.eu.auth0.com
 AUTH0_CLIENT_ID=f7oXNEBj5D0r1OR65ORLYuaxLgDbGgpk
 AUTH0_CLIENT_SECRET=<depuis le dashboard Auth0>
 AUTH0_SECRET=<openssl rand -hex 32>
-AUTH0_BASE_URL=https://finarrent.vercel.app
+AUTH0_BASE_URL=https://finarent.com
 ```
 
 > `AUTH0_BASE_URL` **doit** matcher exactement une URL des "Allowed Callback URLs" (sans le `/api/auth/callback`).
 
 ## Vérification rapide après deploy
 
-1. Aller sur `https://finarrent.vercel.app/api/auth/login` → doit rediriger vers le tenant Auth0.
-2. Se connecter → retour sur `https://finarrent.vercel.app/api/auth/callback?...` → puis sur la home en session.
-3. Si erreur `Callback URL mismatch` → l'URL listée dans le message d'erreur Auth0 doit être ajoutée à **Allowed Callback URLs** (souvent un oubli de wildcard preview).
+1. Aller sur `https://finarent.com/api/auth/login` → doit rediriger vers le tenant Auth0.
+2. Se connecter → retour sur `https://finarent.com/api/auth/callback?...` → puis sur la home en session.
+3. Si erreur `Callback URL mismatch` → l'URL listée dans le message d'erreur Auth0 doit être ajoutée à **Allowed Callback URLs**.
 
 ## .env (local)
 

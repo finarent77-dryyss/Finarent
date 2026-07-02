@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 /**
  * Écran "compte requis" affiché à la place d'un simulateur premium
  * quand l'utilisateur n'est pas authentifié.
@@ -55,19 +53,19 @@ export default function LoginGate({ simulator, returnPath }) {
         </ul>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
+          <a
             href={`/api/auth/login?returnTo=${returnTo}&screen_hint=signup`}
             className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-7 py-3.5 rounded-2xl shadow-[0_8px_24px_-8px_rgba(16,185,129,0.5)] transition hover:-translate-y-px"
           >
             <i className="fa-solid fa-user-plus"></i>
             Créer un compte gratuit
-          </Link>
-          <Link
+          </a>
+          <a
             href={`/api/auth/login?returnTo=${returnTo}`}
             className="inline-flex items-center justify-center gap-2 border-2 border-gray-200 text-primary font-semibold px-6 py-3.5 rounded-2xl hover:bg-gray-50 transition"
           >
             J'ai déjà un compte
-          </Link>
+          </a>
         </div>
 
         <p className="text-xs text-gray-400 mt-6">

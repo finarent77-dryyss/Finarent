@@ -285,14 +285,14 @@ export default function Header() {
                 </div>
               </Link>
             ) : (
-              <Link href="/api/auth/login" className={`hidden sm:flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 ${
+              <a href="/api/auth/login" className={`hidden sm:flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 ${
                 isOverDarkHero
                   ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
                   : 'bg-primary text-white hover:bg-primary/90 shadow-sm hover:shadow-md'
               }`}>
                 <i className="fa-solid fa-user text-xs"></i>
                 <span>{t('nav.mySpace')}</span>
-              </Link>
+              </a>
             )}
 
             {/* Mobile menu button */}
@@ -353,10 +353,10 @@ export default function Header() {
                   </div>
                 </Link>
               ) : (
-                <Link href="/api/auth/login" className="flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors">
+                <a href="/api/auth/login" className="flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors">
                   <i className="fa-solid fa-user text-sm"></i>
                   <span>{t('nav.accessSpace')}</span>
-                </Link>
+                </a>
               )}
             </div>
           </div>
