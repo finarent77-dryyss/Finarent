@@ -112,10 +112,16 @@ export default function HomeClient() {
             {MARQUEE_PARTNERS.map((p) => (
               <div key={p.name} title={`${p.name} — ${p.specialty}`} className="group flex items-center justify-center w-32 sm:w-36 h-16 px-4 bg-white border border-gray-100 rounded-2xl hover:border-secondary hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shrink-0">
                 <img
-                  src={`https://logo.clearbit.com/${p.domain}?size=128`}
+                  src={p.logo || (p.domain ? `https://logo.clearbit.com/${p.domain}?size=128` : '')}
                   alt={p.name}
                   loading="lazy"
-                  className="max-h-10 max-w-full object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+                  className="max-h-10 max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    const clearbit = p.domain ? `https://logo.clearbit.com/${p.domain}?size=128` : null;
+                    if (clearbit && !img.src.includes('clearbit.com')) { img.src = clearbit; return; }
+                    img.style.visibility = 'hidden';
+                  }}
                 />
               </div>
             ))}

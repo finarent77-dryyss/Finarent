@@ -237,6 +237,24 @@ export default function Footer() {
             <span>{t('footer.copyright')}</span>
           </div>
         </div>
+
+        {/* Crédit développeur */}
+        <div className="py-5 border-t border-white/5 flex items-center justify-center">
+          <a
+            href="https://magar-developpement.fr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-2.5 text-xs text-white/40 hover:text-white transition-colors duration-200"
+          >
+            <span>Développé par</span>
+            <img
+              src="/magar-dev-mark.svg"
+              alt="Magar Développement"
+              className="h-5 w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-200"
+            />
+            <span className="font-semibold text-white/60 group-hover:text-white transition-colors duration-200">Magar Développement</span>
+          </a>
+        </div>
       </div>
     </footer>
   );

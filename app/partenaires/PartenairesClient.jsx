@@ -27,7 +27,7 @@ function PartnerCard({ item }) {
           src={item.logo || (item.domain ? `https://logo.clearbit.com/${item.domain}?size=128` : '')}
           alt={item.name}
           loading="lazy"
-          className="max-h-12 max-w-[80%] object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
+          className="max-h-12 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
             const img = e.currentTarget;
             const clearbit = item.domain ? `https://logo.clearbit.com/${item.domain}?size=128` : null;
