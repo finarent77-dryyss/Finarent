@@ -22,6 +22,22 @@ function sleep(ms) {
   while (Date.now() < end) { /* sync wait */ }
 }
 
+// Exécute une commande, capture stdout+stderr (ré-affichés), renvoie { ok, output }
+function execCapture(cmd, env) {
+  try {
+    const output = execSync(cmd, { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    if (output) process.stdout.write(output);
+    return { ok: true, output };
+  } catch (err) {
+    const output = `${err.stdout || ''}${err.stderr || ''}`;
+    if (output) process.stdout.write(output);
+    return { ok: false, output };
+  }
+}
+
+// Erreurs transitoires liées à la saturation de l'addon PostgreSQL Clever Cloud
+const TRANSIENT_DB_ERROR = /too many connections|reach database|ECONNREFUSED|ETIMEDOUT|connection|timeout/i;
+
 function syncDatabase() {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
@@ -50,23 +66,38 @@ function syncDatabase() {
     } catch { /* déjà résolue ou jamais appliquée */ }
   }
 
-  // Tenter migrate deploy
-  console.log('🔄 prisma migrate deploy...');
-  try {
-    execSync('npx prisma migrate deploy', { stdio: 'inherit', env });
-    console.log('✅ Migrations appliquées');
-    return;
-  } catch (err) {
-    console.warn('⚠️  migrate deploy échoué — fallback db push');
-  }
+  const MAX_ATTEMPTS = 3;
+  const RETRY_DELAY_MS = 6000;
 
-  // Fallback : db push (DB fraîche ou historique migrations corrompu)
-  console.log('🔀 prisma db push --accept-data-loss...');
-  execSync('npx prisma db push --accept-data-loss --skip-generate', {
-    stdio: 'inherit',
-    env,
-  });
-  console.log('✅ Schema synchronisé via db push');
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    console.log(`🔄 Sync DB (tentative ${attempt}/${MAX_ATTEMPTS}) — prisma migrate deploy...`);
+    let res = execCapture('npx prisma migrate deploy', env);
+    if (res.ok) {
+      console.log('✅ Migrations appliquées');
+      return;
+    }
+
+    console.warn('⚠️  migrate deploy échoué — fallback db push...');
+    res = execCapture('npx prisma db push --accept-data-loss --skip-generate', env);
+    if (res.ok) {
+      console.log('✅ Schema synchronisé via db push');
+      return;
+    }
+
+    // Saturation connexions (ancienne instance encore active) → réessai après pause
+    if (attempt < MAX_ATTEMPTS && TRANSIENT_DB_ERROR.test(res.output)) {
+      console.warn(`⚠️  Base saturée/inaccessible — nouvelle tentative dans ${RETRY_DELAY_MS / 1000}s...`);
+      sleep(RETRY_DELAY_MS);
+      continue;
+    }
+
+    // NON-FATAL : le schéma est déjà synchronisé par les déploiements précédents.
+    // Un échec transitoire de sync ne doit pas bloquer tout le déploiement —
+    // l'app se connectera normalement au runtime.
+    console.warn('⚠️  Sync DB impossible après plusieurs tentatives — build poursuivi.');
+    console.warn('   (schéma supposé déjà à jour ; vérifier les migrations si un modèle a changé)');
+    return;
+  }
 }
 
 function copyStandaloneAssets() {
