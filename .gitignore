@@ -18,6 +18,9 @@ dist-ssr
 .env.*
 !.env.example
 
+# Claude Code — paramètres locaux (peuvent contenir des commandes avec secrets)
+.claude/
+
 # Documentation client locale (PDFs, sources logos, briefs) — hors git
 docs/client/
 
