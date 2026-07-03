@@ -31,7 +31,7 @@ export default async function DossierDetailPage({ params }) {
   const application = await prisma.application.findUnique({
     where: { id },
     include: {
-      documents: true,
+      documents: { where: { deletedAt: null } },
       statusHistory: { orderBy: { createdAt: 'asc' } },
     },
   });

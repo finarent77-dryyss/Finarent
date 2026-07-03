@@ -37,7 +37,7 @@ export async function GET() {
     const applications = await prisma.application.findMany({
       where: { userId: dbUser.id },
       orderBy: { createdAt: 'desc' },
-      include: { documents: true },
+      include: { documents: { where: { deletedAt: null } } },
     });
 
     const formatted = applications.map((a) => ({

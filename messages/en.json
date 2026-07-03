@@ -762,6 +762,8 @@
     "technicalError": "Technical error.",
     "noDocumentsYet": "No documents yet.",
     "addPieces": "Add supporting documents",
+    "deleteDocument": "Delete document",
+    "confirmDeleteDocument": "Delete this document? It will be kept for 30 days then permanently erased.",
     "amortization": "Amortization schedule",
     "showAmortization": "View amortization schedule",
     "hideAmortization": "Hide schedule",

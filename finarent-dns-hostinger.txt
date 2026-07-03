@@ -1,0 +1,22 @@
+$TTL 3600
+
+; ------------------------------------------------------------
+; Zone DNS Finarent -> Clever Cloud
+; A importer dans Hostinger (hPanel > Domaines > DNS > Importer)
+; Notation @ = ton domaine racine, www = sous-domaine
+; ------------------------------------------------------------
+
+; --- Domaine racine (apex) : A records vers les IPs Clever Cloud ---
+; (CNAME interdit sur l'apex, on met les 9 IPs en round-robin)
+@	IN	A	91.208.207.214
+@	IN	A	91.208.207.215
+@	IN	A	91.208.207.216
+@	IN	A	91.208.207.217
+@	IN	A	91.208.207.218
+@	IN	A	91.208.207.220
+@	IN	A	91.208.207.221
+@	IN	A	91.208.207.222
+@	IN	A	91.208.207.223
+
+; --- Sous-domaine www : CNAME vers Clever Cloud ---
+www	IN	CNAME	domain.par.clever-cloud.com.

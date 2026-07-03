@@ -51,3 +51,4 @@ prisma/prisma/
 test-e2e-report.json
 
 .vercel
+bash.exe.stackdump

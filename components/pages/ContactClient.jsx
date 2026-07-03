@@ -53,7 +53,10 @@ export default function ContactClient() {
     phone: '',
     message: '',
     consent: false,
-    website: ''
+    // Honeypot anti-spam : nom volontairement opaque pour que l'autofill
+    // des navigateurs ne le remplisse jamais (un nom comme "website" est
+    // auto-rempli par Chrome, ce qui fait rejeter de vraies demandes).
+    fx_ref_code: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,7 +107,7 @@ export default function ContactClient() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.website) { setSubmitStatus('success'); setReference('DEMO'); return; }
+    if (formData.fx_ref_code) { setSubmitStatus('success'); setReference(null); return; }
     const validation = validateForm(formData, ['companyName', 'siren', 'sector', 'amount', 'firstName', 'lastName', 'email', 'phone', 'consent']);
     if (!validation.isValid) { setErrors(validation.errors); return; }
 
@@ -147,7 +150,7 @@ export default function ContactClient() {
           message: formData.message || undefined,
           consent: formData.consent,
           recaptchaToken,
-          website: formData.website,
+          website: formData.fx_ref_code,
         }),
       });
 
@@ -165,7 +168,7 @@ export default function ContactClient() {
 
       setSubmitStatus('success');
       setReference(data.reference);
-      setFormData({ requestType: 'financement', companyName: '', siren: '', sector: '', amount: '', equipmentType: '', firstName: '', lastName: '', email: '', phone: '', message: '', consent: false, website: '' });
+      setFormData({ requestType: 'financement', companyName: '', siren: '', sector: '', amount: '', equipmentType: '', firstName: '', lastName: '', email: '', phone: '', message: '', consent: false, fx_ref_code: '' });
     } catch (err) {
       console.error(err);
       setSubmitStatus('error');
@@ -263,7 +266,7 @@ export default function ContactClient() {
                   <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl shadow-xl p-5 sm:p-6 border border-gray-200">
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
-                        <input type="text" name="website" value={formData.website} onChange={handleChange} tabIndex="-1" autoComplete="off" />
+                        <input type="text" name="fx_ref_code" value={formData.fx_ref_code} onChange={handleChange} tabIndex="-1" autoComplete="one-time-code" />
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-4">

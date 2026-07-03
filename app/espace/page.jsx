@@ -24,7 +24,7 @@ export default async function EspacePage() {
   const applications = await prisma.application.findMany({
     where: { userId: dbUser.id },
     orderBy: { createdAt: 'desc' },
-    include: { documents: true }
+    include: { documents: { where: { deletedAt: null } } }
   });
 
   const demandes = applications.map((a) => ({

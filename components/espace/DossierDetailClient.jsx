@@ -44,6 +44,7 @@ const STATUS_ORDER = ['en_attente', 'en_cours', 'documents_manquants', 'devis_en
 
 export default function DossierDetailClient({ dossier, user }) {
   const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [documents, setDocuments] = useState(dossier.documents || []);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -90,6 +91,22 @@ export default function DossierDetailClient({ dossier, user }) {
       else alert(data.error || t('dossierDetail.uploadError'));
     } catch { alert(t('dossierDetail.technicalError')); }
     finally { setUploading(false); }
+  };
+
+  const handleDeleteDocument = async (doc) => {
+    if (deletingId) return;
+    if (!confirm(t('dossierDetail.confirmDeleteDocument'))) return;
+    setDeletingId(doc.id);
+    try {
+      const res = await fetch(`/api/documents/${doc.id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDocuments(prev => prev.filter(d => d.id !== doc.id));
+      } else {
+        alert(data.error || t('dossierDetail.technicalError'));
+      }
+    } catch { alert(t('dossierDetail.technicalError')); }
+    finally { setDeletingId(null); }
   };
 
   const sendMessage = async () => {
@@ -310,16 +327,28 @@ export default function DossierDetailClient({ dossier, user }) {
                 {documents.length > 0 ? (
                   <div className="grid sm:grid-cols-2 gap-3">
                     {documents.map(doc => (
-                      <a key={doc.id} href={doc.path} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-secondary/5 border border-transparent hover:border-secondary/20 transition-all group">
-                        <div className="w-11 h-11 bg-red-50 text-red-500 rounded-xl flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all">
-                          <i className="fa-solid fa-file-pdf text-lg"></i>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-primary text-sm truncate">{doc.originalName}</p>
-                          <p className="text-xs text-gray-400">{doc.type} {doc.fileSize ? `• ${(doc.fileSize / 1024 / 1024).toFixed(1)}MB` : ''}</p>
-                        </div>
-                        <i className="fa-solid fa-external-link text-gray-300 text-xs"></i>
-                      </a>
+                      <div key={doc.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-transparent hover:border-secondary/20 hover:bg-secondary/5 transition-all group">
+                        <a href={doc.path} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 flex-1 min-w-0">
+                          <div className="w-11 h-11 bg-red-50 text-red-500 rounded-xl flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all shrink-0">
+                            <i className="fa-solid fa-file-pdf text-lg"></i>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-primary text-sm truncate">{doc.originalName}</p>
+                            <p className="text-xs text-gray-400">{doc.type} {doc.fileSize ? `• ${(doc.fileSize / 1024 / 1024).toFixed(1)}MB` : ''}</p>
+                          </div>
+                          <i className="fa-solid fa-external-link text-gray-300 text-xs shrink-0"></i>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDocument(doc)}
+                          disabled={deletingId === doc.id}
+                          title={t('dossierDetail.deleteDocument')}
+                          aria-label={t('dossierDetail.deleteDocument')}
+                          className="w-9 h-9 shrink-0 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all disabled:opacity-40 disabled:pointer-events-none"
+                        >
+                          <i className={`fa-solid ${deletingId === doc.id ? 'fa-spinner fa-spin' : 'fa-trash-can'} text-sm`}></i>
+                        </button>
+                      </div>
                     ))}
                   </div>
                 ) : (

@@ -23,7 +23,7 @@ export async function GET(request, { params }) {
     const rawApp = await prisma.application.findUnique({
       where: { id },
       include: {
-        documents: true,
+        documents: { where: { deletedAt: null } },
         user: { select: { name: true, email: true } },
       },
     });

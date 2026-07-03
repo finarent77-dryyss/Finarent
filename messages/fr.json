@@ -786,6 +786,8 @@
     "technicalError": "Erreur technique.",
     "noDocumentsYet": "Aucun document pour le moment.",
     "addPieces": "Ajouter des pièces justificatives",
+    "deleteDocument": "Supprimer le document",
+    "confirmDeleteDocument": "Supprimer ce document ? Il sera conservé 30 jours puis définitivement effacé.",
     "amortization": "Tableau d'amortissement",
     "showAmortization": "Voir le tableau d'amortissement",
     "hideAmortization": "Masquer le tableau",
