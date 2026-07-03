@@ -107,14 +107,14 @@ export default function CgvPage() {
               <tbody className="divide-y divide-gray-100">
                 <tr><td className="p-3">Dénomination sociale</td><td className="p-3"><strong>FINARENT</strong></td></tr>
                 <tr><td className="p-3">Forme juridique</td><td className="p-3">Société par Actions Simplifiée (SAS)</td></tr>
-                <tr><td className="p-3">Capital social</td><td className="p-3">10 000 €</td></tr>
+                <tr><td className="p-3">Capital social</td><td className="p-3">2 010 €</td></tr>
                 <tr><td className="p-3">Siège social</td><td className="p-3">39 avenue de la République, 77340 Pontault-Combault</td></tr>
-                <tr><td className="p-3">RCS</td><td className="p-3 text-gray-400 italic">Melun [À compléter une fois immatriculation effective]</td></tr>
-                <tr><td className="p-3">SIRET</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
-                <tr><td className="p-3">TVA intracommunautaire</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
+                <tr><td className="p-3">RCS</td><td className="p-3">Melun 931 295 836 (immatriculation du 03/07/2026)</td></tr>
+                <tr><td className="p-3">SIREN</td><td className="p-3">931 295 836</td></tr>
+                <tr><td className="p-3">TVA intracommunautaire</td><td className="p-3">FR12 931 295 836</td></tr>
                 <tr><td className="p-3">Code APE/NAF</td><td className="p-3">6622Z — Activités des agents et courtiers d&apos;assurances</td></tr>
-                <tr><td className="p-3">Représentant légal</td><td className="p-3">M. LENS Sébastien Jean-Pierre, Président</td></tr>
-                <tr><td className="p-3">Directeur de la publication</td><td className="p-3">M. LENS Sébastien Jean-Pierre</td></tr>
+                <tr><td className="p-3">Représentant légal</td><td className="p-3">M. Ntela BARDAI, Président</td></tr>
+                <tr><td className="p-3">Directeur de la publication</td><td className="p-3">M. Ntela BARDAI</td></tr>
                 <tr><td className="p-3">Hébergeur</td><td className="p-3">Vercel Inc. — 340 S Lemon Ave #4133, Walnut, CA 91789, USA — <a href="https://vercel.com" className="text-emerald-700 underline">vercel.com</a></td></tr>
               </tbody>
             </table>
@@ -292,7 +292,7 @@ export default function CgvPage() {
         {/* Article 11 */}
         <Section id="art11" n="11" title="Données personnelles et confidentialité">
           <Sub>11.1 — Responsable de traitement</Sub>
-          <p>Finarent est responsable de traitement au sens du RGPD (Règlement UE 2016/679) et de la loi Informatique et Libertés modifiée. Le responsable est M. LENS Sébastien Jean-Pierre.</p>
+          <p>Finarent est responsable de traitement au sens du RGPD (Règlement UE 2016/679) et de la loi Informatique et Libertés modifiée. Le responsable est M. Ntela BARDAI, Président.</p>
           <Sub>11.2 — Données collectées</Sub>
           <p>Identité, coordonnées (téléphone, email, adresse postale), informations professionnelles (raison sociale, SIRET, situation financière), justificatifs réglementaires (Kbis, statuts, comptes, déclarations TVA, RIB), données techniques liées à la navigation (adresse IP, cookies).</p>
           <Sub>11.3 — Finalités</Sub>
@@ -445,10 +445,10 @@ export default function CgvPage() {
 
         <footer className="mt-16 pt-6 border-t border-gray-200 text-xs text-gray-500 text-center space-y-1">
           <p>
-            <strong>FINARENT</strong> — SAS au capital de 10 000 € — Siège : 39 av. de la République, 77340 Pontault-Combault
+            <strong>FINARENT</strong> — SAS au capital de 2 010 € — Siège : 39 av. de la République, 77340 Pontault-Combault
           </p>
           <p>
-            RCS Melun [N° à compléter] · ORIAS [N° à compléter] · <a href="https://finarrent.vercel.app" className="text-emerald-700 underline">finarrent.vercel.app</a>
+            RCS Melun 931 295 836 · ORIAS [N° à compléter] · <a href="https://finarrent.vercel.app" className="text-emerald-700 underline">finarrent.vercel.app</a>
           </p>
           <p className="italic">© Finarent — Tous droits réservés · Document généré le 13 mai 2026</p>
         </footer>

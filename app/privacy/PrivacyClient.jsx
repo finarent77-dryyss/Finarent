@@ -17,7 +17,7 @@ const SECTIONS = [
           société <strong>Finarent</strong>, courtier en financement et assurance professionnelle.
         </p>
         <ul className="list-disc pl-6 mt-3 space-y-1">
-          <li>Adresse postale : Société en cours de constitution — informations légales mises à jour dès enregistrement RCS</li>
+          <li>Adresse postale : 39 Avenue de la République, 77340 Pontault-Combault — SAS immatriculée au RCS de Melun sous le n° 931 295 836</li>
           <li>Email : <a className="text-secondary underline" href="mailto:dpo@finarent.fr">dpo@finarent.fr</a></li>
           <li>Téléphone : disponible sur la page <Link href="/contact" className="text-secondary underline">contact</Link></li>
           <li>Inscription ORIAS (IOBSP + IAS) : numéro publié dès activité commerciale</li>

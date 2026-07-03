@@ -24,14 +24,21 @@ function PartnerCard({ item }) {
     >
       <div className="h-14 flex items-center justify-center mb-3">
         <img
-          src={`https://logo.clearbit.com/${item.domain}?size=128`}
+          src={item.logo || (item.domain ? `https://logo.clearbit.com/${item.domain}?size=128` : '')}
           alt={item.name}
           loading="lazy"
           className="max-h-12 max-w-[80%] object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
           onError={(e) => {
-            // Fallback : on cache l'image et affiche les initiales
-            e.currentTarget.style.display = 'none';
-            const fallback = e.currentTarget.nextElementSibling;
+            const img = e.currentTarget;
+            const clearbit = item.domain ? `https://logo.clearbit.com/${item.domain}?size=128` : null;
+            // 1er repli : logo local KO → on tente Clearbit
+            if (clearbit && !img.src.includes('clearbit.com')) {
+              img.src = clearbit;
+              return;
+            }
+            // 2e repli : on cache l'image et affiche les initiales
+            img.style.display = 'none';
+            const fallback = img.nextElementSibling;
             if (fallback) fallback.classList.remove('hidden');
           }}
         />

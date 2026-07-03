@@ -197,7 +197,7 @@ export default function ContactClient() {
               {[
                 { icon: 'fa-phone', title: 'Téléphone', value: t('common.phone'), sub: 'Lun-Ven 9h-18h', href: 'tel:0123456789', color: 'from-secondary to-secondary/80' },
                 { icon: 'fa-envelope', title: 'Email', value: 'contact@finarent.fr', sub: 'Réponse sous 1h ouvrée', href: 'mailto:contact@finarent.fr', color: 'from-accent to-emerald-700' },
-                { icon: 'fa-location-dot', title: 'Adresse', value: '12 rue de la République', sub: '75011 Paris', href: '#map', color: 'from-primary to-[#10253C]' },
+                { icon: 'fa-location-dot', title: 'Adresse', value: '39 Avenue de la République', sub: '77340 Pontault-Combault', href: '#map', color: 'from-primary to-[#10253C]' },
               ].map((c, i) => (
                 <ScrollReveal key={i} delay={i * 0.07}>
                   <a href={c.href} className="group flex items-start gap-4 p-5 bg-white rounded-2xl shadow-md hover:shadow-2xl border border-gray-100 hover:border-secondary/30 hover:-translate-y-1 transition-all duration-300">
@@ -430,10 +430,10 @@ export default function ContactClient() {
               <div className="grid lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 rounded-2xl overflow-hidden shadow-xl border border-gray-100 aspect-video lg:aspect-auto lg:min-h-[400px]">
                   <iframe
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=2.3690%2C48.8550%2C2.3850%2C48.8650&amp;layer=mapnik&amp;marker=48.8600%2C2.3770"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=2.5960%2C48.7930%2C2.6120%2C48.8030&amp;layer=mapnik&amp;marker=48.7980%2C2.6040"
                     className="w-full h-full border-0"
                     loading="lazy"
-                    title="Localisation Finarent — République, Paris"
+                    title="Localisation Finarent — Pontault-Combault"
                   ></iframe>
                 </div>
                 <div className="space-y-4">
@@ -447,11 +447,11 @@ export default function ContactClient() {
                     <div className="space-y-2 text-sm text-white/80">
                       <div className="flex items-start gap-2">
                         <i className="fa-solid fa-building text-accent text-xs mt-1"></i>
-                        <span>12 rue de la République<br />75011 Paris</span>
+                        <span>39 Avenue de la République<br />77340 Pontault-Combault</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <i className="fa-solid fa-train text-accent text-xs"></i>
-                        <span>Métro République (3, 5, 8, 9, 11)</span>
+                        <span>RER E — Émerainville / Pontault-Combault</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <i className="fa-solid fa-clock text-accent text-xs"></i>
@@ -460,7 +460,7 @@ export default function ContactClient() {
                     </div>
                   </div>
                   <a
-                    href="https://www.openstreetmap.org/?mlat=48.8600&amp;mlon=2.3770#map=16/48.8600/2.3770"
+                    href="https://www.openstreetmap.org/?mlat=48.7980&amp;mlon=2.6040#map=16/48.7980/2.6040"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-gray-200 hover:border-secondary hover:bg-secondary hover:text-white rounded-xl text-sm font-bold text-primary transition-all"
