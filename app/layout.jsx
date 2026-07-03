@@ -27,10 +27,10 @@ export const metadata = {
   icons: {
     icon: [
       { url: '/finarent-pastille.svg', type: 'image/svg+xml' },
-      { url: '/finarent-logo.jpg', type: 'image/jpeg' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
     ],
-    shortcut: '/finarent-pastille.svg',
-    apple: '/finarent-logo.jpg',
+    shortcut: '/icon-192.png',
+    apple: '/icon-192.png',
   },
   openGraph: {
     type: 'website',
@@ -47,6 +47,9 @@ export const metadata = {
     images: ['/hero_business_team_premium_v2_1772271137874.png'],
   },
   robots: { index: true, follow: true },
+  verification: {
+    google: 'AX2Gwgw9dAs7ADPJY0JU9pbbNMxNfyPaOGX3N7QRnPw',
+  },
 };
 
 export default function RootLayout({ children }) {
