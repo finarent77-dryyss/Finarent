@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isCronAuthorized } from '@/lib/cron-auth';
 
 /**
  * GET /api/cron/affiliate-purge
  * Cron RGPD : supprime les AffiliateClick > 13 mois (recommandation CNIL).
- * Vercel Cron : configurer dans vercel.json schedule "0 3 * * 0" (dimanche 3h).
  *
- * Sécurité : protégé par CRON_SECRET en header Authorization.
+ * Sécurité : protégé par CRON_SECRET en header Authorization (fail-closed).
  */
 export async function GET(request) {
-  const expected = process.env.CRON_SECRET;
-  const auth = request.headers.get('authorization');
-  if (expected && auth !== `Bearer ${expected}`) {
+  if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 

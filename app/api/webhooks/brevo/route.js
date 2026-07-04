@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { brevoWebhookToken } from '@/lib/brevo/config.js';
+import { safeEqual } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,8 +64,12 @@ async function applyEmailLogUpdate(messageId, update) {
 export async function POST(request) {
   const token = brevoWebhookToken();
   if (token) {
+    // Priorité au header (non loggé dans les access logs) ; fallback query pour compat
     const url = new URL(request.url);
-    if (url.searchParams.get('token') !== token) {
+    const provided = request.headers.get('x-brevo-token')
+      || url.searchParams.get('token')
+      || '';
+    if (!safeEqual(provided, token)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }

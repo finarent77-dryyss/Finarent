@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { loadCallCenterUser, hasCallCenterAccess } from '@/lib/call-center-access';
+import {
+  loadCallCenterUser,
+  hasCallCenterAccess,
+  canManageProspect,
+  callCenterProspectWhere,
+} from '@/lib/call-center-access';
 import {
   sendCallCenterOutboundEmail,
   getCallCenterOutboundEmailStats,
@@ -50,6 +55,10 @@ export async function POST(request) {
       if (!prospect) {
         return NextResponse.json({ error: 'Prospect introuvable' }, { status: 404 });
       }
+      // Cloisonnement : un agent ne peut e-mailer que ses propres prospects
+      if (!canManageProspect(user, prospect)) {
+        return NextResponse.json({ error: 'Accès à ce prospect refusé' }, { status: 403 });
+      }
     }
 
     try {
@@ -81,8 +90,14 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Maximum 25 prospects par envoi groupé' }, { status: 400 });
     }
 
+    // Cloisonnement : ne retenir que les prospects réellement gérables par cet agent/centre
     const prospects = await prisma.prospect.findMany({
-      where: { id: { in: prospectIds }, email: { not: null } },
+      where: {
+        AND: [
+          { id: { in: prospectIds }, email: { not: null } },
+          callCenterProspectWhere(user),
+        ],
+      },
       select: { id: true, email: true, name: true },
     });
 

@@ -1,14 +1,32 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit } from '@/lib/rateLimit';
+
+function getClientIp(request) {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
+}
 
 export async function POST(request) {
   try {
+    const ip = getClientIp(request);
+    if (!checkRateLimit(ip).allowed) {
+      return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 });
+    }
+
     let body;
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: 'Corps de requête invalide' }, { status: 400 });
     }
+
+    // Honeypot : champ invisible rempli = bot → succès silencieux
+    if (body?.website) {
+      return NextResponse.json({ success: true, message: 'Inscription réussie' });
+    }
+
     const email = body?.email?.trim()?.toLowerCase();
 
     if (!email || email.length > 254) {

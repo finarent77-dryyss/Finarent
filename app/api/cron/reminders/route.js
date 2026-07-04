@@ -1,15 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-
-function isAuthorized(request) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return true;
-  const auth = request.headers.get('authorization');
-  return auth === `Bearer ${secret}`;
-}
+import { isCronAuthorized } from '@/lib/cron-auth';
 
 export async function GET(request) {
-  if (!isAuthorized(request)) {
+  if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
   try {

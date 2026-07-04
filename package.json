@@ -32,7 +32,6 @@
     "@hookform/resolvers": "^3.9.0",
     "@prisma/client": "^5.22.0",
     "@sentry/nextjs": "^10.49.0",
-    "@supabase/supabase-js": "^2.45.0",
     "framer-motion": "^12.23.26",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",

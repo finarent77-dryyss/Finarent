@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { verifyRecaptcha } from '@/lib/recaptcha';
+
+function getClientIp(request) {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
+}
 
 /**
  * POST /api/quote-requests
@@ -15,16 +23,33 @@ import { randomUUID } from 'crypto';
  */
 export async function POST(request) {
   try {
+    const ip = getClientIp(request);
+    if (!checkRateLimit(ip).allowed) {
+      return NextResponse.json({ error: 'Trop de demandes. Réessayez plus tard.' }, { status: 429 });
+    }
+
     const data = await request.json();
 
     if (!data || typeof data !== 'object') {
       return NextResponse.json({ error: 'Payload invalide' }, { status: 400 });
+    }
+    // Honeypot anti-bot : champ invisible rempli = bot → succès silencieux
+    if (data.website) {
+      return NextResponse.json({ ok: true, message: 'Votre demande a bien été enregistrée.' }, { status: 200 });
     }
     if (!data.email || !/^[^@]+@[^@]+\.[^@]+$/.test(data.email)) {
       return NextResponse.json({ error: 'Email manquant ou invalide' }, { status: 400 });
     }
     if (!data.product) {
       return NextResponse.json({ error: 'Produit manquant' }, { status: 400 });
+    }
+    // reCAPTCHA : vérifié uniquement si un token est fourni (devient obligatoire
+    // une fois RECAPTCHA_SECRET_KEY posée en prod + token envoyé par le front)
+    if (data.recaptchaToken) {
+      const rc = await verifyRecaptcha(data.recaptchaToken);
+      if (!rc.success) {
+        return NextResponse.json({ error: 'Vérification de sécurité échouée.' }, { status: 400 });
+      }
     }
 
     const email = String(data.email).trim().toLowerCase();

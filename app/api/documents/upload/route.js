@@ -5,6 +5,7 @@ import { uploadFile } from '@/lib/storage';
 import { syncUser, isAdmin } from '@/lib/users';
 import { logDocumentAccess } from '@/lib/audit';
 import { sendDocumentReceived } from '@/lib/email';
+import { sniffMatchesMime } from '@/lib/file-signature';
 
 const TYPE_MAP = { kbis: 'KBIS', rib: 'RIB', cni: 'CNI', bilan: 'BILAN', contrat: 'CONTRAT', autre: 'AUTRE' };
 
@@ -77,6 +78,14 @@ export async function POST(request) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    // Vérification magic-bytes : le contenu réel doit correspondre au MIME déclaré
+    if (!sniffMatchesMime(buffer, file.type)) {
+      return NextResponse.json(
+        { error: 'Le contenu du fichier ne correspond pas à son type déclaré' },
+        { status: 400 }
+      );
+    }
 
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
 
