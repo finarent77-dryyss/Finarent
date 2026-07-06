@@ -2,32 +2,45 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { MANDATE_VERSION, MANDATE_TEXT } from '@/lib/affiliate-mandate.js';
 import { isValidIban, isValidSiret, logAffiliateAction } from '@/lib/affiliate-fiscal.js';
+import { encryptString, decryptString, maskIban } from '@/lib/crypto.js';
+import { safeEqual } from '@/lib/cron-auth';
+
+/**
+ * Résout un affilié à partir de son code ET d'un jeton d'onboarding secret.
+ * Le `code` seul (public, présent dans les liens ?ref=) ne suffit JAMAIS :
+ * seul le jeton — transmis par l'admin, à usage unique, expirant — autorise
+ * l'accès aux coordonnées bancaires.
+ */
+async function resolveByToken(code, token) {
+  if (!token || typeof token !== 'string') return null;
+  const affiliate = await prisma.affiliate.findUnique({
+    where: { code: code.toUpperCase() },
+  });
+  if (!affiliate || !affiliate.isActive) return null;
+  if (!affiliate.onboardingToken || !affiliate.onboardingTokenExpiresAt) return null;
+  if (affiliate.onboardingTokenExpiresAt < new Date()) return null;
+  if (!safeEqual(token, affiliate.onboardingToken)) return null;
+  return affiliate;
+}
 
 export async function GET(request, { params }) {
   const { code } = await params;
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { code: code.toUpperCase() },
-    select: {
-      id: true,
-      code: true,
-      name: true,
-      isActive: true,
-      onboardingCompletedAt: true,
-      mandateSignedAt: true,
-      fiscalStatus: true,
-      legalName: true,
-      siret: true,
-      iban: true,
-      payoutMinAmount: true,
-    },
-  });
+  const token = new URL(request.url).searchParams.get('token');
+  const affiliate = await resolveByToken(code, token);
 
-  if (!affiliate || !affiliate.isActive) {
-    return NextResponse.json({ error: 'Affilié introuvable' }, { status: 404 });
+  if (!affiliate) {
+    return NextResponse.json({ error: "Lien d'onboarding invalide ou expiré" }, { status: 403 });
   }
 
   return NextResponse.json({
-    affiliate,
+    affiliate: {
+      code: affiliate.code,
+      name: affiliate.name,
+      fiscalStatus: affiliate.fiscalStatus,
+      legalName: affiliate.legalName,
+      // IBAN jamais renvoyé en clair — seulement une version masquée si déjà présent
+      ibanMasked: affiliate.iban ? maskIban(decryptString(affiliate.iban)) : null,
+    },
     mandateText: MANDATE_TEXT,
     mandateVersion: MANDATE_VERSION,
     completed: Boolean(affiliate.onboardingCompletedAt && affiliate.mandateSignedAt),
@@ -36,15 +49,21 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   const { code } = await params;
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { code: code.toUpperCase() },
-  });
+  const body = await request.json();
 
-  if (!affiliate || !affiliate.isActive) {
-    return NextResponse.json({ error: 'Affilié introuvable' }, { status: 404 });
+  const affiliate = await resolveByToken(code, body?.token);
+  if (!affiliate) {
+    return NextResponse.json({ error: "Lien d'onboarding invalide ou expiré" }, { status: 403 });
   }
 
-  const body = await request.json();
+  // Interdit l'écrasement d'un onboarding déjà validé (anti-détournement d'IBAN)
+  if (affiliate.onboardingCompletedAt) {
+    return NextResponse.json(
+      { error: 'Onboarding déjà complété. Contactez Finarent pour toute modification.' },
+      { status: 409 },
+    );
+  }
+
   const {
     fiscalStatus,
     legalName,
@@ -78,7 +97,7 @@ export async function POST(request, { params }) {
     || request.headers.get('x-real-ip')
     || null;
 
-  const updated = await prisma.affiliate.update({
+  await prisma.affiliate.update({
     where: { id: affiliate.id },
     data: {
       fiscalStatus,
@@ -90,13 +109,17 @@ export async function POST(request, { params }) {
       fiscalPostalCode: fiscalPostalCode?.trim() || null,
       fiscalCity: fiscalCity?.trim() || null,
       fiscalCountry: fiscalCountry?.trim() || 'France',
-      iban: iban.replace(/\s/g, '').toUpperCase(),
-      bic: bic?.trim()?.toUpperCase() || null,
+      // Coordonnées bancaires chiffrées (AES-256-GCM) avant stockage
+      iban: encryptString(iban.replace(/\s/g, '').toUpperCase()),
+      bic: bic?.trim() ? encryptString(bic.trim().toUpperCase()) : null,
       payoutHolder: payoutHolder?.trim() || legalName.trim(),
       mandateSignedAt: new Date(),
       mandateSignedIp: ip,
       mandateVersion: MANDATE_VERSION,
       onboardingCompletedAt: new Date(),
+      // Jeton à usage unique : invalidé après complétion
+      onboardingToken: null,
+      onboardingTokenExpiresAt: null,
     },
   });
 
@@ -105,8 +128,8 @@ export async function POST(request, { params }) {
     entityType: 'AFFILIATE',
     entityId: affiliate.id,
     action: 'ONBOARDING_COMPLETED',
-    after: { fiscalStatus, legalName: updated.legalName },
+    after: { fiscalStatus, legalName: legalName.trim() },
   });
 
-  return NextResponse.json({ ok: true, affiliate: updated });
+  return NextResponse.json({ ok: true });
 }

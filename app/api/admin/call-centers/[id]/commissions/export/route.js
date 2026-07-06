@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
+import { decryptString } from '@/lib/crypto.js';
 
 /**
  * GET /api/admin/call-centers/[id]/commissions/export?status=PENDING
@@ -19,6 +20,9 @@ export async function GET(request, { params }) {
   const center = await prisma.callCenter.findUnique({ where: { id } });
   if (!center) return NextResponse.json({ error: 'Centre introuvable' }, { status: 404 });
 
+  // IBAN déchiffré pour le fichier de virement (admin uniquement)
+  const centerIban = center.iban ? decryptString(center.iban) : null;
+
   const where = { callCenterId: id };
   if (status && ['PENDING', 'PAID', 'CANCELLED'].includes(status)) where.status = status;
 
@@ -32,7 +36,7 @@ export async function GET(request, { params }) {
 
   const lines = [];
   lines.push(`# Versements — ${center.name} (${center.code})`);
-  lines.push(`# Type: ${center.type} · IBAN: ${center.iban || '—'}`);
+  lines.push(`# Type: ${center.type} · IBAN: ${centerIban || '—'}`);
   lines.push(`# Exporté le: ${new Date().toISOString()}`);
   lines.push('');
   lines.push('date,beneficiaire,iban,dossier,produit,montantFinance,typeCommission,taux,montantCommission,statut,payeLe');
@@ -43,7 +47,7 @@ export async function GET(request, { params }) {
     lines.push(csvRow([
       c.createdAt.toISOString(),
       center.name,
-      center.iban,
+      centerIban,
       c.application?.companyName,
       c.application?.productType,
       c.application?.amount,

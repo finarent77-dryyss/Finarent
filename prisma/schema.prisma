@@ -703,6 +703,9 @@ model Affiliate {
   mandateSignedIp   String?
   mandateVersion    String?
   onboardingCompletedAt DateTime?
+  // Jeton secret d'onboarding fiscal (usage unique, distinct du code public)
+  onboardingToken          String?  @unique
+  onboardingTokenExpiresAt DateTime?
   payoutMinAmount   Float                 @default(20)
   iban              String?
   bic               String?

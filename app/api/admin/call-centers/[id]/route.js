@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
+import { encryptString, decryptString, maskIban } from '@/lib/crypto.js';
 
 /**
  * GET /api/admin/call-centers/[id]
@@ -65,6 +66,8 @@ export async function GET(request, { params }) {
 
   return NextResponse.json({
     ...center,
+    // IBAN jamais renvoyé en clair à l'UI (masqué)
+    iban: center.iban ? maskIban(decryptString(center.iban)) : null,
     stats: {
       members: center.members.length,
       applications: center._count.applications,
@@ -95,7 +98,7 @@ export async function PATCH(request, { params }) {
   if (body.address !== undefined) data.address = body.address ? String(body.address).slice(0, 200) : null;
   if (body.phone !== undefined) data.phone = body.phone ? String(body.phone).slice(0, 30) : null;
   if (body.email !== undefined) data.email = body.email ? String(body.email).trim().toLowerCase().slice(0, 200) : null;
-  if (body.iban !== undefined) data.iban = body.iban ? String(body.iban).replace(/\s+/g, '').slice(0, 40) : null;
+  if (body.iban !== undefined) data.iban = body.iban ? encryptString(String(body.iban).replace(/\s+/g, '').slice(0, 40).toUpperCase()) : null;
   if (body.commissionType !== undefined) {
     data.commissionType = body.commissionType === 'FIXED' ? 'FIXED' : 'PERCENT';
   }

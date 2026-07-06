@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MANDATE_TEXT, MANDATE_VERSION } from '@/lib/affiliate-mandate.js';
 
-export default function AffiliateOnboardingClient({ code }) {
+export default function AffiliateOnboardingClient({ code, token }) {
   const [loading, setLoading] = useState(true);
   const [completed, setCompleted] = useState(false);
+  const [invalidLink, setInvalidLink] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [form, setForm] = useState({
@@ -26,16 +27,29 @@ export default function AffiliateOnboardingClient({ code }) {
   });
 
   useEffect(() => {
-    fetch(`/api/affiliate/${code}/onboarding`)
-      .then((r) => r.json())
+    if (!token) {
+      setInvalidLink(true);
+      setLoading(false);
+      return;
+    }
+    fetch(`/api/affiliate/${code}/onboarding?token=${encodeURIComponent(token)}`)
+      .then(async (r) => {
+        if (!r.ok) {
+          setInvalidLink(true);
+          return null;
+        }
+        return r.json();
+      })
       .then((d) => {
+        if (!d) return;
         if (d.completed) setCompleted(true);
         if (d.affiliate?.legalName) {
           setForm((f) => ({ ...f, legalName: d.affiliate.legalName || '' }));
         }
       })
+      .catch(() => setInvalidLink(true))
       .finally(() => setLoading(false));
-  }, [code]);
+  }, [code, token]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -45,7 +59,7 @@ export default function AffiliateOnboardingClient({ code }) {
       const r = await fetch(`/api/affiliate/${code}/onboarding`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, token }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error);
@@ -57,6 +71,18 @@ export default function AffiliateOnboardingClient({ code }) {
   };
 
   if (loading) return <p className="p-8 text-gray-400">Chargement…</p>;
+
+  if (invalidLink) {
+    return (
+      <div className="max-w-xl mx-auto p-8 text-center">
+        <i className="fa-solid fa-triangle-exclamation text-5xl text-amber-500 mb-4" />
+        <h1 className="text-2xl font-black text-primary">Lien invalide ou expiré</h1>
+        <p className="text-gray-500 mt-2">
+          Ce lien d&apos;onboarding n&apos;est plus valide. Contactez Finarent pour recevoir un nouveau lien sécurisé.
+        </p>
+      </div>
+    );
+  }
 
   if (completed) {
     return (

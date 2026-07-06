@@ -4,7 +4,9 @@ export const metadata = {
   title: 'Onboarding fiscal | Finarent Affiliation',
 };
 
-export default async function AffiliateOnboardingPage({ params }) {
+export default async function AffiliateOnboardingPage({ params, searchParams }) {
   const { code } = await params;
-  return <AffiliateOnboardingClient code={code} />;
+  const sp = await searchParams;
+  const token = typeof sp?.token === 'string' ? sp.token : '';
+  return <AffiliateOnboardingClient code={code} token={token} />;
 }

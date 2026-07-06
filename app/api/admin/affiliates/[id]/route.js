@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { decryptString, maskIban } from '@/lib/crypto.js';
 
 /**
  * GET /api/admin/affiliates/[id]
@@ -65,8 +66,14 @@ export async function GET(request, { params }) {
     .filter((c) => c.status === 'PAID')
     .reduce((s, c) => s + c.amount, 0);
 
+  // Assainissement : ne jamais exposer le jeton d'onboarding ni l'IBAN/BIC en clair
+  const { onboardingToken: _t, onboardingTokenExpiresAt: _e, iban, bic, ...safeAffiliate } = affiliate;
+
   return NextResponse.json({
-    ...affiliate,
+    ...safeAffiliate,
+    ibanMasked: iban ? maskIban(decryptString(iban)) : null,
+    hasBic: Boolean(bic),
+    onboardingPending: Boolean(_t) && (!_e || _e > new Date()),
     stats: {
       clicks: affiliate._count.clicks,
       prospects: affiliate._count.prospects,

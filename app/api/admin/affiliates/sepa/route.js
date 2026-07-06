@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/users';
 import { generateSepaXml, nextBusinessDay } from '@/lib/sepa-xml.js';
 import { COMPANY_INFO } from '@/lib/invoicing/company.js';
 import { logAffiliateAction, computeAffiliatePayoutTTC, affiliateDisplayName } from '@/lib/affiliate-fiscal.js';
+import { decryptString } from '@/lib/crypto.js';
 
 export async function GET(request) {
   const session = await getSession();
@@ -41,8 +42,9 @@ export async function GET(request) {
       const { amountTTC } = computeAffiliatePayoutTTC(totalValidated, a.tvaApplicable);
       return {
         name: affiliateDisplayName(a),
-        iban: a.iban,
-        bic: a.bic,
+        // Fichier de virement SEPA : IBAN/BIC déchiffrés (usage strictement serveur)
+        iban: decryptString(a.iban),
+        bic: a.bic ? decryptString(a.bic) : null,
         amount: amountTTC,
         reference: `Commission Finarent ${a.code} ${new Date().toISOString().slice(0, 7)}`,
         endToEndId: `${a.id.slice(0, 12)}-${Date.now()}`,

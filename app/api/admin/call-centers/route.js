@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
+import { encryptString, decryptString, maskIban } from '@/lib/crypto.js';
 
 /**
  * GET /api/admin/call-centers
@@ -52,7 +53,7 @@ export async function GET(request) {
       address: c.address,
       phone: c.phone,
       email: c.email,
-      iban: c.iban ? `${c.iban.slice(0, 4)}…${c.iban.slice(-4)}` : null, // masqué pour la liste
+      iban: c.iban ? maskIban(decryptString(c.iban)) : null, // déchiffré + masqué pour la liste
       commissionType: c.commissionType,
       commissionValue: c.commissionValue,
       notes: c.notes,
@@ -125,7 +126,7 @@ export async function POST(request) {
         address: body.address ? String(body.address).slice(0, 200) : null,
         phone: body.phone ? String(body.phone).slice(0, 30) : null,
         email: body.email ? String(body.email).trim().toLowerCase().slice(0, 200) : null,
-        iban: body.iban ? String(body.iban).replace(/\s+/g, '').slice(0, 40) : null,
+        iban: body.iban ? encryptString(String(body.iban).replace(/\s+/g, '').slice(0, 40).toUpperCase()) : null,
         commissionType,
         commissionValue,
         isActive: body.isActive !== false,
