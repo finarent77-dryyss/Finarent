@@ -37,8 +37,8 @@ export default function MensualiteSimulator() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-8">
-        <SliderInput label={isLeasing ? 'Prix du véhicule' : 'Montant emprunté'} value={amount} onChange={setAmount} min={10000} max={1000000} step={5000} accent="secondary" />
-        <SliderInput label="Durée" value={months} onChange={setMonths} min={12} max={300} step={12} suffix="mois" format="number" accent="accent" />
+        <SliderInput label={isLeasing ? 'Prix du véhicule' : 'Montant emprunté'} value={amount} onChange={setAmount} min={10000} max={1000000} step={5000} accent="secondary" tooltip={isLeasing ? 'Prix TTC du véhicule à financer.' : 'Le capital que vous souhaitez emprunter, hors assurance et frais de dossier.'} />
+        <SliderInput label="Durée" value={months} onChange={setMonths} min={12} max={300} step={12} suffix="mois" format="number" accent="accent" tooltip="Durée de remboursement en mois. Plus elle est longue, plus la mensualité baisse mais plus le coût total augmente." />
         <LoanTypeSelector value={loanType} onChange={setLoanType} onRateChange={setRate} />
         {isLeasing && (
           <div className="bg-accent/5 border border-accent/30 rounded-xl p-3 text-sm text-primary">
@@ -50,9 +50,29 @@ export default function MensualiteSimulator() {
           </div>
         )}
         <div className="grid sm:grid-cols-2 gap-4">
-          <NumberInput label={isLeasing ? 'Taux financement' : 'Taux nominal annuel'} value={rate} onChange={setRate} suffix="%" step={0.05} min={0.1} max={25} />
+          <NumberInput
+            label={isLeasing ? 'Taux financement' : 'Taux annuel effectif global (TAEG)'}
+            value={rate}
+            onChange={setRate}
+            suffix="%"
+            step={0.05}
+            min={0.1}
+            max={25}
+            tooltip={isLeasing
+              ? 'Taux de financement annuel appliqué au montant financé.'
+              : 'Taux Annuel Effectif Global : le taux « tout compris » (intérêts + frais obligatoires) exprimé en pourcentage annuel. Il permet de comparer les offres.'}
+          />
           {!isLeasing && (
-            <NumberInput label="Taux assurance" value={insuranceRate} onChange={setInsuranceRate} suffix="%" step={0.01} min={0} max={1.5} />
+            <NumberInput
+              label="Taux assurance emprunteur"
+              value={insuranceRate}
+              onChange={setInsuranceRate}
+              suffix="%"
+              step={0.01}
+              min={0}
+              max={1.5}
+              tooltip="Taux annuel de l'assurance emprunteur, appliqué au capital emprunté. Facultatif mais souvent exigé par le prêteur."
+            />
           )}
         </div>
       </div>

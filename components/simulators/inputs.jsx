@@ -3,8 +3,47 @@
 import { useState, useEffect, useRef } from 'react';
 import { formatEUR } from '@/lib/simulators/calculations/pret';
 
+/** Icône (i) cliquable affichant une explication au clic (mobile-friendly). */
+export function InfoTooltip({ text }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDocClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  if (!text) return null;
+
+  return (
+    <span className="relative inline-flex align-middle" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Plus d'informations"
+        aria-expanded={open}
+        className="text-gray-400 hover:text-secondary transition cursor-pointer"
+      >
+        <i className="fa-solid fa-circle-info text-sm"></i>
+      </button>
+      {open && (
+        <span
+          role="tooltip"
+          className="absolute z-30 left-1/2 -translate-x-1/2 top-7 w-56 max-w-[70vw] bg-primary text-white text-xs leading-relaxed font-normal rounded-xl p-3 shadow-xl"
+        >
+          {text}
+        </span>
+      )}
+    </span>
+  );
+}
+
 /** Slider avec valeur affichée éditable (clic pour saisir au clavier) + champ numérique en dessous. */
-export function SliderInput({ label, value, onChange, min, max, step = 1, suffix = '€', format = 'eur', accent = 'secondary' }) {
+export function SliderInput({ label, value, onChange, min, max, step = 1, suffix = '€', format = 'eur', accent = 'secondary', tooltip }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const inputRef = useRef(null);
@@ -32,7 +71,10 @@ export function SliderInput({ label, value, onChange, min, max, step = 1, suffix
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between gap-3">
-        <label className="text-sm font-semibold text-gray-700">{label}</label>
+        <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+          <span>{label}</span>
+          {tooltip && <InfoTooltip text={tooltip} />}
+        </label>
         {editing ? (
           <div className={`flex items-baseline gap-1 text-2xl font-black text-${accent}`}>
             <input
@@ -78,21 +120,62 @@ export function SliderInput({ label, value, onChange, min, max, step = 1, suffix
   );
 }
 
-/** Champ numérique avec préfixe/suffixe (€, %, mois). */
-export function NumberInput({ label, value, onChange, suffix, prefix, min, max, step = 1 }) {
+/** Affichage FR d'un nombre pour la saisie (virgule décimale). */
+function toDraft(n) {
+  if (n === null || n === undefined || Number.isNaN(n)) return '';
+  return String(n).replace('.', ',');
+}
+
+/**
+ * Champ numérique avec préfixe/suffixe (€, %, mois) et tooltip optionnel.
+ * Accepte le point ET la virgule comme séparateur décimal (saisie libre en
+ * type="text" + inputMode decimal ; parsing tolérant ; clamp au blur).
+ */
+export function NumberInput({ label, value, onChange, suffix, prefix, min, max, step = 1, tooltip }) {
+  const [draft, setDraft] = useState(toDraft(value));
+  const [focused, setFocused] = useState(false);
+
+  // Resynchronise l'affichage quand la valeur change de l'extérieur (hors saisie active)
+  useEffect(() => {
+    if (!focused) setDraft(toDraft(value));
+  }, [value, focused]);
+
+  const handleChange = (e) => {
+    // Autorise chiffres, point, virgule et signe — normalise la virgule en point
+    const raw = e.target.value.replace(/[^\d.,-]/g, '');
+    setDraft(raw);
+    const parsed = Number(raw.replace(',', '.'));
+    if (raw.trim() !== '' && !Number.isNaN(parsed)) {
+      onChange(parsed);
+    }
+  };
+
+  const handleBlur = () => {
+    setFocused(false);
+    let parsed = Number(draft.replace(',', '.'));
+    if (draft.trim() === '' || Number.isNaN(parsed)) parsed = value;
+    if (min !== undefined && min !== null) parsed = Math.max(min, parsed);
+    if (max !== undefined && max !== null) parsed = Math.min(max, parsed);
+    onChange(parsed);
+    setDraft(toDraft(parsed));
+  };
+
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-700">{label}</label>
+      <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+        <span>{label}</span>
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </label>
       <div className="relative">
         {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">{prefix}</span>}
         <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          min={min}
-          max={max}
-          step={step}
-          className={`w-full ${prefix ? 'pl-8' : 'pl-4'} ${suffix ? 'pr-12' : 'pr-4'} py-2.5 border-2 border-gray-200 rounded-xl focus:border-secondary focus:outline-none transition`}
+          type="text"
+          inputMode="decimal"
+          value={draft}
+          onChange={handleChange}
+          onFocus={() => setFocused(true)}
+          onBlur={handleBlur}
+          className={`w-full ${prefix ? 'pl-8' : 'pl-4'} ${suffix ? 'pr-12' : 'pr-4'} py-2.5 border-2 border-gray-200 rounded-xl focus:border-secondary focus:outline-none transition tabular-nums`}
         />
         {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">{suffix}</span>}
       </div>

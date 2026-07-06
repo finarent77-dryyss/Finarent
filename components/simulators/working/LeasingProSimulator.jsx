@@ -8,7 +8,7 @@ export default function LeasingProSimulator() {
       minMonths={24} maxMonths={84} stepMonths={6}
       defaultAmount={80000} defaultMonths={48} defaultRate={4.2}
       rateMin={2.5} rateMax={8}
-      rateLabel="Taux nominal annuel"
+      rateLabel="Taux annuel effectif global (TAEG)"
       rateNote="Taux marché leasing pro : 3-6% selon profil entreprise et durée"
       insuranceLabel={null}
       contextNote="Crédit-bail mobilier pour entreprise : machine, flotte, équipement. Loyers 100% déductibles du résultat imposable."

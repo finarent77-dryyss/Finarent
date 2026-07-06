@@ -8,7 +8,7 @@ export default function CreditAutoSimulator() {
       minMonths={12} maxMonths={84} stepMonths={6}
       defaultAmount={20000} defaultMonths={60} defaultRate={5.5}
       rateMin={2} rateMax={12}
-      rateLabel="Taux nominal annuel"
+      rateLabel="Taux annuel effectif global (TAEG)"
       rateNote="Crédit auto neuf/occasion : 3-7% selon ancienneté véhicule"
       contextNote="Financement d'un véhicule (neuf ou occasion) en propriété. Vous êtes propriétaire dès le 1er jour."
     />

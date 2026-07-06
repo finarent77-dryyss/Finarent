@@ -47,7 +47,7 @@ export default function CapaciteEmpruntSimulator() {
 
         <LoanTypeSelector value={loanType} onChange={setLoanType} onRateChange={setRate} />
 
-        <NumberInput label="Taux nominal annuel" value={rate} onChange={setRate} suffix="%" step={0.05} min={0.1} max={25} />
+        <NumberInput label="Taux annuel effectif global (TAEG)" value={rate} onChange={setRate} suffix="%" step={0.05} min={0.1} max={25} tooltip="Taux Annuel Effectif Global : le taux « tout compris » (intérêts + frais obligatoires) exprimé en pourcentage annuel." />
         <div className="text-xs text-gray-400 -mt-3">
           <i className="fa-solid fa-circle-info mr-1"></i>
           {loanTypeInfo?.label} · taux marché {loanTypeInfo?.rateRange}

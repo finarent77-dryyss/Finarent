@@ -27,7 +27,7 @@ export default function PretRelaisSimulator() {
         <SliderInput label="Valeur estimée du bien à vendre" value={propertyValue} onChange={setPropertyValue} min={50000} max={2000000} step={10000} accent="secondary" />
         <SliderInput label="Quotité financée (% de la valeur)" value={quotity} onChange={setQuotity} min={50} max={80} step={1} suffix="%" format="number" accent="accent" />
         <SliderInput label="Durée du prêt relais" value={months} onChange={setMonths} min={6} max={24} step={1} suffix="mois" format="number" accent="primary" />
-        <NumberInput label="Taux nominal annuel" value={rate} onChange={setRate} suffix="%" step={0.05} min={2} max={10} />
+        <NumberInput label="Taux annuel effectif global (TAEG)" value={rate} onChange={setRate} suffix="%" step={0.05} min={2} max={10} tooltip="Taux Annuel Effectif Global : le taux « tout compris » (intérêts + frais obligatoires) exprimé en pourcentage annuel." />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">

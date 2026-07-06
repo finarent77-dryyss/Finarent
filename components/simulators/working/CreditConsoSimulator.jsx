@@ -8,7 +8,7 @@ export default function CreditConsoSimulator() {
       minMonths={6} maxMonths={84} stepMonths={6}
       defaultAmount={10000} defaultMonths={48} defaultRate={6.5}
       rateMin={2} rateMax={21}
-      rateLabel="Taux nominal annuel (TAN)"
+      rateLabel="Taux annuel effectif global (TAEG)"
       rateNote="Taux marché crédit conso : 4-9% selon profil et montant"
       contextNote="Prêt personnel non affecté pour financer un projet, des travaux, un achat important."
     />

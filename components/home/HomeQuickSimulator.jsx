@@ -68,7 +68,7 @@ export default function HomeQuickSimulator() {
                 accent="accent"
               />
               <SliderInput
-                label="Taux nominal annuel"
+                label="Taux annuel effectif global (TAEG)"
                 value={rate}
                 onChange={setRate}
                 min={0.5}
@@ -77,6 +77,7 @@ export default function HomeQuickSimulator() {
                 suffix="%"
                 format="number"
                 accent="secondary"
+                tooltip="Taux Annuel Effectif Global : le taux « tout compris » (intérêts + frais obligatoires) exprimé en pourcentage annuel."
               />
             </div>
 

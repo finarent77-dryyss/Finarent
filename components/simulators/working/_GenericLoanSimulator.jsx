@@ -17,12 +17,16 @@ export default function GenericLoanSimulator({
   minMonths, maxMonths, stepMonths = 6,
   defaultAmount, defaultMonths, defaultRate,
   rateMin = 0.5, rateMax = 25, rateStep = 0.05,
-  rateLabel = 'Taux nominal annuel',
+  rateLabel = 'Taux annuel effectif global (TAEG)',
   rateNote,
   defaultInsuranceRate = 0,
   insuranceLabel = 'Taux assurance emprunteur',
   showAmortization = true,
   contextNote,
+  amountTooltip = 'Le capital que vous souhaitez emprunter, hors assurance et frais de dossier.',
+  monthsTooltip = 'Durée de remboursement en mois. Plus elle est longue, plus la mensualité baisse mais plus le coût total augmente.',
+  rateTooltip = 'Taux Annuel Effectif Global : le taux « tout compris » (intérêts + frais obligatoires) exprimé en pourcentage annuel. Il permet de comparer les offres.',
+  insuranceTooltip = "Taux annuel de l'assurance emprunteur, appliqué au capital emprunté. Facultatif mais souvent exigé par le prêteur.",
 }) {
   const [amount, setAmount] = useState(defaultAmount);
   const [months, setMonths] = useState(defaultMonths);
@@ -45,15 +49,15 @@ export default function GenericLoanSimulator({
       )}
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-8">
-        <SliderInput label="Montant emprunté" value={amount} onChange={setAmount} min={minAmount} max={maxAmount} step={stepAmount} accent="secondary" />
-        <SliderInput label="Durée" value={months} onChange={setMonths} min={minMonths} max={maxMonths} step={stepMonths} suffix="mois" format="number" accent="accent" />
+        <SliderInput label="Montant emprunté" value={amount} onChange={setAmount} min={minAmount} max={maxAmount} step={stepAmount} accent="secondary" tooltip={amountTooltip} />
+        <SliderInput label="Durée" value={months} onChange={setMonths} min={minMonths} max={maxMonths} step={stepMonths} suffix="mois" format="number" accent="accent" tooltip={monthsTooltip} />
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <NumberInput label={rateLabel} value={rate} onChange={setRate} suffix="%" step={rateStep} min={rateMin} max={rateMax} />
+            <NumberInput label={rateLabel} value={rate} onChange={setRate} suffix="%" step={rateStep} min={rateMin} max={rateMax} tooltip={rateTooltip} />
             {rateNote && <div className="text-xs text-gray-400 mt-1"><i className="fa-solid fa-info-circle mr-1"></i>{rateNote}</div>}
           </div>
           {insuranceLabel !== null && (
-            <NumberInput label={insuranceLabel} value={insuranceRate} onChange={setInsuranceRate} suffix="%" step={0.01} min={0} max={1.5} />
+            <NumberInput label={insuranceLabel} value={insuranceRate} onChange={setInsuranceRate} suffix="%" step={0.01} min={0} max={1.5} tooltip={insuranceTooltip} />
           )}
         </div>
       </div>
