@@ -1,0 +1,5 @@
+[
+  "0 9 * * * [ \"$INSTANCE_NUMBER\" = \"0\" ] && curl -sS -m 60 -H \"Authorization: Bearer $CRON_SECRET\" http://localhost:8080/api/cron/reminders",
+  "0 */2 * * * [ \"$INSTANCE_NUMBER\" = \"0\" ] && curl -sS -m 60 -H \"Authorization: Bearer $CRON_SECRET\" http://localhost:8080/api/cron/sla-check",
+  "0 3 * * 0 [ \"$INSTANCE_NUMBER\" = \"0\" ] && curl -sS -m 120 -H \"Authorization: Bearer $CRON_SECRET\" http://localhost:8080/api/cron/affiliate-purge"
+]

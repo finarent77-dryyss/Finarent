@@ -72,7 +72,12 @@ export async function POST(request) {
       return NextResponse.json({ ...result, ok: true });
     }
 
-    if ((resource === 'sms' || ressource === 'sms') && event && data) {
+    // Détection SMS robuste : Ringover route les SMS soit via resource/ressource
+    // === 'sms', soit via un nom d'événement contenant "sms" (ex. sms_received,
+    // sms_sent, message_sms) — l'ancien filtre resource-only laissait passer les
+    // SMS entrants dans la branche "ignoré".
+    const isSmsEvent = resource === 'sms' || ressource === 'sms' || (event && event.includes('sms'));
+    if (isSmsEvent && event && data) {
       const { processRingoverSmsEvent } = await import('@/lib/ringover/process-sms-event.js');
       const result = await processRingoverSmsEvent(event, data, payload.timestamp);
       return NextResponse.json({ ...result, ok: true });
