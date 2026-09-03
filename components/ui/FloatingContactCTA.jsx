@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { CONTACT_HOURS, CONTACT_PHONE_HREF } from '@/lib/contact';
 
 const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
 
@@ -73,7 +74,7 @@ export default function FloatingContactCTA() {
               <i className="fa-solid fa-chevron-right text-xs"></i>
             </Link>
             <a
-              href="tel:0123456789"
+              href={CONTACT_PHONE_HREF}
               className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-primary text-primary hover:text-white transition-all group"
             >
               <div className="w-9 h-9 rounded-lg bg-primary/10 group-hover:bg-white/20 flex items-center justify-center">
@@ -81,7 +82,7 @@ export default function FloatingContactCTA() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-bold">Appelez-nous</div>
-                <div className="text-[11px] opacity-70">Lun–Ven 9h-18h</div>
+                <div className="text-[11px] opacity-70">{CONTACT_HOURS}</div>
               </div>
             </a>
           </div>

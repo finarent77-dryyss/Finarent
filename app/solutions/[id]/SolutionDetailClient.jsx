@@ -130,7 +130,7 @@ export default function SolutionDetailClient({ sol, otherSolutions }) {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">{t('solutionDetail.initialDeposit')}</span>
-                      <span className="font-bold text-accent">{t('solutionDetail.notRequired')}</span>
+                      <span className="font-bold text-accent">{sol.deposit || t('solutionDetail.notRequired')}</span>
                     </div>
                   </div>
                 </div>

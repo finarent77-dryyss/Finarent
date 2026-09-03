@@ -58,8 +58,8 @@ La page `/privacy` mentionne `dpo@finarent.fr` en placeholder.
 
 ## 5. Contacts publics (footer + page contact)
 
-- [ ] **Téléphone public** standard (actuellement `tel:0123456789` placeholder)
-- [ ] **Email contact général** (actuellement `contact@finarent.fr` à confirmer)
+- [x] **Téléphone public** : 01 60 28 59 41 (placeholder `tel:0123456789` remplacé — source unique `lib/contact.js`)
+- [x] **Email contact général** : contact@finarent.fr
 - [ ] **Email commercial / RDV**
 - [ ] **Horaires d'ouverture**
 - [ ] **Adresse présentation (rendez-vous physique)** si différente du siège

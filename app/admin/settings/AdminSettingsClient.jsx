@@ -72,7 +72,7 @@ export default function AdminSettingsClient() {
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">T&eacute;l&eacute;phone</div>
-            <div className="text-sm font-bold text-primary">01 23 45 67 89</div>
+            <div className="text-sm font-bold text-primary">01 60 28 59 41</div>
           </div>
         </div>
       </motion.div>

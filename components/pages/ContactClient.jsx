@@ -10,6 +10,7 @@ import { LoadingIcon, SuccessIcon, CancelIcon } from '@/components/animations/Fi
 import FAQItem from '@/components/ui/FAQItem';
 import { useTranslation } from '@/lib/i18n';
 import { buildPrefillFromParams } from '@/lib/simulators/prefill';
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, CONTACT_HOURS, CONTACT_PHONE_HREF } from '@/lib/contact';
 
 // Mapping secteur wizard → option du select de /contact (libellés différents)
 const CONTACT_SECTOR_MAP = {
@@ -198,8 +199,8 @@ export default function ContactClient() {
           <div className="container mx-auto px-6">
             <div className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-4">
               {[
-                { icon: 'fa-phone', title: 'Téléphone', value: t('common.phone'), sub: 'Lun-Ven 9h-18h', href: 'tel:0123456789', color: 'from-secondary to-secondary/80' },
-                { icon: 'fa-envelope', title: 'Email', value: 'contact@finarent.fr', sub: 'Réponse sous 1h ouvrée', href: 'mailto:contact@finarent.fr', color: 'from-accent to-emerald-700' },
+                { icon: 'fa-phone', title: 'Téléphone', value: t('common.phone'), sub: CONTACT_HOURS, href: CONTACT_PHONE_HREF, color: 'from-secondary to-secondary/80' },
+                { icon: 'fa-envelope', title: 'Email', value: CONTACT_EMAIL, sub: 'Réponse sous 1h ouvrée', href: CONTACT_EMAIL_HREF, color: 'from-accent to-emerald-700' },
                 { icon: 'fa-location-dot', title: 'Adresse', value: '39 Avenue de la République', sub: '77340 Pontault-Combault', href: '#map', color: 'from-primary to-[#10253C]' },
               ].map((c, i) => (
                 <ScrollReveal key={i} delay={i * 0.07}>
@@ -252,11 +253,11 @@ export default function ContactClient() {
                       <h3 className="text-sm font-bold text-primary">{t('contact.needHelp')}</h3>
                       <div className="flex items-center space-x-2">
                         <i className="fa-solid fa-phone text-secondary text-sm"></i>
-                        <a href="tel:0123456789" className="text-sm font-medium text-gray-900 hover:text-secondary">{t('common.phone')}</a>
+                        <a href={CONTACT_PHONE_HREF} className="text-sm font-medium text-gray-900 hover:text-secondary">{t('common.phone')}</a>
                       </div>
                       <div className="flex items-center space-x-2">
                         <i className="fa-solid fa-envelope text-secondary text-sm"></i>
-                        <a href="mailto:contact@finarent.fr" className="text-sm font-medium text-gray-900 hover:text-secondary">{t('common.email')}</a>
+                        <a href={CONTACT_EMAIL_HREF} className="text-sm font-medium text-gray-900 hover:text-secondary">{t('common.email')}</a>
                       </div>
                     </div>
                   </div>
@@ -458,7 +459,7 @@ export default function ContactClient() {
                       </div>
                       <div className="flex items-center gap-2">
                         <i className="fa-solid fa-clock text-accent text-xs"></i>
-                        <span>Lun-Ven · 9h–18h</span>
+                        <span>{CONTACT_HOURS}</span>
                       </div>
                     </div>
                   </div>

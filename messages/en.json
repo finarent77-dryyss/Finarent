@@ -163,7 +163,7 @@
     "errorMessage": "An error occurred. Please try again or contact us directly.",
     "faqTitle": "Frequently asked questions",
     "faq1Q": "What documents are required?",
-    "faq1A": "For a first application, we need your company registration (KBIS), the last 3 annual accounts, and the director's ID.",
+    "faq1A": "For a first application: a company registration (KBIS) less than 3 months old and the director's ID. Annual accounts are not systematically required — with long-term rental (LLD), financing is available from the day your company is created.",
     "faq2Q": "What is the processing time?",
     "faq2A": "We commit to providing a response within 48 business hours after receiving your complete file.",
     "faq3Q": "What amounts can you finance?",
@@ -368,7 +368,7 @@
     "q1_2": "What is the minimum financing amount?",
     "a1_2": "The minimum financing amount is €3,000. There is no fixed maximum — each application is reviewed individually.",
     "q1_3": "What documents are required?",
-    "a1_3": "For a first application: company registration (KBIS) less than 3 months old, the last 3 annual accounts, director's ID, and the supplier's quote.",
+    "a1_3": "For a first application: company registration (KBIS) less than 3 months old, the director's ID, and the supplier's quote. Annual accounts are only requested if your file requires them — with long-term rental (LLD), financing is available from the day your company is created.",
     "category2": "Insurance",
     "q2_1": "What insurance do you offer?",
     "a2_1": "We offer professional liability, builder's insurance, fleet insurance and multi-risk business insurance, tailored to your sector.",
@@ -450,7 +450,7 @@
     "faqTitle": "Frequently asked questions",
     "faq": [
       { "q": "What is the average processing time?", "a": "48h for an initial reply, 5 to 7 business days on average for funds release after signature." },
-      { "q": "What documents are required?", "a": "A Kbis (less than 3 months old), your last two annual financial statements, a professional bank account info (RIB) and the manager's ID. Our advisor will indicate the precise documents needed." },
+      { "q": "What documents are required?", "a": "A Kbis (less than 3 months old), a professional bank account info (RIB) and the manager's ID. Annual accounts are not systematically required — with long-term rental (LLD), financing is available from the day your company is created. Our advisor will indicate the precise documents needed." },
       { "q": "Are there application fees?", "a": "No, the review of your file and the introduction to our partners are completely free." },
       { "q": "Can I cancel during the process?", "a": "Yes, you can cancel your application at any time before electronic signature, with no fees." }
     ],

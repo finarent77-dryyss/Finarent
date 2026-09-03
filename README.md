@@ -256,7 +256,7 @@ Ce projet est privé et propriétaire.
 
 Pour toute question ou problème:
 - Email: contact@finarent.fr
-- Téléphone: 01 23 45 67 89
+- Téléphone: 01 60 28 59 41
 
 ---
 

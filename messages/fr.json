@@ -163,7 +163,7 @@
     "errorMessage": "Une erreur est survenue. Veuillez réessayer ou nous contacter directement.",
     "faqTitle": "Questions fréquentes",
     "faq1Q": "Quels documents sont nécessaires ?",
-    "faq1A": "Pour une première demande, nous avons besoin de votre KBIS, des 3 derniers bilans et d'une pièce d'identité du dirigeant.",
+    "faq1A": "Pour une première demande : un KBIS de moins de 3 mois et une pièce d'identité du dirigeant. Les bilans ne sont pas systématiquement exigés — en location longue durée (LLD), le financement est possible dès la création de votre entreprise.",
     "faq2Q": "Quel est le délai de traitement ?",
     "faq2A": "Nous nous engageons à vous fournir une réponse de principe sous 48h ouvrées après réception de votre dossier complet.",
     "faq3Q": "Quels montants pouvez-vous financer ?",
@@ -368,7 +368,7 @@
     "q1_2": "Quel est le montant minimum de financement ?",
     "a1_2": "Le montant minimum de financement est de 3 000€. Il n'y a pas de maximum fixe, chaque dossier est étudié individuellement.",
     "q1_3": "Quels documents sont nécessaires ?",
-    "a1_3": "Pour une première demande : KBIS de moins de 3 mois, les 3 derniers bilans, une pièce d'identité du dirigeant et le devis du fournisseur.",
+    "a1_3": "Pour une première demande : KBIS de moins de 3 mois, une pièce d'identité du dirigeant et le devis du fournisseur. Les bilans ne sont demandés que si votre dossier le nécessite — en location longue durée (LLD), le financement est possible dès la création de votre entreprise.",
     "category2": "Assurance",
     "q2_1": "Quelles assurances proposez-vous ?",
     "a2_1": "Nous proposons la RC Pro, le Dommage Ouvrage, l'assurance flotte et la multirisque professionnelle, adaptées à votre secteur d'activité.",
@@ -474,7 +474,7 @@
     "faqTitle": "Questions fréquentes sur le processus",
     "faq": [
       { "q": "Quel est le délai moyen de traitement ?", "a": "48h pour une première réponse, 5 à 7 jours ouvrés en moyenne pour le déblocage des fonds après signature." },
-      { "q": "Quels documents sont nécessaires ?", "a": "Un Kbis de moins de 3 mois, vos deux derniers bilans, un RIB professionnel et la pièce d'identité du gérant. Notre conseiller vous indiquera précisément les pièces à fournir." },
+      { "q": "Quels documents sont nécessaires ?", "a": "Un Kbis de moins de 3 mois, un RIB professionnel et la pièce d'identité du gérant. Les bilans ne sont pas systématiquement exigés — en location longue durée (LLD), le financement est possible dès la création de votre entreprise. Notre conseiller vous indiquera précisément les pièces à fournir." },
       { "q": "Y a-t-il des frais de dossier ?", "a": "Non, l'étude de votre dossier et la mise en relation avec nos partenaires sont entièrement gratuites." },
       { "q": "Puis-je annuler en cours de procédure ?", "a": "Oui, vous pouvez annuler votre demande à tout moment avant la signature électronique, sans aucun frais." }
     ],

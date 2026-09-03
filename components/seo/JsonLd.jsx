@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/lib/seo';
+import { CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/contact';
 
 const OFFER_CATALOG = {
   '@type': 'OfferCatalog',
@@ -34,8 +35,8 @@ export function OrganizationJsonLd() {
     url: SITE_URL,
     logo: `${SITE_URL}/finarent-logo.jpg`,
     image: `${SITE_URL}/hero_business_team_premium_v2_1772271137874.png`,
-    telephone: '+33123456789',
-    email: 'contact@finarent.fr',
+    telephone: CONTACT_PHONE_E164,
+    email: CONTACT_EMAIL,
     description:
       'Courtier en financement professionnel et assurance pour TPE/PME. Crédit-bail, LOA, LLD, RC Pro. Réponse sous 48h.',
     address: {

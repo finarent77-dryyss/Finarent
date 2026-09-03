@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, CONTACT_PHONE_HREF } from '@/lib/contact';
 
 const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
 
@@ -125,17 +126,17 @@ export default function Footer() {
               {t('footer.companyDesc')}
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-3 mb-5">
-              <a href="tel:0123456789" className="flex items-center gap-2.5 text-white/60 hover:text-white transition-colors text-sm group">
+              <a href={CONTACT_PHONE_HREF} className="flex items-center gap-2.5 text-white/60 hover:text-white transition-colors text-sm group">
                 <span className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors">
                   <i className="fa-solid fa-phone text-accent text-xs"></i>
                 </span>
                 <span>{t('common.phone')}</span>
               </a>
-              <a href="mailto:contact@finarent.fr" className="flex items-center gap-2.5 text-white/60 hover:text-white transition-colors text-sm group">
+              <a href={CONTACT_EMAIL_HREF} className="flex items-center gap-2.5 text-white/60 hover:text-white transition-colors text-sm group">
                 <span className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-accent/20 flex items-center justify-center transition-colors">
                   <i className="fa-solid fa-envelope text-accent text-xs"></i>
                 </span>
-                <span>contact@finarent.fr</span>
+                <span>{CONTACT_EMAIL}</span>
               </a>
             </div>
             <div className="flex gap-2">
