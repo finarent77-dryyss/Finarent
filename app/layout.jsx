@@ -14,6 +14,8 @@ import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL } from '@/lib/seo';
 import './globals.css';
 
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -62,6 +64,15 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <OrganizationJsonLd />
         <WebSiteJsonLd />
+        {/* reCAPTCHA v3 : sans ce script, window.grecaptcha n'existe pas et aucun
+            formulaire public ne peut produire de jeton valide. */}
+        {RECAPTCHA_SITE_KEY ? (
+          <script
+            src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
+            async
+            defer
+          />
+        ) : null}
       </head>
       <body>
         <UserProvider>

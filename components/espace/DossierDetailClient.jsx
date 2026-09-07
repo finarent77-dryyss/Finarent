@@ -316,7 +316,7 @@ export default function DossierDetailClient({ dossier, user }) {
                   <label className={`cursor-pointer px-5 py-2.5 bg-secondary text-white font-bold rounded-xl text-sm hover:bg-secondary/90 transition-all flex items-center gap-2 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                     <i className="fa-solid fa-cloud-arrow-up"></i>
                     {uploading ? t('dossierDetail.sending') : t('dossierDetail.addDocument')}
-                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => handleFileUpload(e.target.files[0], 'AUTRE')} />
+                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp" onChange={e => handleFileUpload(e.target.files[0], 'AUTRE')} />
                   </label>
                 </div>
                 <p className="text-xs text-gray-400 mb-6 flex items-center gap-1.5">

@@ -47,7 +47,7 @@ export async function POST(request) {
     // une fois RECAPTCHA_SECRET_KEY posée en prod + token envoyé par le front)
     if (data.recaptchaToken) {
       const rc = await verifyRecaptcha(data.recaptchaToken);
-      if (!rc.success) {
+      if (!rc.skipped && !rc.success) {
         return NextResponse.json({ error: 'Vérification de sécurité échouée.' }, { status: 400 });
       }
     }

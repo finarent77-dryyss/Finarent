@@ -117,21 +117,19 @@ export default function ContactClient() {
     setReference(null);
     setErrors({});
     try {
-      let recaptchaToken = 'test-token';
-      if (typeof window !== 'undefined' && window.grecaptcha?.enterprise?.execute) {
+      // Jeton reCAPTCHA v3. Laisse vide si le script n'a pas pu se charger :
+      // le serveur retombe alors sur le pot de miel et la limite par IP, plutot
+      // que de rejeter la demande. Ne jamais envoyer de jeton factice ici.
+      let recaptchaToken = '';
+      const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+      if (siteKey && typeof window !== 'undefined' && window.grecaptcha) {
+        const g = window.grecaptcha.enterprise || window.grecaptcha;
         try {
-          recaptchaToken = await window.grecaptcha.enterprise.execute(
-            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-            { action: 'contact_form' }
-          );
-        } catch (_) {}
-      } else if (typeof window !== 'undefined' && window.grecaptcha?.execute) {
-        try {
-          recaptchaToken = await window.grecaptcha.execute(
-            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-            { action: 'contact_form' }
-          );
-        } catch (_) {}
+          await new Promise((resolve) => (g.ready ? g.ready(resolve) : resolve()));
+          recaptchaToken = await g.execute(siteKey, { action: 'contact_form' });
+        } catch (_) {
+          recaptchaToken = '';
+        }
       }
 
       const res = await fetch('/api/financement', {

@@ -351,7 +351,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                                 type="file"
                                 className="hidden"
                                 onChange={(e) => handleFileUpload(d.id, e.target.files[0], 'autre')}
-                                accept=".pdf,.jpg,.jpeg,.png"
+                                accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp"
                               />
                             </label>
                           </div>

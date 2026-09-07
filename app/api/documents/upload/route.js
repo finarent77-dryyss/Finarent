@@ -15,7 +15,25 @@ const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
   'image/jpg',
   'image/png',
+  'image/heic', // photos prises avec un iPhone : format par defaut depuis iOS 11
+  'image/heif',
+  'image/webp',
 ]);
+
+const ALLOWED_EXTENSIONS = new Set(['pdf', 'jpg', 'jpeg', 'png', 'heic', 'heif', 'webp']);
+
+/** Repli quand le navigateur n'envoie aucun type MIME (gestionnaires de fichiers Android, partage iOS). */
+const EXT_TO_MIME = {
+  pdf: 'application/pdf',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  heic: 'image/heic',
+  heif: 'image/heif',
+  webp: 'image/webp',
+};
+
+const FORMATS_LABEL = 'PDF, JPG, PNG, HEIC, WEBP';
 
 /** Taille max : 10 Mo */
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -42,20 +60,20 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Fichier trop volumineux (max 10 Mo)' }, { status: 400 });
     }
 
-    // Validation MIME type
-    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+    // L'extension fait foi : file.type est absent sur plusieurs navigateurs mobiles.
+    const ext = (file.name || '').split('.').pop()?.toLowerCase();
+    if (!ext || !ALLOWED_EXTENSIONS.has(ext)) {
       return NextResponse.json(
-        { error: 'Type de fichier non autorisé. Formats acceptés : PDF, JPG, PNG' },
+        { error: `Format non autorisé. Formats acceptés : ${FORMATS_LABEL}` },
         { status: 400 }
       );
     }
 
-    // Validation extension de fichier (double check avec MIME)
-    const ext = (file.name || '').split('.').pop()?.toLowerCase();
-    const ALLOWED_EXTENSIONS = new Set(['pdf', 'jpg', 'jpeg', 'png']);
-    if (!ext || !ALLOWED_EXTENSIONS.has(ext)) {
+    // Type retenu : celui du navigateur s'il est exploitable, sinon deduit de l'extension.
+    const mimeType = ALLOWED_MIME_TYPES.has(file.type) ? file.type : EXT_TO_MIME[ext];
+    if (!mimeType) {
       return NextResponse.json(
-        { error: 'Extension de fichier non autorisée' },
+        { error: `Format non autorisé. Formats acceptés : ${FORMATS_LABEL}` },
         { status: 400 }
       );
     }
@@ -80,7 +98,7 @@ export async function POST(request) {
     const buffer = Buffer.from(bytes);
 
     // Vérification magic-bytes : le contenu réel doit correspondre au MIME déclaré
-    if (!sniffMatchesMime(buffer, file.type)) {
+    if (!sniffMatchesMime(buffer, mimeType)) {
       return NextResponse.json(
         { error: 'Le contenu du fichier ne correspond pas à son type déclaré' },
         { status: 400 }
@@ -90,7 +108,7 @@ export async function POST(request) {
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
 
     // Stockage via l'adaptateur (Supabase si configuré, sinon local)
-    const stored = await uploadFile(buffer, sanitizedFilename, file.type, applicationId);
+    const stored = await uploadFile(buffer, sanitizedFilename, mimeType, applicationId);
 
     const document = await prisma.document.create({
       data: {
@@ -100,7 +118,7 @@ export async function POST(request) {
         fileName: file.name,
         fileUrl: stored.path, // chemin du storage (Supabase) ou chemin complet local
         fileSize: file.size,
-        mimeType: file.type,
+        mimeType,
       },
     });
 

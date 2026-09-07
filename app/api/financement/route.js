@@ -112,7 +112,7 @@ export async function POST(request) {
     }
 
     const recaptchaResult = await verifyRecaptcha(body.recaptchaToken || '');
-    if (!recaptchaResult.success) {
+    if (!recaptchaResult.skipped && !recaptchaResult.success) {
       return NextResponse.json(
         { error: 'Vérification de sécurité échouée. Réessayez.' },
         { status: 400 }
