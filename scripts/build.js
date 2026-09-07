@@ -51,19 +51,24 @@ function syncDatabase() {
 
   const env = { ...process.env, DATABASE_URL: limitedDbUrl };
 
-  // Résoudre les migrations connues en échec (idempotent — ignoré si déjà résolu)
-  const knownFailed = [
+  // Migrations dont les objets existent deja en base mais dont l'enregistrement
+  // est reste en echec. On les marque APPLIQUEES, pas « rolled-back » :
+  // « rolled-back » demandait a Prisma de les REJOUER, elles echouaient a
+  // nouveau (« constraint already exists »), et le build basculait alors sur
+  // le repli destructeur ci-dessous. C'est ce cycle qui a fait disparaitre des
+  // colonnes de la table Application a chaque deploiement.
+  const knownApplied = [
     '20260513120000_dashboard_perf_indexes',
     '20260623220000_call_center_ringover_fields',
     '20260626230000_admin_activity_log_prospect_center',
     '20260627120000_brevo_affiliate_fiscal',
     '20260629000000_commission_table',
   ];
-  for (const name of knownFailed) {
+  for (const name of knownApplied) {
     try {
-      execSync(`npx prisma migrate resolve --rolled-back ${name}`, { stdio: 'pipe', env });
-      console.log(`✓ Migration résolue: ${name}`);
-    } catch { /* déjà résolue ou jamais appliquée */ }
+      execSync(`npx prisma migrate resolve --applied ${name}`, { stdio: 'pipe', env });
+      console.log(`✓ Migration marquée appliquée: ${name}`);
+    } catch { /* déjà marquée, ou jamais enregistrée */ }
   }
 
   const MAX_ATTEMPTS = 3;
@@ -77,12 +82,14 @@ function syncDatabase() {
       return;
     }
 
-    console.warn('⚠️  migrate deploy échoué — fallback db push...');
-    res = execCapture('npx prisma db push --accept-data-loss --skip-generate', env);
-    if (res.ok) {
-      console.log('✅ Schema synchronisé via db push');
-      return;
-    }
+    // PAS de repli `db push --accept-data-loss` ici. Cette commande aligne la
+    // base sur schema.prisma en SUPPRIMANT tout ce qui n'y figure pas : elle a
+    // efface les colonnes reference / email / phone / firstName / lastName de
+    // la table Application, rendant le formulaire public inoperant sans le
+    // moindre message. Une migration qui echoue doit se voir et se corriger a
+    // la main, jamais se contourner par une operation destructrice automatique.
+    console.error('❌ migrate deploy échoué. Sortie Prisma :');
+    console.error(res.output);
 
     // Saturation connexions (ancienne instance encore active) → réessai après pause
     if (attempt < MAX_ATTEMPTS && TRANSIENT_DB_ERROR.test(res.output)) {
