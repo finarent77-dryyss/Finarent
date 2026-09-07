@@ -22,8 +22,8 @@ L'app affiche actuellement *"Société en cours de constitution"*. Tant que ce n
 
 Obligatoire pour le statut de courtier mentionné partout sur le site.
 
-- [ ] **Numéro ORIAS** (IOBSP — financement)
-- [ ] **Numéro ORIAS** (IAS — assurance)
+- [x] **Numéro ORIAS** (IOBSP — financement) : 24005698
+- [x] **Numéro ORIAS** (IAS — assurance) : 24005698
 - [ ] **Niveau de capacité professionnelle** (I, II ou III) + justificatif
 - [ ] **Attestation RC Pro courtier** (assureur + numéro de police + plafond garantie)
 - [ ] **Garantie financière** (montant + organisme garant)

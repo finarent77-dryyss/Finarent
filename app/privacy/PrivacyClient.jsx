@@ -20,7 +20,7 @@ const SECTIONS = [
           <li>Adresse postale : 39 Avenue de la République, 77340 Pontault-Combault — SAS immatriculée au RCS de Melun sous le n° 931 295 836</li>
           <li>Email : <a className="text-secondary underline" href="mailto:dpo@finarent.fr">dpo@finarent.fr</a></li>
           <li>Téléphone : disponible sur la page <Link href="/contact" className="text-secondary underline">contact</Link></li>
-          <li>Inscription ORIAS (IOBSP + IAS) : numéro publié dès activité commerciale</li>
+          <li>Inscription ORIAS (IOBSP + IAS) : n° 24005698</li>
         </ul>
       </>
     ),

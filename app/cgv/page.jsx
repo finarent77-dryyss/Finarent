@@ -65,7 +65,7 @@ export default function CgvPage() {
         {/* Header */}
         <header className="border-b-2 border-emerald-500 pb-6 mb-8">
           <h1 className="text-3xl sm:text-4xl font-black text-primary mb-2">Conditions Générales de Vente</h1>
-          <div className="text-base text-emerald-700 font-semibold">Finarent — finarrent.vercel.app</div>
+          <div className="text-base text-emerald-700 font-semibold">Finarent — finarent.com</div>
           <div className="text-xs text-gray-500 mt-2">
             Version en vigueur au <strong>2026</strong> · Dernière mise à jour : <strong>13 mai 2026</strong>
           </div>
@@ -74,7 +74,7 @@ export default function CgvPage() {
         {/* Intro */}
         <p className="text-gray-700 leading-relaxed">
           Les présentes Conditions Générales de Vente et d&apos;Utilisation (ci-après les « <strong>CGV</strong> ») régissent l&apos;ensemble des relations contractuelles entre la société Finarent et toute personne, physique ou morale, professionnelle ou consommateur, faisant appel à ses services d&apos;intermédiation en financement et en assurance, qu&apos;elles soient présentées sur le site internet{' '}
-          <a href="https://finarrent.vercel.app" className="text-emerald-700 underline">finarrent.vercel.app</a> ou souscrites par tout autre canal.
+          <a href="https://finarent.com" className="text-emerald-700 underline">finarent.com</a> ou souscrites par tout autre canal.
         </p>
 
         <Callout kind="info">
@@ -128,8 +128,8 @@ export default function CgvPage() {
                 <tr><th className="text-left p-3">Catégorie</th><th className="text-left p-3">N° ORIAS</th><th className="text-left p-3">Date</th></tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                <tr><td className="p-3">Intermédiaire en Opérations de Banque et en Services de Paiement (IOBSP)</td><td className="p-3 text-gray-400 italic">[À compléter]</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
-                <tr><td className="p-3">Courtier d&apos;Assurance (COA)</td><td className="p-3 text-gray-400 italic">[À compléter]</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
+                <tr><td className="p-3">Intermédiaire en Opérations de Banque et en Services de Paiement (IOBSP)</td><td className="p-3 font-semibold">24005698</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
+                <tr><td className="p-3">Courtier d&apos;Assurance (COA)</td><td className="p-3 font-semibold">24005698</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
               </tbody>
             </table>
           </div>
@@ -155,7 +155,7 @@ export default function CgvPage() {
             <li><strong>« Services »</strong> : l&apos;ensemble des prestations d&apos;intermédiation, de conseil et d&apos;assistance proposées par Finarent (recherche de financement, crédit-bail, LOA, leasing, crédit professionnel, courtage en assurance, conseil patrimonial).</li>
             <li><strong>« Partenaires »</strong> : les établissements financiers, compagnies d&apos;assurance, sociétés de location auprès desquels Finarent négocie pour le compte de ses Clients.</li>
             <li><strong>« Mandat »</strong> : le contrat de courtage ou de recherche de financement signé entre Finarent et le Client.</li>
-            <li><strong>« Site »</strong> : le site internet accessible à l&apos;adresse <code className="bg-gray-100 px-1 rounded text-xs">finarrent.vercel.app</code>.</li>
+            <li><strong>« Site »</strong> : le site internet accessible à l&apos;adresse <code className="bg-gray-100 px-1 rounded text-xs">finarent.com</code>.</li>
           </ul>
         </Section>
 
@@ -448,7 +448,7 @@ export default function CgvPage() {
             <strong>FINARENT</strong> — SAS au capital de 2 010 € — Siège : 39 av. de la République, 77340 Pontault-Combault
           </p>
           <p>
-            RCS Melun 931 295 836 · ORIAS [N° à compléter] · <a href="https://finarrent.vercel.app" className="text-emerald-700 underline">finarrent.vercel.app</a>
+            RCS Melun 931 295 836 · ORIAS 24005698 · <a href="https://finarent.com" className="text-emerald-700 underline">finarent.com</a>
           </p>
           <p className="italic">© Finarent — Tous droits réservés · Document généré le 13 mai 2026</p>
         </footer>
