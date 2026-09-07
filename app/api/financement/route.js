@@ -86,7 +86,7 @@ function validateBody(body) {
 export async function POST(request) {
   try {
     const ip = getClientIp(request);
-    const rateLimit = checkRateLimit(ip);
+    const rateLimit = checkRateLimit(ip, { bucket: 'financement' });
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Trop de demandes. Réessayez dans 1 heure.' },

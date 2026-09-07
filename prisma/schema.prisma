@@ -116,8 +116,10 @@ model Partner {
 
 model Application {
   id            String            @id @default(cuid())
-  userId        String
-  user          User              @relation(fields: [userId], references: [id])
+  // Reference fonctionnelle affichee au client (FIN-2026-XXXXX).
+  reference     String?           @unique
+  userId        String?
+  user          User?             @relation(fields: [userId], references: [id])
   productType   ProductType
   status        ApplicationStatus @default(PENDING)
   amount        Float?
@@ -128,6 +130,10 @@ model Application {
   legalForm     String?
   sector        String?
   description   String?
+  email         String?
+  phone         String?
+  firstName     String?
+  lastName      String?
   quoteDetails  Json?
   partnerId     String?
   partner       Partner?          @relation(fields: [partnerId], references: [id])

@@ -24,7 +24,7 @@ function getClientIp(request) {
 export async function POST(request) {
   try {
     const ip = getClientIp(request);
-    if (!checkRateLimit(ip).allowed) {
+    if (!checkRateLimit(ip, { bucket: 'devis' }).allowed) {
       return NextResponse.json({ error: 'Trop de demandes. Réessayez plus tard.' }, { status: 429 });
     }
 

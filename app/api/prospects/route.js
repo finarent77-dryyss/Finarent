@@ -3,13 +3,25 @@ import { randomUUID } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { currentAffiliateId } from '@/lib/affiliate';
 import { computeEngagementScore } from '@/lib/prospects/scoring';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const COOKIE_NAME = 'finarent_anon';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 an
 
 // POST — Tracking évènement simulateur (anonyme, depuis le navigateur).
 // Crée/upserte un Prospect lié à un cookie + ajoute un ProspectEvent.
+function getClientIp(request) {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip') || 'inconnue';
+}
+
 export async function POST(request) {
+  // Quota large : un visiteur genere legitimement plusieurs evenements
+  // en enchainant les simulateurs.
+  if (!checkRateLimit(getClientIp(request), { bucket: 'prospects', max: 120 }).allowed) {
+    return NextResponse.json({ error: 'Trop de requêtes.' }, { status: 429 });
+  }
+
   let body;
   try {
     body = await request.json();

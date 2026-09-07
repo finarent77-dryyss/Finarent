@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const BAD_WORDS = ['putain', 'merde', 'connard', 'salope', 'fuck', 'shit', 'asshole'];
 
@@ -37,7 +38,17 @@ export async function GET() {
   }
 }
 
+function getClientIp(request) {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip') || 'inconnue';
+}
+
 export async function POST(request) {
+  // Dépôt public : rare par nature, quota serré pour éviter le flood.
+  if (!checkRateLimit(getClientIp(request), { bucket: 'temoignages', max: 5 }).allowed) {
+    return NextResponse.json({ error: 'Trop de dépôts. Réessayez plus tard.' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const authorName = sanitize(body.authorName);

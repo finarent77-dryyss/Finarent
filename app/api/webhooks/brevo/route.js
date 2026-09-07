@@ -63,7 +63,13 @@ async function applyEmailLogUpdate(messageId, update) {
 
 export async function POST(request) {
   const token = brevoWebhookToken();
-  if (token) {
+  // Fail-closed, cohérent avec lib/cron-auth.js et le webhook Ringover :
+  // jeton absent = refus, jamais ouverture anonyme de la route.
+  if (!token) {
+    console.error('[brevo] BREVO_WEBHOOK_TOKEN absent — webhook refusé.');
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  {
     // Priorité au header (non loggé dans les access logs) ; fallback query pour compat
     const url = new URL(request.url);
     const provided = request.headers.get('x-brevo-token')

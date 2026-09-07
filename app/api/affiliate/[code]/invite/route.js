@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendInvite } from '@/lib/affiliate-invite';
+import { checkRateLimit } from '@/lib/rateLimit';
+
+function getClientIp(request) {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip') || 'inconnue';
+}
 
 /**
  * POST /api/affiliate/[code]/invite
@@ -16,6 +22,18 @@ import { sendInvite } from '@/lib/affiliate-invite';
  */
 export async function POST(request, { params }) {
   try {
+    // Cet endpoint declenche de vrais envois via notre compte d'emailing,
+    // sans authentification. La deduplication par destinataire sur 7 jours
+    // n'empeche pas de boucler sur des milliers d'adresses differentes :
+    // sans quota par IP, le site sert de relais de spam et la reputation
+    // du domaine d'envoi en pâtit.
+    if (!checkRateLimit(getClientIp(request), { bucket: 'invite', max: 10 }).allowed) {
+      return NextResponse.json(
+        { error: "Trop d'invitations envoyées. Réessayez plus tard." },
+        { status: 429 },
+      );
+    }
+
     const { code } = await params;
     const body = await request.json();
 
