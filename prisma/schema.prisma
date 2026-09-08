@@ -530,6 +530,14 @@ model SignatureRequest {
   signedAt          DateTime?
   signedByIp        String?
   signedByUserAgent String?
+  /// Empreinte SHA-256 du PDF présenté au signataire. Sans elle, on ne peut pas
+  /// prouver QUELLE version a été signée — l'identité et l'horodatage seuls ne
+  /// suffisent pas à établir l'intégrité du document.
+  documentHash      String?
+  /// Chemin de stockage du PDF figé, signature incluse (preuve conservée).
+  documentPath      String?
+  /// Texte de consentement exact affiché et accepté au moment de signer.
+  consentText       String?
   token             String    @unique
   expiresAt         DateTime
   refusalReason     String?

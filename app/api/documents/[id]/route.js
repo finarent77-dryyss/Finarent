@@ -33,6 +33,20 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Déjà supprimé' }, { status: 410 });
     }
 
+    // Un contrat signé est une pièce probante : il n'est supprimable par
+    // personne, pas même un administrateur. La signature électronique simple
+    // ne vaut que si le document signé reste opposable — un contrat effaçable
+    // sur simple clic priverait la signature de tout intérêt.
+    if (document.type === 'CONTRAT') {
+      return NextResponse.json(
+        {
+          error:
+            'Un contrat signé ne peut pas être supprimé : il constitue une pièce probante conservée au titre des obligations légales.',
+        },
+        { status: 409 },
+      );
+    }
+
     const dbUser = await syncUser(session.user);
     const adminAccess = await isAdmin(session.user);
 

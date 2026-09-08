@@ -133,11 +133,14 @@ export default function DossierDetailClient({ dossier, user }) {
     try {
       const res = await fetch(`/api/applications/${dossier.id}/sign`, { method: 'POST' });
       const data = await res.json();
-      if (data.success) {
-        setDossierStatus('signe');
-      } else {
-        alert(data.error || 'Erreur lors de la signature');
+      if (data.success && data.signUrl) {
+        // La signature se recueille sur une page dédiée : le clic ici ouvre le
+        // parcours, il ne vaut pas signature. Le dossier ne passera en « signé »
+        // qu'une fois le paraphe et la preuve enregistrés.
+        window.location.href = data.signUrl;
+        return;
       }
+      alert(data.error || 'Erreur lors de l\'ouverture de la signature');
     } catch {
       alert('Erreur technique lors de la signature');
     } finally {
