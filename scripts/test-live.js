@@ -15,12 +15,22 @@
  *
  * Tout ce qui est créé porte la mention TEST AUTOMATIQUE et est supprimé en
  * fin de parcours, y compris si une étape échoue.
+ *
+ * Depuis l'audit P0-1, DATABASE_URL pointe sur la base de développement locale.
+ * Ce script s'y exécute par défaut. Pour une recette sur la base réelle, la
+ * viser explicitement — le contournement est volontairement verbeux :
+ *
+ *   DATABASE_URL="<uri de production>" node scripts/test-live.js --i-know-this-is-production
  */
 
 import { PrismaClient } from '@prisma/client';
 import { generateContractPDF } from '../lib/pdf/contract.js';
 import { empreinteDocument, genererJeton, DUREE_VALIDITE_MS } from '../lib/signature.js';
 import { sendMail, isMailConfigured } from '../lib/email/send.js';
+import { refuseProduction } from './_guard.js';
+
+// Refuse de tourner contre une base de production (audit P0-1 / P1-3).
+refuseProduction();
 
 const DESTINATAIRE = process.argv[2] || 'andrys.developper@gmail.com';
 const MARQUEUR = 'TEST AUTOMATIQUE — à supprimer';
@@ -73,10 +83,24 @@ async function main() {
     return '3/3 présentes';
   });
 
+  // SignatureRequest.requestedToId est une clé étrangère vers User : un
+  // identifiant inventé la fait échouer. On s'appuie sur un compte réellement
+  // présent en base, ce qui teste aussi le rattachement du dossier à son client.
+  let signataire = null;
+  await etape('Repérage d\'un compte pour la signature', async () => {
+    signataire = await prisma.user.findFirst({
+      where: { role: 'CLIENT' },
+      select: { id: true, email: true, name: true },
+    });
+    if (!signataire) throw new Error('aucun compte CLIENT en base — lancer scripts/seed-demo.js');
+    return signataire.email;
+  });
+
   let application = null;
   await etape('Création d\'une demande de financement', async () => {
     application = await prisma.application.create({
       data: {
+        userId: signataire?.id || null,
         reference: `TEST-${Date.now().toString().slice(-8)}`,
         productType: 'PRET_PRO',
         status: 'QUOTE_ACCEPTED',
@@ -133,8 +157,8 @@ async function main() {
       data: {
         documentType: 'OFFER',
         documentId: offer.id,
-        requestedToId: 'test-live',
-        requestedById: 'test-live',
+        requestedToId: signataire.id,
+        requestedById: signataire.id,
         provider: 'manual',
         token: genererJeton(),
         expiresAt: new Date(Date.now() + DUREE_VALIDITE_MS),

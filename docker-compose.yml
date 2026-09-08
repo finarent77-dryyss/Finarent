@@ -1,0 +1,47 @@
+# Base de développement locale — Finarent
+#
+# Constat P0-1 de l'audit de septembre 2026 : le .env de développement pointait
+# sur l'addon PostgreSQL de production. `npm run dev` lisait et écrivait les
+# données clients réelles, et `npm run db:migrate` pouvait proposer de les
+# réinitialiser.
+#
+#   docker compose up -d db      démarre la base
+#   npx prisma migrate deploy    applique le schéma
+#   node scripts/seed-demo.js    peuple avec des données de démonstration
+#   docker compose down          arrête (les données survivent dans le volume)
+#   docker compose down -v       arrête ET efface la base locale
+#
+# La version majeure suit celle de la production (POSTGRESQL_ADDON_VERSION=15),
+# pour que ce qui passe en local passe en production.
+#
+# Ne jamais peupler cette base avec un dump de production : elle contiendrait
+# alors des pièces d'identité, des KYC et des RIB réels sur un poste de travail.
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: finarent-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: finarent
+      POSTGRES_PASSWORD: finarent
+      POSTGRES_DB: finarent_dev
+      # Accélère les tests locaux ; inacceptable en production, sans objet ici.
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    # Port hôte 5433 et non 5432 : un PostgreSQL natif écoute déjà sur 5432 sur
+    # ce poste (il sert d'autres projets). Publier sur 5432 échouerait au
+    # démarrage du conteneur, ou masquerait l'autre instance selon l'ordre de
+    # lancement — deux bases interchangeables sur le même port est exactement
+    # le genre de confusion qui a mené au constat P0-1.
+    ports:
+      - "5433:5432"
+    volumes:
+      - finarent-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finarent -d finarent_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  finarent-db-data:
