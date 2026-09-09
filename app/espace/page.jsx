@@ -2,6 +2,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { syncUser } from '@/lib/users';
+import { stripSensitive } from '@/lib/sensitive';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
 import DashboardClient from '@/components/espace/DashboardClient';
 import EspaceLoginClient from '@/components/espace/EspaceLoginClient';
@@ -34,5 +35,5 @@ export default async function EspacePage() {
     documents: (a.documents || []).map((d) => ({ ...d, path: d.fileUrl, originalName: d.fileName })),
   }));
 
-  return <DashboardClient user={session.user} dbUser={dbUser} initialDemandes={demandes} />;
+  return <DashboardClient user={session.user} dbUser={stripSensitive('User', dbUser)} initialDemandes={demandes} />;
 }

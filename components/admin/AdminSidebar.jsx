@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { key: 'call-center-space', href: '/call-center', icon: 'fa-headset', label: 'Espace agents' },
   { key: 'devis', href: '/admin/devis', icon: 'fa-file-signature', label: 'Devis' },
   { key: 'factures', href: '/admin/factures', icon: 'fa-file-invoice', label: 'Factures' },
+  { key: 'documents', href: '/admin/documents', icon: 'fa-box-archive', label: 'Documents émis' },
   { key: 'offers', href: '/admin/offers', icon: 'fa-file-invoice-dollar', label: 'Offres prêt' },
   { key: 'users', href: '/admin/users', icon: 'fa-users', label: 'Utilisateurs' },
   { key: 'prospects', href: '/admin/prospects', icon: 'fa-user-tag', label: 'Prospection' },

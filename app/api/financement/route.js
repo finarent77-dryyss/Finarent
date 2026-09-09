@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateReference } from '@/lib/reference';
+import { genererReferenceDossier } from '@/lib/reference';
 import { verifyRecaptcha } from '@/lib/recaptcha';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateEmail, validatePhone, validateSIREN } from '@/utils/validation';
@@ -119,25 +119,9 @@ export async function POST(request) {
       );
     }
 
-    let reference;
-    let attempts = 0;
-    const maxAttempts = 5;
-
-    do {
-      reference = generateReference();
-      const existing = await prisma.application.findUnique({
-        where: { reference },
-      });
-      if (!existing) break;
-      attempts++;
-    } while (attempts < maxAttempts);
-
-    if (attempts >= maxAttempts) {
-      return NextResponse.json(
-        { error: 'Erreur technique. Veuillez réessayer.' },
-        { status: 500 }
-      );
-    }
+    // Numérotation séquentielle : `genererReferenceDossier` garantit déjà
+    // l'unicité, la boucle de tirage aléatoire n'a plus lieu d'être.
+    const reference = await genererReferenceDossier();
 
     const productType = body.requestType === 'assurance' ? 'RC_PRO' : 'PRET_PRO';
     const amountNum = body.requestType === 'financement' ? parseAmountFromLabel(body.amount) : null;

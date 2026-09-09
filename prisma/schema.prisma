@@ -74,6 +74,12 @@ model User {
   phone        String?
   company      String?
   legalForm    String?
+  // Coordonnées bancaires du client (RIB). iban et bic sont chiffrés AES-256-GCM
+  // avant stockage (lib/crypto.js) : ne jamais les renvoyer en clair au navigateur.
+  iban          String?
+  bic           String?
+  bankHolder    String?
+  bankUpdatedAt DateTime?
   role         Role          @default(CLIENT)
   partnerId    String?
   partner      Partner?      @relation(fields: [partnerId], references: [id])
@@ -1050,4 +1056,49 @@ model CallCenterCommission {
 
   @@index([callCenterId, status])
   @@index([status, createdAt])
+}
+
+// ─── DOCUMENTS GÉNÉRÉS ────────────────────────────────────────
+// Tout PDF produit par l'application (facture, devis, contrat, récapitulatif)
+// était jusqu'ici généré à la volée puis streamé, sans trace : impossible de
+// rejouer ce qui avait été transmis à un client, ni de savoir s'il l'avait reçu.
+//
+// Les liens vers Application / Invoice / Quote / User sont de simples
+// identifiants, sans `@relation` : un document doit survivre à la suppression
+// de l'entité qui l'a produit (obligation de conservation), et une clé
+// étrangère l'en empêcherait.
+
+enum GeneratedDocumentKind {
+  FACTURE
+  FACTURE_AFFILIE
+  DEVIS
+  CONTRAT
+  RECAP_DOSSIER
+  AUTRE
+}
+
+model GeneratedDocument {
+  id             String                @id @default(cuid())
+  kind           GeneratedDocumentKind
+  reference      String?               // numéro de facture / devis / dossier
+  fileName       String
+  filePath       String                // clé de stockage Cellar
+  fileSize       Int
+  mimeType       String                @default("application/pdf")
+  checksum       String                // SHA-256 du contenu — sert à ne pas ré-expédier un document inchangé
+  applicationId  String?
+  invoiceId      String?
+  quoteId        String?
+  affiliateId    String?
+  userId         String?
+  recipientEmail String?
+  emailSentAt    DateTime?
+  emailLogId     String?
+  createdAt      DateTime              @default(now())
+
+  @@index([kind, createdAt])
+  @@index([applicationId])
+  @@index([invoiceId])
+  @@index([quoteId])
+  @@index([checksum])
 }

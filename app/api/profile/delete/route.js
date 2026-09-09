@@ -18,6 +18,11 @@ export async function DELETE(request) {
       phone: null,
       company: null,
       legalForm: null,
+      // Coordonnées bancaires : effacées, aucune obligation légale ne les retient ici
+      iban: null,
+      bic: null,
+      bankHolder: null,
+      bankUpdatedAt: null,
       auth0Id: `deleted-${auth.dbUser.id}`,
       referralCode: null,
     },

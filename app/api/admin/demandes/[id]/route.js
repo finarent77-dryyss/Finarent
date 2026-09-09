@@ -6,6 +6,7 @@ import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES, PRODUCT_TO_REQUE
 import { protect, reveal } from '@/lib/sensitive';
 import { computeCommission } from '@/lib/affiliate';
 import { logAdminActivity } from '@/lib/admin-activity-log';
+import { sendStatutDemande } from '@/lib/email';
 
 export async function PATCH(request, { params }) {
   try {
@@ -177,6 +178,19 @@ export async function PATCH(request, { params }) {
       } catch (logErr) {
         console.error('logAdminActivity error (non-bloquant):', logErr);
       }
+    }
+
+    // Notification client du changement d'étape.
+    // Detachee de la reponse HTTP : l'admin ne doit pas attendre l'envoi, et
+    // un incident Brevo ne doit pas faire echouer la mise a jour du dossier.
+    if (updateData.status && current && current.status !== updateData.status) {
+      void sendStatutDemande({
+        to: application.email,
+        statut: updateData.status,
+        reference: application.reference || id,
+        companyName: application.companyName,
+        amount: application.amount,
+      }).catch((e) => console.error('[demande] notification statut echouee :', e.message));
     }
 
     // Réponse alignée avec le GET /api/admin/demandes pour cohérence du state client

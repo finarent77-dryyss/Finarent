@@ -68,7 +68,7 @@ export default function AdminSettingsClient() {
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Email de contact</div>
-            <div className="text-sm font-bold text-secondary">contact@finarent.fr</div>
+            <div className="text-sm font-bold text-secondary">contact@finarent.com</div>
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">T&eacute;l&eacute;phone</div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { validateForm, validateEmail, validatePhone, validateSIREN } from '@/utils/validation';
@@ -64,6 +64,15 @@ export default function ContactClient() {
   const [submitStatus, setSubmitStatus] = useState(null);
   const [reference, setReference] = useState(null);
 
+  // Le message de statut s'affiche sous le bouton, souvent hors écran sur
+  // mobile : sans ce recentrage, une demande refusée passe pour une absence de
+  // réaction, et l'utilisateur reclique sans comprendre.
+  const feedbackRef = useRef(null);
+  useEffect(() => {
+    if (!submitStatus) return;
+    feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [submitStatus]);
+
   useEffect(() => {
     if (!prefill) return;
     const isRcPro = prefill.productType === 'RC_PRO';
@@ -84,6 +93,9 @@ export default function ContactClient() {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    // Dès que l'utilisateur corrige quelque chose, le bouton quitte son état
+    // d'échec : il redevient actionnable au lieu de rester figé en rouge.
+    if (submitStatus === 'error') setSubmitStatus(null);
   };
 
   const handleBlur = (e) => {
@@ -156,10 +168,12 @@ export default function ContactClient() {
       const data = await res.json();
 
       if (!res.ok) {
+        // Un refus reste un refus, y compris quand le serveur détaille les
+        // champs fautifs : le bouton doit le montrer dans les deux cas.
+        setSubmitStatus('error');
         if (data.errors) {
           setErrors(data.errors);
         } else {
-          setSubmitStatus('error');
           setErrors({ _general: data.error || t('contact.errorMessage') });
         }
         return;
@@ -373,28 +387,51 @@ export default function ContactClient() {
                       </div>
                       {errors.consent && <p className="text-red-500 text-xs">{errors.consent}</p>}
 
-                      <button type="submit" disabled={isSubmitting} className="btn-primary w-full py-2.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        {isSubmitting ? <><LoadingIcon size={18} className="mr-2" />{t('contact.sending')}</> : <><span>{t('contact.submit')}</span><i className="fa-solid fa-arrow-right ml-2"></i></>}
+                      {/* Les états succès/échec reprennent le rayon (16px) et la graisse (700)
+                          de .btn-primary, pour rester dans la même famille visuelle que le
+                          reste du site plutôt que d'introduire un bouton d'un autre dessin. */}
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || submitStatus === 'success'}
+                        className={`w-full py-2.5 text-sm flex items-center justify-center gap-2 transition-colors duration-300 disabled:cursor-not-allowed ${
+                          submitStatus === 'success'
+                            ? 'bg-green-600 text-white font-bold rounded-2xl animate-feedback-pop'
+                            : submitStatus === 'error'
+                              ? 'bg-red-600 text-white font-bold rounded-2xl animate-feedback-shake'
+                              : 'btn-primary disabled:opacity-50'
+                        }`}
+                      >
+                        {isSubmitting ? (
+                          <><LoadingIcon size={18} />{t('contact.sending')}</>
+                        ) : submitStatus === 'success' ? (
+                          <><SuccessIcon size={18} />{t('contact.submitSuccess')}</>
+                        ) : submitStatus === 'error' ? (
+                          <><CancelIcon size={18} />{t('contact.submitError')}</>
+                        ) : (
+                          <><span>{t('contact.submit')}</span><i className="fa-solid fa-arrow-right"></i></>
+                        )}
                       </button>
 
-                      {errors._general && (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm flex items-center gap-2">
-                          <CancelIcon size={20} />
-                          <span>{errors._general}</span>
-                        </div>
-                      )}
-                      {submitStatus === 'success' && (
-                        <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-green-800 text-sm flex items-center gap-2">
-                          <SuccessIcon size={20} />
-                          <span>{t('contact.successPrefix')} {reference ? `(${reference}) ` : ''}{t('contact.successMessage')}</span>
-                        </div>
-                      )}
-                      {submitStatus === 'error' && !errors._general && (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm flex items-center gap-2">
-                          <CancelIcon size={20} />
-                          <span>{t('contact.errorMessage')}</span>
-                        </div>
-                      )}
+                      <div ref={feedbackRef} className="space-y-2">
+                        {errors._general && (
+                          <div role="alert" className="animate-feedback-rise bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm flex items-center gap-2">
+                            <CancelIcon size={20} />
+                            <span>{errors._general}</span>
+                          </div>
+                        )}
+                        {submitStatus === 'success' && (
+                          <div role="status" className="animate-feedback-rise bg-green-50 border border-green-200 rounded-xl p-3 text-green-800 text-sm flex items-center gap-2">
+                            <SuccessIcon size={20} />
+                            <span>{t('contact.successPrefix')} {reference ? `(${reference}) ` : ''}{t('contact.successMessage')}</span>
+                          </div>
+                        )}
+                        {submitStatus === 'error' && !errors._general && (
+                          <div role="alert" className="animate-feedback-rise bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 text-sm flex items-center gap-2">
+                            <CancelIcon size={20} />
+                            <span>{t('contact.errorMessage')}</span>
+                          </div>
+                        )}
+                      </div>
                     </form>
                   </div>
                 </ScrollReveal>

@@ -63,7 +63,7 @@ export async function POST(request) {
 
     try {
       const code = trackingCode(user);
-      const baseUrl = process.env.APP_BASE_URL || 'https://finarent.fr';
+      const baseUrl = process.env.APP_BASE_URL || 'https://finarent.com';
       const result = await sendCallCenterOutboundEmail({
         senderUserId: user.id,
         recipientEmail,
@@ -102,7 +102,7 @@ export async function POST(request) {
     });
 
     const code = trackingCode(user);
-    const baseUrl = process.env.APP_BASE_URL || 'https://finarent.fr';
+    const baseUrl = process.env.APP_BASE_URL || 'https://finarent.com';
     const results = { sent: 0, failed: 0, errors: [] };
 
     for (let i = 0; i < prospects.length; i++) {

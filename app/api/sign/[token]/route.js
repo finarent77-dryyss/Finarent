@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@auth0/nextjs-auth0';
 import { syncUser } from '@/lib/users';
 import { uploadFile } from '@/lib/storage';
+import { sendMail } from '@/lib/email/send.js';
+import { templateDocumentGenere } from '@/lib/email/templates.js';
 import { generateContractPDF, MENTION_CONSENTEMENT } from '@/lib/pdf/contract';
 import {
   empreinteDocument,
@@ -225,6 +227,35 @@ export async function POST(request, { params }) {
         },
       }),
     ]);
+
+    // Le signataire repart avec son exemplaire. Ce chemin ne passe pas par le
+    // PATCH admin : sans cet envoi, un client signait et ne recevait plus rien.
+    // Détaché de la réponse — une signature valide ne doit jamais être
+    // invalidée par un incident d'email.
+    const destinataire = offer.application?.email || offer.application?.user?.email || dbUser.email;
+    if (destinataire) {
+      const message = templateDocumentGenere({
+        kind: 'CONTRAT',
+        reference: offer.application?.reference || null,
+        fileName: `contrat-signe-${offer.id}.pdf`,
+        montant: offer.amount ? `${offer.amount.toLocaleString('fr-FR')} €` : null,
+        messageComplementaire:
+          'Votre contrat signé est en pièce jointe. Conservez-le : il fait foi, '
+          + `et son empreinte SHA-256 (${empreinte.slice(0, 16)}…) est enregistrée de notre côté.`,
+      });
+      void sendMail({
+        to: destinataire,
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+        attachments: [{ name: `contrat-signe-${offer.id}.pdf`, content: pdfSigne }],
+        log: {
+          type: 'TRANSACTIONAL',
+          source: 'DOCUMENT_CONTRAT',
+          metadata: { reference: offer.application?.reference, empreinte, offerId: offer.id },
+        },
+      }).catch((e) => console.error('[signature] envoi du contrat signé échoué :', e.message));
+    }
 
     return NextResponse.json({ ok: true, status: 'SIGNED', signedAt, empreinte });
   } catch (error) {

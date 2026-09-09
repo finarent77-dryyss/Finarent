@@ -8,7 +8,7 @@ export async function GET(request) {
   const auth = await requireAuth();
   if (isAuthError(auth)) return auth;
 
-  const data = await prisma.user.findUnique({
+  const raw = await prisma.user.findUnique({
     where: { id: auth.dbUser.id },
     include: {
       applications: {
@@ -20,6 +20,7 @@ export async function GET(request) {
   });
 
   // Déchiffre les champs sensibles avant export (le user a le droit d'accéder à ses propres données en clair)
+  const data = reveal('User', raw);
   if (data?.applications) {
     data.applications = data.applications.map((app) => reveal('Application', app));
   }

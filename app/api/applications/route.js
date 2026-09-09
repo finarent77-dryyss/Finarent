@@ -3,7 +3,8 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { syncUser } from '@/lib/users';
 import { STATUS_TO_LEGACY } from '@/lib/statusMap';
-import { generateReference } from '@/lib/reference';
+import { genererReferenceDossier } from '@/lib/reference';
+import { sendConfirmationDemande, sendAlerteAdmin } from '@/lib/email';
 import { calculateScore } from '@/lib/scoring';
 import { protect } from '@/lib/sensitive';
 import { currentAffiliateId } from '@/lib/affiliate';
@@ -94,20 +95,15 @@ export async function POST(request) {
       return NextResponse.json({ error: 'SIREN invalide (9 chiffres)' }, { status: 400 });
     }
 
-    // Generate unique reference
-    let reference;
-    let attempts = 0;
-    do {
-      reference = generateReference();
-      const existing = await prisma.application.findFirst({
-        where: { description: { contains: reference } },
-      });
-      if (!existing) break;
-      attempts++;
-    } while (attempts < 5);
+    // Numéro de dossier — il manquait purement et simplement ici : la référence
+    // était calculée puis jamais écrite, et l'unicité était vérifiée sur la
+    // colonne `description` au lieu de `reference`. Les dossiers ouverts depuis
+    // l'espace client repartaient donc sans numéro.
+    const reference = await genererReferenceDossier();
 
     // Pré-qualification automatique (scoring 0-100)
     const applicationDraft = {
+      reference,
       userId: dbUser.id,
       productType: body.productType,
       companyName: body.companyName.trim(),
@@ -168,10 +164,30 @@ export async function POST(request) {
       });
     }
 
+    // Mêmes notifications que la route publique /api/financement : un dossier
+    // ouvert depuis l'espace client ne partait jusqu'ici ni en confirmation au
+    // client, ni en alerte à l'équipe.
+    const emailClient = dbUser.email || body.email;
+    if (emailClient) {
+      sendConfirmationDemande({
+        to: emailClient,
+        reference,
+        companyName: applicationDraft.companyName,
+      }).catch((e) => console.error('Email confirmation:', e.message));
+    }
+    sendAlerteAdmin({
+      reference,
+      companyName: applicationDraft.companyName,
+      productType: applicationDraft.productType,
+      amount: applicationDraft.amount,
+      email: emailClient,
+    }).catch((e) => console.error('Email alerte admin:', e.message));
+
     return NextResponse.json({
       success: true,
       id: application.id,
-      message: 'Demande créée avec succès',
+      reference,
+      message: `Demande ${reference} créée avec succès`,
     });
   } catch (err) {
     console.error('POST /api/applications error:', err);

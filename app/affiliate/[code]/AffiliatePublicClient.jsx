@@ -23,7 +23,7 @@ export default function AffiliatePublicClient({ code }) {
       .finally(() => setLoading(false));
   }, [code]);
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://finarent.fr';
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://finarent.com';
   const trackingLink = `${baseUrl}/?ref=${code}`;
 
   const copy = () => {
@@ -178,7 +178,7 @@ export default function AffiliatePublicClient({ code }) {
             <i className="fa-solid fa-shield-halved mr-1"></i>
             Cette page est accessible via votre code unique. Les statistiques sont anonymisées et
             n'exposent aucune donnée personnelle de prospect.
-            Pour toute question, contactez <a className="underline" href="mailto:contact@finarent.fr">contact@finarent.fr</a>.
+            Pour toute question, contactez <a className="underline" href="mailto:contact@finarent.com">contact@finarent.com</a>.
           </p>
         </div>
       </div>

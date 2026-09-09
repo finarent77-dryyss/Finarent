@@ -1,6 +1,32 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { sendMail } from '@/lib/email/send.js';
+import { templateBienvenueNewsletter } from '@/lib/email/templates.js';
+import { subscribeToMarketingList } from '@/lib/brevo/contacts.js';
+
+/**
+ * Accueil d'un nouvel inscrit : email de bienvenue + ajout à la liste
+ * marketing Brevo. Volontairement détaché de la réponse HTTP — l'inscription
+ * est déjà enregistrée en base, un incident Brevo ne doit pas la faire
+ * échouer côté visiteur.
+ */
+function accueillir(email) {
+  const { subject, html, text } = templateBienvenueNewsletter({ to: email });
+  void sendMail({
+    to: email,
+    subject,
+    html,
+    text,
+    commercial: true,
+    tags: ['newsletter', 'bienvenue'],
+    log: { source: 'NEWSLETTER_WELCOME' },
+  }).catch((e) => console.error('[newsletter] bienvenue non envoyée :', e.message));
+
+  void subscribeToMarketingList(email, { SOURCE: 'FINARENT_NEWSLETTER' }).catch((e) =>
+    console.error('[newsletter] sync Brevo échouée :', e.message),
+  );
+}
 
 function getClientIp(request) {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
@@ -44,6 +70,7 @@ export async function POST(request) {
     }
 
     await prisma.newsletter.create({ data: { email } });
+    accueillir(email);
     return NextResponse.json({ success: true, message: 'Inscription réussie' });
   } catch (err) {
     console.error('Newsletter error:', err);

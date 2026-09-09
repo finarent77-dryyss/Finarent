@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
  * Webhook Ringover — centres d'appel Finarent
  *
  * URL à configurer dans Ringover Dashboard → Developer → Webhooks :
- *   https://finarent.fr/api/webhooks/ringover
+ *   https://finarent.com/api/webhooks/ringover
  *
  * Événements recommandés :
  *   - Call hangup (webhook_ended)

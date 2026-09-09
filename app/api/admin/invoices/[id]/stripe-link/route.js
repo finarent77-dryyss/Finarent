@@ -34,7 +34,7 @@ export async function POST(request, { params }) {
     },
   });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://finarent.fr';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://finarent.com';
 
   const paymentLink = await stripe.paymentLinks.create({
     line_items: [{ price: price.id, quantity: 1 }],
