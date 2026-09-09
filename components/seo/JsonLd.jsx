@@ -1,3 +1,4 @@
+import { serialiserJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/seo';
 import { CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/contact';
 
@@ -52,7 +53,7 @@ export function OrganizationJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: serialiserJsonLd(jsonLd) }}
     />
   );
 }
@@ -78,7 +79,7 @@ export function WebSiteJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: serialiserJsonLd(jsonLd) }}
     />
   );
 }
@@ -98,7 +99,7 @@ export function BreadcrumbJsonLd({ items }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: serialiserJsonLd(jsonLd) }}
     />
   );
 }
@@ -120,7 +121,7 @@ export function FAQJsonLd({ items }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: serialiserJsonLd(jsonLd) }}
     />
   );
 }

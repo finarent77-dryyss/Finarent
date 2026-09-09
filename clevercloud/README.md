@@ -1,5 +1,8 @@
 # Déploiement Clever Cloud — Finarent
 
+> Inventaire complet des variables d'environnement : `docs/PROCEDURES_EXPLOITATION.md` § 9.
+> Ce fichier ne couvre que la mise en route de l'application.
+
 ## 1. Créer l'application
 
 Console [Clever Cloud](https://console.clever-cloud.com) → **Create** → **Node.js**
@@ -8,15 +11,34 @@ Console [Clever Cloud](https://console.clever-cloud.com) → **Create** → **No
 - **Région** : Paris (EU)
 - Lier le dépôt GitHub `andrysdevelopper-dot/finarrent` (branche `main`)
 
+⚠️ **Taille de l'instance de build** : le build Next échoue en dépassement mémoire
+sur une instance XS. Configurer une **instance de build dédiée en taille M**
+(onglet *Scalability* → *Dedicated build instance*).
+
 ## 2. Addon PostgreSQL (si pas déjà Neon)
 
-Option A — **Addon Clever Cloud PostgreSQL** (lié à l'app)  
-→ `POSTGRESQL_ADDON_URI` est injecté automatiquement au build.
+Option A — **Addon Clever Cloud PostgreSQL** (lié à l'app)
+→ `POSTGRESQL_ADDON_URI` est injecté automatiquement au build ; `clevercloud/build.sh`
+le recopie dans `DATABASE_URL` s'il n'est pas déjà défini.
 
-Option B — **Neon externe** (actuel en dev)  
+Option B — **Neon externe** (actuel en dev)
 → Définir `DATABASE_URL` manuellement avec l'URL Neon (pooler recommandé).
 
-## 3. Variables d'environnement
+## 3. Addon Cellar (stockage des documents)
+
+Le stockage de fichiers passe par **Cellar**, l'objet S3 de Clever Cloud
+(cf. `lib/storage.js`) — Supabase n'est plus utilisé.
+
+1. Créer l'addon **Cellar** et le lier à l'application : `CELLAR_ADDON_HOST`,
+   `CELLAR_ADDON_KEY_ID` et `CELLAR_ADDON_KEY_SECRET` sont alors injectés
+   automatiquement.
+2. **Créer le bucket** (il ne l'est pas par l'addon), puis renseigner `CELLAR_BUCKET`.
+
+⚠️ Si l'une de ces trois variables manque, `lib/storage.js` bascule silencieusement
+sur `private/uploads/`, c'est-à-dire le disque **éphémère** de l'instance : les pièces
+KYC, contrats et preuves de signature seraient perdus à chaque redéploiement.
+
+## 4. Variables d'environnement
 
 Dans **Environment variables** de l'app :
 
@@ -26,10 +48,12 @@ Dans **Environment variables** de l'app :
 | `CC_RUN_COMMAND` | `npm run start:standalone` |
 | `CC_HEALTH_CHECK_PATH` | `/api/health` |
 | `NODE_ENV` | `production` |
-| `APP_BASE_URL` | `https://finarent.fr` (ou URL Clever Cloud temporaire) |
+| `APP_BASE_URL` | `https://finarent.com` (ou URL Clever Cloud temporaire) |
 | `NEXT_PUBLIC_APP_URL` | idem |
 | `DATABASE_URL` | URL Postgres prod (si pas d'addon CC) |
 | `AUTH0_DOMAIN` | tenant Auth0 |
+| `AUTH0_ISSUER_BASE_URL` | `https://<tenant>.eu.auth0.com` |
+| `AUTH0_BASE_URL` | idem `APP_BASE_URL` |
 | `AUTH0_CLIENT_ID` | … |
 | `AUTH0_CLIENT_SECRET` | … |
 | `AUTH0_SECRET` | 32 bytes hex (`openssl rand -hex 32`) |
@@ -37,53 +61,76 @@ Dans **Environment variables** de l'app :
 | `CRON_SECRET` | secret Bearer pour `/api/cron/*` |
 | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | … |
 | `RECAPTCHA_SECRET_KEY` | … |
-| `SMTP_*` | serveur mail prod |
-| `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SERVICE_ROLE_KEY` | storage docs |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | serveur mail prod |
+| `BREVO_API_KEY` / `BREVO_SENDER_EMAIL` / `BREVO_SENDER_NAME` | e-mailing transactionnel et marketing |
+| `CELLAR_BUCKET` | bucket créé à l'étape 3 |
+| `CELLAR_REGION` | facultatif, défaut `us-east-1` |
+| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | Microsoft Clarity (optionnel) |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | paiement factures (optionnel) |
 | `RINGOVER_*` | téléphonie (optionnel) |
 
-## 4. Auth0 — URLs de production
+## 5. Auth0 — URLs de production
 
 Dans le dashboard Auth0, ajouter pour l'URL prod :
 
-- **Allowed Callback URLs** : `https://finarent.fr/api/auth/callback`
-- **Allowed Logout URLs** : `https://finarent.fr`
-- **Allowed Web Origins** : `https://finarent.fr`
+- **Allowed Callback URLs** : `https://finarent.com/api/auth/callback`
+- **Allowed Logout URLs** : `https://finarent.com`
+- **Allowed Web Origins** : `https://finarent.com`
 
-## 5. Crons (Scheduled tasks)
+⚠️ Le tenant Auth0 de production n'est pas celui du `.env` local — vérifier le
+domaine renvoyé par `/api/auth/login` avant de conclure à une erreur de configuration.
 
-Console Clever Cloud → app → **Scheduled tasks** :
+## 6. Crons
 
-| Commande | Schedule | Rôle |
+Les tâches planifiées sont déclarées dans `clevercloud/cron.json`, versionné avec
+le dépôt — il n'y a rien à saisir dans la console.
+
+| Route | Schedule | Rôle |
 |---|---|---|
-| `curl -sf -H "Authorization: Bearer $CRON_SECRET" "$APP_BASE_URL/api/cron/reminders"` | `0 8 * * *` | Relances dossiers |
-| `curl -sf -H "Authorization: Bearer $CRON_SECRET" "$APP_BASE_URL/api/cron/sla-check"` | `0 9 * * *` | Alertes SLA |
+| `/api/cron/reminders` | `0 9 * * *` | Relances dossiers |
+| `/api/cron/sla-check` | `0 */2 * * *` | Alertes SLA |
+| `/api/cron/affiliate-purge` | `0 3 * * 0` | Purge des données d'affiliation |
 
-## 6. Domaine
+Chaque ligne s'appelle en `http://localhost:8080` et est gardée par
+`[ "$INSTANCE_NUMBER" = "0" ]` : sur plusieurs instances, une seule exécute la tâche.
+L'authentification se fait par en-tête `Authorization: Bearer $CRON_SECRET`.
 
-**Domain names** → ajouter `finarent.fr` + `www.finarent.fr`  
+## 7. Domaines
+
+**Domain names** → ajouter le domaine canonique `finarent.com` puis les domaines
+secondaires servis par la même application : `www.finarent.com`, `finarent.fr`,
+`www.finarent.fr`, `finarent.org`, `www.finarent.org`.
+
+`next.config.js` redirige tous les domaines secondaires en 301 vers
+`https://finarent.com` pour ne pas diviser le SEO.
+
 Configurer les enregistrements DNS (CNAME vers l'app Clever Cloud).
+⚠️ Supprimer les enregistrements `AAAA` de parking laissés par le registrar :
+ils font échouer la résolution avant même d'atteindre Clever Cloud.
 
-## 7. Baseline migrations (DB déjà synchronisée via db push)
+## 8. Baseline migrations (DB déjà synchronisée via db push)
 
-Si la base existe déjà sans historique Prisma Migrate :
+Si la base existe déjà sans historique Prisma Migrate, marquer toutes les
+migrations présentes comme appliquées :
 
 ```bash
-npx prisma migrate resolve --applied 20260226120000_init_v2
-npx prisma migrate resolve --applied 20260418120000_offers_scoring_sla
-npx prisma migrate resolve --applied 20260425120000_testimonials
-npx prisma migrate resolve --applied 20260513120000_dashboard_perf_indexes
-npx prisma migrate resolve --applied 20260623220000_call_center_ringover_fields
-npx prisma migrate resolve --applied 20260626230000_admin_activity_log_prospect_center
+for m in prisma/migrations/*/; do
+  npx prisma migrate resolve --applied "$(basename "$m")"
+done
 ```
 
 Puis vérifier : `npx prisma migrate status` → « Database schema is up to date ».
 
-## 8. Vérification post-déploiement
+## 9. Vérification post-déploiement
 
 ```bash
 curl https://<app>.cleverapps.io/api/health
-# → {"status":"ok",...}
+# → {"status":"ok","time":"2026-09-09T09:00:00.000Z"}
 ```
 
+La sonde est publique : elle ne renvoie volontairement rien d'autre que l'état et
+l'horodatage.
+
 Connecter en admin → `/admin/call-centers`, `/admin/logs`, import CSV prospects.
+Vérifier enfin qu'un document déposé depuis un dossier client survit à un
+redéploiement (preuve que Cellar est bien actif, cf. étape 3).

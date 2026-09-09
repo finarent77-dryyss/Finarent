@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 export async function GET() {
   const auth = await requireAdmin();
@@ -20,7 +21,10 @@ export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
+  // Champs envoyés par components/admin/AdminPartnersClient.jsx (createPartner).
   const { name, type, contactEmail, notes } = body;
 
   if (!name || !type || !contactEmail) {
@@ -31,9 +35,12 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Type invalide' }, { status: 400 });
   }
 
-  const partner = await prisma.partner.create({
-    data: { name, type, contactEmail, notes },
-  });
-
-  return NextResponse.json(partner, { status: 201 });
+  try {
+    const partner = await prisma.partner.create({
+      data: { name, type, contactEmail, notes },
+    });
+    return NextResponse.json(partner, { status: 201 });
+  } catch (err) {
+    return reponseErreurPrisma(err, { contexte: 'POST /api/admin/partners' });
+  }
 }

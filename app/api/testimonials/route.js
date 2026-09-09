@@ -45,7 +45,7 @@ function getClientIp(request) {
 
 export async function POST(request) {
   // Dépôt public : rare par nature, quota serré pour éviter le flood.
-  if (!checkRateLimit(getClientIp(request), { bucket: 'temoignages', max: 5 }).allowed) {
+  if (!(await checkRateLimit(getClientIp(request), { bucket: 'temoignages', max: 5 })).allowed) {
     return NextResponse.json({ error: 'Trop de dépôts. Réessayez plus tard.' }, { status: 429 });
   }
 

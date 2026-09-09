@@ -7,6 +7,7 @@ import {
   createAffiliatePayout,
   validateAffiliateCommission,
 } from '@/lib/affiliate-payouts.js';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
 
 export async function GET() {
   const session = await getSession();
@@ -41,7 +42,9 @@ export async function POST(request) {
     select: { id: true },
   });
 
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
   const { action, affiliateId, commissionId, commissionIds } = body;
 
   try {

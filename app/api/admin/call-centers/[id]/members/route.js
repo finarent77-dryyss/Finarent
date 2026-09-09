@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * GET /api/admin/call-centers/[id]/members
@@ -35,7 +36,9 @@ export async function POST(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
   const userId = String(body.userId || '').trim();
   const role = body.role === 'MANAGER' ? 'MANAGER' : 'AGENT';
 
@@ -84,8 +87,10 @@ export async function POST(request, { params }) {
 
     return NextResponse.json(member, { status: 201 });
   } catch (err) {
-    console.error('POST /api/admin/call-centers/[id]/members error:', err);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/admin/call-centers/[id]/members',
+      introuvable: 'Centre ou utilisateur introuvable',
+    });
   }
 }
 

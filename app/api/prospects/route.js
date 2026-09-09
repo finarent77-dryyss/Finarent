@@ -18,7 +18,7 @@ function getClientIp(request) {
 export async function POST(request) {
   // Quota large : un visiteur genere legitimement plusieurs evenements
   // en enchainant les simulateurs.
-  if (!checkRateLimit(getClientIp(request), { bucket: 'prospects', max: 120 }).allowed) {
+  if (!(await checkRateLimit(getClientIp(request), { bucket: 'prospects', max: 120 })).allowed) {
     return NextResponse.json({ error: 'Trop de requêtes.' }, { status: 429 });
   }
 

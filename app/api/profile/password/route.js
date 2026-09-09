@@ -41,7 +41,7 @@ export async function POST(request) {
 
   // L'appel déclenche un email : on limite pour ne pas transformer la route en canon à spam.
   const { ip } = extractRequestContext(request);
-  const { allowed } = checkRateLimit(ip || auth.dbUser.id, {
+  const { allowed } = await checkRateLimit(ip || auth.dbUser.id, {
     bucket: 'profile-password',
     max: 3,
     windowMs: 60 * 60 * 1000,

@@ -8,6 +8,20 @@ import { sendConfirmationDemande, sendAlerteAdmin } from '@/lib/email';
 import { calculateScore } from '@/lib/scoring';
 import { protect } from '@/lib/sensitive';
 import { currentAffiliateId } from '@/lib/affiliate';
+import { peutRattacherDossiersAnonymes } from '@/lib/acces-dossier';
+
+/**
+ * Texte exact présenté au client au moment de cocher l'acceptation, conservé
+ * avec la demande pour être opposable.
+ *
+ * Il reconstitue le libellé affiché par `app/espace/demande/etapes/EtapeContact.jsx`,
+ * assemblé côté navigateur à partir des clés `espace.wizard.termsLabel`,
+ * `termsLink`, `termsAnd` et `privacyLink` (messages/fr.json). Conserver un
+ * simple booléen ne prouverait rien : c'est le libellé accepté qui fait foi.
+ * Si ces clés changent, cette constante doit suivre.
+ */
+const TEXTE_CONSENTEMENT =
+  "J'accepte les conditions générales et la politique de confidentialité";
 
 /**
  * GET /api/applications
@@ -26,14 +40,24 @@ export async function GET() {
       return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 });
     }
 
-    // Lier les demandes anonymes (même email) à l'utilisateur
-    await prisma.application.updateMany({
-      where: {
-        email: dbUser.email,
-        userId: null,
-      },
-      data: { userId: dbUser.id },
-    });
+    // Rattachement des demandes anonymes portant la même adresse.
+    //
+    // Cette adresse a été saisie sur le formulaire public /api/financement sans
+    // aucune preuve de possession : la seule égalité des chaînes ne prouve rien.
+    // Sans le contrôle ci-dessous, ouvrir un compte Auth0 avec l'adresse d'un
+    // tiers suffisait à récupérer son dossier complet — raison sociale, SIREN,
+    // montant, téléphone, pièces jointes et messagerie. Le rattachement n'a donc
+    // lieu que si Auth0 atteste la possession de l'adresse (`email_verified`).
+    // Un compte non vérifié voit ses propres dossiers, jamais ceux d'un autre.
+    if (peutRattacherDossiersAnonymes(session.user, dbUser)) {
+      await prisma.application.updateMany({
+        where: {
+          email: dbUser.email,
+          userId: null,
+        },
+        data: { userId: dbUser.id },
+      });
+    }
 
     const applications = await prisma.application.findMany({
       where: { userId: dbUser.id },
@@ -91,8 +115,27 @@ export async function POST(request) {
     if (!body.companyName?.trim()) {
       return NextResponse.json({ error: 'Raison sociale requise' }, { status: 400 });
     }
-    if (!body.siren || !/^\d{9}$/.test(body.siren.replace(/\s/g, ''))) {
-      return NextResponse.json({ error: 'SIREN invalide (9 chiffres)' }, { status: 400 });
+    // Le formulaire annonce « SIREN 9 chiffres ou SIRET 14 chiffres » et sa
+    // validation accepte les deux ; le serveur n'acceptait que 9. Un client
+    // saisissant son SIRET parcourait les cinq étapes pour être refusé à la
+    // dernière. Un SIRET contient le SIREN en préfixe : on le normalise.
+    const identifiant = String(body.siren || '').replace(/\D/g, '');
+    if (!/^\d{9}$/.test(identifiant) && !/^\d{14}$/.test(identifiant)) {
+      return NextResponse.json(
+        { error: 'SIREN (9 chiffres) ou SIRET (14 chiffres) invalide' },
+        { status: 400 },
+      );
+    }
+    const siren = identifiant.slice(0, 9);
+
+    // Acceptation des CGU : elle n'était contrôlée que par le navigateur, donc
+    // contournable avec les outils de développement. La route publique
+    // /api/financement la vérifie déjà côté serveur.
+    if (body.consent !== true) {
+      return NextResponse.json(
+        { error: 'Vous devez accepter les conditions générales.' },
+        { status: 400 },
+      );
     }
 
     // Numéro de dossier — il manquait purement et simplement ici : la référence
@@ -101,14 +144,34 @@ export async function POST(request) {
     // l'espace client repartaient donc sans numéro.
     const reference = await genererReferenceDossier();
 
+    // Le formulaire ne collecte qu'un champ « nom complet », le modèle stocke
+    // prénom et nom séparément : on coupe au premier espace, le reste formant
+    // le nom de famille (« Jean-Pierre De La Tour » → « Jean-Pierre » / « De La Tour »).
+    const nomComplet = (body.name || dbUser.name || '').trim();
+    const separateur = nomComplet.indexOf(' ');
+    const prenomNom = separateur === -1
+      ? { prenom: nomComplet || null, nom: null }
+      : { prenom: nomComplet.slice(0, separateur), nom: nomComplet.slice(separateur + 1) };
+
     // Pré-qualification automatique (scoring 0-100)
     const applicationDraft = {
       reference,
       userId: dbUser.id,
       productType: body.productType,
       companyName: body.companyName.trim(),
-      siren: body.siren.replace(/\s/g, ''),
+      siren,
       legalForm: body.legalForm || null,
+      // Coordonnées du dossier. Elles n'étaient écrites nulle part : les
+      // colonnes `email`/`phone` restaient nulles, alors que la route publique
+      // les renseigne. Conséquence en chaîne — la notification de changement de
+      // statut (`sendStatutDemande`) et la conversion de parrainage visent
+      // `application.email` et ne partaient donc jamais pour un dossier ouvert
+      // depuis l'espace client, et le bloc « Coordonnées » du détail restait
+      // vide.
+      email: dbUser.email || null,
+      phone: body.phone?.trim() || dbUser.phone || null,
+      firstName: prenomNom.prenom,
+      lastName: prenomNom.nom,
       sector: body.sector || null,
       description: body.description?.trim() || null,
       amount: body.amount ? Number(body.amount) : null,
@@ -118,7 +181,7 @@ export async function POST(request) {
     const { score: scorePreQual, label: scoreLabel } = calculateScore(applicationDraft, []);
 
     // Traçabilité du simulateur d'origine (si présent) dans quoteDetails
-    const quoteDetails = body.sourceSimulator && typeof body.sourceSimulator === 'object'
+    const source = body.sourceSimulator && typeof body.sourceSimulator === 'object'
       ? {
           source: {
             kind: 'simulator',
@@ -137,6 +200,32 @@ export async function POST(request) {
         }
       : null;
 
+    // Trace horodatée de l'acceptation des CGU.
+    //
+    // Le contrôle `body.consent !== true` ci-dessus refuse la demande, mais il
+    // jetait ensuite le booléen : rien ne restait de l'acceptation une fois la
+    // demande créée. Or c'est précisément ce qu'il faut pouvoir produire en cas
+    // de contestation — la date, et le texte exact présenté au moment de cocher.
+    // Le précédent du dépôt est `SignatureRequest.consentText`
+    // (prisma/schema.prisma) : on suit la même idée, en conservant le libellé
+    // plutôt qu'un simple `true`.
+    //
+    // La trace est écrite dans `quoteDetails`, colonne `Json?` déjà rédigée par
+    // cette route et déjà chiffrée au repos (lib/sensitive.js déclare
+    // `quoteDetails` en type `json` pour le modèle Application). Ce choix évite
+    // une migration de schéma : voir la note du compte rendu — `schema.prisma`
+    // porte en ce moment les modifications non validées d'autres chantiers
+    // (`StripeWebhookEvent`, `RateLimitCounter`), et un `migrate dev` lancé
+    // maintenant embarquerait leurs tables dans ma migration.
+    const consentement = {
+      accepte: true,
+      accepteLe: new Date().toISOString(),
+      texte: TEXTE_CONSENTEMENT,
+      origine: 'espace-client/demande',
+    };
+
+    const quoteDetails = { ...(source || {}), consentement };
+
     // Affiliation : attribue la demande à l'apporteur si cookie présent
     const affiliateId = await currentAffiliateId();
 
@@ -145,7 +234,7 @@ export async function POST(request) {
         ...applicationDraft,
         scorePreQual,
         scoreLabel,
-        ...(quoteDetails ? { quoteDetails } : {}),
+        quoteDetails,
         ...(affiliateId ? { affiliateId } : {}),
       }),
     });

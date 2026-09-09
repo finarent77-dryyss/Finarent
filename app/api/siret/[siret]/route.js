@@ -10,7 +10,7 @@ function getClientIp(request) {
 export async function GET(request, { params }) {
   // Cette route relaie un service externe : sans quota, un tiers peut
   // l'utiliser comme proxy gratuit jusqu'a epuisement de notre quota SIRENE.
-  if (!checkRateLimit(getClientIp(request), { bucket: 'siret', max: 40 }).allowed) {
+  if (!(await checkRateLimit(getClientIp(request), { bucket: 'siret', max: 40 })).allowed) {
     return NextResponse.json({ error: 'Trop de recherches. Réessayez plus tard.' }, { status: 429 });
   }
 

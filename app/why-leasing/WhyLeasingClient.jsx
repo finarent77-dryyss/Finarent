@@ -122,7 +122,7 @@ export default function WhyLeasingClient() {
                 <i className="fa-solid fa-grip"></i>
                 {t('whyLeasing.ctaSolutions')}
               </Link>
-              <Link href="/simulator" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-primary font-semibold rounded-xl hover:bg-gray-100 transition-colors">
+              <Link href="/simulateurs/credit-immobilier/mensualite" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-primary font-semibold rounded-xl hover:bg-gray-100 transition-colors">
                 <i className="fa-solid fa-calculator"></i>
                 {t('whyLeasing.ctaSimulate')}
               </Link>

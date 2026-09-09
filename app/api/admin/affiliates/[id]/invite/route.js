@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { sendInvite, parseInviteCsv } from '@/lib/affiliate-invite';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
 
 /**
  * POST /api/admin/affiliates/[id]/invite
@@ -17,7 +18,8 @@ export async function POST(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
 
   const affiliate = await prisma.affiliate.findUnique({
     where: { id },

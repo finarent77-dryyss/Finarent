@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  configurationManagement,
+  definirRoleUtilisateur,
+  ErreurAuth0Management,
+} from '@/lib/auth0-management';
 
 export async function GET(_request, { params }) {
   const auth = await requireAdmin();
@@ -75,6 +80,45 @@ export async function PATCH(request, { params }) {
 
   if (data.role && !['CLIENT', 'ADMIN', 'PARTNER', 'INSURER'].includes(data.role)) {
     return NextResponse.json({ error: 'Rôle invalide' }, { status: 400 });
+  }
+
+  // ── Changement de rôle : Auth0 d'abord, la base ensuite (constat P1-8) ──
+  //
+  // Le rôle applicatif est porté par le claim Auth0, que `syncUser()` recopie
+  // en base à chaque requête authentifiée. Écrire ici en base sans propager
+  // vers Auth0 donne une promotion qui retombe à la première navigation :
+  // l'écran annoncerait un succès démenti quelques secondes plus tard.
+  // On refuse donc franchement plutôt que de mentir.
+  if (data.role !== undefined) {
+    const { configuree, manquantes } = configurationManagement();
+    if (!configuree) {
+      return NextResponse.json(
+        {
+          error:
+            'Changement de rôle indisponible : la Management API Auth0 n\'est pas configurée '
+            + `(${manquantes.join(', ')}). Le rôle vient du claim Auth0 ; l'écrire en base seule `
+            + 'serait effacé dès la requête suivante. Procédure : AUTH0_SETUP.md.',
+        },
+        { status: 503 },
+      );
+    }
+
+    const cible = await prisma.user.findUnique({
+      where: { id },
+      select: { auth0Id: true },
+    });
+    if (!cible) return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 });
+
+    try {
+      await definirRoleUtilisateur(cible.auth0Id, data.role);
+    } catch (erreur) {
+      const detail = erreur instanceof ErreurAuth0Management ? erreur.message : 'erreur inattendue';
+      console.error('[admin/users] propagation du rôle vers Auth0 refusée :', detail);
+      return NextResponse.json(
+        { error: `Rôle inchangé — Auth0 a refusé la mise à jour. ${detail}` },
+        { status: 502 },
+      );
+    }
   }
 
   const user = await prisma.user.update({

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
 
 const ACTION_TO_STATUS = {
   pay: 'PAID',
@@ -29,7 +30,9 @@ export async function PATCH(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
   const ids = Array.isArray(body.commissionIds) ? body.commissionIds.filter(Boolean) : [];
   const status = ACTION_TO_STATUS[body.action];
 

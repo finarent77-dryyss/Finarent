@@ -3,6 +3,11 @@ import { requireAuth, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateContractPDF } from '@/lib/pdf/contract';
 import { empreinteDocument, genererJeton, DUREE_VALIDITE_MS } from '@/lib/signature';
+import {
+  estProprietaireDossier,
+  offreSignable,
+  STATUTS_OFFRE_SIGNABLE,
+} from '@/lib/acces-dossier';
 
 export async function POST(request, { params }) {
   const auth = await requireAuth();
@@ -16,8 +21,23 @@ export async function POST(request, { params }) {
   });
 
   if (!offer) return NextResponse.json({ error: 'Offre introuvable' }, { status: 404 });
-  if (offer.application.userId !== auth.dbUser.id) {
+  if (!estProprietaireDossier(auth.dbUser, offer.application)) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  }
+
+  // La propriété ne suffit pas : la route ne contrôlait ni le statut ni
+  // l'échéance de l'offre. Un client pouvait donc signer un brouillon jamais
+  // transmis, une offre refusée ou une offre périmée — et la signature crée un
+  // `Document` de type CONTRAT que plus personne, pas même un administrateur,
+  // ne peut supprimer. Le contrôle est celui de `applications/[id]/sign`.
+  if (!offreSignable(offer)) {
+    const message = STATUTS_OFFRE_SIGNABLE.includes(String(offer.status))
+      ? 'Cette offre a expiré : demandez à votre conseiller de vous en transmettre une nouvelle.'
+      : "Cette offre n'est pas au stade de la signature.";
+    return NextResponse.json(
+      { error: message, statutsAttendus: STATUTS_OFFRE_SIGNABLE },
+      { status: 409 },
+    );
   }
 
   // Le contrat est figé en PDF et son empreinte enregistrée : c'est elle qui

@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  estAdmin,
+  estProprietaireDossier,
+  offreAcceptable,
+  offreExpiree,
+} from '@/lib/acces-dossier';
 
 /**
  * POST /api/offers/[id]/accept
@@ -23,21 +29,26 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: 'Offre introuvable' }, { status: 404 });
   }
 
-  // Vérification de propriété : seul le client de l'application peut accepter
-  if (offer.application.userId !== auth.dbUser.id && auth.dbUser.role !== 'ADMIN') {
+  // Vérification de propriété : seul le client de l'application peut accepter.
+  // `estProprietaireDossier` refuse le cas d'un dossier anonyme (`userId` nul).
+  if (!estProprietaireDossier(auth.dbUser, offer.application) && !estAdmin(auth.dbUser)) {
     return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
   }
 
-  // Vérifier que l'offre est encore acceptable
+  // Vérifier que l'offre est encore acceptable. La liste de refus précédente
+  // laissait passer `DRAFT` : une offre encore en préparation, jamais transmise,
+  // pouvait être acceptée par le client puis signée.
   if (offer.status === 'ACCEPTED' || offer.status === 'SIGNED') {
     return NextResponse.json({ error: 'Offre déjà acceptée' }, { status: 400 });
   }
-  if (offer.status === 'REFUSED' || offer.status === 'EXPIRED') {
-    return NextResponse.json({ error: 'Offre non acceptable' }, { status: 400 });
-  }
-  if (new Date(offer.expiresAt) < new Date()) {
-    await prisma.offer.update({ where: { id }, data: { status: 'EXPIRED' } });
+  if (offreExpiree(offer)) {
+    if (offer.status !== 'EXPIRED') {
+      await prisma.offer.update({ where: { id }, data: { status: 'EXPIRED' } });
+    }
     return NextResponse.json({ error: 'Offre expirée' }, { status: 400 });
+  }
+  if (!offreAcceptable(offer)) {
+    return NextResponse.json({ error: 'Offre non acceptable' }, { status: 400 });
   }
 
   const updated = await prisma.offer.update({

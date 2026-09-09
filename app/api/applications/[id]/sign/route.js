@@ -3,6 +3,7 @@ import { requireAuth, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateContractPDF } from '@/lib/pdf/contract';
 import { empreinteDocument, genererJeton, DUREE_VALIDITE_MS } from '@/lib/signature';
+import { offreSignable, STATUTS_OFFRE_SIGNABLE } from '@/lib/acces-dossier';
 
 /**
  * POST /api/applications/[id]/sign
@@ -41,14 +42,22 @@ export async function POST(request, { params }) {
   }
 
   // Le contrat signé est celui de l'offre acceptée : sans offre, rien à signer.
-  const offer = await prisma.offer.findFirst({
-    where: { applicationId: id, status: { in: ['ACCEPTED', 'SENT', 'SIGNED'] } },
+  //
+  // Le filtre précédent — `status: { in: ['ACCEPTED', 'SENT', 'SIGNED'] }` sans
+  // aucun contrôle d'`expiresAt` — laissait passer deux cas : une offre déjà
+  // `SIGNED`, qui rouvrait donc un second parcours de signature sur un contrat
+  // déjà paraphé, et une offre périmée. C'est le même relâchement que celui
+  // corrigé sur `offers/[id]/sign` ; la règle est donc lue au même endroit
+  // (`offreSignable`) plutôt que réécrite ici sous une autre forme.
+  const offresCandidates = await prisma.offer.findMany({
+    where: { applicationId: id, status: { in: [...STATUTS_OFFRE_SIGNABLE] } },
     orderBy: { acceptedAt: 'desc' },
   });
+  const offer = offresCandidates.find((candidate) => offreSignable(candidate));
 
   if (!offer) {
     return NextResponse.json(
-      { error: "Aucune offre acceptée sur ce dossier. Votre conseiller doit d'abord vous en transmettre une." },
+      { error: "Aucune offre en cours de validité sur ce dossier. Votre conseiller doit d'abord vous en transmettre une." },
       { status: 409 },
     );
   }

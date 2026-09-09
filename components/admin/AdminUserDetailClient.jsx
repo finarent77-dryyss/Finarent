@@ -39,6 +39,7 @@ export default function AdminUserDetailClient({ userId }) {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('overview');
   const [error, setError] = useState(null);
+  const [roleError, setRoleError] = useState(null);
 
   useEffect(() => {
     fetch(`/api/admin/users/${userId}`)
@@ -49,14 +50,21 @@ export default function AdminUserDetailClient({ userId }) {
   }, [userId]);
 
   const updateRole = async (role) => {
-    const res = await fetch(`/api/admin/users/${userId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setUser((prev) => ({ ...prev, ...updated }));
+    setRoleError(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+      });
+      const donnees = await res.json().catch(() => null);
+      // Le serveur refuse explicitement quand le rôle ne peut pas être propagé
+      // vers Auth0 (constat P1-8). Sans ce message, l'écran affichait le
+      // nouveau rôle alors que rien n'avait changé durablement.
+      if (!res.ok) throw new Error(donnees?.error || 'Échec de la mise à jour du rôle.');
+      setUser((prev) => ({ ...prev, ...donnees }));
+    } catch (erreur) {
+      setRoleError(erreur.message || 'Échec de la mise à jour du rôle.');
     }
   };
 
@@ -131,6 +139,12 @@ export default function AdminUserDetailClient({ userId }) {
             </select>
           </div>
         </div>
+        {roleError && (
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <i className="fa-solid fa-triangle-exclamation mt-0.5"></i>
+            <span>{roleError}</span>
+          </div>
+        )}
       </div>
 
       {/* Stats grid */}

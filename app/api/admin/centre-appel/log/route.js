@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { protect, reveal } from '@/lib/sensitive';
+import { lireNotesAdmin } from '@/lib/notes-admin';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 const OUTCOMES = {
   reached: { label: 'Décroché', nextProspect: 'CONTACTED' },
@@ -31,6 +34,15 @@ const OUTCOME_TO_INTERACTION = {
   converted: 'INTERESTED',
   refused: 'NOT_INTERESTED',
 };
+
+// Statuts acceptés pour `statusOverride`, calqués sur les énumérations Prisma
+// ProspectStatus et ApplicationStatus. Sans cette liste, une valeur libre
+// partait directement dans `prisma.*.update` et faisait lever Prisma (500).
+const PROSPECT_STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'CONVERTED', 'LOST'];
+const APPLICATION_STATUSES = [
+  'PENDING', 'REVIEWING', 'DOCUMENTS_NEEDED', 'QUOTE_SENT', 'QUOTE_ACCEPTED',
+  'PENDING_SIGNATURE', 'SIGNED', 'TRANSMITTED', 'APPROVED', 'REJECTED', 'COMPLETED',
+];
 
 /**
  * Crée une CallCenterInteraction reliée à l'agent (admin courant) et, si
@@ -70,13 +82,17 @@ async function logInteraction({ agentUserId, kind, refId, outcome, comment, call
   }
 }
 
+/**
+ * @param {{ outcome: string, comment?: string, callbackAt: Date | null,
+ *           durationSec?: number, agent?: string | null }} params
+ */
 function buildLogEntry({ outcome, comment, callbackAt, durationSec, agent }) {
   const stamp = new Date().toISOString();
   const lines = [
     `[APPEL ${stamp}] ${OUTCOMES[outcome]?.label || outcome}`,
     agent ? `Agent: ${agent}` : null,
     durationSec ? `Durée: ${Math.round(durationSec)}s` : null,
-    callbackAt ? `[RAPPEL ${new Date(callbackAt).toISOString()}]` : null,
+    callbackAt ? `[RAPPEL ${callbackAt.toISOString()}]` : null,
     comment ? `→ ${comment}` : null,
   ].filter(Boolean);
   return lines.join('\n');
@@ -86,7 +102,9 @@ export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
   const { kind, id, outcome, comment, callbackAt, durationSec, statusOverride } = body;
 
   if (!kind || !id || !outcome) {
@@ -96,10 +114,25 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Issue d\'appel invalide' }, { status: 400 });
   }
 
+  // Une date de rappel non parsable faisait lever `toISOString()` avant la
+  // moindre écriture : on la valide ici, une bonne fois pour les deux branches.
+  let dateRappel = null;
+  if (callbackAt !== undefined && callbackAt !== null && callbackAt !== '') {
+    const candidate = new Date(callbackAt);
+    if (Number.isNaN(candidate.getTime())) {
+      return NextResponse.json({ error: 'Date de rappel invalide' }, { status: 400 });
+    }
+    dateRappel = candidate;
+  }
+
   const agent = auth.dbUser?.email || auth.dbUser?.name || null;
-  const logBlock = buildLogEntry({ outcome, comment, callbackAt, durationSec, agent });
+  const logBlock = buildLogEntry({ outcome, comment, callbackAt: dateRappel, durationSec, agent });
 
   if (kind === 'prospect') {
+    if (statusOverride !== undefined && statusOverride !== null && !PROSPECT_STATUSES.includes(statusOverride)) {
+      return NextResponse.json({ error: 'Statut prospect invalide' }, { status: 400 });
+    }
+
     const current = await prisma.prospect.findUnique({
       where: { id },
       select: { notes: true, status: true },
@@ -107,31 +140,45 @@ export async function POST(request) {
     if (!current) return NextResponse.json({ error: 'Prospect introuvable' }, { status: 404 });
 
     const nextStatus = statusOverride || OUTCOMES[outcome].nextProspect || current.status;
+    // `Prospect.notes` n'est pas un champ chiffré : concaténation directe.
     const newNotes = [logBlock, current.notes].filter(Boolean).join('\n\n---\n\n');
 
-    const updated = await prisma.prospect.update({
-      where: { id },
-      data: {
-        notes: newNotes,
-        status: nextStatus,
-        callAttempts: { increment: 1 },
-        lastCallAt: new Date(),
-        lastCallOutcome: OUTCOME_TO_INTERACTION[outcome] || null,
-      },
-    });
+    let updated;
+    try {
+      updated = await prisma.prospect.update({
+        where: { id },
+        data: {
+          notes: newNotes,
+          status: nextStatus,
+          callAttempts: { increment: 1 },
+          lastCallAt: new Date(),
+          lastCallOutcome: OUTCOME_TO_INTERACTION[outcome] || null,
+        },
+      });
+    } catch (err) {
+      return reponseErreurPrisma(err, {
+        contexte: 'POST /api/admin/centre-appel/log (prospect)',
+        introuvable: 'Prospect introuvable',
+      });
+    }
+
     await logInteraction({
       agentUserId: auth.dbUser?.id,
       kind: 'prospect',
       refId: id,
       outcome,
       comment,
-      callbackAt,
+      callbackAt: dateRappel,
       durationSec,
     });
     return NextResponse.json({ ok: true, kind: 'prospect', item: updated });
   }
 
   if (kind === 'demande') {
+    if (statusOverride !== undefined && statusOverride !== null && !APPLICATION_STATUSES.includes(statusOverride)) {
+      return NextResponse.json({ error: 'Statut de demande invalide' }, { status: 400 });
+    }
+
     const current = await prisma.application.findUnique({
       where: { id },
       select: { adminNotes: true, status: true },
@@ -139,22 +186,39 @@ export async function POST(request) {
     if (!current) return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 });
 
     const nextStatus = statusOverride || APP_NEXT_STATUS[outcome] || current.status;
-    const newNotes = [logBlock, current.adminNotes].filter(Boolean).join('\n\n---\n\n');
 
-    const updated = await prisma.application.update({
-      where: { id },
-      data: { adminNotes: newNotes, status: nextStatus },
-    });
+    // `Application.adminNotes` est un champ chiffré (lib/sensitive.js) : on le
+    // déchiffre avant de concaténer, puis on rechiffre l'ensemble via
+    // `protect()`. Concaténer du clair et du chiffré, comme le faisait cette
+    // route, rendait l'historique définitivement illisible (constat ADM1-02).
+    const notesActuelles = lireNotesAdmin(current.adminNotes);
+    const newNotes = [logBlock, notesActuelles].filter(Boolean).join('\n\n---\n\n');
+
+    let updated;
+    try {
+      updated = await prisma.application.update({
+        where: { id },
+        data: protect('Application', { adminNotes: newNotes, status: nextStatus }),
+      });
+    } catch (err) {
+      return reponseErreurPrisma(err, {
+        contexte: 'POST /api/admin/centre-appel/log (demande)',
+        introuvable: 'Demande introuvable',
+      });
+    }
+
     await logInteraction({
       agentUserId: auth.dbUser?.id,
       kind: 'demande',
       refId: id,
       outcome,
       comment,
-      callbackAt,
+      callbackAt: dateRappel,
       durationSec,
     });
-    return NextResponse.json({ ok: true, kind: 'demande', item: updated });
+    // Réponse déchiffrée, comme `demandes/[id]` PATCH : l'appelant ne doit
+    // jamais recevoir la forme `v1:…` stockée en base.
+    return NextResponse.json({ ok: true, kind: 'demande', item: reveal('Application', updated) });
   }
 
   return NextResponse.json({ error: 'Le type doit être prospect ou demande' }, { status: 400 });

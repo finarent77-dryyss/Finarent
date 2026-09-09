@@ -3,6 +3,7 @@ import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
 import { decryptString } from '@/lib/crypto.js';
+import { echapperCelluleCsv, ligneCsv, nettoyerNomFichier } from '@/lib/csv.js';
 
 /**
  * GET /api/admin/call-centers/[id]/commissions/export?status=PENDING
@@ -35,16 +36,19 @@ export async function GET(request, { params }) {
   });
 
   const lines = [];
-  lines.push(`# Versements — ${center.name} (${center.code})`);
+  lines.push(`# Versements — ${echapperCelluleCsv(center.name)} (${echapperCelluleCsv(center.code)})`);
   lines.push(`# Type: ${center.type} · IBAN: ${centerIban || '—'}`);
   lines.push(`# Exporté le: ${new Date().toISOString()}`);
   lines.push('');
-  lines.push('date,beneficiaire,iban,dossier,produit,montantFinance,typeCommission,taux,montantCommission,statut,payeLe');
+  lines.push(ligneCsv([
+    'date', 'beneficiaire', 'iban', 'dossier', 'produit', 'montantFinance',
+    'typeCommission', 'taux', 'montantCommission', 'statut', 'payeLe',
+  ]));
 
   let total = 0;
   for (const c of commissions) {
     if (c.status === 'PENDING' || c.status === 'PAID') total += c.amount;
-    lines.push(csvRow([
+    lines.push(ligneCsv([
       c.createdAt.toISOString(),
       center.name,
       centerIban,
@@ -59,10 +63,10 @@ export async function GET(request, { params }) {
     ]));
   }
   lines.push('');
-  lines.push(csvRow(['', '', '', '', '', '', '', 'TOTAL', total.toFixed(2), '', '']));
+  lines.push(ligneCsv(['', '', '', '', '', '', '', 'TOTAL', total.toFixed(2), '', '']));
 
   const csv = '\uFEFF' + lines.join('\r\n');
-  const filename = `finarent-virements-${center.code}-${new Date().toISOString().slice(0, 10)}.csv`;
+  const filename = `finarent-virements-${nettoyerNomFichier(center.code, 'centre')}-${new Date().toISOString().slice(0, 10)}.csv`;
 
   await logAdminActivity({
     actorId: auth.dbUser?.id,
@@ -81,15 +85,4 @@ export async function GET(request, { params }) {
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
   });
-}
-
-function csvRow(values) {
-  return values.map(csvCell).join(',');
-}
-
-function csvCell(v) {
-  if (v === null || v === undefined) return '';
-  const s = String(v);
-  if (/[",\n;]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-  return s;
 }

@@ -1,10 +1,21 @@
 import { getSession as auth0GetSession } from '@auth0/nextjs-auth0';
 import { NextResponse } from 'next/server';
 import { prisma } from './prisma';
+import { signalerClaimHistorique } from './legacy-role-claim';
+import { partenaireRattache } from './acces-dossier';
 import type { User } from '@prisma/client';
 
 const ROLE_CLAIM = 'https://finarent/role';
-// Ancien namespace : conservé en fallback le temps que l'Action Auth0 migre.
+// Ancien namespace, conservé en repli — constat P2-4, commentaire du 9 septembre 2026.
+//
+// Condition de retrait : ne supprimer cette constante et son usage qu'une fois
+// vérifié qu'aucun jeton ne la porte plus. La mesure est en place : chaque
+// lecture du repli journalise une ligne `[P2-4]` (cf. lib/legacy-role-claim.ts).
+// Quand aucune de ces lignes n'apparaît plus pendant une durée supérieure à la
+// durée de vie d'une session Auth0, le retrait est sans risque. Retirer avant,
+// c'est faire retomber en CLIENT toute session ouverte avant la bascule de
+// l'Action Auth0 — les trois emplacements (ici, lib/users.js, middleware.ts)
+// doivent être retirés ensemble.
 const LEGACY_ROLE_CLAIM = 'https://finassur/role';
 
 export type AuthResult = {
@@ -19,9 +30,16 @@ export async function getSession() {
 
 /** Extrait le claim de rôle du token Auth0 */
 export function getRoleClaim(auth0User: Record<string, unknown>): string {
-  return (auth0User[ROLE_CLAIM] as string)
-    ?? (auth0User[LEGACY_ROLE_CLAIM] as string)
-    ?? 'client';
+  const actuel = auth0User[ROLE_CLAIM] as string | undefined;
+  if (actuel !== undefined && actuel !== null) return actuel;
+
+  const historique = auth0User[LEGACY_ROLE_CLAIM] as string | undefined;
+  if (historique !== undefined && historique !== null) {
+    signalerClaimHistorique(auth0User.sub as string | undefined, 'lib/auth.ts');
+    return historique;
+  }
+
+  return 'client';
 }
 
 /** Mappe le claim rôle Auth0 vers le rôle Prisma */
@@ -69,7 +87,15 @@ export async function requireAdmin(): Promise<AuthResult | NextResponse> {
 }
 
 /**
- * Vérifie le rôle PARTNER ou ADMIN.
+ * Vérifie le rôle PARTNER ou ADMIN **et** le rattachement effectif à une société.
+ *
+ * Le seul contrôle de rôle ne suffisait pas : `User.partnerId` est nullable et
+ * l'administration permet de promouvoir un compte en PARTNER avant de le
+ * rattacher. Les routes construisaient alors le filtre `{ partnerId: null }`,
+ * c'est-à-dire l'ensemble des dossiers **non encore attribués** — avec les
+ * pièces jointes et l'identité des clients. Un rôle sans rattachement n'ouvre
+ * donc plus rien : il est refusé ici, avant toute lecture de la base.
+ *
  * Retourne { auth0User, dbUser } ou répond 401/403.
  */
 export async function requirePartner(): Promise<AuthResult | NextResponse> {
@@ -78,6 +104,13 @@ export async function requirePartner(): Promise<AuthResult | NextResponse> {
 
   if (result.dbUser.role !== 'PARTNER' && result.dbUser.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Accès partenaire requis' }, { status: 403 });
+  }
+
+  if (!partenaireRattache(result.dbUser)) {
+    return NextResponse.json(
+      { error: 'Compte partenaire non rattaché à une société : accès refusé.' },
+      { status: 403 },
+    );
   }
 
   return result;

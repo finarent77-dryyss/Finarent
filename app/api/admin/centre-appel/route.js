@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { lireNotesAdmin } from '@/lib/notes-admin';
 
 // Statuts considérés "à appeler" — c-a-d pas encore traités ou en cours de qualif
 const PROSPECT_CALL_STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED'];
@@ -70,7 +71,10 @@ export async function GET(request) {
       productType: a.productType,
       amount: a.amount,
       sector: a.sector,
-      notes: a.adminNotes,
+      // `adminNotes` est stocké chiffré : sans déchiffrement l'écran affichait
+      // du base64, et le filtre « rappels » plus bas ne trouvait jamais
+      // « [RAPPEL » dans la chaîne (constat ADM1-03).
+      notes: lireNotesAdmin(a.adminNotes),
       lastTouchAt: a.updatedAt,
       createdAt: a.createdAt,
     })),

@@ -60,7 +60,7 @@ export default function FloatingContactCTA() {
               <i className="fa-solid fa-chevron-right text-xs"></i>
             </Link>
             <Link
-              href="/simulator"
+              href="/simulateurs/credit-immobilier/mensualite"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 p-3 rounded-xl bg-accent/5 hover:bg-accent text-accent hover:text-white transition-all group"
             >

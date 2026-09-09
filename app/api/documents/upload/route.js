@@ -130,13 +130,22 @@ export async function POST(request) {
       request,
     });
 
-    // Notification e-mail confirmation document reçu (échec silencieux)
-    if (application.user?.email) {
+    // Accusé de réception au déposant.
+    //
+    // Deux défauts corrigés ici. La garde portait sur `application.user`, or un
+    // dossier déposé depuis le formulaire public n'a pas de compte rattaché
+    // (`userId: null`) : aucun accusé ne partait, alors que l'adresse figure sur
+    // le dossier lui-même. Et la référence transmise était un fragment
+    // d'identifiant technique, si bien que le client recevait un email citant un
+    // numéro de dossier qui ne correspondait ni à son espace, ni à l'accusé de
+    // réception reçu au dépôt de sa demande.
+    const destinataire = application.email || application.user?.email;
+    if (destinataire) {
       sendDocumentReceived({
-        to: application.user.email,
+        to: destinataire,
         fileName: file.name,
         documentType: docType,
-        reference: application.id.slice(0, 8).toUpperCase(),
+        reference: application.reference || application.id,
       }).catch((e) => console.warn('sendDocumentReceived failed:', e.message));
     }
 

@@ -2,7 +2,18 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getStripe, isStripeConfigured } from '@/lib/stripe';
+import { desactiverLienPaiement } from '../../liens-paiement';
 
+/**
+ * POST — crée (ou regénère) le lien de paiement Stripe d'une facture.
+ *
+ * ADM2-06 : la regénération créait un lien supplémentaire sans désactiver le
+ * précédent. Les deux restaient payables, et l'ancien portait l'ancien reste à
+ * payer : un client pouvait solder 1 000 € une facture dont il ne devait plus
+ * que 400 €. Le lien courant est donc désactivé avant toute création — et si
+ * cette désactivation échoue, on refuse d'en créer un second plutôt que de
+ * laisser deux liens vivants.
+ */
 export async function POST(request, { params }) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
@@ -23,6 +34,22 @@ export async function POST(request, { params }) {
   }
   if (invoice.status === 'CANCELLED') {
     return NextResponse.json({ error: 'Impossible de créer un lien pour une facture annulée' }, { status: 400 });
+  }
+  if (invoice.status === 'DRAFT') {
+    return NextResponse.json({
+      error: 'Facture encore en brouillon : émettez-la avant de créer un lien de paiement.',
+    }, { status: 400 });
+  }
+
+  // Ordre volontaire : on éteint l'ancien lien AVANT d'en créer un nouveau.
+  // L'inverse laisserait, en cas d'échec de la désactivation, deux liens actifs
+  // pour la même facture.
+  const extinction = await desactiverLienPaiement(invoice);
+  if (!extinction.desactive) {
+    return NextResponse.json({
+      error: `Lien précédent toujours actif : ${extinction.raison}. `
+        + 'Aucun nouveau lien n\'a été créé — deux liens payables pour une même facture exposeraient à un double encaissement.',
+    }, { status: 502 });
   }
 
   const price = await stripe.prices.create({
@@ -56,9 +83,10 @@ export async function POST(request, { params }) {
     },
   });
 
-  return NextResponse.json({ url: paymentLink.url, id: paymentLink.id });
+  return NextResponse.json({ url: paymentLink.url, id: paymentLink.id, montant: remaining });
 }
 
+/** DELETE — révoque le lien de paiement courant. */
 export async function DELETE(request, { params }) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
@@ -66,21 +94,23 @@ export async function DELETE(request, { params }) {
   if (!isStripeConfigured()) {
     return NextResponse.json({ error: 'Stripe non configuré (STRIPE_SECRET_KEY manquante)' }, { status: 503 });
   }
-  const stripe = getStripe();
 
   const { id } = await params;
 
   const invoice = await prisma.invoice.findUnique({ where: { id } });
-  if (!invoice || !invoice.stripePaymentLinkId) {
+  if (!invoice) return NextResponse.json({ error: 'Facture introuvable' }, { status: 404 });
+  if (!invoice.stripePaymentLinkId) {
     return NextResponse.json({ error: 'Aucun lien Stripe trouvé' }, { status: 404 });
   }
 
-  await stripe.paymentLinks.update(invoice.stripePaymentLinkId, { active: false });
-
-  await prisma.invoice.update({
-    where: { id },
-    data: { stripePaymentLinkId: null, stripePaymentLinkUrl: null },
-  });
+  const extinction = await desactiverLienPaiement(invoice);
+  if (!extinction.desactive) {
+    // Le lien reste payable : le dire, plutôt que de vider les colonnes et de
+    // faire croire à l'écran que la révocation a eu lieu.
+    return NextResponse.json({
+      error: `Le lien n'a pas pu être désactivé chez Stripe : ${extinction.raison}. Il reste payable.`,
+    }, { status: 502 });
+  }
 
   return NextResponse.json({ success: true });
 }

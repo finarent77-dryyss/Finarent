@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { STATUS_TO_DB } from '@/lib/statusMap';
+import { STATUS_LABELS } from '@/lib/utils';
 import {
   DndContext,
   PointerSensor,
@@ -56,6 +58,11 @@ const COLUMNS = [
     groups: ['finalise', 'validee', 'refusee'],
   },
 ];
+
+/** Libelle lisible d un statut legacy, via la table de correspondance commune. */
+function libelleStatut(legacy) {
+  return STATUS_LABELS[STATUS_TO_DB[legacy]] || legacy;
+}
 
 function columnForStatus(status) {
   return COLUMNS.find((c) => c.groups.includes(status))?.key || 'PENDING';
@@ -212,6 +219,24 @@ export default function KanbanClient() {
 
     const previousStatus = current.status;
     const newStatus = targetCol.legacy;
+
+    // Deux colonnes regroupent plusieurs statuts (« Offre émise » en couvre
+    // cinq, « Finalisés » trois) mais le dépôt écrit toujours le statut
+    // canonique de la colonne. Déplacer un dossier signé, transmis ou refusé
+    // le réécrit donc en amont de sa position réelle — et, depuis que le
+    // changement de statut notifie le client, lui envoie un email qui ne
+    // correspond à rien (« Votre devis est disponible » pour un dossier déjà
+    // signé). Un glisser-déposer accidentel ne doit pas écrire au client sans
+    // que l'administrateur l'ait voulu.
+    const libelle = libelleStatut(newStatus);
+    const perteDeFinesse = targetCol.groups.length > 1 && newStatus !== previousStatus;
+    const message = perteDeFinesse
+      ? `Passer ce dossier de « ${libelleStatut(previousStatus)} » à « ${libelle} » ?\n\n`
+        + 'Cette colonne regroupe plusieurs statuts : le dossier prendra exactement le statut '
+        + `« ${libelle} », et le client en sera informé par email.`
+      : `Passer ce dossier en « ${libelle} » ? Le client en sera informé par email.`;
+
+    if (!window.confirm(message)) return;
 
     // Optimistic update
     setDemandes((prev) =>

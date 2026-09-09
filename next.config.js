@@ -1,3 +1,5 @@
+import { withSentryConfig } from '@sentry/nextjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -41,4 +43,31 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+/**
+ * Enveloppe Sentry — ajoutée le 9 septembre 2026.
+ *
+ * Les fichiers `instrumentation.js` et `instrumentation-client.js` suffisent à
+ * faire remonter les erreurs : Next 15.3+ les charge nativement. `withSentryConfig`
+ * n'apporte que le téléversement des cartes de source (traces lisibles au lieu de
+ * code minifié) et le marquage des versions.
+ *
+ * Elle n'est donc appliquée que si un jeton d'envoi existe. Sans jeton, le greffon
+ * de compilation n'aurait rien à faire, et l'étape « build » de l'intégration
+ * continue — désormais bloquante — n'a aucune raison de porter ce poids.
+ * Poser `SENTRY_AUTH_TOKEN`, `SENTRY_ORG` et `SENTRY_PROJECT` suffit à l'activer.
+ */
+let configurationExportee = nextConfig;
+
+if (process.env.SENTRY_AUTH_TOKEN) {
+  configurationExportee = withSentryConfig(nextConfig, {
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+    silent: !process.env.CI,
+    widenClientFileUpload: true,
+    disableLogger: true,
+    telemetry: false,
+  });
+}
+
+export default configurationExportee;

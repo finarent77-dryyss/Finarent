@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import PageTransition from '@/components/animations/PageTransition';
 import { FAQ_CATEGORIES } from '@/assets/data/faq';
+import { serialiserJsonLd } from '@/lib/json-ld';
 
 const COLOR_MAP = {
   secondary: { bg: 'bg-secondary/10', text: 'text-secondary', border: 'border-secondary/20' },
@@ -104,7 +105,7 @@ export default function FAQClient() {
     <div className="min-h-screen">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        dangerouslySetInnerHTML={{ __html: serialiserJsonLd(schema) }}
       />
 
       {/* Hero */}

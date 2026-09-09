@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { syncUser, isAdmin } from '@/lib/users';
 import { getFileUrl, readFileBuffer, usesSignedUrl } from '@/lib/storage';
 import { logDocumentAccess } from '@/lib/audit';
+import { peutAccederAuDossier } from '@/lib/acces-dossier';
 
 /**
  * GET /api/documents/file/[id]
@@ -37,12 +38,13 @@ export async function GET(request, { params }) {
     const dbUser = await syncUser(session.user);
     const adminAccess = await isAdmin(session.user);
 
-    // Vérifier l'accès : propriétaire, admin, partenaire lié, ou assureur (pour RC_PRO)
-    const isOwner = document.application.userId === dbUser?.id;
-    const isPartnerLinked = dbUser?.role === 'PARTNER' && document.application.partnerId === dbUser?.partnerId;
-    const isInsurerAccess = dbUser?.role === 'INSURER' && document.application.productType === 'RC_PRO';
-
-    if (!isOwner && !adminAccess && !isPartnerLinked && !isInsurerAccess) {
+    // Vérifier l'accès : propriétaire, admin, partenaire lié, ou assureur (RC_PRO).
+    //
+    // La comparaison directe `application.partnerId === dbUser.partnerId` était
+    // satisfaite quand les deux valaient `null` : un compte PARTNER sans société
+    // de rattachement téléchargeait les pièces de tous les dossiers déposés en
+    // direct. Le garde partagé refuse désormais tout rattachement absent.
+    if (!adminAccess && !peutAccederAuDossier(dbUser, document.application)) {
       return new NextResponse('Accès non autorisé', { status: 403 });
     }
 

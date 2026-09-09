@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { decryptString, maskIban } from '@/lib/crypto.js';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * GET /api/admin/affiliates/[id]
@@ -97,7 +98,8 @@ export async function PATCH(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
 
   const data = {};
   if (body.name !== undefined) data.name = String(body.name).trim().slice(0, 150);
@@ -121,11 +123,11 @@ export async function PATCH(request, { params }) {
     const affiliate = await prisma.affiliate.update({ where: { id }, data });
     return NextResponse.json(affiliate);
   } catch (err) {
-    if (err.code === 'P2002') {
-      return NextResponse.json({ error: 'Email ou code déjà utilisé' }, { status: 409 });
-    }
-    console.error('PATCH /api/admin/affiliates/[id] error:', err);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return reponseErreurPrisma(err, {
+      contexte: 'PATCH /api/admin/affiliates/[id]',
+      introuvable: 'Affilié introuvable',
+      conflit: 'Email ou code déjà utilisé',
+    });
   }
 }
 
@@ -138,6 +140,13 @@ export async function DELETE(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  await prisma.affiliate.update({ where: { id }, data: { isActive: false } });
+  try {
+    await prisma.affiliate.update({ where: { id }, data: { isActive: false } });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'DELETE /api/admin/affiliates/[id]',
+      introuvable: 'Affilié introuvable',
+    });
+  }
   return NextResponse.json({ success: true, message: 'Affilié désactivé (données conservées)' });
 }

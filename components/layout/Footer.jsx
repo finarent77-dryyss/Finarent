@@ -103,7 +103,7 @@ export default function Footer() {
                 <i className="fa-solid fa-paper-plane"></i>
                 {t('footer.startRequest')}
               </Link>
-              <Link href="/simulator" className="px-6 py-3 bg-white/5 hover:bg-white/10 font-semibold rounded-xl border border-white/10 transition-all duration-300 text-sm flex items-center justify-center gap-2">
+              <Link href="/simulateurs/credit-immobilier/mensualite" className="px-6 py-3 bg-white/5 hover:bg-white/10 font-semibold rounded-xl border border-white/10 transition-all duration-300 text-sm flex items-center justify-center gap-2">
                 <i className="fa-solid fa-calculator"></i>
                 {t('footer.simulate')}
               </Link>

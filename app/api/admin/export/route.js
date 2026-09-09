@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { ligneCsv } from '@/lib/csv.js';
 
 export async function GET() {
   const auth = await requireAdmin();
@@ -29,27 +30,20 @@ export async function GET() {
 
   const headers = ['Référence', 'Entreprise', 'Contact', 'Email', 'Montant', 'Statut', 'Date', 'Type produit'];
 
-  const escapeCSV = (value) => {
-    if (value == null) return '';
-    const str = String(value);
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-      return `"${str.replace(/"/g, '""')}"`;
-    }
-    return str;
-  };
-
+  // `companyName` et le nom de l'utilisateur sont des saisies libres : elles
+  // passent, comme le reste, par l'échappement centralisé de `lib/csv.js`.
   const rows = applications.map((app) => [
     app.id.slice(-8).toUpperCase(),
-    escapeCSV(app.companyName || ''),
-    escapeCSV(app.user?.name || ''),
-    escapeCSV(app.user?.email || ''),
+    app.companyName || '',
+    app.user?.name || '',
+    app.user?.email || '',
     app.amount != null ? app.amount : '',
     STATUS_LABELS[app.status] || app.status,
     new Date(app.createdAt).toLocaleDateString('fr-FR'),
     app.productType || '',
   ]);
 
-  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const csv = [ligneCsv(headers), ...rows.map((r) => ligneCsv(r))].join('\n');
 
   return new NextResponse(csv, {
     status: 200,

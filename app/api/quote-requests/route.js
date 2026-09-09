@@ -24,7 +24,7 @@ function getClientIp(request) {
 export async function POST(request) {
   try {
     const ip = getClientIp(request);
-    if (!checkRateLimit(ip, { bucket: 'devis' }).allowed) {
+    if (!(await checkRateLimit(ip, { bucket: 'devis' })).allowed) {
       return NextResponse.json({ error: 'Trop de demandes. Réessayez plus tard.' }, { status: 429 });
     }
 
@@ -43,13 +43,14 @@ export async function POST(request) {
     if (!data.product) {
       return NextResponse.json({ error: 'Produit manquant' }, { status: 400 });
     }
-    // reCAPTCHA : vérifié uniquement si un token est fourni (devient obligatoire
-    // une fois RECAPTCHA_SECRET_KEY posée en prod + token envoyé par le front)
-    if (data.recaptchaToken) {
-      const rc = await verifyRecaptcha(data.recaptchaToken);
-      if (!rc.skipped && !rc.success) {
-        return NextResponse.json({ error: 'Vérification de sécurité échouée.' }, { status: 400 });
-      }
+    // reCAPTCHA : vérifié SANS CONDITION. La garde "if (data.recaptchaToken)"
+    // qui figurait ici rendait la protection contournable en omettant simplement
+    // le champ — et le restait une fois la clé posée en production. C'est
+    // lib/recaptcha.js qui décide de laisser passer ou non, selon que la clé est
+    // configurée ; l'appelant se contente d'appliquer le verdict.
+    const rc = await verifyRecaptcha(data.recaptchaToken || '');
+    if (!rc.skipped && !rc.success) {
+      return NextResponse.json({ error: 'Vérification de sécurité échouée.' }, { status: 400 });
     }
 
     const email = String(data.email).trim().toLowerCase();

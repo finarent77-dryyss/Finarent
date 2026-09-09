@@ -3,6 +3,7 @@ import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
 import { encryptString, decryptString, maskIban } from '@/lib/crypto.js';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * GET /api/admin/call-centers/[id]
@@ -90,7 +91,8 @@ export async function PATCH(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
 
   const data = {};
   if (body.name !== undefined) data.name = String(body.name).trim().slice(0, 150);
@@ -125,8 +127,16 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: 'Aucune modification' }, { status: 400 });
   }
 
-  const center = await prisma.callCenter.update({ where: { id }, data });
-  return NextResponse.json(center);
+  try {
+    const center = await prisma.callCenter.update({ where: { id }, data });
+    return NextResponse.json(center);
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'PATCH /api/admin/call-centers/[id]',
+      introuvable: 'Centre introuvable',
+      conflit: 'Code centre déjà utilisé',
+    });
+  }
 }
 
 /**
@@ -138,7 +148,15 @@ export async function DELETE(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const center = await prisma.callCenter.update({ where: { id }, data: { isActive: false } });
+  let center;
+  try {
+    center = await prisma.callCenter.update({ where: { id }, data: { isActive: false } });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'DELETE /api/admin/call-centers/[id]',
+      introuvable: 'Centre introuvable',
+    });
+  }
   await logAdminActivity({
     actorId: auth.dbUser?.id,
     module: 'call_center',

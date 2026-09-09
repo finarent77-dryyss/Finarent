@@ -132,7 +132,7 @@ export default function ProcessClient() {
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">{t('process.ctaTitle')}</h2>
             <p className="text-lg text-gray-600 mb-8">{t('process.ctaDescription')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/simulator" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-secondary text-white font-semibold rounded-xl hover:bg-secondary/90 transition-colors shadow-lg">
+              <Link href="/simulateurs/credit-immobilier/mensualite" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-secondary text-white font-semibold rounded-xl hover:bg-secondary/90 transition-colors shadow-lg">
                 <i className="fa-solid fa-calculator"></i>
                 {t('process.ctaSimulate')}
               </Link>

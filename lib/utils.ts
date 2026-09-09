@@ -105,22 +105,15 @@ export const SECTORS = [
 export type Sector = (typeof SECTORS)[number];
 
 // ─── SIMULATEUR ───────────────────────────────────────────
-export function calculateMonthlyPayment(
-  amount: number,
-  durationMonths: number,
-  annualRate = 0.05
-): number {
-  const monthlyRate = annualRate / 12;
-  if (monthlyRate === 0) return amount / durationMonths;
-  return (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -durationMonths));
-}
+// `calculateMonthlyPayment` a été supprimée : sans appelant, elle constituait
+// une troisième implémentation concurrente de la mensualité, attendant un taux
+// en décimal (0.05) là où le reste du code raisonne en pourcentage (3.5), et
+// divisant par zéro sur une durée nulle. La référence unique est
+// `monthlyPayment` de lib/simulators/calculations/pret.js.
 
 // ─── RÉFÉRENCES ───────────────────────────────────────────
-export function generateReference(): string {
-  const year = new Date().getFullYear();
-  const rand = Math.floor(10000 + Math.random() * 90000);
-  return `FIN-${year}-${rand}`;
-}
+// `generateReference` a été supprimée : sans appelant, et la numérotation
+// réelle des dossiers est produite ailleurs.
 
 // ─── SIREN ────────────────────────────────────────────────
 export function formatSiren(siren: string): string {

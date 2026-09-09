@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { protect, reveal } from '@/lib/sensitive';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 const VALID_STATUSES = ['DRAFT', 'SENT', 'VIEWED', 'ACCEPTED', 'REFUSED', 'EXPIRED', 'SIGNED'];
 
@@ -44,7 +45,8 @@ export async function PATCH(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
 
   const data = {};
   if (body.status !== undefined) {
@@ -67,24 +69,31 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ error: 'Aucune modification' }, { status: 400 });
   }
 
-  const offer = await prisma.offer.update({
-    where: { id },
-    data: protect('Offer', data),
-    include: {
-      application: {
-        select: {
-          id: true,
-          companyName: true,
-          productType: true,
-          amount: true,
-          user: { select: { id: true, name: true, email: true } },
+  try {
+    const offer = await prisma.offer.update({
+      where: { id },
+      data: protect('Offer', data),
+      include: {
+        application: {
+          select: {
+            id: true,
+            companyName: true,
+            productType: true,
+            amount: true,
+            user: { select: { id: true, name: true, email: true } },
+          },
         },
+        partner: { select: { id: true, name: true, type: true } },
       },
-      partner: { select: { id: true, name: true, type: true } },
-    },
-  });
+    });
 
-  return NextResponse.json(reveal('Offer', offer));
+    return NextResponse.json(reveal('Offer', offer));
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'PATCH /api/admin/offers/[id]',
+      introuvable: 'Offre introuvable',
+    });
+  }
 }
 
 /**
@@ -95,7 +104,14 @@ export async function DELETE(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  await prisma.offer.delete({ where: { id } });
+  try {
+    await prisma.offer.delete({ where: { id } });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'DELETE /api/admin/offers/[id]',
+      introuvable: 'Offre introuvable',
+    });
+  }
 
   return NextResponse.json({ success: true });
 }

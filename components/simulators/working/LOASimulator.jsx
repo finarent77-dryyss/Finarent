@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { monthlyPayment, formatEUR } from '@/lib/simulators/calculations/pret';
+import { formatEUR } from '@/lib/simulators/calculations/pret';
+import { loaBreakdown } from '@/lib/simulators/calculations/loa';
 import { SliderInput, NumberInput, ResultCard } from '@/components/simulators/inputs';
 import ConversionCTA from '@/components/simulators/ConversionCTA';
 
@@ -15,15 +16,10 @@ export default function LOASimulator() {
   // Majoration appliquée sur le premier loyer (standard marché : 15 %).
   const [firstPaymentMarkup, setFirstPaymentMarkup] = useState(15);
 
-  const residualValue = (amount * residual) / 100;
-  const financedAmount = Math.max(amount - apport - residualValue, 0);
-
-  const monthly = useMemo(
-    () => monthlyPayment(financedAmount, months, rate),
-    [financedAmount, months, rate],
+  const { residualValue, monthly, firstPayment, totalPaid, totalIfReturned } = useMemo(
+    () => loaBreakdown({ amount, months, rate, residual, apport, firstPaymentMarkup }),
+    [amount, months, rate, residual, apport, firstPaymentMarkup],
   );
-  const firstPayment = monthly * (1 + firstPaymentMarkup / 100);
-  const totalPaid = apport + firstPayment + monthly * (months - 1) + residualValue;
 
   return (
     <div className="space-y-6">
@@ -57,7 +53,7 @@ export default function LOASimulator() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <ResultCard label="Coût total si vous rachetez" value={formatEUR(totalPaid)} accent="primary" />
-        <ResultCard label="Coût total si vous restituez" value={formatEUR(totalPaid - residualValue)} sub="Sans option d'achat" accent="accent" />
+        <ResultCard label="Coût total si vous restituez" value={formatEUR(totalIfReturned)} sub="Sans option d'achat" accent="accent" />
       </div>
 
       <ConversionCTA simulatorName="loa" params={{ amount, months, rate, residual, apport, firstPaymentMarkup, firstPayment, monthly }} />

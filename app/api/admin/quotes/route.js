@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { nextQuoteNumber } from '@/lib/invoicing/numbering';
+import { avecNumeroUnique, nextQuoteNumber } from '@/lib/invoicing/numbering';
 
 export async function GET(request) {
   const auth = await requireAdmin();
@@ -62,27 +62,32 @@ export async function POST(request) {
   const taxAmount = baseHT * (Number(taxRate) / 100);
   const totalTTC = Math.round((baseHT + taxAmount) * 100) / 100;
 
-  const quoteNumber = await nextQuoteNumber();
-
-  const quote = await prisma.quote.create({
-    data: {
-      quoteNumber,
-      userId: userId || null,
-      applicationId: applicationId || null,
-      companyName, companyAddress, companySiret,
-      contactName, contactEmail, contactPhone,
-      status: 'DRAFT',
-      validUntil: validUntil ? new Date(validUntil) : new Date(Date.now() + 30 * 86400000),
-      subtotalHT: Math.round(subtotalHT * 100) / 100,
-      taxRate: Number(taxRate),
-      taxAmount: Math.round(taxAmount * 100) / 100,
-      totalTTC,
-      discountPercent: discountPercent ? Number(discountPercent) : null,
-      discountAmount: discountAmount ? Number(discountAmount) : null,
-      paymentTerms, notes,
-      items: { create: processed },
-    },
-    include: { items: true },
+  // Le numéro est calculé puis écrit sans verrou : deux créations simultanées
+  // lisent le même maximum. La contrainte d'unicité tranche, et on reboucle
+  // dessus plutôt que de laisser remonter un P2002 en 500 opaque.
+  const quote = await avecNumeroUnique({
+    champ: 'quoteNumber',
+    generer: () => nextQuoteNumber(),
+    ecrire: (quoteNumber) => prisma.quote.create({
+      data: {
+        quoteNumber,
+        userId: userId || null,
+        applicationId: applicationId || null,
+        companyName, companyAddress, companySiret,
+        contactName, contactEmail, contactPhone,
+        status: 'DRAFT',
+        validUntil: validUntil ? new Date(validUntil) : new Date(Date.now() + 30 * 86400000),
+        subtotalHT: Math.round(subtotalHT * 100) / 100,
+        taxRate: Number(taxRate),
+        taxAmount: Math.round(taxAmount * 100) / 100,
+        totalTTC,
+        discountPercent: discountPercent ? Number(discountPercent) : null,
+        discountAmount: discountAmount ? Number(discountAmount) : null,
+        paymentTerms, notes,
+        items: { create: processed },
+      },
+      include: { items: true },
+    }),
   });
 
   return NextResponse.json(quote, { status: 201 });

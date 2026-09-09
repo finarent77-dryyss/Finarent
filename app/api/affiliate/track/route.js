@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { COOKIE_NAME, COOKIE_MAX_AGE } from '@/lib/affiliate';
 import { extractRequestContext } from '@/lib/audit';
+import { trouverParrainParCode, COOKIE_PARRAINAGE, DUREE_COOKIE_PARRAINAGE } from '@/lib/referral';
 
 /**
  * POST /api/affiliate/track
@@ -22,7 +23,24 @@ export async function POST(request) {
       where: { code },
       select: { id: true, isActive: true },
     });
+
     if (!affiliate || !affiliate.isActive) {
+      // Le paramètre `?ref=` sert aussi au parrainage client. Avant, un code de
+      // parrainage tombait ici et repartait sans rien : le clic du filleul
+      // était purement perdu.
+      const parrain = await trouverParrainParCode(prisma, code);
+      if (parrain) {
+        const res = NextResponse.json({ ok: true });
+        res.cookies.set(COOKIE_PARRAINAGE, parrain.referralCode, {
+          maxAge: DUREE_COOKIE_PARRAINAGE,
+          httpOnly: true, // aucun usage client, contrairement au cookie affilié
+          sameSite: 'lax',
+          path: '/',
+          secure: process.env.NODE_ENV === 'production',
+        });
+        return res;
+      }
+
       // On retourne 200 silencieusement pour ne pas révéler aux scrapers
       // si un code est valide ou pas
       return NextResponse.json({ ok: true });

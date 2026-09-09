@@ -4,6 +4,7 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { syncUser } from '@/lib/users';
 import { uploadFile } from '@/lib/storage';
 import { sendMail } from '@/lib/email/send.js';
+import { traiterConversionParrainageEnFond } from '@/lib/referral-events';
 import { templateDocumentGenere } from '@/lib/email/templates.js';
 import { generateContractPDF, MENTION_CONSENTEMENT } from '@/lib/pdf/contract';
 import {
@@ -227,6 +228,11 @@ export async function POST(request, { params }) {
         },
       }),
     ]);
+
+    // Signature cote client : le parrainage se convertit ici aussi, sinon le
+    // statut dependrait de la facon dont le dossier a ete signe.
+    const emailDossier = offer.application?.email || offer.application?.user?.email;
+    if (emailDossier) traiterConversionParrainageEnFond(emailDossier);
 
     // Le signataire repart avec son exemplaire. Ce chemin ne passe pas par le
     // PATCH admin : sans cet envoi, un client signait et ne recevait plus rien.

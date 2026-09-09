@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { peutAccederAuDossier, peutEcrireMessageInterne } from '@/lib/acces-dossier';
+
+/**
+ * Champs strictement nécessaires à la décision d'accès.
+ * `productType` s'y ajoute : sans lui, la borne « assureur » ne peut pas être
+ * évaluée et tout compte INSURER lisait la messagerie de n'importe quel dossier.
+ */
+const CHAMPS_ACCES = { userId: true, partnerId: true, productType: true };
 
 export async function GET(request) {
   const auth = await requireAuth();
@@ -16,7 +24,7 @@ export async function GET(request) {
   // Vérifier l'accès au dossier
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
-    select: { userId: true, partnerId: true },
+    select: CHAMPS_ACCES,
   });
 
   if (!application) {
@@ -24,12 +32,10 @@ export async function GET(request) {
   }
 
   const { dbUser } = auth;
-  const isOwner = application.userId === dbUser.id;
-  const isAdmin = dbUser.role === 'ADMIN';
-  const isPartner = dbUser.role === 'PARTNER' && application.partnerId === dbUser.partnerId;
-  const isInsurer = dbUser.role === 'INSURER';
 
-  if (!isOwner && !isAdmin && !isPartner && !isInsurer) {
+  // Le contrôle passe par le garde partagé : il refuse le rattachement nul des
+  // deux côtés (`null === null`) et borne l'assureur à son périmètre produit.
+  if (!peutAccederAuDossier(dbUser, application)) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
 
@@ -63,7 +69,7 @@ export async function POST(request) {
   // Vérifier l'accès
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
-    select: { userId: true, partnerId: true },
+    select: CHAMPS_ACCES,
   });
 
   if (!application) {
@@ -71,17 +77,14 @@ export async function POST(request) {
   }
 
   const { dbUser } = auth;
-  const isOwner = application.userId === dbUser.id;
-  const isAdmin = dbUser.role === 'ADMIN';
-  const isPartner = dbUser.role === 'PARTNER' && application.partnerId === dbUser.partnerId;
-  const isInsurer = dbUser.role === 'INSURER';
 
-  if (!isOwner && !isAdmin && !isPartner && !isInsurer) {
+  if (!peutAccederAuDossier(dbUser, application)) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
 
-  // Seuls admin/partner/insurer peuvent envoyer des messages admin-only
-  const adminOnly = isAdminOnly && (isAdmin || isPartner || isInsurer) ? true : false;
+  // Seuls les profils réellement rattachés au dossier (admin, partenaire lié,
+  // assureur du périmètre) peuvent écrire un message interne au client.
+  const adminOnly = Boolean(isAdminOnly) && peutEcrireMessageInterne(dbUser, application);
 
   const message = await prisma.message.create({
     data: {

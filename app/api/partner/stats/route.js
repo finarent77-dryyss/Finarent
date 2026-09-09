@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requirePartner, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { filtreDossiersPartenaire } from '@/lib/acces-dossier';
 
 const PRODUCT_LABELS = {
   PRET_PRO: 'Prêt pro',
@@ -16,7 +17,16 @@ export async function GET() {
   if (isAuthError(auth)) return auth;
 
   const { dbUser } = auth;
-  const where = dbUser.role === 'ADMIN' ? {} : { partnerId: dbUser.partnerId };
+
+  // Même règle que sur la liste des dossiers : un `partnerId` nul ne donne pas
+  // accès aux dossiers non attribués, il ferme l'accès.
+  const where = filtreDossiersPartenaire(dbUser);
+  if (!where) {
+    return NextResponse.json(
+      { error: 'Compte partenaire non rattaché à une société : accès refusé.' },
+      { status: 403 },
+    );
+  }
   const commissionWhere = dbUser.partnerId ? { partnerId: dbUser.partnerId } : null;
 
   const now = new Date();

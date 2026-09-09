@@ -55,7 +55,7 @@ const STAT_CARDS = [
 
 const QUICK_ACTIONS = [
   { key: 'newRequest', icon: 'fa-plus', href: '/espace/demande', color: 'bg-secondary text-white hover:bg-secondary/90' },
-  { key: 'simulate', icon: 'fa-calculator', href: '/simulator', color: 'bg-accent text-white hover:bg-accent/90' },
+  { key: 'simulate', icon: 'fa-calculator', href: '/simulateurs/credit-immobilier/mensualite', color: 'bg-accent text-white hover:bg-accent/90' },
   { key: 'referral', icon: 'fa-gift', href: '/espace/parrainage', color: 'bg-primary text-white hover:bg-primary/90' },
 ];
 
@@ -246,7 +246,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                     <div className="flex-1">
                       <h2 className="text-xl sm:text-2xl lg:text-3xl font-black mb-3 leading-tight">{t('espace.readyToLaunch')}</h2>
                       <p className="text-white/60 mb-6 max-w-md text-sm sm:text-base">{t('espace.readyToLaunchDesc')}</p>
-                      <Link href="/simulator" className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg">
+                      <Link href="/simulateurs/credit-immobilier/mensualite" className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg">
                         <i className="fa-solid fa-rocket"></i>
                         {t('espace.simulateProject')}
                       </Link>

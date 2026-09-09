@@ -155,7 +155,7 @@ export default function SolutionDetailClient({ sol, otherSolutions }) {
                     <i className="fa-solid fa-arrow-right" />
                   </Link>
                   <Link
-                    href="/simulator"
+                    href="/simulateurs/credit-immobilier/mensualite"
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary border-2 border-slate-200 font-semibold rounded-xl hover:bg-slate-50 hover:shadow-lg transition-all duration-300"
                   >
                     <i className="fa-solid fa-calculator" />

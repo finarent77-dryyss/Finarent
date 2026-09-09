@@ -4,9 +4,12 @@ import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/users';
 import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES, PRODUCT_TO_REQUEST } from '@/lib/statusMap';
 import { protect, reveal } from '@/lib/sensitive';
+import { lireNotesAdmin } from '@/lib/notes-admin';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 import { computeCommission } from '@/lib/affiliate';
 import { logAdminActivity } from '@/lib/admin-activity-log';
 import { sendStatutDemande } from '@/lib/email';
+import { traiterConversionParrainageEnFond } from '@/lib/referral-events';
 
 export async function PATCH(request, { params }) {
   try {
@@ -21,7 +24,10 @@ export async function PATCH(request, { params }) {
     }
 
     const { id } = await params;
-    const body = await request.json();
+    // Corps vide ou malformé : 400 explicite, et non le 500 « Erreur serveur »
+    // que produisait le catch général.
+    const body = await lireCorpsJson(request);
+    if (!body) return reponseCorpsInvalide();
     const { status, adminNotes, callCenterId } = body;
 
     const updateData = {};
@@ -42,10 +48,20 @@ export async function PATCH(request, { params }) {
     const current = await prisma.application.findUnique({ where: { id }, select: { status: true } });
     const dbUser = await prisma.user.findUnique({ where: { auth0Id: session.user.sub }, select: { id: true } });
 
-    const application = await prisma.application.update({
-      where: { id },
-      data: protect('Application', updateData),
-    });
+    let application;
+    try {
+      application = await prisma.application.update({
+        where: { id },
+        data: protect('Application', updateData),
+      });
+    } catch (err) {
+      // Un identifiant inexistant lève P2025 : c'est un 404, pas un incident
+      // serveur — le front doit pouvoir distinguer les deux (constat ADM1-08).
+      return reponseErreurPrisma(err, {
+        contexte: 'PATCH /api/admin/demandes/[id]',
+        introuvable: 'Demande introuvable',
+      });
+    }
 
     // Opérations post-update : best-effort (ne doivent pas faire échouer la réponse principale)
     // Enregistrer l'historique du changement de statut
@@ -180,9 +196,14 @@ export async function PATCH(request, { params }) {
       }
     }
 
-    // Notification client du changement d'étape.
-    // Detachee de la reponse HTTP : l'admin ne doit pas attendre l'envoi, et
-    // un incident Brevo ne doit pas faire echouer la mise a jour du dossier.
+    // Dossier signé : le parrainage éventuel du client devient une conversion.
+    if (updateData.status === 'SIGNED' && current?.status !== 'SIGNED' && application.email) {
+      traiterConversionParrainageEnFond(application.email);
+    }
+
+    // Notification client du changement d'étape. Detachee de la reponse HTTP :
+    // l'admin ne doit pas attendre l'envoi, et un incident Brevo ne doit pas
+    // faire echouer la mise a jour du dossier.
     if (updateData.status && current && current.status !== updateData.status) {
       void sendStatutDemande({
         to: application.email,
@@ -197,6 +218,9 @@ export async function PATCH(request, { params }) {
     const revealed = reveal('Application', application);
     const response = {
       ...revealed,
+      // Même lecture tolérante que le GET de la liste : une note héritée du
+      // journal d'appel corrompu doit rester affichable.
+      adminNotes: lireNotesAdmin(application.adminNotes),
       status: STATUS_TO_LEGACY[revealed.status] || revealed.status,
       requestType: PRODUCT_TO_REQUEST[revealed.productType] || revealed.productType,
       message: revealed.description,

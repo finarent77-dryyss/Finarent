@@ -15,6 +15,11 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
+// `kind` alimente une colonne enum : une valeur hors de cette liste faisait
+// lever Prisma dans une route sans try/catch, donc un 500 sur un simple
+// paramètre d'URL erroné (constat ADM1-11).
+const KINDS = ['FACTURE', 'FACTURE_AFFILIE', 'DEVIS', 'CONTRAT', 'RECAP_DOSSIER', 'AUTRE'];
+
 export async function GET(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
@@ -25,6 +30,13 @@ export async function GET(request) {
   const applicationId = searchParams.get('applicationId');
   const q = searchParams.get('q')?.trim();
   const limit = Math.min(parseInt(searchParams.get('limit') || '100', 10) || 100, 500);
+
+  if (kind && !KINDS.includes(kind)) {
+    return NextResponse.json(
+      { error: `Type de document inconnu. Valeurs acceptées : ${KINDS.join(', ')}` },
+      { status: 400 },
+    );
+  }
 
   const where = {};
   if (reference) where.reference = reference;

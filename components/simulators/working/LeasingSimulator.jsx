@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { formatEUR } from '@/lib/simulators/calculations/pret';
+import { leasingBreakdown } from '@/lib/simulators/calculations/leasing';
 import { SliderInput, NumberInput, ResultCard } from '@/components/simulators/inputs';
 import ConversionCTA from '@/components/simulators/ConversionCTA';
 
@@ -15,21 +16,10 @@ export default function LeasingSimulator() {
   // Majoration appliquée sur le premier loyer (standard marché : 15 %).
   const [firstPaymentMarkup, setFirstPaymentMarkup] = useState(15);
 
-  // Coefficient leasing simplifié : ~1.5-2% du prix par mois selon durée
-  const baseCoeff = months <= 24 ? 0.022 : months <= 36 ? 0.019 : months <= 48 ? 0.017 : 0.015;
-  // Ajustement km
-  const kmAdjust = annualKm > 15000 ? (annualKm - 15000) * 0.002 / 12 : 0;
-  // Services entretien/assurance ~80€/mois
-  const servicesAmount = services ? 80 : 0;
-  // L'apport réduit la base financée
-  const financedBase = Math.max(amount - apport, 0);
-
-  const monthly = useMemo(
-    () => Math.round(financedBase * baseCoeff + kmAdjust + servicesAmount),
-    [financedBase, baseCoeff, kmAdjust, servicesAmount],
+  const { monthly, firstPayment, total } = useMemo(
+    () => leasingBreakdown({ amount, months, annualKm, services, apport, firstPaymentMarkup }),
+    [amount, months, annualKm, services, apport, firstPaymentMarkup],
   );
-  const firstPayment = Math.round(monthly * (1 + firstPaymentMarkup / 100));
-  const total = apport + firstPayment + monthly * (months - 1);
 
   return (
     <div className="space-y-6">

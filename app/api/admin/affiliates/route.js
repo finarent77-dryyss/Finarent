@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * GET /api/admin/affiliates
@@ -68,7 +69,9 @@ export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
   const name = String(body.name || '').trim();
   const email = String(body.email || '').trim().toLowerCase();
   if (!name || !email) {
@@ -110,11 +113,10 @@ export async function POST(request) {
     });
     return NextResponse.json(affiliate, { status: 201 });
   } catch (err) {
-    if (err.code === 'P2002') {
-      return NextResponse.json({ error: 'Email ou code déjà utilisé' }, { status: 409 });
-    }
-    console.error('POST /api/admin/affiliates error:', err);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/admin/affiliates',
+      conflit: 'Email ou code déjà utilisé',
+    });
   }
 }
 

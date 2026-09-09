@@ -17,9 +17,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "next lint",
-    "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate"
+    "lint": "eslint .",
+    "db:migrate": "node scripts/prisma-securise.mjs migrate dev",
+    "db:generate": "prisma generate",
+    "db:deploy": "node scripts/prisma-securise.mjs migrate deploy",
+    "db:push": "node scripts/prisma-securise.mjs db push",
+    "db:studio": "node scripts/prisma-securise.mjs studio"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",

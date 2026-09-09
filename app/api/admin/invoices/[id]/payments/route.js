@@ -18,6 +18,22 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: 'Méthode requise' }, { status: 400 });
   }
 
+  // Contrôles préalables hors transaction : une facture absente ou encore en
+  // brouillon doit donner un 404 / 400 lisible, pas une exception levée au
+  // milieu de la transaction (que Next rend en 500 générique).
+  const existante = await prisma.invoice.findUnique({
+    where: { id },
+    select: { id: true, status: true },
+  });
+  if (!existante) {
+    return NextResponse.json({ error: 'Facture introuvable' }, { status: 404 });
+  }
+  if (existante.status === 'DRAFT') {
+    return NextResponse.json({
+      error: 'Facture encore en brouillon : émettez-la avant d\'enregistrer un versement.',
+    }, { status: 400 });
+  }
+
   // Création + recalcul status en transaction
   const result = await prisma.$transaction(async (tx) => {
     const invoice = await tx.invoice.findUnique({

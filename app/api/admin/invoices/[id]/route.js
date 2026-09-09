@@ -1,6 +1,19 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { reveal } from '@/lib/sensitive';
+import {
+  avecNumeroUnique,
+  estNumeroProvisoire,
+  nextInvoiceNumber,
+} from '@/lib/invoicing/numbering';
+import {
+  champsIdentiteFiges,
+  statutVautEmission,
+  verifierTransitionFacture,
+} from '@/lib/invoicing/statuses';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
+import { desactiverLienPaiement } from '../liens-paiement';
 
 export async function GET(request, { params }) {
   const auth = await requireAdmin();
@@ -19,7 +32,14 @@ export async function GET(request, { params }) {
   });
 
   if (!invoice) return NextResponse.json({ error: 'Facture introuvable' }, { status: 404 });
-  return NextResponse.json(invoice);
+
+  // `InvoicePayment.reference` est chiffrée à l'écriture (numéro de chèque,
+  // identifiant de virement). Sans ce déchiffrement, l'écran affichait le
+  // cryptogramme « v1:… » dès le premier rechargement de la page.
+  return NextResponse.json({
+    ...invoice,
+    payments: reveal('InvoicePayment', invoice.payments),
+  });
 }
 
 export async function PATCH(request, { params }) {
@@ -27,6 +47,9 @@ export async function PATCH(request, { params }) {
   if (isAuthError(auth)) return auth;
   const { id } = await params;
   const body = await request.json();
+
+  const facture = await prisma.invoice.findUnique({ where: { id } });
+  if (!facture) return NextResponse.json({ error: 'Facture introuvable' }, { status: 404 });
 
   // Champs autorisés en update
   const allowed = ['status', 'clientName', 'clientEmail', 'clientPhone', 'clientAddress',
@@ -39,12 +62,45 @@ export async function PATCH(request, { params }) {
   if (data.dueDate) data.dueDate = new Date(data.dueDate);
   if (data.sentAt) data.sentAt = new Date(data.sentAt);
 
-  const invoice = await prisma.invoice.update({
-    where: { id },
-    data,
-    include: { lines: true, payments: true },
+  // Le statut n'est plus recopié tel quel : sans ce contrôle, un simple
+  // {"status":"PAID"} soldait une facture n'ayant rien encaissé.
+  if ('status' in data) {
+    const verdict = verifierTransitionFacture(facture, data.status);
+    if (!verdict.ok) return NextResponse.json({ error: verdict.message }, { status: 400 });
+  }
+
+  // Une facture émise est une pièce comptable transmise : ses mentions
+  // d'identité ne se réécrivent pas, elles se corrigent par un avoir.
+  const figes = champsIdentiteFiges(facture, body);
+  if (figes.length) {
+    return NextResponse.json({
+      error: `Facture déjà émise : ${figes.join(', ')} ne peuvent plus être modifiés. Émettez un avoir puis une nouvelle facture.`,
+    }, { status: 400 });
+  }
+
+  // Passage du brouillon à l'émission : c'est ici, et seulement ici, que la
+  // facture consomme un numéro de la séquence comptable. Annuler un brouillon
+  // n'en consomme aucun.
+  const doitNumeroter = statutVautEmission(data.status)
+    && estNumeroProvisoire(facture.invoiceNumber);
+
+  // La date d'émission est celle de l'émission réelle, pas celle du brouillon.
+  if (doitNumeroter) data.issueDate = new Date();
+
+  const invoice = await avecNumeroUnique({
+    champ: 'invoiceNumber',
+    generer: () => (doitNumeroter ? nextInvoiceNumber() : null),
+    ecrire: (numero) => prisma.invoice.update({
+      where: { id },
+      data: numero ? { ...data, invoiceNumber: numero } : data,
+      include: { lines: true, payments: true },
+    }),
   });
-  return NextResponse.json(invoice);
+
+  return NextResponse.json({
+    ...invoice,
+    payments: reveal('InvoicePayment', invoice.payments),
+  });
 }
 
 export async function DELETE(request, { params }) {
@@ -57,6 +113,8 @@ export async function DELETE(request, { params }) {
   if (inv.status !== 'DRAFT') {
     return NextResponse.json({ error: 'Seules les factures en brouillon peuvent être supprimées' }, { status: 400 });
   }
+  // Un brouillon ne porte qu'un numéro de travail (« BROUILLON-… ») : sa
+  // suppression ne creuse aucun trou dans la séquence FAC-AAAA-NNNN.
   await prisma.invoice.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

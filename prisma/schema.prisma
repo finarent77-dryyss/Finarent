@@ -439,6 +439,28 @@ model InvoicePayment {
   @@index([paidAt])
 }
 
+// Journal des événements Stripe déjà traités.
+//
+// Stripe garantit une livraison « au moins une fois » et rejoue chaque
+// événement sur timeout ou sur réponse 5xx. Sans trace du passage, un rejeu de
+// `checkout.session.completed` créait un second InvoicePayment et doublait
+// `paidAmount` : une facture de 1 000 € finissait à 2 000 € encaissés et en
+// statut PAID sur un seul règlement réel.
+//
+// La clé primaire porte l'identifiant d'événement Stripe (evt_…) : la contrainte
+// d'unicité fait office de verrou de déduplication, écrite dans la même
+// transaction que le paiement — soit les deux, soit ni l'un ni l'autre.
+model StripeWebhookEvent {
+  id         String   @id // event.id Stripe
+  type       String
+  invoiceId  String?
+  amount     Float?
+  receivedAt DateTime @default(now())
+
+  @@index([receivedAt])
+  @@index([invoiceId])
+}
+
 model CreditNote {
   id               String   @id @default(cuid())
   creditNoteNumber String   @unique
@@ -1101,4 +1123,57 @@ model GeneratedDocument {
   @@index([invoiceId])
   @@index([quoteId])
   @@index([checksum])
+}
+
+// ─── LIMITATION DE DÉBIT PERSISTANTE ──────────────────────────
+// Constat P2-3 : le compteur vivait dans la mémoire du processus. Sur Clever
+// Cloud, chaque instance avait donc son propre quota (un attaquant multipliait
+// la limite par le nombre d'instances) et un redéploiement remettait tout à
+// zéro. Le compteur est désormais en base, partagé par toutes les instances.
+//
+// Fenêtre « fixe » alignée sur l'époque : windowStart = floor(now / windowMs)
+// * windowMs. C'est ce qui rend la clé déterministe, donc l'incrément atomique
+// (INSERT ... ON CONFLICT DO UPDATE ... RETURNING) possible sans transaction.
+//
+// Clé primaire composite (key, windowStart) : elle sert à la fois de contrainte
+// d'unicité pour le ON CONFLICT et d'index de lecture. Un @@index séparé sur
+// les deux mêmes colonnes ferait doublon.
+model RateLimitCounter {
+  key         String   // "<seau>|<identifiant client>" — ex. "financement|92.184.x.x"
+  windowStart DateTime // début de la fenêtre courante
+  count       Int      @default(0)
+  expiresAt   DateTime // fin de la fenêtre — sert à la purge par le cron sla-check
+  updatedAt   DateTime @default(now()) // renseigné explicitement par l'UPSERT SQL
+
+  @@id([key, windowStart])
+  @@index([expiresAt])
+}
+
+// ─── JOURNAL D'EXÉCUTION DES TÂCHES PLANIFIÉES ────────────────
+// Action A6. Le « -f » de curl fait échouer bruyamment une tâche qui répond en
+// erreur, mais une tâche qui ne se déclenche plus du tout ne produit aucun
+// échec : elle peut avoir disparu depuis des semaines sans alerte. Chaque
+// passage laisse donc une trace ici, succès comme échec, et
+// /api/admin/cron-status compare l'horodatage du dernier succès à la
+// périodicité attendue.
+
+enum CronRunStatus {
+  SUCCES
+  ECHEC
+}
+
+model CronRun {
+  id         String        @id @default(cuid())
+  job        String        // reminders | sla-check | affiliate-purge
+  status     CronRunStatus
+  startedAt  DateTime
+  finishedAt DateTime      @default(now())
+  durationMs Int
+  processed  Int           @default(0)  // nombre d'éléments effectivement traités
+  summary    String                     // résumé lisible du travail effectué
+  details    Json?                      // décompte détaillé, propre à chaque tâche
+  error      String?                    // message d'erreur si status = ECHEC
+
+  @@index([job, startedAt])
+  @@index([job, status, startedAt])
 }

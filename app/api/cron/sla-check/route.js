@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isCronAuthorized } from '@/lib/cron-auth';
+import { executerCron } from '@/lib/cron-run';
+import { purgerCompteursExpires } from '@/lib/rateLimit';
 
 const HOURS = (h) => h * 60 * 60 * 1000;
 
@@ -12,6 +14,12 @@ const HOURS = (h) => h * 60 * 60 * 1000;
  *
  * Déduplication : pas d'alerte si une alerte identique a été créée
  * dans les 24h précédentes pour la même application et le même niveau.
+ *
+ * Cette tâche porte aussi la purge des fenêtres de limitation de débit
+ * expirées (constat P2-3) : c'est le cron le plus fréquent (toutes les
+ * 2 heures), donc celui dont la cadence colle le mieux à des fenêtres d'une
+ * heure. Purger ici plutôt qu'à chaque requête évite d'ajouter un DELETE au
+ * chemin critique des formulaires publics.
  */
 async function hasRecentAlert(applicationId, level, windowMs) {
   const since = new Date(Date.now() - windowMs);
@@ -41,7 +49,8 @@ export async function GET(request) {
   if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
-  try {
+
+  return executerCron('sla-check', async () => {
     const now = new Date();
     const dedupeWindow = HOURS(24);
 
@@ -96,15 +105,32 @@ export async function GET(request) {
       l3Count++;
     }
 
-    return NextResponse.json({
-      success: true,
-      level1: l1Count,
-      level2: l2Count,
-      level3: l3Count,
-      executedAt: now.toISOString(),
-    });
-  } catch (error) {
-    console.error('[CRON] SLA check error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
+    // --- Entretien : fenêtres de limitation de débit expirées ---
+    // Best-effort : un échec de purge ne doit pas faire passer la surveillance
+    // des délais de traitement pour défaillante.
+    let purgedRateLimits = 0;
+    try {
+      purgedRateLimits = await purgerCompteursExpires(now);
+    } catch (erreur) {
+      console.error('[CRON] Purge des compteurs de débit impossible :', erreur?.message || erreur);
+    }
+
+    return {
+      traites: l1Count + l2Count + l3Count,
+      resume: `${l1Count} alerte(s) N1, ${l2Count} N2, ${l3Count} N3 ; `
+        + `${purgedRateLimits} compteur(s) de débit purgé(s)`,
+      details: {
+        level1: l1Count,
+        level2: l2Count,
+        level3: l3Count,
+        purgedRateLimits,
+      },
+      payload: {
+        level1: l1Count,
+        level2: l2Count,
+        level3: l3Count,
+        purgedRateLimits,
+      },
+    };
+  });
 }

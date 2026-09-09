@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * PATCH /api/admin/affiliates/commissions/[id]
@@ -11,8 +12,10 @@ export async function PATCH(request, { params }) {
   if (isAuthError(auth)) return auth;
 
   const { id } = await params;
-  const body = await request.json();
-  const status = body?.status;
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
+  const status = body.status;
 
   if (!['PENDING', 'VALIDATED', 'PAID', 'CANCELLED'].includes(status)) {
     return NextResponse.json({ error: 'Statut invalide' }, { status: 400 });
@@ -23,10 +26,16 @@ export async function PATCH(request, { params }) {
   if (status === 'PAID') data.paidAt = new Date();
   if (body.notes !== undefined) data.notes = body.notes ? String(body.notes).slice(0, 500) : null;
 
-  const commission = await prisma.affiliateCommission.update({
-    where: { id },
-    data,
-  });
-
-  return NextResponse.json(commission);
+  try {
+    const commission = await prisma.affiliateCommission.update({
+      where: { id },
+      data,
+    });
+    return NextResponse.json(commission);
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'PATCH /api/admin/affiliates/commissions/[id]',
+      introuvable: 'Commission introuvable',
+    });
+  }
 }

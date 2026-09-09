@@ -27,7 +27,7 @@ export async function POST(request, { params }) {
     // n'empeche pas de boucler sur des milliers d'adresses differentes :
     // sans quota par IP, le site sert de relais de spam et la reputation
     // du domaine d'envoi en pâtit.
-    if (!checkRateLimit(getClientIp(request), { bucket: 'invite', max: 10 }).allowed) {
+    if (!(await checkRateLimit(getClientIp(request), { bucket: 'invite', max: 10 })).allowed) {
       return NextResponse.json(
         { error: "Trop d'invitations envoyées. Réessayez plus tard." },
         { status: 429 },

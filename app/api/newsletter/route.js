@@ -37,7 +37,7 @@ function getClientIp(request) {
 export async function POST(request) {
   try {
     const ip = getClientIp(request);
-    if (!checkRateLimit(ip).allowed) {
+    if (!(await checkRateLimit(ip)).allowed) {
       return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 });
     }
 

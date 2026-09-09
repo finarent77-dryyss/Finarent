@@ -46,11 +46,14 @@ export default function AdminUsersClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role }),
       });
-      if (!res.ok) throw new Error();
-      const updated = await res.json();
-      setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updated } : u));
-    } catch {
-      alert('Erreur lors de la mise à jour');
+      const donnees = await res.json().catch(() => null);
+      // Le serveur refuse explicitement quand le rôle ne peut pas être propagé
+      // vers Auth0 (constat P1-8) : on affiche son message, jamais un succès
+      // optimiste — la promotion serait annulée à la navigation suivante.
+      if (!res.ok) throw new Error(donnees?.error || 'Erreur lors de la mise à jour');
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...donnees } : u));
+    } catch (erreur) {
+      alert(erreur.message || 'Erreur lors de la mise à jour');
     } finally {
       setUpdatingId(null);
     }

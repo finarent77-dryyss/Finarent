@@ -56,7 +56,8 @@ prisma/prisma/
 test-e2e-report.json
 
 .vercel
-bash.exe.stackdump
+# Vidages memoire produits par les outils POSIX sous Windows.
+*.stackdump
 
 # Aperçus de mailing générés localement (scripts/preview-emails.mjs)
 .email-preview/

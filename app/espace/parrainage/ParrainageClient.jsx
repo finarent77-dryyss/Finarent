@@ -16,24 +16,35 @@ const itemVariants = { hidden: { y: 15, opacity: 0 }, visible: { y: 0, opacity: 
 
 export default function ParrainageClient({ dbUser }) {
   const [referrals, setReferrals] = useState([]);
+  const [code, setCode] = useState(dbUser.referralCode || null);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [sending, setSending] = useState(false);
+  const [retour, setRetour] = useState(null);
   const [copied, setCopied] = useState(false);
   const { t } = useTranslation();
 
-  const referralLink = typeof window !== 'undefined'
-    ? `${window.location.origin}/espace?ref=${dbUser.referralCode || dbUser.id.slice(-6).toUpperCase()}`
+  // Le lien pointe vers l'accueil, pas vers /espace : un filleul n'a pas encore
+  // de compte, l'envoyer dans l'espace client le renvoie sur la connexion et le
+  // paramètre `?ref=` est perdu avant d'avoir été capté.
+  const referralLink = code && typeof window !== 'undefined'
+    ? `${window.location.origin}/?ref=${code}`
     : '';
 
   useEffect(() => {
-    fetch('/api/referrals').then(r => r.json()).then(data => {
-      if (Array.isArray(data)) setReferrals(data);
-    }).catch(() => {}).finally(() => setLoading(false));
+    fetch('/api/referrals')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data?.referrals)) setReferrals(data.referrals);
+        if (data?.code) setCode(data.code);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const handleCopy = () => {
+    if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -43,6 +54,7 @@ export default function ParrainageClient({ dbUser }) {
     e.preventDefault();
     if (!email) return;
     setSending(true);
+    setRetour(null);
     try {
       const res = await fetch('/api/referrals', {
         method: 'POST',
@@ -50,19 +62,35 @@ export default function ParrainageClient({ dbUser }) {
         body: JSON.stringify({ refereeEmail: email, refereeName: name }),
       });
       const data = await res.json();
-      if (data.id) {
-        setReferrals(prev => [data, ...prev]);
-        setEmail('');
-        setName('');
+
+      // L'échec était totalement muet : l'utilisateur croyait avoir invité
+      // quelqu'un alors que la requête avait été refusée.
+      if (!res.ok && !data?.id) {
+        setRetour({ ok: false, message: data?.error || 'L\'invitation n\'a pas pu être envoyée.' });
+        return;
       }
-    } catch {}
-    finally { setSending(false); }
+
+      setReferrals((prev) => [data, ...prev]);
+      setEmail('');
+      setName('');
+      setRetour(
+        data.envoye === false
+          ? { ok: false, message: data.error || 'Invitation enregistrée, mais l\'email n\'est pas parti.' }
+          : { ok: true, message: `Invitation envoyée à ${data.refereeEmail}.` },
+      );
+    } catch {
+      setRetour({ ok: false, message: 'Connexion impossible. Réessayez.' });
+    } finally {
+      setSending(false);
+    }
   };
 
   const stats = {
     total: referrals.length,
-    signedUp: referrals.filter(r => r.status === 'SIGNED_UP').length,
-    converted: referrals.filter(r => r.status === 'CONVERTED').length,
+    // Un filleul converti s'est forcément inscrit : l'exclure du compteur
+    // « inscrits » le faisait diminuer au moment où il devenait client.
+    signedUp: referrals.filter((r) => r.status === 'SIGNED_UP' || r.status === 'CONVERTED').length,
+    converted: referrals.filter((r) => r.status === 'CONVERTED').length,
   };
 
   return (
@@ -135,6 +163,12 @@ export default function ParrainageClient({ dbUser }) {
               {sending ? 'Envoi...' : 'Inviter'}
             </button>
           </form>
+          {retour && (
+            <p className={`mt-3 text-sm font-medium ${retour.ok ? 'text-emerald-600' : 'text-red-600'}`}>
+              <i className={`fa-solid ${retour.ok ? 'fa-circle-check' : 'fa-circle-exclamation'} mr-1.5`}></i>
+              {retour.message}
+            </p>
+          )}
         </motion.div>
 
         {/* Stats */}

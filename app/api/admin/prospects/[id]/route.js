@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 export async function GET(_request, { params }) {
   const auth = await requireAdmin();
@@ -24,7 +25,12 @@ export async function PATCH(request, { params }) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
+  // Liste inchangée : elle couvre les quatre appels de
+  // components/admin/AdminProspectsClient.jsx — { status }, { notes },
+  // { callCenterId, assignedAgentId } et { assignedAgentId }.
   const allowed = ['status', 'notes', 'assignedToId', 'email', 'phone', 'name', 'company', 'callCenterId', 'assignedAgentId'];
   const data = {};
   for (const k of allowed) if (body[k] !== undefined) data[k] = body[k];

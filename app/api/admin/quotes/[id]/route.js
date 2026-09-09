@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { verifierTransitionDevis } from '@/lib/invoicing/statuses';
 
 export async function GET(request, { params }) {
   const auth = await requireAdmin();
@@ -25,10 +26,21 @@ export async function PATCH(request, { params }) {
   const { id } = await params;
   const body = await request.json();
 
-  // Transitions de statut autorisées
+  const devis = await prisma.quote.findUnique({ where: { id } });
+  if (!devis) return NextResponse.json({ error: 'Devis introuvable' }, { status: 404 });
+
+  // Champs modifiables
   const allowed = ['status', 'sentAt', 'acceptedAt', 'refusedAt', 'refusalReason', 'notes', 'paymentTerms'];
   const data = {};
   for (const k of allowed) if (k in body) data[k] = body[k];
+
+  // La valeur du statut n'était jamais contrôlée : « BANANA » était stocké tel
+  // quel et créait une catégorie fantôme dans les filtres, et un devis refusé
+  // pouvait redevenir accepté.
+  if ('status' in data) {
+    const verdict = verifierTransitionDevis(devis, data.status);
+    if (!verdict.ok) return NextResponse.json({ error: verdict.message }, { status: 400 });
+  }
 
   if (body.status === 'SENT' && !data.sentAt) data.sentAt = new Date();
   if (body.status === 'ACCEPTED' && !data.acceptedAt) data.acceptedAt = new Date();

@@ -3,6 +3,7 @@ import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logAdminActivity } from '@/lib/admin-activity-log';
 import { encryptString, decryptString, maskIban } from '@/lib/crypto.js';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * GET /api/admin/call-centers
@@ -87,7 +88,9 @@ export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
   const name = String(body.name || '').trim();
   if (!name) {
     return NextResponse.json({ error: 'Nom du centre requis' }, { status: 400 });
@@ -145,10 +148,9 @@ export async function POST(request) {
     });
     return NextResponse.json(center, { status: 201 });
   } catch (err) {
-    if (err.code === 'P2002') {
-      return NextResponse.json({ error: 'Code centre déjà utilisé' }, { status: 409 });
-    }
-    console.error('POST /api/admin/call-centers error:', err);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/admin/call-centers',
+      conflit: 'Code centre déjà utilisé',
+    });
   }
 }

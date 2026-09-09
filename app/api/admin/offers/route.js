@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * GET /api/admin/offers
@@ -37,7 +38,9 @@ export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+
   const {
     applicationId,
     amount,
@@ -64,34 +67,43 @@ export async function POST(request) {
   const expiresAt = new Date(now);
   expiresAt.setDate(expiresAt.getDate() + days);
 
-  const offer = await prisma.offer.create({
-    data: {
-      applicationId,
-      amount: Number(amount),
-      durationMonths: Number(durationMonths),
-      monthlyPayment: Number(monthlyPayment),
-      rate: Number(rate),
-      totalCost: Number(totalCost),
-      partnerId: partnerId || null,
-      conditions: conditions || null,
-      status: 'SENT',
-      sentAt: now,
-      expiresAt,
-      createdBy: auth.dbUser.id,
-    },
-    include: {
-      application: {
-        select: {
-          id: true,
-          companyName: true,
-          productType: true,
-          amount: true,
-          user: { select: { id: true, name: true, email: true } },
-        },
+  try {
+    const offer = await prisma.offer.create({
+      data: {
+        applicationId,
+        amount: Number(amount),
+        durationMonths: Number(durationMonths),
+        monthlyPayment: Number(monthlyPayment),
+        rate: Number(rate),
+        totalCost: Number(totalCost),
+        partnerId: partnerId || null,
+        conditions: conditions || null,
+        status: 'SENT',
+        sentAt: now,
+        expiresAt,
+        createdBy: auth.dbUser.id,
       },
-      partner: { select: { id: true, name: true, type: true } },
-    },
-  });
+      include: {
+        application: {
+          select: {
+            id: true,
+            companyName: true,
+            productType: true,
+            amount: true,
+            user: { select: { id: true, name: true, email: true } },
+          },
+        },
+        partner: { select: { id: true, name: true, type: true } },
+      },
+    });
 
-  return NextResponse.json(offer, { status: 201 });
+    return NextResponse.json(offer, { status: 201 });
+  } catch (err) {
+    // `partnerId` n'est pas vérifié en amont, contrairement à `applicationId` :
+    // une référence inconnue remontait ici sans être attrapée.
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/admin/offers',
+      introuvable: 'Demande ou partenaire introuvable',
+    });
+  }
 }

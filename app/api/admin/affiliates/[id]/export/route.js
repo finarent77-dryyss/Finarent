@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { echapperCelluleCsv, ligneCsv, nettoyerNomFichier } from '@/lib/csv.js';
 
 /**
  * GET /api/admin/affiliates/[id]/export
@@ -42,42 +43,46 @@ export async function GET(request, { params }) {
 
   const sections = [];
 
-  // Header
-  sections.push(`# Export Finarent — Affilié: ${affiliate.name} (${affiliate.code})`);
-  sections.push(`# Email: ${affiliate.email}`);
+  // Header — les lignes de commentaire sont préfixées par « # », donc jamais
+  // interprétées comme des formules ; l'échappement sert ici à empêcher qu'un
+  // nom contenant un saut de ligne ou un guillemet ne disloque le fichier.
+  sections.push(
+    `# Export Finarent — Affilié: ${echapperCelluleCsv(affiliate.name)} (${echapperCelluleCsv(affiliate.code)})`,
+  );
+  sections.push(`# Email: ${echapperCelluleCsv(affiliate.email)}`);
   sections.push(`# Exporté le: ${new Date().toISOString()}`);
   sections.push('');
 
   // Clics
   sections.push('## CLICS');
-  sections.push('date,landingPath,referer,ip,userAgent');
+  sections.push(ligneCsv(['date', 'landingPath', 'referer', 'ip', 'userAgent']));
   for (const c of clicks) {
-    sections.push(csvRow([c.createdAt.toISOString(), c.landingPath, c.referer, c.ip, c.userAgent]));
+    sections.push(ligneCsv([c.createdAt.toISOString(), c.landingPath, c.referer, c.ip, c.userAgent]));
   }
   sections.push('');
 
   // Leads
   sections.push('## LEADS');
-  sections.push('date,name,email,company,status');
+  sections.push(ligneCsv(['date', 'name', 'email', 'company', 'status']));
   for (const p of prospects) {
-    sections.push(csvRow([p.createdAt.toISOString(), p.name, p.email, p.company, p.status]));
+    sections.push(ligneCsv([p.createdAt.toISOString(), p.name, p.email, p.company, p.status]));
   }
   sections.push('');
 
   // Dossiers
   sections.push('## DOSSIERS');
-  sections.push('date,companyName,productType,amount,status');
+  sections.push(ligneCsv(['date', 'companyName', 'productType', 'amount', 'status']));
   for (const a of applications) {
-    sections.push(csvRow([a.createdAt.toISOString(), a.companyName, a.productType, a.amount, a.status]));
+    sections.push(ligneCsv([a.createdAt.toISOString(), a.companyName, a.productType, a.amount, a.status]));
   }
   sections.push('');
 
   // Commissions
   sections.push('## COMMISSIONS');
-  sections.push('date,dossier,type,taux,montant,statut,paidAt');
+  sections.push(ligneCsv(['date', 'dossier', 'type', 'taux', 'montant', 'statut', 'paidAt']));
   for (const c of commissions) {
     sections.push(
-      csvRow([
+      ligneCsv([
         c.createdAt.toISOString(),
         c.application?.companyName,
         c.type,
@@ -92,15 +97,15 @@ export async function GET(request, { params }) {
 
   // Invitations
   sections.push('## INVITATIONS');
-  sections.push('date,email,name,source,status,failedReason');
+  sections.push(ligneCsv(['date', 'email', 'name', 'source', 'status', 'failedReason']));
   for (const i of invites) {
     sections.push(
-      csvRow([i.sentAt.toISOString(), i.recipientEmail, i.recipientName, i.source, i.status, i.failedReason]),
+      ligneCsv([i.sentAt.toISOString(), i.recipientEmail, i.recipientName, i.source, i.status, i.failedReason]),
     );
   }
 
   const csv = sections.join('\n');
-  const filename = `finarent-affiliate-${affiliate.code}-${new Date().toISOString().slice(0, 10)}.csv`;
+  const filename = `finarent-affiliate-${nettoyerNomFichier(affiliate.code, 'affilie')}-${new Date().toISOString().slice(0, 10)}.csv`;
 
   return new NextResponse(csv, {
     headers: {
@@ -108,18 +113,4 @@ export async function GET(request, { params }) {
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
   });
-}
-
-function csvRow(values) {
-  return values.map(csvCell).join(',');
-}
-
-function csvCell(v) {
-  if (v === null || v === undefined) return '';
-  const s = String(v);
-  // Échapper guillemets + entourer si contient virgule, guillemet ou retour ligne
-  if (/[",\n;]/.test(s)) {
-    return `"${s.replace(/"/g, '""')}"`;
-  }
-  return s;
 }

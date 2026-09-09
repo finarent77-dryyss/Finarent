@@ -1,19 +1,29 @@
-# 📘 Finarent — Project Handoff (pour Claude Code Desktop)
+# 📘 Finarent — Project Handoff
 
-> **Document complet pour reprendre le projet de zéro.** Lecture intégrale recommandée avant toute modification.
-> Dernière mise à jour : avril 2026.
+> **Document historique, rédigé en avril 2026 et corrigé le 9 septembre 2026.**
+>
+> Pour démarrer sur le projet, lire **`README.md`** : c'est lui qui fait foi sur
+> la pile, l'installation locale, les rôles, les scripts et l'hébergement.
+> Ce document-ci garde son intérêt sur ce que le README ne couvre pas : le
+> détail du modèle de données, l'inventaire des endpoints, les conventions de
+> code et l'historique des choix. Les parties qui décrivaient un déploiement
+> Vercel, un stockage Supabase ou un rebrand en cours ont été corrigées —
+> plusieurs sont désormais redondantes avec le README.
+>
+> L'état réel de la dette et des chantiers en cours se lit dans
+> `docs/AUDIT_2026-09.md` et `docs/PLAN_CORRECTION_2026-09.md`.
 
 ---
 
 ## 1. Identité du projet
 
-**Finarent** (anciennement **Finarent**) est une plateforme web de courtage en financement et assurance professionnels.
+**Finarent** est une plateforme web de courtage en financement et assurance professionnels.
 
 - **Mission** : permettre aux entreprises (TPE/PME) de simuler, déposer, et suivre leurs demandes de financement (crédit-bail, LOA, LLD, prêt pro, leasing opérationnel) ou d'assurance RC Pro.
 - **Rôle** : courtier intermédiaire entre clients et partenaires bancaires/assureurs (réseau de 30+ partenaires visé).
 - **Régulation** : COBSP (Courtier en Opérations de Banque) + COA (Courtier en Assurance), immatriculation ORIAS requise.
 - **Owner** : `andrys972@gmail.com` (compte admin).
-- **Statut** : MVP fonctionnel à 95% de la spec v1.0, en cours de rebrand `Finarent → Finarent` (mi-finalisé) et de préparation au déploiement Vercel.
+- **Statut (septembre 2026)** : en production sur **Clever Cloud**, domaine `finarent.com`. Le rebrand est terminé côté code ; il ne subsiste que le claim de rôle historique `https://finassur/role`, accepté en repli le temps que l'Action Auth0 soit migrée.
 
 ---
 
@@ -25,11 +35,11 @@
 | React | React | 18.3.1 | + react-dom 18.3.1 |
 | Styling | Tailwind CSS | v4 | `@tailwindcss/postcss` ; classes legacy `bg-gradient-to-*` toujours valides |
 | Animations | Framer Motion | 12.23 | Utilisé partout pour les entrées/scroll reveal |
-| Auth | Auth0 | `@auth0/nextjs-auth0` 3.5 | Custom claim `https://finarent/role` (à migrer vers `https://finarent/role`) |
+| Auth | Auth0 | `@auth0/nextjs-auth0` 3.5 | Custom claim `https://finarent/role` ; l'ancien `https://finassur/role` reste accepté en repli |
 | ORM | Prisma | 5.22 | Postgres |
-| BDD | PostgreSQL | local 5432 (`finarent` DB) | Schema v3.0 |
-| Storage fichiers | Supabase Storage | adapter avec fallback local `/private/uploads` | `lib/storage.js` |
-| Email | Nodemailer SMTP | 6.9 | 2 templates : confirmation client + alerte admin |
+| BDD | PostgreSQL | 15 — local `localhost:5433` via `docker-compose.yml` | Addon Clever Cloud en production |
+| Storage fichiers | **Cellar (S3, Clever Cloud)** | `@aws-sdk/client-s3`, repli local `/private/uploads` | `lib/storage.js`. Supabase a été abandonné, plus aucune référence dans le code |
+| Email | **API Brevo**, repli SMTP (nodemailer 10) | — | Gabarits dans `lib/email/` ; `scripts/preview-emails.mjs` pour le rendu sans envoi |
 | SMS | Twilio | 5.13 | 6 triggers (fallback console si pas de credentials) |
 | Signature | YouSign API v3 | — | `lib/yousign.js` |
 | Monitoring | Sentry | 10.49 (`@sentry/nextjs`) | Client + server + edge |
@@ -45,8 +55,12 @@
 
 ## 3. Structure des dossiers
 
+> L'arborescence ci-dessous date d'avril 2026 : elle donne la logique de rangement,
+> pas l'inventaire exact. Le dépôt a beaucoup grossi depuis (centre d'appels,
+> affiliation, devis et factures, documents générés). Version à jour : `README.md` § 4.
+
 ```
-c:/Users/andry/Bureau/finarent/
+finarent/                         # le dossier local porte encore l'ancien nom
 ├── app/                          # Next.js App Router
 │   ├── (public pages)            # /, /about, /solutions, /sectors, /blog, /faq, etc.
 │   ├── admin/                    # Espace admin (layout protégé Auth0)
@@ -63,11 +77,11 @@ c:/Users/andry/Bureau/finarent/
 │   │   └── page.jsx              # Dashboard avec ActiveFileTimeline + savings
 │   ├── partner/                  # Espace partenaire (banque/leasing)
 │   ├── insurer/                  # Espace assureur (RC Pro)
-│   └── api/                      # 50+ endpoints Next.js Route Handlers
+│   └── api/                      # une centaine de Route Handlers
 │       ├── admin/                # CRUD admin (demandes, users, partners, stats, etc.)
 │       ├── applications/         # CRUD demandes côté client
 │       ├── auth/[...auth0]/      # Auth0 handler
-│       ├── cron/                 # reminders + sla-check
+│       ├── cron/                 # reminders + sla-check + affiliate-purge
 │       ├── notifications/        # NEW — feed pour cloche header
 │       ├── testimonials/         # NEW — public + modération
 │       └── ... (offers, documents, messages, profile, siret, faq, etc.)
@@ -89,7 +103,9 @@ c:/Users/andry/Bureau/finarent/
 │   ├── email.js                  # sendConfirmationDemande, sendAlerteAdmin
 │   ├── sms.js                    # 6 triggers Twilio
 │   ├── yousign.js                # API signature eIDAS
-│   ├── storage.js                # Adapter Supabase + fallback local
+│   ├── storage.js                # Adapter Cellar S3 + fallback local
+│   ├── crypto.js                 # Chiffrement AES-256-GCM (IBAN, pièces d'identité)
+│   ├── auth0-management.js       # Management API : propagation du rôle vers Auth0
 │   ├── scoring.js                # Pré-scoring 0-100
 │   ├── webhooks.js               # Webhooks partenaires
 │   └── statusMap.js              # Mapping enum Prisma ↔ statuts français legacy
@@ -97,35 +113,41 @@ c:/Users/andry/Bureau/finarent/
 │   ├── fr.json                   # 1600+ clés (source de vérité, locale par défaut)
 │   └── en.json                   # Ne sera plus servi (lang locked fr) mais conservé
 ├── prisma/
-│   ├── schema.prisma             # 13 modèles (User, Application, Offer, Testimonial, etc.)
-│   ├── migrations/               # 3 migrations
-│   │   ├── 20260226120000_init_v2/
-│   │   ├── 20260418120000_offers_scoring_sla/
-│   │   └── 20260425120000_testimonials/   # NEW
-│   └── dev.db                    # SQLite legacy (non utilisé — pg sur localhost:5432)
+│   ├── schema.prisma             # modèles (le § 4 ci-dessous n'en liste que les 13 d'avril 2026)
+│   ├── migrations/               # 13 migrations, de 20260226120000_init_v2 à
+│   │                             #   20260909160000_rate_limit_cron_run
+│   └── dev.db                    # SQLite legacy — vestige, plus utilisé (voir docker-compose.yml)
 ├── public/
 │   ├── finarent-logo.jpg         # Logo officiel (URL-safe)
+│   ├── finarent-logo.svg         # Logo vectoriel
 │   ├── finarent logo.jpg         # Original avec espace dans le nom (à supprimer)
-│   ├── Finarents_logo.jpeg       # Ancien logo (à supprimer après vérification)
 │   ├── hero_business_team_premium_v2_*.png
-│   ├── solutions_leasing_concepts_*.png
-│   └── uploads/                  # Fichiers utilisateurs (fallback local quand Supabase off)
-├── scripts/
-│   ├── build.js                  # Build legacy Clever Cloud (standalone + assets copy)
-│   ├── start.js                  # Start legacy Clever Cloud
+│   └── solutions_leasing_concepts_*.png
+├── private/uploads/              # Fichiers utilisateurs — repli local quand Cellar est absent
+├── scripts/                      # Voir README.md § 5 pour la liste complète
+│   ├── _guard.js                 # Garde anti-production, appelée par tous les scripts d'écriture
+│   ├── build.js / start.js       # Build et démarrage Clever Cloud (standalone)
+│   ├── seed-demo.js              # Jeu de démonstration
 │   └── promote-admin.js          # Promote un user en ADMIN (ESM-compat)
+├── tests/unit/                   # Tests Vitest (chiffrement, scoring, simulateurs, SEPA…)
+├── clevercloud/                  # build.sh, cron.json, README de déploiement
 ├── assets/data/                  # Données statiques (sectors, solutions, testimonials, blog, assurance)
-├── templates/                    # Pages HTML legacy (issues de la maquette initiale)
+├── docker-compose.yml            # PostgreSQL 15 local, publié sur le port 5433
 ├── middleware.ts                 # Auth0 middleware
-├── next.config.js                # `output: 'standalone'` retiré pour Vercel
-├── package.json                  # Scripts adaptés Vercel (build = prisma generate + migrate deploy + next build)
-├── vercel.json                   # 2 crons compatibles Hobby plan
+├── next.config.js                # `output: 'standalone'` pour Clever Cloud
+├── package.json                  # build = prisma generate + next build ; build:standalone pour la prod
 └── .env / .env.example           # Variables d'environnement
 ```
 
 ---
 
 ## 4. Modèle de données (Prisma v3.0)
+
+> État d'avril 2026 : **13 modèles décrits, 40 dans le schéma actuel.** Les 27 autres
+> couvrent la facturation (devis, factures, lignes, versements, avoirs), l'affiliation
+> (affiliés, invitations, commissions, statut fiscal), les centres d'appels (centres,
+> membres, interactions, prospects), le journal des emails, les documents générés,
+> les demandes de signature et le registre RGPD. **`prisma/schema.prisma` fait foi.**
 
 ### Enums
 
@@ -159,6 +181,11 @@ c:/Users/andry/Bureau/finarent/
 
 ## 5. Rôles & espaces
 
+> Trois profils se sont ajoutés depuis : **manager** et **agent** de centre
+> d'appels (`/call-center`, rôle porté par `CallCenterMember`, pas par
+> `User.role`) et **apporteur d'affaires** (`/affiliate/[code]`, accès par code,
+> sans compte Auth0). Tableau complet des sept profils : `README.md` § 3.
+
 | Rôle | Route racine | Layout protégé | Sidebar | Fonctionnalités |
 |------|--------------|----------------|---------|----------------|
 | **CLIENT** (défaut) | `/espace` | Auth0 + `syncUser` | — (header global) | Dashboard avec timeline dossier actif, stat cards, dossiers list (tabs), upload docs, parrainage, profil, sécurité, messagerie. Sidebar : profile completion + advisor card + recent activity + savings card. |
@@ -167,12 +194,19 @@ c:/Users/andry/Bureau/finarent/
 | **INSURER** | `/insurer` | `requireInsurer()` | Pas de sidebar dédiée | Dashboard RC Pro : stats, funnel souscription, top secteurs (segmentation risque), tendance mensuelle, applications, prime moyenne. |
 
 ### Auth0 claim
-- Custom claim attendu : `https://finarent/role` (à migrer vers `https://finarent/role` côté Auth0 dashboard ET dans `middleware.ts`, `lib/auth.ts`, `lib/users.js`).
+- Custom claim attendu : `https://finarent/role`. L'ancien namespace `https://finassur/role` reste accepté en repli dans `middleware.ts`, `lib/auth.ts` et `lib/users.js` : à retirer une fois l'Action Auth0 migrée, et **pas avant** — sinon les sessions actives portant l'ancien claim perdent leurs droits (constat `P2-4`).
 - Promotion admin manuelle : `node scripts/promote-admin.js <email>`.
+- **Le claim est la source de vérité du rôle**, pas la base : `syncUser()` réécrit `User.role` depuis le claim à chaque appel (constat `P1-8`).
 
 ---
 
-## 6. API endpoints (50+)
+## 6. API endpoints
+
+> Inventaire d'avril 2026. Le dépôt en compte aujourd'hui **une centaine** : s'y ajoutent
+> notamment `/api/admin/quotes`, `/api/admin/invoices`, `/api/admin/affiliates`,
+> `/api/admin/call-centers`, `/api/admin/prospects`, `/api/webhooks/*`
+> (Brevo, Stripe, Ringover) et `/api/cron/affiliate-purge`. La liste exhaustive
+> se lit dans `app/api/`.
 
 ### Public
 - `GET /api/faq` — FAQ active publique
@@ -222,6 +256,7 @@ c:/Users/andry/Bureau/finarent/
 ### Cron (sécurisés via `CRON_SECRET` Bearer)
 - `GET /api/cron/reminders` — Relances DOCUMENTS_NEEDED >7j et PENDING >3j (déduplication 7j/3j)
 - `GET /api/cron/sla-check` — Alertes SLA L1 (4h), L2 (24h), L3 (48h) avec dédup 24h
+- `GET /api/cron/affiliate-purge` — Purge RGPD des clics d'affiliation de plus de 13 mois
 
 ---
 
@@ -231,7 +266,7 @@ c:/Users/andry/Bureau/finarent/
 |-------|------|-------|
 | `/` | ✅ Complet | Hero, stats, secteurs, témoignages, CTA |
 | `/contact` | ✅ Complet | Formulaire 5 étapes connecté à `/api/financement` |
-| `/simulator` | ⚠️ Calcul client uniquement, pas de save BDD | À enrichir |
+| `/simulateurs/[category]` | ✅ Remplace `/simulator`, redirigé en 301 dans `next.config.js` | L'ancien composant a été supprimé (constat `P2-2`) |
 | `/comparateur` | ✅ Slider comparateur 4 produits | |
 | `/solutions` + `/solutions/[id]` | ✅ 6 solutions détaillées | |
 | `/sectors` + `/sectors/[id]` | ✅ 8 secteurs (BTP, Médical, IT, Transport, Industrie, Commerce, Restauration, Services) | |
@@ -249,7 +284,7 @@ c:/Users/andry/Bureau/finarent/
 ### Logo
 - Officiel : `public/finarent-logo.jpg` (URL-safe, à utiliser partout)
 - Fichier original : `public/finarent logo.jpg` (espace dans le nom — éviter)
-- Ancien : `public/Finarents_logo.jpeg` (à supprimer après vérification)
+- Vectoriels : `public/finarent-logo.svg` et `public/finarent-pastille.svg`
 
 ### Charte couleurs (Tailwind tokens, via `app/globals.css`)
 - `primary` (bleu nuit)
@@ -265,46 +300,31 @@ c:/Users/andry/Bureau/finarent/
 
 ---
 
-## 9. État du rebrand Finarent → Finarent (CRITIQUE)
+## 9. Rebrand — état au 9 septembre 2026
 
-> **Le rebrand est mi-finalisé. Lire ATTENTIVEMENT avant toute modif sensible.**
+> Cette section décrivait un rebrand vers `Finarent` en cours. **Il est terminé côté code.**
 
-### ✅ Déjà fait
-- Logo `public/finarent-logo.jpg` créé
-- Logo référencé dans : `Header.jsx`, `Footer.jsx`, `FirstVisitSplash.jsx`, `EspaceLoginClient.jsx`, `DashboardClient.jsx`, `ProfileClient.jsx`
-- LanguageSwitcher retiré du Header
-- `lib/i18n.jsx` verrouillé sur `'fr'` (locale ne change plus, EN n'est plus servi)
-- "Made with ❤️ in Paris" supprimé du Footer
-- **`messages/fr.json` et `messages/en.json`** : bulk replace `Finarent → Finarent` et `finarent → finarent` complété (0 occurrence restante). Email = `contact@finarent.fr`, copyright = `© 2026 Finarent`, etc.
-- `vercel.json` corrigé pour plan Hobby (sla-check passé en `0 10 * * *`)
+### Fait
 
-### ❌ Pas encore fait (90+ fichiers concernés)
-- **Code source** : il reste des occurrences `Finarent` en dur dans plein de composants : `Header.jsx`, `Footer.jsx` (pas tout), `FirstVisitSplash.jsx`, `EspaceLoginClient.jsx`, `app/admin/*`, `app/partner/*`, `app/insurer/*`, `lib/email.js`, `lib/yousign.js`, etc. → un `grep -r "Finarent"` montre tout.
-- **Auth0 claim** : `https://finarent/role` dans `middleware.ts`, `lib/auth.ts`, `lib/users.js` — à migrer vers `https://finarent/role`. **Nécessite aussi de modifier la Rule/Action sur le Auth0 Dashboard**, sinon les sessions seront cassées.
-- **Emails / domaine** : SMTP_FROM est `noreply@finarent.fr` dans `.env` — à passer à `noreply@finarent.fr` côté infra.
-- **GitHub repo** : actuellement `slformation-dryyss/finarent` — à renommer.
-- **Domaine prod** : `finarent.fr` → `finarent.fr` (à acheter/migrer + DNS + 301 redirect).
-- **Templates HTML legacy** dans `templates/` — pas critique, c'est de la spec d'origine.
-- **Docs MD** : `RENAME_TO_FINARET.md`, `CAHIER_DES_CHARGES.md`, `COMPARATIF_SPEC_VS_REEL.md`, `PROJECT_STATUS.md` — historique, à nettoyer plus tard.
-- **`.claude/settings*.json`** : contiennent `finarent` dans les permissions — pas critique.
+- Plus aucune occurrence de l'ancien nom dans `app/`, `components/`, `lib/`, `messages/`,
+  `scripts/`, `public/` ni dans le schéma Prisma — hors le claim historique ci-dessous.
+- Logo `public/finarent-logo.jpg` (et `finarent-logo.svg`) utilisé partout ; l'ancien logo a été supprimé.
+- Interface verrouillée sur `fr` (`lib/i18n.jsx`), LanguageSwitcher retiré.
+- Domaine canonique de production : **`finarent.com`**.
 
-### Stratégie recommandée pour finir le rebrand
-```bash
-# 1. Bulk replace dans le code source (préserver casses, exclure prudemment)
-find . \
-  -type d \( -name node_modules -o -name .next -o -name .git -o -name dist -o -name templates -o -name migrations \) -prune \
-  -o -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.css" \) -not -name "package-lock.json" -print | xargs sed -i 's/Finarent/Finarent/g; s/finarent/finarent/g'
+### Ce qui reste, volontairement
 
-# 2. Vérifier qu'il ne reste rien
-grep -rni "finarent" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=templates --exclude-dir=migrations
-
-# 3. Auth0 claim — manuel : ajouter une nouvelle Action côté Dashboard qui mappe les deux claims pour ne pas casser les sessions existantes pendant la transition
-```
+- **Le claim de rôle `https://finassur/role`**, accepté en repli dans `middleware.ts`,
+  `lib/auth.ts` et `lib/users.js`. Il ne se retire qu'après migration de l'Action Auth0 ET
+  vérification qu'aucun jeton actif ne le porte encore : retiré trop tôt, il déconnecte les
+  sessions en cours (constat `P2-4`, action 3.5 du plan de correction).
+- **Le dossier local du dépôt porte encore l'ancien nom** (`Bureau/finassur`). C'est sans
+  conséquence : ne pas le renommer, plusieurs chemins absolus y font référence.
 
 ### Pièges à éviter
-- **NE PAS** renommer la base Postgres `finarent → finarent` sans synchroniser `DATABASE_URL`. C'est optionnel.
-- **NE PAS** toucher aux migrations Prisma (`prisma/migrations/*.sql`) — elles contiennent `finarent` dans les commentaires mais c'est ininfluent.
-- **NE PAS** supprimer `Finarents_logo.jpeg` tant que tout le code ne le référence plus (vérifier : `grep -r "Finarents_logo" .`).
+
+- **NE PAS** toucher aux migrations Prisma déjà appliquées : leur contenu est figé, commentaires compris.
+- **NE PAS** relancer un remplacement global sur le nom : il ne resterait que le claim historique à casser.
 
 ---
 
@@ -349,82 +369,75 @@ grep -rni "finarent" . --exclude-dir=node_modules --exclude-dir=.next --exclude-
 - **`ActiveFileTimeline.jsx`** (espace client)
 
 ### Sécurité
-- Routes cron `/api/cron/reminders` et `/api/cron/sla-check` désormais sécurisées avec `Authorization: Bearer ${CRON_SECRET}` (Vercel envoie automatiquement quand `CRON_SECRET` est en env var)
+- Routes cron `/api/cron/reminders` et `/api/cron/sla-check` sécurisées avec `Authorization: Bearer ${CRON_SECRET}` — l'en-tête est porté par les commandes `curl` de `clevercloud/cron.json` (voir § 11)
 
 ---
 
 ## 11. Configuration & déploiement
 
-### Build commands
-- **Dev** : `npm run dev` (port 3000 par défaut, on utilise 3002 dans cette session : `PORT=3002 npm run dev`)
-- **Build prod (défaut, Vercel)** : `npm run build` = `prisma generate && prisma migrate deploy && next build`
-- **Build prod (Clever Cloud, legacy)** : `npm run build:standalone` = `node scripts/build.js` (gère le mode standalone + copie assets)
-- **Start (Vercel)** : `npm start` = `next start`
-- **Start (Clever Cloud)** : `npm run start:standalone` = `node scripts/start.js`
-- **`postinstall`** : `prisma generate` (auto-régénère le client après chaque `npm install`)
+> Le projet **n'est pas déployé sur Vercel**. Il tourne sur **Clever Cloud**, et
+> `vercel.json` comme `.env.vercel` ont été retirés du dépôt en septembre 2026.
+> Procédure détaillée : `clevercloud/README.md` et `docs/PROCEDURES_EXPLOITATION.md`.
 
-### Vercel (cible actuelle)
-- `next.config.js` : `output: 'standalone'` retiré (Vercel n'en a pas besoin et ça ralentit le build)
-- `vercel.json` : 2 crons compatibles plan Hobby
-  - `/api/cron/reminders` : `0 9 * * *` (1x/jour à 9h UTC)
-  - `/api/cron/sla-check` : `0 10 * * *` (1x/jour à 10h UTC)
-- **Plan Hobby = 1 exécution/jour max par cron**. Si besoin d'horaire, passer Pro (~20€/mois).
+### Commandes de build
 
-### Clever Cloud (legacy)
-- Variables : `CC_BUILD_COMMAND="npm run build:standalone"` + `CC_RUN_COMMAND="npm run start:standalone"`
-- Endpoint healthcheck : `/api/health`
+- **Dev** : `npm run dev` (port 3000)
+- **Build** : `npm run build` = `prisma generate && next build`
+- **Build Clever Cloud** : `npm run build:standalone` = `node scripts/build.js`
+  (recopie `POSTGRESQL_ADDON_URI` dans `DATABASE_URL`, applique les migrations,
+  construit en mode standalone, copie les assets)
+- **Start Clever Cloud** : `npm run start:standalone` = `node scripts/start.js`
+- **`postinstall`** : `prisma generate`
+- Il n'existe **pas** de script `preview`, et le build ne produit **pas** de dossier `dist/` :
+  la sortie est `.next/`, et `.next/standalone/` en mode Clever Cloud.
+
+### Clever Cloud
+
+- `CC_BUILD_COMMAND="npm run build:standalone"`, `CC_RUN_COMMAND="npm run start:standalone"`,
+  `CC_HEALTH_CHECK_PATH=/api/health`.
+- Les variables se déclarent dans la console (`clever env set`) et **ne prennent effet
+  qu'au déploiement suivant** : une variable ajoutée sur une application en cours
+  d'exécution ne change rien tant que le processus n'a pas redémarré.
+- Le build en instance XS tombe en dépassement mémoire : prévoir une **instance de
+  build dédiée de taille M**.
+- Addons : PostgreSQL (injecte `POSTGRESQL_ADDON_URI`) et Cellar (injecte les
+  `CELLAR_ADDON_*`, bucket `finarent-docs-kyc`).
+
+### Crons
+
+Déclarés dans `clevercloud/cron.json`, exécutés par la plateforme, protégés par
+`CRON_SECRET` (`Authorization: Bearer`) :
+
+| Route | Fréquence |
+|---|---|
+| `/api/cron/reminders` | tous les jours à 9 h |
+| `/api/cron/sla-check` | toutes les 2 h |
+| `/api/cron/affiliate-purge` | dimanche à 3 h |
+
+Chaque appel utilise `curl -fsS --fail-with-body` : sans `-f`, une réponse 401
+serait comptée comme un succès et l'échec resterait invisible.
 
 ---
 
-## 12. Variables d'environnement requises
+## 12. Variables d'environnement
 
-```env
-# Auth0 (REQUIS)
-AUTH0_DOMAIN=your-tenant.auth0.com
-AUTH0_CLIENT_ID=...
-AUTH0_CLIENT_SECRET=...
-AUTH0_SECRET=run_openssl_rand_hex_32        # 32 bytes hex
-APP_BASE_URL=https://finarent.vercel.app    # ou https://finarent.fr en prod
+**`.env.example` fait foi** — il est tenu à jour avec le code et commente chaque
+variable. Il est organisé en deux parties :
 
-# Database (REQUIS)
-DATABASE_URL="postgresql://user:pass@host:5432/finarent"
+- **PARTIE 1 — obligatoire au démarrage** : `APP_BASE_URL`, `NEXT_PUBLIC_APP_URL`,
+  `DATABASE_URL`, les six variables Auth0, `ENCRYPTION_KEY`.
+- **PARTIE 2 — optionnel par intégration**, un bloc par service : Management API
+  Auth0, crons, emails (Brevo puis SMTP), stockage Cellar, reCAPTCHA, Stripe,
+  YouSign, Ringover, Twilio, observabilité (Sentry, PostHog, Clarity). Les blocs
+  crons, emails et Cellar sont **obligatoires en production**.
 
-# reCAPTCHA v3 (REQUIS pour /contact)
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=...
-RECAPTCHA_SECRET_KEY=...
+Trois points de vigilance :
 
-# Vercel Cron (REQUIS si crons activés)
-CRON_SECRET=                                 # auto-généré par Vercel ou un secret hex 32 bytes
-
-# Supabase Storage (optionnel — fallback local sinon)
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
-
-# Email SMTP (Nodemailer) (REQUIS prod)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=...
-SMTP_PASS=...
-SMTP_FROM=noreply@finarent.fr
-ADMIN_EMAIL=admin@finarent.fr
-
-# YouSign (optionnel — checkbox simple si absent)
-YOUSIGN_API_KEY=...
-YOUSIGN_BASE_URL=https://api.yousign.com
-
-# Twilio SMS (optionnel — fallback console)
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_FROM_NUMBER=
-
-# Sentry (optionnel)
-NEXT_PUBLIC_SENTRY_DSN=
-
-# PostHog (optionnel)
-NEXT_PUBLIC_POSTHOG_KEY=
-NEXT_PUBLIC_POSTHOG_HOST=https://eu.posthog.com
-```
+- **Supabase a disparu** : `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  et `SUPABASE_SERVICE_ROLE_KEY` ne sont plus lues nulle part. Le stockage est Cellar.
+- Les variables `NEXT_PUBLIC_*` sont **figées au build** : les définir avant de déployer.
+- `ENCRYPTION_KEY` ne peut plus changer une fois des données chiffrées en base, sans
+  opération de re-chiffrement — les IBAN deviendraient illisibles.
 
 ---
 
@@ -436,7 +449,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.posthog.com
 - **i18n** : tout texte UI passe par `t('clé')` depuis `useTranslation()` (`@/lib/i18n`). Verrouillé sur `fr`. Le getter supporte les clés à points (ex: `nav.solutions.creditBail`) ET la traversée d'objets imbriqués.
 - **Animations** : pattern `motion.div initial="hidden" animate="visible" variants={containerVariants}` avec `staggerChildren`.
 - **Auth gating** : pages admin via `app/admin/layout.jsx` (server-side `getSession()` + `isAdmin()`), pages partner/insurer via `requirePartner()/requireInsurer()` dans les API routes.
-- **Pas de tests** : aucun framework de test installé. Les vérifs se font via `npm run build` (TS + lint Next).
+- **Tests** : Vitest est installé (`npm test`), avec des tests unitaires sur la logique pure dans `tests/unit/` (chiffrement, scoring, simulateurs, SEPA, JSON-LD). Avant de pousser : `npx tsc --noEmit`, `npm run lint` et `npm test` à zéro erreur. **Il n'y a pas encore d'intégration continue** : la vérification est manuelle.
 - **Pas de Storybook**.
 - **Commits** : style conventionnel (`feat:`, `fix:`, `refactor:`). Branches non utilisées — tout sur `main`.
 - **Pas de comments inutiles** : seul le "WHY" non-obvie (workaround, contrainte cachée).
@@ -447,42 +460,44 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.posthog.com
 
 1. **Prisma client lock sur Windows** : si tu veux régénérer le client (`npx prisma generate`) et que `next dev` tourne, ça échoue avec EPERM. **Solution** : tuer le process `next dev` avant (`taskkill //F //PID <pid>`), puis regenerate, puis relancer.
 2. **Cookies async** : warning Next.js 15 sur `cookies().getAll()` dans le auth Auth0 lib — c'est dans la lib externe, ininfluent.
-3. **Migrations Prisma sur build Vercel** : `prisma migrate deploy` dans le build nécessite que `DATABASE_URL` pointe vers la prod ET que la base soit accessible depuis Vercel. Si preview deploy sur PR, prévoir une env var preview-only.
-4. **Cron Vercel Hobby** : limité à 1 exécution/jour par cron. Pas de schedule horaire ou hebdo multi-jours.
-5. **Locale verrouillée FR** : si tu veux réactiver l'EN, il faut éditer `lib/i18n.jsx` (revenir à la version avec `setLocaleState`) ET réimporter le `LanguageSwitcher` dans `Header.jsx`. Les fichiers `messages/en.json` ne sont actuellement plus servis.
-6. **Fichier `public/finarent logo.jpg`** (avec espace) : ne marche pas dans toutes les URL — utiliser uniquement `finarent-logo.jpg`.
-7. **Un fichier `bash.exe.stackdump`** traîne à la racine (untracked) — restant d'un crash bash, peut être supprimé.
+3. **Migrations Prisma au build Clever Cloud** : `scripts/build.js` applique `prisma migrate deploy`. Le premier déploiement après une longue interruption applique donc **toutes** les migrations accumulées : à traiter comme une mise en production, pas comme un redémarrage.
+4. **Base locale sur le port 5433**, pas 5432 : un PostgreSQL natif occupe déjà 5432 sur le poste de référence. Deux bases interchangeables sur le même port sont exactement ce qui a mené à écrire sur la production depuis un poste de travail (constat `P0-1`).
+5. **`DATABASE_URL` et la production** : les scripts d'écriture appellent `refuseProduction()` (`scripts/_guard.js`) et sortent en code 1 si l'URL ressemble à une base distante. Ne jamais contourner la garde pour « avoir des données réalistes » : la base contient des KYC, des pièces d'identité et des RIB réels.
+6. **Limitation de débit en mémoire** (`lib/rateLimit.js`) : sans effet en multi-instance, remise à zéro à chaque déploiement.
+7. **Locale verrouillée FR** : si tu veux réactiver l'EN, il faut éditer `lib/i18n.jsx` (revenir à la version avec `setLocaleState`) ET réimporter le `LanguageSwitcher` dans `Header.jsx`. Les fichiers `messages/en.json` ne sont actuellement plus servis.
+8. **Fichier `public/finarent logo.jpg`** (avec espace) : ne marche pas dans toutes les URL — utiliser uniquement `finarent-logo.jpg`.
 
 ---
 
 ## 15. TODO restant (priorité)
 
-### 🔴 P0 — Critiques avant prod
-1. **Finir le rebrand `Finarent → Finarent`** dans le code source (~90 fichiers, voir §9)
-2. **Migrer le claim Auth0** côté Dashboard + code
-3. **Remplacer le logo Finarents_logo.jpeg** partout puis le supprimer
-4. **Acheter/configurer le domaine `finarent.fr`** + DNS + 301 redirect depuis `finarent.fr`
-5. **Configurer Auth0 production** (callback URL, allowed logout URL pointing vers `finarent.fr`)
-6. **Activer Sentry production** (DSN)
-7. **Tester un parcours complet end-to-end** sur un Vercel preview avant prod
+> **La liste qui fait foi est `docs/PLAN_CORRECTION_2026-09.md`** : 21 constats d'audit,
+> classés en trois lots, chacun avec sa preuve de clôture. Ce qui suit n'en garde que
+> les sujets produit, que l'audit ne couvre pas.
 
-### 🟡 P1 — Importants mais non bloquants
-1. **Photos réalistes** sur les pages secteurs / blog / témoignages / about (Unsplash CDN URLs ou téléchargement dans `/public`)
-2. **Réenrichir le `/simulator`** avec save BDD + comparateur de taux dynamique
-3. **CMS blog** (Strapi / Sanity) ou enrichir manuellement les 6 articles statiques
-4. **Resend + React Email** en remplacement de Nodemailer (templates plus modulaires)
-5. **Inngest** pour jobs async (vs Vercel cron) — retry natif
-6. **Rate limiting Redis/Upstash** (actuellement in-memory, casse en multi-instance)
-7. **Scan antivirus ClamAV** sur uploads documents
+### Réglé depuis avril 2026
 
-### 🟢 P2 — Polish
-1. **Page `/about`** à enrichir (équipe, histoire, valeurs)
-2. **Refonte visuelle du Footer** (utilisateur a demandé optimisation, j'ai fait l'i18n mais pas la restructuration — voir capture)
-3. **Pages erreur** (`error.jsx`, `not-found.jsx`) à styliser
-4. **Mode sombre** (variables CSS déjà présentes mais pas de toggle)
-5. **PWA** (manifest + service worker)
-6. **Cohorts retention** dans dashboard admin
-7. **Top rejection reasons** widget (nécessite un nouveau champ `Application.rejectionReason`)
+Rebrand terminé, domaine `finarent.com` en service, Sentry installé (le DSN reste à
+renseigner), stockage bascule sur Cellar, garde anti-production sur les scripts,
+crons Clever Cloud avec échec bruyant, Vitest en place.
+
+### Sujets produit encore ouverts
+
+1. **Photos réalistes** sur les pages secteurs / blog / témoignages / about.
+2. **Enrichir les simulateurs** (`/simulateurs/[category]`) : sauvegarde en base et
+   comparateur de taux dynamique.
+3. **CMS blog** (Strapi / Sanity) ou enrichissement manuel des 6 articles statiques.
+4. **Scan antivirus** sur les documents déposés.
+5. **Page `/about`** à enrichir (équipe, histoire, valeurs).
+6. **Pages d'erreur** (`error.jsx`, `not-found.jsx`) à styliser.
+7. **Mode sombre** (variables CSS présentes, pas de bascule).
+8. **PWA** (manifest + service worker).
+9. **Cohortes de rétention** dans le tableau de bord admin.
+10. **Motifs de refus** en widget (nécessite un champ `Application.rejectionReason`).
+
+Les sujets d'infrastructure qui figuraient ici — limitation de débit persistante,
+sauvegardes testées, environnement de recette, intégration continue — sont repris
+en section 5 du plan de correction, avec une charge estimée.
 
 ---
 
@@ -490,75 +505,75 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.posthog.com
 
 ```bash
 # Dev
-PORT=3002 npm run dev                                  # Lance sur 3002
-tail -f /tmp/finarent-dev.log                          # Suivre le log
+npm run dev                                            # port 3000
+docker compose up -d db                                # base locale (port 5433)
+docker compose down                                    # arrêt ; -v efface aussi les données
 
-# Database
-npx prisma generate                                    # Régen client
-npx prisma migrate dev --name <nom>                    # Nouvelle migration locale
-npx prisma migrate deploy                              # Apply migrations sur prod
-npx prisma studio                                      # GUI BDD
+# Base de données
+npx prisma generate                                    # régénère le client
+npx prisma migrate dev --name <nom>                    # nouvelle migration locale
+npx prisma migrate deploy                              # applique les migrations en attente
+npx prisma studio                                      # interface graphique
+node scripts/seed-demo.js                              # jeu de démonstration
 
-# Promote admin
-node scripts/promote-admin.js andrys972@gmail.com
+# Comptes
+node scripts/promote-admin.js <email>                  # passe un compte en ADMIN
 
-# Build & test
-npm run build                                          # Build prod (avec migrate deploy)
-npm run build:next                                     # Build prod sans migration
-npm run lint                                           # ESLint Next
+# Build & qualité
+npm run build                                          # prisma generate + next build
+npm run build:next                                     # build sans régénérer Prisma
+npx tsc --noEmit                                       # typage
+npm run lint                                           # ESLint
+npm test                                               # Vitest
 
-# Smoke tests
-curl -sL -o /dev/null -w "%{http_code} %{time_total}s\n" http://localhost:3002/
+# Emails
+node scripts/preview-emails.mjs                        # rendu des gabarits, sans envoi
 
-# Tuer un process Next dev orphelin (Windows)
-wmic process where "name='node.exe'" get ProcessId,CommandLine | grep finarent
-taskkill //F //PID <pid>
+# Sonde
+curl -sL -o /dev/null -w "%{http_code} %{time_total}s\n" http://localhost:3000/api/health
 
-# Find leftover Finarent references
-grep -rni "finarent" . --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git
+# Production (Clever Cloud)
+clever status                                          # état de l'application
+clever env                                             # variables déclarées
+clever logs --since 1h
 ```
 
 ---
 
 ## 17. Ressources externes
 
-- **Auth0 dashboard** : tenant à confirmer, custom claim à migrer
-- **Vercel project** : `slformation-dryyss/finarent` (à renommer)
-- **GitHub repo** : `slformation-dryyss/finarent` (à renommer)
-- **API SIRET publique** : `https://recherche-entreprises.api.gouv.fr/search` (aucune clé requise)
-- **YouSign API** : v3, sandbox + prod
-- **Supabase** : à provisionner pour storage prod
-- **ORIAS** : immatriculation à finaliser pour activité courtage légale
+- **Auth0** : deux locataires historiques (un US, un EU) — vérifier lequel répond via `/api/auth/login` avant toute manipulation de comptes. Procédure : `AUTH0_SETUP.md`.
+- **Clever Cloud** : application `finarent`, addons PostgreSQL et Cellar (bucket `finarent-docs-kyc`). Voir `clevercloud/README.md`.
+- **Domaines** : `finarent.com` (canonique), `.fr` et `.org` en redirection.
+- **Brevo** : emails transactionnels et marketing, plus le webhook de suivi.
+- **Ringover** : téléphonie du centre d'appels (`docs/SETUP_RINGOVER.md`).
+- **Stripe** : règlement des factures ; **YouSign** : signature électronique (v3, bac à sable puis production).
+- **API SIRET publique** : `https://recherche-entreprises.api.gouv.fr/search` (aucune clé requise).
+- **ORIAS** : immatriculation à finaliser pour l'activité de courtage.
 
 ---
 
-## 18. Quick wins pour démarrer (sprint d'1 jour si reprise)
+## 18. Par où commencer une reprise
 
-Si on reprend en 1 journée, voici l'ordre conseillé pour avancer concrètement sans casser :
-
-1. **30 min — Cleanup rebrand** : bulk sed `Finarent → Finarent` + `finarent → finarent` dans tout le code source. Build pour valider. (Voir §9 pour la commande exacte.)
-2. **20 min — Auth0 claim migration** : update `middleware.ts`, `lib/auth.ts`, `lib/users.js` pour accepter les DEUX claims temporairement (rétrocompat). Plus tard, supprimer l'ancien.
-3. **30 min — Photos** : choisir une approche (Unsplash CDN URLs vs download local) et wirer les pages secteurs (5 pages = highest impact).
-4. **30 min — Footer optimisation** : restructurer en 4 colonnes équilibrées, brand condensé, newsletter inline.
-5. **30 min — Vercel deploy** : push, vérifier le deploy preview, ajouter les env vars.
-
-Le reste = le P1/P2 de §15.
+1. Faire tourner le projet en local en suivant **`README.md` § 2** (cinq commandes).
+2. Lire **`docs/PLAN_CORRECTION_2026-09.md`** : il dit quoi faire, dans quel ordre, et
+   comment prouver que c'est fait. Les lots sont séquencés, l'ordre n'est pas négociable.
+3. Lire l'audit `docs/AUDIT_2026-09.md` seulement si le motif d'une action n'est pas clair.
+4. Pour un geste d'exploitation (déploiement, incident, RGPD) : `docs/PROCEDURES_EXPLOITATION.md`.
 
 ---
 
 ## 19. Pour l'agent qui reprend
 
-**Ton mission, si tu l'acceptes :**
-- Lis ce doc en entier avant de toucher quoi que ce soit
-- Le projet est **fonctionnel à 95%** mais en plein rebrand. Vérifie toujours `git status` avant de commiter
-- L'utilisateur (`andrys972@gmail.com`) communique en français, préfère les réponses concises et le tutoiement
-- Il aime quand tu proposes 2-3 options ordonnées par valeur plutôt que de lui demander toujours quoi faire
-- Build prod = source de vérité (vs lint qui a quelques warnings non-bloquants Tailwind v4)
-- **Toujours vérifier `npm run build:next` réussi avant de dire "c'est bon"**
-- Pour les modifs UI, mentionne que le hard-refresh (Ctrl+Shift+R) est nécessaire à cause du cache navigateur
-
-**Bonne chance.**
+- **Commencer par `README.md`**, puis ce document pour le détail du modèle de données et des endpoints.
+- Vérifier `git status` avant tout commit ; le dépôt travaille directement sur `main`.
+- L'utilisateur communique en **français**, préfère les réponses concises et le tutoiement.
+- Il attend 2-3 options ordonnées par valeur plutôt qu'une question ouverte.
+- Avant d'annoncer qu'une modification est terminée : `npx tsc --noEmit`, `npm run lint`,
+  `npm test`, et `npm run build:next` si le rendu est en jeu.
+- Pour les modifications d'interface, signaler qu'un rechargement forcé (Ctrl+Shift+R)
+  peut être nécessaire à cause du cache navigateur.
 
 ---
 
-*Document généré pour handoff Claude Code Desktop — avril 2026.*
+*Document de reprise — rédigé en avril 2026, corrigé le 9 septembre 2026 (actions 2.5 et 2.7 du plan de correction).*
