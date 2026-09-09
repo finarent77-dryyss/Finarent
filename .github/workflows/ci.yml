@@ -1,58 +1,136 @@
 # Intégration continue — Finarent
 #
-# Action A1 du plan de correction : rien n'empêchait jusqu'ici de pousser un
-# code qui ne compile pas. Ce workflow est la barrière minimale — typage, lint,
-# tests unitaires — sur chaque poussée et chaque pull request.
+# Ce que ce workflow ferme : le constat A1 du plan de correction
+# (docs/PLAN_CORRECTION_2026-09.md, § 5) — « Il n'existe aucune CI. Rien
+# n'empêche de pousser un code qui ne compile pas. » Le plan qualifie cette
+# action de geste de meilleur rendement de tout le plan : il transforme chaque
+# correction en acquis permanent, au lieu d'un acquis qui se défait à la
+# poussée suivante.
 #
-# Volontairement sans secret ni base de données : ces trois contrôles n'en ont
-# pas besoin. Le build Next et les tests d'intégration viendront quand un
-# environnement de recette existera (action A5 du plan).
+# Cinq contrôles, dans l'ordre du plan : typage, lint, tests unitaires,
+# vulnérabilités, build de production. Chacun bloque la fusion.
+#
+# Aucun secret n'est nécessaire ni utilisé : le build tourne sur des valeurs
+# factices (voir l'étape « Construire l'application »). Un secret de production
+# n'a rien à faire ici — la CI ne déploie pas, elle vérifie.
 
-name: CI
+name: Intégration continue
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
-# Une seule exécution par branche : une nouvelle poussée annule la précédente.
+# Une seule exécution par branche : une nouvelle poussée annule la précédente,
+# pour ne pas payer plusieurs fois le même build.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Le workflow ne fait que lire le dépôt.
+permissions:
+  contents: read
+
 jobs:
   verification:
-    name: Typage, lint et tests
+    name: Typage, lint, tests, audit et build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
+      # Actions épinglées sur une version précise plutôt que sur une branche
+      # mobile : une mise à jour amont ne doit pas changer le comportement de
+      # la CI sans que nous l'ayons décidé.
       - name: Récupérer le code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
-      - name: Installer Node.js
-        uses: actions/setup-node@v4
+      - name: Installer Node.js 20
+        uses: actions/setup-node@v4.1.0
         with:
-          node-version: '22.x'
+          # package.json impose "node": ">=20". La CI valide sur la version
+          # minimale supportée : ce qui passe ici passe partout au-dessus.
+          node-version: '20.x'
+          # Cache du dossier ~/.npm, indexé sur package-lock.json.
           cache: npm
 
       - name: Installer les dépendances
-        # `npm ci` impose un package-lock.json à jour : une dérive échoue ici
-        # plutôt qu'en production. Le postinstall lance `prisma generate`.
+        # `npm ci` impose un package-lock.json cohérent avec package.json :
+        # une dérive échoue ici plutôt qu'en production.
         run: npm ci
 
+      - name: Générer le client Prisma
+        # Le postinstall de `npm ci` l'a déjà fait, mais on le rend explicite :
+        # le client Prisma généré est un prérequis du typage (les types
+        # `@prisma/client` n'existent pas avant cette commande). Si le
+        # postinstall disparaît un jour, la CI ne se met pas silencieusement à
+        # échouer sur des centaines d'erreurs de types fantômes.
+        run: npx prisma generate
+
       - name: Vérifier le typage
+        # Le typage passe aujourd'hui : cette étape le verrouille.
         run: npx tsc --noEmit
 
       - name: Vérifier le lint
+        # Action 3.3 du plan : le script `lint` appelle `eslint .` et non plus
+        # `next lint`, qui disparaît en Next 16.
         run: npm run lint
 
       - name: Lancer les tests unitaires
         run: npm test
 
-      - name: Signaler les vulnérabilités connues
-        # Informatif : les quatre vulnérabilités restantes exigent des montées
-        # majeures (lot 3). Ne doit pas bloquer une pull request tant que
-        # ces montées ne sont pas faites.
-        run: npm audit --omit=dev || true
+      - name: Auditer les dépendances
+        # Seuil « critical » et non « high », volontairement — relevé du
+        # 2026-09-09 : `npm audit` remonte 4 vulnérabilités (1 faible,
+        # 2 moyennes, 1 haute). La haute est postcss <=8.5.22, imbriqué sous
+        # `next` ; elle n'est pas corrigeable sans passer à Next 16
+        # (`npm audit fix --force` propose next@16, changement cassant).
+        #
+        # Avec --audit-level=high cette étape échouerait à chaque exécution et
+        # la CI deviendrait un signal qu'on apprend à ignorer. Le seuil
+        # « critical » échoue donc sur toute vulnérabilité NOUVELLE et sérieuse,
+        # sans bloquer sur le reliquat connu.
+        #
+        # À rebasculer sur --audit-level=high dès que l'action 3.3 du plan
+        # (montée en Next 16) est faite : le reliquat disparaîtra avec elle.
+        run: npm audit --audit-level=critical
+
+      - name: Construire l'application
+        # `npm run build` enchaîne `prisma generate` et `next build`.
+        #
+        # Ces valeurs sont factices et publiques — ce ne sont PAS des secrets,
+        # et il ne faut jamais en mettre de vrais ici. Elles servent seulement
+        # à ce que les variables soient présentes et syntaxiquement valides au
+        # chargement des modules : le SDK Auth0 et le constructeur PrismaClient
+        # sont évalués à l'import des routes, pendant la collecte des pages.
+        #
+        # Vérifié le 2026-09-09 : avec ces seules valeurs, sans base de données
+        # joignable et sans réseau, `next build` compile et prérend les 163
+        # pages statiques. Le build ne lit donc jamais la base — `DATABASE_URL`
+        # doit seulement être une URL PostgreSQL bien formée, elle n'est pas
+        # ouverte. Les intégrations optionnelles (Brevo, Stripe, YouSign,
+        # Ringover, Twilio, Sentry, reCAPTCHA) sont laissées non définies :
+        # le code les traite comme désactivées.
+        env:
+          DATABASE_URL: 'postgresql://ci:ci@localhost:5432/ci?schema=public'
+          ENCRYPTION_KEY: 'dGVzdC1rZXktMzItb2N0ZXRzLXBvdXItdml0ZXN0ISE='
+          AUTH0_SECRET: '0000000000000000000000000000000000000000000000000000000000000000'
+          AUTH0_BASE_URL: 'http://localhost:3000'
+          AUTH0_ISSUER_BASE_URL: 'https://example.eu.auth0.com'
+          AUTH0_DOMAIN: 'example.eu.auth0.com'
+          AUTH0_CLIENT_ID: 'ci-factice'
+          AUTH0_CLIENT_SECRET: 'ci-factice'
+          AUTH0_DB_CONNECTION: 'ci-factice'
+          AUTH0_M2M_AUDIENCE: 'ci-factice'
+          AUTH0_M2M_CLIENT_ID: 'ci-factice'
+          AUTH0_M2M_CLIENT_SECRET: 'ci-factice'
+          APP_BASE_URL: 'http://localhost:3000'
+          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
+          ADMIN_EMAIL: 'ci@example.invalid'
+          BREVO_SENDER_EMAIL: 'ci@example.invalid'
+          BREVO_SENDER_NAME: 'CI Finarent'
+          SMTP_FROM: 'ci@example.invalid'
+          SMTP_PORT: '587'
+          CELLAR_BUCKET: 'ci-factice'
+          CELLAR_REGION: 'us-east-1'
+          CRON_SECRET: 'ci-factice'
+          UNSUBSCRIBE_SECRET: 'ci-factice'
+        run: npm run build

@@ -5,7 +5,7 @@ import {
   validateSIREN,
   validateRequired,
 } from '@/utils/validation.js';
-import { checkRateLimit } from '@/lib/rateLimit.js';
+import { checkRateLimitMemoire } from '@/lib/rateLimit.js';
 import { safeEqual, isCronAuthorized } from '@/lib/cron-auth.js';
 import { sniffMatchesMime } from '@/lib/file-signature.js';
 import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES } from '@/lib/statusMap.js';
@@ -70,39 +70,46 @@ describe('validateRequired', () => {
   });
 });
 
-describe('checkRateLimit', () => {
+/**
+ * Depuis le passage du compteur en base (constat P2-3), `checkRateLimit` fait
+ * un aller-retour SQL : il relève des tests d'intégration. Ce qui reste
+ * testable ici sans base, c'est le repli en mémoire — celui qui protège encore
+ * l'instance quand la base est injoignable, et dont la logique de fenêtre est
+ * inchangée.
+ */
+describe('checkRateLimitMemoire', () => {
   // Chaque test utilise une IP distincte : le compteur est un module partagé.
   it('autorise les premières requêtes puis bloque au-delà du quota', () => {
     const options = { bucket: 'test-quota', max: 3 };
-    expect(checkRateLimit('10.0.0.1', options)).toEqual({ allowed: true, remaining: 2 });
-    expect(checkRateLimit('10.0.0.1', options)).toEqual({ allowed: true, remaining: 1 });
-    expect(checkRateLimit('10.0.0.1', options)).toEqual({ allowed: true, remaining: 0 });
-    expect(checkRateLimit('10.0.0.1', options)).toEqual({ allowed: false, remaining: 0 });
+    expect(checkRateLimitMemoire('10.0.0.1', options)).toEqual({ allowed: true, remaining: 2 });
+    expect(checkRateLimitMemoire('10.0.0.1', options)).toEqual({ allowed: true, remaining: 1 });
+    expect(checkRateLimitMemoire('10.0.0.1', options)).toEqual({ allowed: true, remaining: 0 });
+    expect(checkRateLimitMemoire('10.0.0.1', options)).toEqual({ allowed: false, remaining: 0 });
   });
 
   it('cloisonne les seaux : déposer une demande ne consomme pas le quota des devis', () => {
     const ip = '10.0.0.2';
-    checkRateLimit(ip, { bucket: 'financement', max: 1 });
-    expect(checkRateLimit(ip, { bucket: 'financement', max: 1 }).allowed).toBe(false);
+    checkRateLimitMemoire(ip, { bucket: 'financement', max: 1 });
+    expect(checkRateLimitMemoire(ip, { bucket: 'financement', max: 1 }).allowed).toBe(false);
     // Un autre usage doit repartir d un quota intact.
-    expect(checkRateLimit(ip, { bucket: 'devis', max: 1 }).allowed).toBe(true);
+    expect(checkRateLimitMemoire(ip, { bucket: 'devis', max: 1 }).allowed).toBe(true);
   });
 
   it('cloisonne les adresses', () => {
     const options = { bucket: 'test-ip', max: 1 };
-    expect(checkRateLimit('10.0.0.3', options).allowed).toBe(true);
-    expect(checkRateLimit('10.0.0.3', options).allowed).toBe(false);
-    expect(checkRateLimit('10.0.0.4', options).allowed).toBe(true);
+    expect(checkRateLimitMemoire('10.0.0.3', options).allowed).toBe(true);
+    expect(checkRateLimitMemoire('10.0.0.3', options).allowed).toBe(false);
+    expect(checkRateLimitMemoire('10.0.0.4', options).allowed).toBe(true);
   });
 
   it('rouvre le quota une fois la fenêtre écoulée', () => {
     vi.useFakeTimers();
     try {
       const options = { bucket: 'test-fenetre', max: 1, windowMs: 60_000 };
-      expect(checkRateLimit('10.0.0.5', options).allowed).toBe(true);
-      expect(checkRateLimit('10.0.0.5', options).allowed).toBe(false);
+      expect(checkRateLimitMemoire('10.0.0.5', options).allowed).toBe(true);
+      expect(checkRateLimitMemoire('10.0.0.5', options).allowed).toBe(false);
       vi.advanceTimersByTime(60_001);
-      expect(checkRateLimit('10.0.0.5', options).allowed).toBe(true);
+      expect(checkRateLimitMemoire('10.0.0.5', options).allowed).toBe(true);
     } finally {
       vi.useRealTimers();
     }

@@ -2,8 +2,11 @@
 // Usage : node scripts/seed-demo.js
 //
 // Idempotent : nettoie d'abord la donnée démo, puis recrée.
-// Les vrais users Auth0 (admin/client/partner/insurer @demo.fr) sont préservés
-// et leur ligne DB est upsert avec le bon rôle.
+// Les 4 comptes @demo.fr (admin/client/partner/insurer) sont recréés avec leur
+// identifiant Auth0 et le bon rôle.
+//
+// Prérequis : AUTH0_DOMAIN doit être renseigné dans .env, et les identifiants
+// des 4 comptes démo doivent exister sur CE locataire (voir plus bas).
 
 import { PrismaClient } from '@prisma/client';
 import { refuseProduction } from './_guard.js';
@@ -13,36 +16,53 @@ refuseProduction();
 
 const prisma = new PrismaClient();
 
+// ─── Locataire Auth0 ──────────────────────────────────────────
+//
+// Le locataire se lit dans l'environnement, sans valeur de repli (audit P1-2).
+// Il a longtemps été codé en dur sur dev-44jsict2grc7s0jn.eu.auth0.com, qui
+// n'est plus le locataire actif : le seed « réussissait » en créant des lignes
+// rattachées à des comptes inexistants, et personne ne pouvait s'y connecter.
+// Le projet a un historique de deux locataires (un US, un EU) — vérifier lequel
+// répond via /api/auth/login avant de conclure.
+const DOMAIN = process.env.AUTH0_DOMAIN;
+if (!DOMAIN) {
+  throw new Error('AUTH0_DOMAIN absent — vérifiez votre .env');
+}
+
 // ─── Auth0 IDs des 4 comptes démo (créés via Management API) ───
 //
-// Ces identifiants n'existent que sur le locataire ci-dessous. Le projet en a
-// deux (un US, un EU) : si AUTH0_DOMAIN en désigne un autre, les lignes créées
-// ici ne correspondront à aucun compte réel et personne ne pourra se connecter
-// avec (audit P1-2). Le seed « réussissait » alors sans que rien ne l'indique.
-const AUTH0_TENANT_DES_IDS = 'dev-44jsict2grc7s0jn.eu.auth0.com';
+// Un identifiant Auth0 n'a de sens que sur le locataire qui l'a émis. Ceux
+// ci-dessous sont ceux du locataire historique : dès que AUTH0_DOMAIN en
+// désigne un autre, ils doivent être remplacés — soit par les variables
+// AUTH0_DEMO_*_ID, soit en éditant les valeurs par défaut ici.
+//
+//   1. Créer les 4 comptes sur le locataire actif (Management API ou console) ;
+//   2. Reporter leurs user_id dans .env :
+//        AUTH0_DEMO_ADMIN_ID="auth0|..."
+//        AUTH0_DEMO_CLIENT_ID="auth0|..."
+//        AUTH0_DEMO_PARTNER_ID="auth0|..."
+//        AUTH0_DEMO_INSURER_ID="auth0|..."
+//   3. Relancer ce script.
 const AUTH0 = {
-  admin: 'auth0|6a025639a8352bcd01f1e289',
-  client: 'auth0|6a025639cbde62d766cfef79',
-  partner: 'auth0|6a025639cbde62d766cfef7a',
-  insurer: 'auth0|6a02563a065428472e9c5a79',
+  admin: process.env.AUTH0_DEMO_ADMIN_ID || 'auth0|6a025639a8352bcd01f1e289',
+  client: process.env.AUTH0_DEMO_CLIENT_ID || 'auth0|6a025639cbde62d766cfef79',
+  partner: process.env.AUTH0_DEMO_PARTNER_ID || 'auth0|6a025639cbde62d766cfef7a',
+  insurer: process.env.AUTH0_DEMO_INSURER_ID || 'auth0|6a02563a065428472e9c5a79',
 };
 
-/** Prévient si les identifiants figés ne correspondent pas au locataire actif. */
-function verifierLocataireAuth0() {
-  const actif = process.env.AUTH0_DOMAIN;
-  if (!actif) {
-    console.warn('⚠️  AUTH0_DOMAIN absent — impossible de vérifier le locataire des comptes démo.\n');
-    return;
-  }
-  if (actif === AUTH0_TENANT_DES_IDS) return;
+/** Affiche le locataire visé et les identifiants qui vont être écrits en base. */
+function annoncerLocataireAuth0() {
+  const surcharges = ['ADMIN', 'CLIENT', 'PARTNER', 'INSURER']
+    .filter((r) => process.env[`AUTH0_DEMO_${r}_ID`]).length;
 
-  console.warn(
-    `\n⚠️  Locataire Auth0 différent de celui des comptes démo.\n` +
-    `   AUTH0_DOMAIN actif        : ${actif}\n` +
-    `   Locataire des identifiants : ${AUTH0_TENANT_DES_IDS}\n` +
-    `   Les 4 comptes @demo.fr seront créés en base mais NE POURRONT PAS se\n` +
-    `   connecter. Recréez-les sur le locataire actif via la Management API,\n` +
-    `   puis remplacez les identifiants ci-dessus.\n`
+  console.log(`🔐  Locataire Auth0 visé : ${DOMAIN}`);
+  console.log(
+    surcharges === 4
+      ? '    Les 4 identifiants démo viennent de AUTH0_DEMO_*_ID.\n'
+      : `    ${4 - surcharges} identifiant(s) démo sur 4 proviennent des valeurs par défaut du\n` +
+        '    script (locataire historique). Si la connexion échoue avec un compte\n' +
+        `    @demo.fr, c'est qu'ils n'existent pas sur ${DOMAIN} :\n` +
+        '    recréez-les et renseignez AUTH0_DEMO_*_ID dans .env.\n'
   );
 }
 
@@ -51,7 +71,7 @@ function daysAgo(n) {
 }
 
 async function main() {
-  verifierLocataireAuth0();
+  annoncerLocataireAuth0();
   console.log('🧹  Nettoyage des données démo existantes...');
   // Ordre inverse des FK
   await prisma.commission.deleteMany({});

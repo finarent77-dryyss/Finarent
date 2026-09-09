@@ -364,7 +364,7 @@ const DOCUMENTS = [
     source: 'TUTORIEL_UTILISATION.md',
     fichier: '01-Tutoriel-utilisation.html',
     titre: "Tutoriel d'utilisation",
-    surtitre: 'Document 1 sur 6 · Prise en main',
+    surtitre: 'Document 1 sur 8 · Prise en main',
     resume:
       "Comment utiliser la plateforme, rôle par rôle. Aucun prérequis technique. 15 minutes de lecture pour votre rôle, 45 minutes pour l'ensemble.",
   },
@@ -372,7 +372,7 @@ const DOCUMENTS = [
     source: 'AUDIT_2026-09_CLIENT.md',
     fichier: '02-Audit-plateforme.html',
     titre: 'Audit de la plateforme',
-    surtitre: 'Document 2 sur 6 · Synthèse pour la direction',
+    surtitre: 'Document 2 sur 8 · Synthèse pour la direction',
     resume:
       '21 constats, les points forts, et un plan de correction en 3 lots. Écrit sans vocabulaire technique.',
   },
@@ -380,7 +380,7 @@ const DOCUMENTS = [
     source: 'PROCEDURES_EXPLOITATION.md',
     fichier: '03-Procedures-exploitation.html',
     titre: "Procédures d'exploitation",
-    surtitre: 'Document 3 sur 6 · Manuel technique',
+    surtitre: 'Document 3 sur 8 · Manuel technique',
     resume:
       "Installation, déploiement, configuration des intégrations, procédures d'incident et procédures RGPD. Destiné à l'équipe technique.",
   },
@@ -388,7 +388,7 @@ const DOCUMENTS = [
     source: 'TESTS_LISTE_COMPLETE.md',
     fichier: '04-Plan-de-recette.html',
     titre: 'Plan de recette',
-    surtitre: 'Document 4 sur 6 · Contrôle qualité',
+    surtitre: 'Document 4 sur 8 · Contrôle qualité',
     resume:
       "263 cas de test couvrant les 7 espaces de la plateforme, avec protocole de recette manuelle et suite automatisée à mettre en place.",
   },
@@ -396,7 +396,7 @@ const DOCUMENTS = [
     source: 'AUDIT_2026-09.md',
     fichier: '05-Audit-technique.html',
     titre: 'Audit technique',
-    surtitre: 'Document 5 sur 6 · Version détaillée',
+    surtitre: 'Document 5 sur 8 · Version détaillée',
     resume:
       "La version complète de l'audit, avec le détail de chaque constat, les fichiers concernés et la correction attendue. Destinée à l'équipe technique.",
   },
@@ -404,9 +404,25 @@ const DOCUMENTS = [
     source: 'PLAN_CORRECTION_2026-09.md',
     fichier: '06-Plan-de-correction.html',
     titre: 'Plan de correction',
-    surtitre: 'Document 6 sur 6 · Feuille de route',
+    surtitre: 'Document 6 sur 8 · Feuille de route',
     resume:
       "Quoi faire, dans quel ordre, et comment prouver que c'est fait. Chaque action porte l'identifiant de son constat et une preuve de clôture.",
+  },
+  {
+    source: 'VERIFICATION_2026-09.md',
+    fichier: '07-Rapport-de-verification.html',
+    titre: 'Rapport de vérification',
+    surtitre: 'Document 7 sur 8 · Ce qui a été corrigé et prouvé',
+    resume:
+      "Ce qui a été corrigé, ce qui a été vérifié en conditions réelles, et ce qui reste ouvert. Chaque affirmation est adossée à une preuve reproductible.",
+  },
+  {
+    source: 'TESTS_DEBUTANT.md',
+    fichier: '08-Guide-de-test-manuel.html',
+    titre: 'Guide de test manuel',
+    surtitre: 'Document 8 sur 8 · À faire soi-même',
+    resume:
+      "La marche à suivre pour vérifier la plateforme par vous-même, écran par écran. Aucune compétence technique requise.",
   },
 ];
 

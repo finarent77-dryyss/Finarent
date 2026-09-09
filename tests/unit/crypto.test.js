@@ -147,3 +147,91 @@ describe('maskTail', () => {
     expect(maskTail(null)).toBe('');
   });
 });
+
+/**
+ * Compléments : les entrées réelles des colonnes chiffrées (pièces d'identité
+ * scannées en base64, données de signature, notes libres) sont plus longues et
+ * plus exotiques que les IBAN des cas ci-dessus.
+ */
+
+describe('encryptString / decryptString — entrées réelles', () => {
+  it('restitue une charge longue sans troncature', () => {
+    const long = 'A'.repeat(10000);
+    expect(decryptString(encryptString(long))).toBe(long);
+  });
+
+  it('restitue les emoji et les caractères hors du plan multilingue de base', () => {
+    const clair = 'Dossier ✅ signé 🔒 — 日本語 — 𝄞';
+    expect(decryptString(encryptString(clair))).toBe(clair);
+  });
+
+  it('préserve les espaces et les retours à la ligne significatifs', () => {
+    const clair = '  ligne 1\nligne 2\t fin  ';
+    expect(decryptString(encryptString(clair))).toBe(clair);
+  });
+
+  it('restitue une chaîne contenant le séparateur de format', () => {
+    // Le format de sortie est « v1:iv:tag:texte » : un texte clair truffé de
+    // deux-points ne doit pas perturber le découpage au déchiffrement.
+    const clair = 'v1:faux:chiffre:valeur';
+    const chiffre = encryptString(clair);
+    expect(chiffre.split(':')).toHaveLength(4);
+    expect(decryptString(chiffre)).toBe(clair);
+  });
+
+  it('chiffre deux fois de suite sans perte : le chiffré est lui-même une donnée', () => {
+    const clair = 'FR7630001007941234567890185';
+    expect(decryptString(decryptString(encryptString(encryptString(clair))))).toBe(clair);
+  });
+
+  it('laisse passer une donnée héritée qui commence par « v1: »', () => {
+    // L heuristique de migration se fiait au seul préfixe : une valeur en clair
+    // commençant par « v1: » (peu probable mais possible dans une note libre)
+    // était prise pour un chiffré et faisait lever une exception au lieu d être
+    // retournée telle quelle. Le contrôle porte désormais sur la forme complète
+    // — quatre segments base64, IV de 12 octets, tag de 16.
+    expect(decryptString('v1:aaaa:bbbb:cccc')).toBe('v1:aaaa:bbbb:cccc');
+    expect(decryptString('v1:pas-du-tout-chiffre')).toBe('v1:pas-du-tout-chiffre');
+    expect(decryptString('v1: note libre du conseiller')).toBe('v1: note libre du conseiller');
+    expect(isEncrypted('v1:pas-du-tout-chiffre')).toBe(false);
+    expect(isEncrypted('v1:aaaa:bbbb:cccc')).toBe(false);
+  });
+
+  it('échoue toujours sur un chiffré tronqué, plutôt que de le rendre en clair', () => {
+    // Une chaîne d alphabet base64 dont on ne peut pas identifier les segments
+    // reste ambiguë : restituer un secret amputé serait pire qu échouer.
+    expect(() => decryptString('v1:abc:def')).toThrow('Format chiffré invalide');
+    const chiffre = encryptString('secret');
+    const tronque = chiffre.split(':').slice(0, 3).join(':');
+    expect(() => decryptString(tronque)).toThrow('Format chiffré invalide');
+  });
+});
+
+describe('decryptJson — compléments', () => {
+  it('restitue un tableau à la racine', () => {
+    const valeur = [{ id: 1 }, { id: 2 }];
+    expect(decryptJson(encryptJson(valeur))).toEqual(valeur);
+  });
+
+  it('retourne la chaîne brute quand le contenu déchiffré n est pas du JSON', () => {
+    expect(decryptJson(encryptString('texte libre'))).toBe('texte libre');
+  });
+
+  it('retourne tel quel un JSON hérité stocké en clair', () => {
+    expect(decryptJson('{"deja":"clair"}')).toEqual({ deja: 'clair' });
+  });
+});
+
+describe('maskIban — bornes', () => {
+  it('masque à partir de huit caractères significatifs', () => {
+    expect(maskIban('FR761234')).toBe('FR76 *234'); // 8 caractères : un seul masqué
+    expect(maskIban('FR76123')).toBe('FR76123'); // 7 : rendu tel quel
+  });
+
+  it('ne révèle jamais plus de sept caractères, quelle que soit la longueur', () => {
+    for (const iban of ['FR7630001007941234567890185', 'MT84MALT011000012345MTLCAST001S']) {
+      const visibles = maskIban(iban).replace(/\s/g, '').replace(/\*/g, '');
+      expect(visibles).toHaveLength(7);
+    }
+  });
+});

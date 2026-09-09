@@ -98,12 +98,37 @@ function syncDatabase() {
       continue;
     }
 
-    // NON-FATAL : le schéma est déjà synchronisé par les déploiements précédents.
-    // Un échec transitoire de sync ne doit pas bloquer tout le déploiement —
-    // l'app se connectera normalement au runtime.
-    console.warn('⚠️  Sync DB impossible après plusieurs tentatives — build poursuivi.');
-    console.warn('   (schéma supposé déjà à jour ; vérifier les migrations si un modèle a changé)');
-    return;
+    // FATAL depuis le 9 septembre 2026.
+    //
+    // Ce bloc laissait auparavant le build se poursuivre : « le schéma est déjà
+    // synchronisé par les déploiements précédents ». C'est une hypothèse, pas un
+    // fait, et elle est fausse précisément dans le cas qui compte — une migration
+    // qui échoue est le signe que la base et le code ont divergé. Le déploiement
+    // partait alors quand même, et l'application servait du code attendant des
+    // colonnes absentes : des erreurs 500 en production, sans qu'aucune étape du
+    // build n'apparaisse en échec.
+    //
+    // C'est le même défaut que les crons comptés « réussis » sur un 401 (constat
+    // P0-2 de l'audit) : un échec invisible est pire qu'une panne franche. Un
+    // build qui s'arrête se voit et se corrige ; un build qui passe en mentant se
+    // découvre par l'appel d'un client.
+    //
+    // Les échecs transitoires (saturation de connexions) sont déjà absorbés par
+    // la boucle de réessai ci-dessus : arriver ici signifie une vraie divergence.
+    if (process.env.AUTORISER_DEPLOIEMENT_SANS_MIGRATION === '1') {
+      console.warn('⚠️  Sync DB en échec, mais AUTORISER_DEPLOIEMENT_SANS_MIGRATION=1.');
+      console.warn('   Contournement explicite : le build se poursuit avec un schéma');
+      console.warn('   potentiellement désynchronisé. À retirer dès l\'incident résolu.');
+      return;
+    }
+
+    throw new Error(
+      'Sync DB impossible après plusieurs tentatives — déploiement interrompu.\n' +
+      '   La base et schema.prisma ont divergé. Corrigez la migration en cause\n' +
+      '   (sortie Prisma ci-dessus) avant de redéployer.\n' +
+      '   Contournement d\'urgence, en connaissance de cause :\n' +
+      '   clever env set AUTORISER_DEPLOIEMENT_SANS_MIGRATION 1'
+    );
   }
 }
 
