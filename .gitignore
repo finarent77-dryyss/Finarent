@@ -24,6 +24,11 @@ dist-ssr
 # Documentation client locale (PDFs, sources logos, briefs) — hors git
 docs/client/
 
+# Livraison client : HTML generes par scripts/build-livraison.mjs.
+# Derivables des .md a tout moment — hors dépôt pour ne pas versionner 1 Mo
+# de sortie regeneree a chaque modification de la documentation.
+docs/livraison-client/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
