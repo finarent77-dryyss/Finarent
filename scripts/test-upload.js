@@ -9,6 +9,10 @@ import { PrismaClient } from '@prisma/client';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { uploadFile, readFileBuffer } from '../lib/storage.js';
+import { refuseProduction } from './_guard.js';
+
+// Refuse de tourner contre une base de production (audit P0-1 / P1-3).
+refuseProduction();
 
 const prisma = new PrismaClient();
 

@@ -13,6 +13,10 @@ import { PrismaClient } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
+import { refuseProduction } from './_guard.js';
+
+// Refuse de tourner contre une base de production (audit P0-1 / P1-3).
+refuseProduction();
 
 const prisma = new PrismaClient();
 
@@ -228,56 +232,47 @@ async function testPublicRoutes() {
 async function sendRecapEmails() {
   section('4. Email récap aux 3 boîtes test');
 
-  const smtpConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-  if (!smtpConfigured) {
-    info(`SMTP non configuré — emails non envoyés.`);
-    info(`Pour activer : ajouter SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM dans .env`);
-    report.emailsSent = { skipped: true, reason: 'SMTP non configuré' };
+  const { sendMail, isMailConfigured } = await import('../lib/email/send.js');
+  const { templateRapportInterne } = await import('../lib/email/templates.js');
+
+  if (!isMailConfigured()) {
+    info("Aucun canal d'envoi configuré (BREVO_API_KEY ou SMTP_*) — emails non envoyés.");
+    report.emailsSent = { skipped: true, reason: 'Aucun canal email configuré' };
     return;
   }
 
-  const nodemailer = (await import('nodemailer')).default;
-  const transport = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    secure: process.env.SMTP_PORT === '465',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const lignes = [
+    `Comptes créés : ${report.accounts.filter((a) => a.status === 'ok').length} / ${TEST_ACCOUNTS.length}`,
+    `Tables DB contrôlées : ${Object.values(report.db).filter((v) => typeof v === 'number').length}`,
+    `Routes testées : ${report.routes.length} (${report.routes.filter((r) => r.passed).length} OK)`,
+    ...report.accounts.map((a) => `${a.role} · ${a.email} · ${a.status === 'ok' ? 'OK' : 'KO — ' + a.error}`),
+  ];
 
-  const summary = `
-    <h2>Récap test E2E Finarent</h2>
-    <p>Lancé le ${new Date().toLocaleString('fr-FR')}</p>
-    <table cellpadding="6" border="1" style="border-collapse:collapse;font-family:sans-serif">
-      <tr><th align="left">Étape</th><th align="left">Résultat</th></tr>
-      <tr><td>Comptes créés</td><td>${report.accounts.filter(a => a.status === 'ok').length} / ${TEST_ACCOUNTS.length}</td></tr>
-      <tr><td>Tables DB OK</td><td>${Object.values(report.db).filter(v => typeof v === 'number').length}</td></tr>
-      <tr><td>Routes testées</td><td>${report.routes.length} (${report.routes.filter(r => r.passed).length} OK)</td></tr>
-      <tr><td>Total OK</td><td>${report.summary.passed}</td></tr>
-      <tr><td>Total KO</td><td>${report.summary.failed}</td></tr>
-    </table>
-    <h3>Comptes test créés</h3>
-    <ul>
-      ${report.accounts.map((a) => `<li><strong>${a.role}</strong> · ${a.email} · ${a.status === 'ok' ? '✓' : '✗ ' + a.error}</li>`).join('')}
-    </ul>
-    <p style="color:#666;font-size:12px">Ce mail a été envoyé automatiquement par <code>scripts/test-e2e.js</code></p>
-  `;
+  const total = report.summary.passed + report.summary.failed;
+  const { subject, html, text } = templateRapportInterne({
+    titre: 'Recette end-to-end Finarent',
+    intro: 'Rapport automatique de <code>scripts/test-e2e.js</code>.',
+    lignes,
+    reussis: report.summary.passed,
+    total,
+  });
 
   report.emailsSent = { recipients: [], errors: [] };
   for (const acc of TEST_ACCOUNTS) {
-    try {
-      await transport.sendMail({
-        from: `"Finarent Test E2E" <${from}>`,
-        to: acc.email,
-        subject: `[Finarent E2E] Test ${acc.role} — ${new Date().toLocaleDateString('fr-FR')}`,
-        html: summary,
-      });
-      ok(`Email envoyé à ${acc.email}`);
+    const res = await sendMail({
+      to: acc.email,
+      subject: `${subject} — ${acc.role}`,
+      html,
+      text,
+      log: { type: 'TRANSACTIONAL', source: 'TEST_E2E' },
+    });
+    if (res.sent) {
+      ok(`Email envoyé à ${acc.email} (${res.provider})`);
       report.emailsSent.recipients.push(acc.email);
       report.summary.passed++;
-    } catch (e) {
-      ko(`Email ${acc.email} : ${e.message}`);
-      report.emailsSent.errors.push({ to: acc.email, error: e.message });
+    } else {
+      ko(`Email ${acc.email} : ${res.error}`);
+      report.emailsSent.errors.push({ to: acc.email, error: res.error });
       report.summary.failed++;
     }
   }

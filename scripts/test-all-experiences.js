@@ -12,10 +12,24 @@
 
 import { PrismaClient } from '@prisma/client';
 import { readFileSync } from 'node:fs';
+import { refuseProduction } from './_guard.js';
+
+// Refuse de tourner contre une base de production (audit P0-1 / P1-3).
+refuseProduction();
 
 const prisma = new PrismaClient();
 const PREFIX = 'Andrys Test 2026';
-const DOMAIN = 'dev-44jsict2grc7s0jn.eu.auth0.com';
+
+// Le locataire Auth0 se lit dans l'environnement (audit P1-2). Il a longtemps
+// ete code en dur sur dev-44jsict2grc7s0jn.eu.auth0.com, qui n'est plus le
+// locataire actif : les comptes crees ne pouvaient pas se connecter, sans que
+// rien ne le signale. Le projet a un historique de deux locataires (un US, un
+// EU) — verifier lequel repond via /api/auth/login avant de conclure.
+const DOMAIN = process.env.AUTH0_DOMAIN;
+if (!DOMAIN) {
+  console.error('⛔ AUTH0_DOMAIN absent — renseignez-le dans .env avant de lancer ce script.');
+  process.exit(1);
+}
 
 // ─── M2M token Auth0 ──────────────────────────────────────────
 let TOKEN;

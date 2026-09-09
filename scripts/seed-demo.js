@@ -6,11 +6,20 @@
 // et leur ligne DB est upsert avec le bon rôle.
 
 import { PrismaClient } from '@prisma/client';
+import { refuseProduction } from './_guard.js';
+
+// Refuse de tourner contre une base de production (audit P0-1 / P1-3).
+refuseProduction();
 
 const prisma = new PrismaClient();
 
 // ─── Auth0 IDs des 4 comptes démo (créés via Management API) ───
-// Tenant: dev-44jsict2grc7s0jn.eu.auth0.com
+//
+// Ces identifiants n'existent que sur le locataire ci-dessous. Le projet en a
+// deux (un US, un EU) : si AUTH0_DOMAIN en désigne un autre, les lignes créées
+// ici ne correspondront à aucun compte réel et personne ne pourra se connecter
+// avec (audit P1-2). Le seed « réussissait » alors sans que rien ne l'indique.
+const AUTH0_TENANT_DES_IDS = 'dev-44jsict2grc7s0jn.eu.auth0.com';
 const AUTH0 = {
   admin: 'auth0|6a025639a8352bcd01f1e289',
   client: 'auth0|6a025639cbde62d766cfef79',
@@ -18,11 +27,31 @@ const AUTH0 = {
   insurer: 'auth0|6a02563a065428472e9c5a79',
 };
 
+/** Prévient si les identifiants figés ne correspondent pas au locataire actif. */
+function verifierLocataireAuth0() {
+  const actif = process.env.AUTH0_DOMAIN;
+  if (!actif) {
+    console.warn('⚠️  AUTH0_DOMAIN absent — impossible de vérifier le locataire des comptes démo.\n');
+    return;
+  }
+  if (actif === AUTH0_TENANT_DES_IDS) return;
+
+  console.warn(
+    `\n⚠️  Locataire Auth0 différent de celui des comptes démo.\n` +
+    `   AUTH0_DOMAIN actif        : ${actif}\n` +
+    `   Locataire des identifiants : ${AUTH0_TENANT_DES_IDS}\n` +
+    `   Les 4 comptes @demo.fr seront créés en base mais NE POURRONT PAS se\n` +
+    `   connecter. Recréez-les sur le locataire actif via la Management API,\n` +
+    `   puis remplacez les identifiants ci-dessus.\n`
+  );
+}
+
 function daysAgo(n) {
   return new Date(Date.now() - n * 86400000);
 }
 
 async function main() {
+  verifierLocataireAuth0();
   console.log('🧹  Nettoyage des données démo existantes...');
   // Ordre inverse des FK
   await prisma.commission.deleteMany({});
