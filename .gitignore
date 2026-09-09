@@ -52,3 +52,6 @@ test-e2e-report.json
 
 .vercel
 bash.exe.stackdump
+
+# Aperçus de mailing générés localement (scripts/preview-emails.mjs)
+.email-preview/

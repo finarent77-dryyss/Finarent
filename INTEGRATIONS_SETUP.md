@@ -1,4 +1,4 @@
-# Intégrations Finarent — Setup (Resend, Brevo, reCAPTCHA, Stripe)
+# Intégrations Finarent — Setup (Brevo, reCAPTCHA, Stripe)
 
 > ⚠️ Toutes ces variables doivent être ajoutées **dans la console Clever Cloud**
 > (app finarent → Variables d'environnement), pas seulement dans le `.env` local.
@@ -6,46 +6,59 @@
 
 ---
 
-## 1. Resend — emails transactionnels (SMTP)
+## 1. Brevo — canal d'envoi principal (API)
 
-Le code utilise Nodemailer (SMTP) — cf. `lib/email.js`. Resend s'branche en SMTP, sans modif de code.
-
-**Étapes :**
-1. Crée un compte sur [resend.com](https://resend.com)
-2. **Domains** → ajoute `finarent.com` → Resend te donne des enregistrements **DKIM/SPF** (type TXT/MX/CNAME) → ajoute-les dans **Hostinger** (DNS) → attends la vérification ✅
-3. **API Keys** → crée une clé (`re_...`)
-
-**Variables :**
-```
-SMTP_HOST=smtp.resend.com
-SMTP_PORT=587
-SMTP_USER=resend
-SMTP_PASS=re_xxxxxxxxxxxxxxxxxxxx      # ta clé API Resend
-SMTP_FROM=noreply@finarent.com          # doit être sur le domaine vérifié
-ADMIN_EMAIL=admin@finarent.com
-```
-
-> Sans domaine vérifié, Resend n'envoie qu'à ta propre adresse (mode test).
-
----
-
-## 2. Brevo — prospection centre d'appels (API)
-
-Sert aux emails de prospection + sync contacts — cf. `lib/brevo/`.
+Brevo porte **tous** les emails Finarent : transactionnels (confirmations,
+relances), prospection centre d'appels et campagnes de masse.
+Code : `lib/brevo/` + `lib/email/send.js`. Charte et templates : `docs/CHARTE_EMAIL.md`.
 
 **Étapes :**
 1. Compte sur [brevo.com](https://www.brevo.com)
-2. **SMTP & API** → **API Keys** → crée une clé (`xkeysib-...`)
-3. **Contacts** → crée une liste marketing → note son **ID** (un nombre)
-4. (Optionnel) valide l'email expéditeur `ne-pas-repondre@finarent.com`
+2. **Senders, Domains & IPs → Domains** → ajoute `finarent.fr` → ajoute les
+   enregistrements **DKIM + SPF** fournis dans le DNS Hostinger → attends la
+   validation ✅ (sans domaine authentifié, Gmail classe en spam)
+3. Ajoute aussi un **DMARC** : TXT sur `_dmarc.finarent.fr` →
+   `v=DMARC1; p=none; rua=mailto:contact@finarent.fr`
+4. **SMTP & API → API Keys** → crée une clé (`xkeysib-...`)
+5. **Contacts** → crée la liste marketing → note son **ID** (un nombre)
+6. **Transactional → Settings → Webhook** → URL
+   `https://finarent.fr/api/webhooks/brevo`, en-tête `x-brevo-token` =
+   `BREVO_WEBHOOK_TOKEN` (remonte les ouvertures et bounces dans `EmailLog`)
+7. **Security → Authorized IPs** : si l'option est active, autorise l'IP de
+   sortie Clever Cloud, sinon l'API refuse les envois (le code bascule alors
+   automatiquement sur le repli SMTP)
 
 **Variables :**
 ```
 BREVO_API_KEY=xkeysib-xxxxxxxxxxxx
-BREVO_SENDER_EMAIL=ne-pas-repondre@finarent.com
-BREVO_SENDER_NAME=Finarent — Centre d'appels
-BREVO_MARKETING_LIST_ID=12               # l'ID de ta liste
-BREVO_WEBHOOK_TOKEN=<chaîne aléatoire>   # ex: openssl rand -hex 16
+BREVO_SENDER_EMAIL=ne-pas-repondre@finarent.fr   # doit être sur le domaine authentifié
+BREVO_SENDER_NAME=Finarent — Centre d'appels     # nom affiché en prospection
+BREVO_MARKETING_LIST_ID=12                       # l'ID de ta liste
+BREVO_WEBHOOK_TOKEN=<chaîne aléatoire>           # ex: openssl rand -hex 16
+ADMIN_EMAIL=admin@finarent.fr                    # destinataire des alertes internes
+APP_BASE_URL=https://finarent.fr                 # base des liens et du logo des emails
+UNSUBSCRIBE_SECRET=<chaîne aléatoire>            # signe les liens de désabonnement
+```
+
+> `UNSUBSCRIBE_SECRET` est optionnel : à défaut le code réutilise
+> `ENCRYPTION_KEY` puis `CRON_SECRET`. Si aucun n'est présent, le lien de
+> désabonnement retombe sur un `mailto:` — conforme, mais moins confortable.
+
+---
+
+## 2. SMTP — canal de repli
+
+`lib/email/send.js` bascule sur SMTP si Brevo n'est pas configuré ou refuse
+l'envoi. N'importe quel relais convient (le relais SMTP de Brevo lui-même,
+Resend, un SMTP OVH…). Sans ces variables, il n'y a simplement pas de repli.
+
+**Variables :**
+```
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=<login SMTP Brevo>
+SMTP_PASS=<clé SMTP Brevo>
+SMTP_FROM=ne-pas-repondre@finarent.fr    # doit être sur le domaine authentifié
 ```
 
 ---
@@ -95,7 +108,9 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxx
 ## Checklist de déploiement
 
 - [ ] Variables ajoutées dans **Clever Cloud** (pas juste `.env` local)
-- [ ] DNS Resend (DKIM/SPF) vérifiés dans Hostinger
+- [ ] DNS Brevo (DKIM/SPF/DMARC) vérifiés dans Hostinger
+- [ ] Webhook Brevo pointant sur `https://finarent.fr/api/webhooks/brevo`
+- [ ] Templates relus : `node scripts/preview-emails.mjs` + test Gmail/Outlook
 - [ ] Webhook Stripe pointant sur `https://finarent.com/api/webhooks/stripe`
 - [ ] `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` mise AVANT le build
 - [ ] **Redéploiement** Clever effectué après ajout des variables
