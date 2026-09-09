@@ -1,0 +1,58 @@
+# Intégration continue — Finarent
+#
+# Action A1 du plan de correction : rien n'empêchait jusqu'ici de pousser un
+# code qui ne compile pas. Ce workflow est la barrière minimale — typage, lint,
+# tests unitaires — sur chaque poussée et chaque pull request.
+#
+# Volontairement sans secret ni base de données : ces trois contrôles n'en ont
+# pas besoin. Le build Next et les tests d'intégration viendront quand un
+# environnement de recette existera (action A5 du plan).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Une seule exécution par branche : une nouvelle poussée annule la précédente.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verification:
+    name: Typage, lint et tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+
+      - name: Installer les dépendances
+        # `npm ci` impose un package-lock.json à jour : une dérive échoue ici
+        # plutôt qu'en production. Le postinstall lance `prisma generate`.
+        run: npm ci
+
+      - name: Vérifier le typage
+        run: npx tsc --noEmit
+
+      - name: Vérifier le lint
+        run: npm run lint
+
+      - name: Lancer les tests unitaires
+        run: npm test
+
+      - name: Signaler les vulnérabilités connues
+        # Informatif : les quatre vulnérabilités restantes exigent des montées
+        # majeures (lot 3). Ne doit pas bloquer une pull request tant que
+        # ces montées ne sont pas faites.
+        run: npm audit --omit=dev || true
