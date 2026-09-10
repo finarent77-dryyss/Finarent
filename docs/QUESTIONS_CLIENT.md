@@ -39,13 +39,15 @@ La page `/privacy` mentionne `dpo@finarent.fr` en placeholder.
 - [ ] **Registre des traitements** (article 30 RGPD) — qui le tient ?
 - [ ] **Procédure de notification de violation** (CNIL sous 72 h) — qui pilote ?
 - [ ] **Sous-traitants** : confirmer les contrats RGPD signés
-  - [ ] Auth0 (auth)
-  - [ ] Vercel (hébergement)
-  - [ ] Neon (base de données)
-  - [ ] Supabase (stockage documents)
-  - [ ] PostHog (analytics)
-  - [ ] Provider SMTP
-  - [ ] YouSign (signature)
+  > Liste corrigée le 10 septembre 2026. La précédente citait Vercel, Neon,
+  > Supabase et YouSign — **aucun n'est utilisé**. La politique de confidentialité
+  > portait la même erreur ; elle a été corrigée et **doit être relue par votre
+  > conseil juridique**.
+  - [ ] **Clever Cloud** (hébergement, base de données PostgreSQL, stockage Cellar des pièces justificatives)
+  - [ ] **Auth0** (comptes et authentification)
+  - [ ] **Brevo** (emails de suivi de dossier et communications commerciales)
+  - [ ] **Google reCAPTCHA** (protection anti-robot des formulaires publics — analyse l'adresse IP et le comportement de navigation ; transfert hors Union européenne à encadrer)
+  - Non utilisés aujourd'hui, à ajouter seulement s'ils sont activés : Sentry, PostHog, Microsoft Clarity, Stripe, Ringover, Twilio.
 
 ## 4. Identité visuelle & branding
 
@@ -107,13 +109,21 @@ Le site envoie : confirmation demande, alerte admin, document reçu, relance doc
 - [ ] **Antivirus** : scanner avant insertion en bucket ? (recommandé pour KBIS, bilans, RIB)
 - [ ] **Rétention** : 30 jours soft-delete + purge → confirmer la durée
 
-## 10. Signature électronique (YouSign)
+## 10. Signature électronique — tranché
 
-- [ ] **Compte YouSign** activé
-- [ ] **API key** prod
-- [ ] **Workflow** : signature simple ou qualifiée eIDAS ?
-- [ ] **Webhook URL** configurée pour retour de statut
-- [ ] **Templates de contrats** Finarent à charger dans YouSign
+**Décision du 10 septembre 2026 : la signature reste interne**, sans prestataire.
+Aucun compte à ouvrir, aucune clé à fournir. Le module YouSign, qui n'avait jamais
+été branché, a été supprimé du code.
+
+La signature en service relève de l'**article 1367 du Code civil** — signature
+électronique simple. La plateforme recueille et conserve elle-même les éléments
+de preuve : tracé, horodatage, adresse IP du signataire, empreinte du document.
+
+- [ ] **Point à valider avec votre conseil juridique** : cette valeur probante
+      simple convient-elle à vos contrats ? Une signature **qualifiée** eIDAS est
+      présumée fiable en cas de contestation ; une signature simple doit être
+      prouvée par celui qui s'en prévaut. Si vous annoncez commercialement une
+      signature qualifiée, il faudra rouvrir ce chantier (environ une journée).
 
 ## 11. Téléphonie Ringover
 
