@@ -29,6 +29,24 @@ import path from 'node:path';
 const prismaMoque = vi.hoisted(() => ({ emailLog: { create: vi.fn() } }));
 vi.mock('@/lib/prisma', () => ({ prisma: prismaMoque }));
 
+/**
+ * Délai porté à 20 s pour ce fichier — corrigé le 10 septembre 2026.
+ *
+ * Ces trois cas passaient seuls et échouaient en suite complète, sur un délai
+ * dépassé et non sur une assertion. La cause n'est pas la logique testée : pour
+ * vérifier que le transport est réellement neutralisé, il faut charger
+ * `lib/email/send.js` — donc `nodemailer` et sa dépendance de journalisation
+ * Prisma. Ce seul chargement prend déjà près d'une seconde à vide, et bien
+ * davantage quand vingt-trois fichiers de test se disputent les mêmes cœurs.
+ *
+ * Un test qui passe seul et échoue en groupe est pire qu'un test qui échoue :
+ * il apprend à ignorer les échecs. On nomme donc la contrainte au lieu de la
+ * subir. Si ce délai devenait à son tour insuffisant, la vraie réponse serait
+ * d'alléger le graphe de modules — charger `nodemailer` à la demande plutôt
+ * qu'à l'import — et non de l'augmenter encore.
+ */
+vi.setConfig({ testTimeout: 20_000 });
+
 import {
   envoiReelAutorise,
   simulerEnvoi,
