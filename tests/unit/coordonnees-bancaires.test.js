@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { normalizeIban, formatIban, isValidIban, normalizeBic, isValidBic } from '@/lib/bank.js';
 import { isValidIban as isValidIbanAffilie } from '@/lib/affiliate-fiscal.js';
 import { generateSepaXml } from '@/lib/sepa-xml.js';
+import { ribValide, coordonneesBancairesValides, COMPANY_INFO } from '@/lib/invoicing/company.js';
 
 /**
  * Coordonnées bancaires saisies par un client : elles finissent dans un ordre
@@ -139,5 +140,39 @@ describe('cohérence avec le fichier SEPA effectivement produit', () => {
     }
     // Le donneur d ordre est normalisé au passage.
     expect(xml).toContain('<IBAN>FR7630001007941234567890185</IBAN>');
+  });
+});
+
+describe('ribValide — le RIB de Finarent imprimé sur les factures', () => {
+  it('refuse le gabarit livré avec le projet', () => {
+    // Ce gabarit satisfait pourtant la clé mod 97 : seul le contrôle de
+    // l'identifiant national tout à zéro l'écarte.
+    expect(isValidIban('FR76 0000 0000 0000 0000 0000 000')).toBe(true);
+    expect(ribValide('FR76 0000 0000 0000 0000 0000 000', 'XXXXFRPPXXX')).toBe(false);
+  });
+
+  it('refuse un IBAN réel comportant une faute de frappe', () => {
+    // Défaut corrigé : le contrôle de structure seul acceptait ce numéro, qui
+    // partait alors sur chaque facture et se faisait rejeter par la banque.
+    expect(ribValide('FR7630001007941234567890186', 'BNPAFRPPXXX')).toBe(false);
+  });
+
+  it('refuse un BIC de gabarit même avec un IBAN réel', () => {
+    expect(ribValide('FR7630001007941234567890185', 'XXXXFRPPXXX')).toBe(false);
+  });
+
+  it('accepte un RIB réellement valide', () => {
+    expect(ribValide('FR76 3000 1007 9412 3456 7890 185', 'BNPAFRPPXXX')).toBe(true);
+  });
+
+  it('refuse une valeur absente', () => {
+    expect(ribValide(null, null)).toBe(false);
+    expect(ribValide('FR7630001007941234567890185', null)).toBe(false);
+  });
+
+  it('la garde société refuse tant que company.js porte le gabarit', () => {
+    // Se retournera au vert le jour où le RIB réel de Finarent y sera saisi ;
+    // c'est exactement le signal attendu.
+    expect(coordonneesBancairesValides()).toBe(ribValide(COMPANY_INFO.iban, COMPANY_INFO.bic));
   });
 });

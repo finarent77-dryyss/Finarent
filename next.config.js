@@ -1,8 +1,44 @@
 import { withSentryConfig } from '@sentry/nextjs';
 
 /** @type {import('next').NextConfig} */
+/**
+ * Le build tourne-t-il sur Clever Cloud ? La plateforme injecte `CC_APP_ID`.
+ *
+ * Le déploiement du 10 septembre 2026 a échoué sur
+ * « Next.js build worker exited with code: null and signal: SIGKILL » : pas un
+ * plantage de Next, mais le noyau qui tue le processus faute de mémoire.
+ * L'instance de build dispose d'environ 2 Go (Clever Cloud y impose
+ * `--max-old-space-size=1262`), et la génération statique des ~165 pages —
+ * dont les 41 simulateurs — dépasse désormais ce plafond.
+ *
+ * Augmenter `--max-old-space-size` ne servirait à rien : c'est le conteneur qui
+ * plafonne, V8 se ferait tuer plus tard mais tout autant.
+ *
+ * Le bridage est donc conditionnel plutôt que permanent : ralentir le build de
+ * chaque développeur et celui de l'intégration continue pour une contrainte
+ * d'hébergement serait payer partout le prix d'un problème qui n'existe qu'à un
+ * seul endroit.
+ */
+const buildContraintEnMemoire = Boolean(process.env.CC_APP_ID);
+
 const nextConfig = {
   reactStrictMode: true,
+
+  ...(buildContraintEnMemoire
+    ? {
+        experimental: {
+          // Génération statique séquentielle. C'est le poste de dépense
+          // principal : chaque worker charge sa propre copie du runtime React
+          // et du graphe de modules. Un seul worker rend le build plus long,
+          // mais il tient dans l'enveloppe mémoire.
+          cpus: 1,
+          // Libère les structures intermédiaires de webpack au fil de la
+          // compilation au lieu de les conserver jusqu'à la fin.
+          webpackMemoryOptimizations: true,
+        },
+      }
+    : {}),
+
   // Mode standalone : requis pour Clever Cloud (serveur Node.js autonome)
   output: 'standalone',
   async redirects() {
