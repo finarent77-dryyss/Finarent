@@ -159,7 +159,7 @@
     "submit": "Envoyer ma demande",
     "sending": "Envoi en cours...",
     "submitSuccess": "Demande envoyée",
-        "submitError": "Échec de l’envoi",
+    "submitError": "Échec de l’envoi",
     "successPrefix": "Votre demande a bien été envoyée !",
     "successMessage": "Nous vous recontacterons sous 48h.",
     "errorMessage": "Une erreur est survenue. Veuillez réessayer ou nous contacter directement.",
@@ -250,26 +250,66 @@
       "rcPro": {
         "title": "RC Professionnelle",
         "description": "Protégez-vous contre les dommages causés à des tiers dans le cadre de votre activité professionnelle.",
-        "advantages": ["Couverture des dommages corporels et matériels", "Protection juridique incluse", "Franchise adaptable", "Couverture mondiale"],
-        "idealFor": ["Consultants", "Artisans", "Professions libérales", "PME"]
+        "advantages": [
+          "Couverture des dommages corporels et matériels",
+          "Protection juridique incluse",
+          "Franchise adaptable",
+          "Couverture mondiale"
+        ],
+        "idealFor": [
+          "Consultants",
+          "Artisans",
+          "Professions libérales",
+          "PME"
+        ]
       },
       "do": {
         "title": "Dommage Ouvrage",
         "description": "Garantissez le financement des réparations en cas de sinistre sur vos constructions.",
-        "advantages": ["Préfinancement des réparations", "Couverture décennale", "Protection du maître d'ouvrage", "Gestion simplifiée des sinistres"],
-        "idealFor": ["Promoteurs", "Constructeurs", "Maîtres d'ouvrage", "SCI"]
+        "advantages": [
+          "Préfinancement des réparations",
+          "Couverture décennale",
+          "Protection du maître d'ouvrage",
+          "Gestion simplifiée des sinistres"
+        ],
+        "idealFor": [
+          "Promoteurs",
+          "Constructeurs",
+          "Maîtres d'ouvrage",
+          "SCI"
+        ]
       },
       "flotte": {
         "title": "Assurance Flotte",
         "description": "Une couverture globale pour l'ensemble de vos véhicules professionnels.",
-        "advantages": ["Tarif dégressif selon la taille de flotte", "Gestion centralisée", "Assistance 24/7", "Véhicule de remplacement"],
-        "idealFor": ["Transporteurs", "Commerciaux", "Artisans", "Entreprises multi-sites"]
+        "advantages": [
+          "Tarif dégressif selon la taille de flotte",
+          "Gestion centralisée",
+          "Assistance 24/7",
+          "Véhicule de remplacement"
+        ],
+        "idealFor": [
+          "Transporteurs",
+          "Commerciaux",
+          "Artisans",
+          "Entreprises multi-sites"
+        ]
       },
       "multirisque": {
         "title": "Multirisque Pro",
         "description": "Protégez vos locaux, votre matériel et votre activité avec une couverture complète.",
-        "advantages": ["Couverture incendie et dégâts des eaux", "Vol et vandalisme", "Perte d'exploitation", "Bris de machine"],
-        "idealFor": ["Commerces", "Bureaux", "Ateliers", "Entrepôts"]
+        "advantages": [
+          "Couverture incendie et dégâts des eaux",
+          "Vol et vandalisme",
+          "Perte d'exploitation",
+          "Bris de machine"
+        ],
+        "idealFor": [
+          "Commerces",
+          "Bureaux",
+          "Ateliers",
+          "Entrepôts"
+        ]
       }
     },
     "solutions": {
@@ -468,17 +508,45 @@
     ],
     "guaranteesTitle": "Nos engagements",
     "guarantees": [
-      { "icon": "fa-bolt", "title": "Réponse sous 48h", "description": "Engagement contractuel de notre équipe sur le délai de réponse." },
-      { "icon": "fa-circle-check", "title": "Sans engagement", "description": "Vous restez libre d'accepter ou de refuser l'offre proposée." },
-      { "icon": "fa-shield-halved", "title": "100% sécurisé", "description": "Données chiffrées AES-256, conformité RGPD et hébergement européen." },
-      { "icon": "fa-user-tie", "title": "Conseiller dédié", "description": "Un interlocuteur unique tout au long de votre dossier." }
+      {
+        "icon": "fa-bolt",
+        "title": "Réponse sous 48h",
+        "description": "Engagement contractuel de notre équipe sur le délai de réponse."
+      },
+      {
+        "icon": "fa-circle-check",
+        "title": "Sans engagement",
+        "description": "Vous restez libre d'accepter ou de refuser l'offre proposée."
+      },
+      {
+        "icon": "fa-shield-halved",
+        "title": "100% sécurisé",
+        "description": "Données chiffrées AES-256, conformité RGPD et hébergement européen."
+      },
+      {
+        "icon": "fa-user-tie",
+        "title": "Conseiller dédié",
+        "description": "Un interlocuteur unique tout au long de votre dossier."
+      }
     ],
     "faqTitle": "Questions fréquentes sur le processus",
     "faq": [
-      { "q": "Quel est le délai moyen de traitement ?", "a": "48h pour une première réponse, 5 à 7 jours ouvrés en moyenne pour le déblocage des fonds après signature." },
-      { "q": "Quels documents sont nécessaires ?", "a": "Un Kbis de moins de 3 mois, un RIB professionnel et la pièce d'identité du gérant. Les bilans ne sont pas systématiquement exigés — en location longue durée (LLD), le financement est possible dès la création de votre entreprise. Notre conseiller vous indiquera précisément les pièces à fournir." },
-      { "q": "Y a-t-il des frais de dossier ?", "a": "Non, l'étude de votre dossier et la mise en relation avec nos partenaires sont entièrement gratuites." },
-      { "q": "Puis-je annuler en cours de procédure ?", "a": "Oui, vous pouvez annuler votre demande à tout moment avant la signature électronique, sans aucun frais." }
+      {
+        "q": "Quel est le délai moyen de traitement ?",
+        "a": "48h pour une première réponse, 5 à 7 jours ouvrés en moyenne pour le déblocage des fonds après signature."
+      },
+      {
+        "q": "Quels documents sont nécessaires ?",
+        "a": "Un Kbis de moins de 3 mois, un RIB professionnel et la pièce d'identité du gérant. Les bilans ne sont pas systématiquement exigés — en location longue durée (LLD), le financement est possible dès la création de votre entreprise. Notre conseiller vous indiquera précisément les pièces à fournir."
+      },
+      {
+        "q": "Y a-t-il des frais de dossier ?",
+        "a": "Non, l'étude de votre dossier et la mise en relation avec nos partenaires sont entièrement gratuites."
+      },
+      {
+        "q": "Puis-je annuler en cours de procédure ?",
+        "a": "Oui, vous pouvez annuler votre demande à tout moment avant la signature électronique, sans aucun frais."
+      }
     ],
     "ctaTitle": "Prêt à démarrer votre projet ?",
     "ctaDescription": "Simulez votre financement en 2 minutes, sans engagement.",
@@ -492,30 +560,105 @@
     "advantagesTitle": "6 avantages clés du leasing",
     "advantagesSubtitle": "Une solution flexible, fiscalement optimisée et sans impact sur votre capacité d'endettement.",
     "advantages": [
-      { "icon": "fa-piggy-bank", "title": "Préservez votre trésorerie", "description": "Aucun apport initial requis. Votre trésorerie reste disponible pour développer votre activité, recruter ou investir ailleurs." },
-      { "icon": "fa-receipt", "title": "Avantages fiscaux", "description": "Les mensualités sont 100% déductibles du résultat imposable, contrairement à l'amortissement d'un achat classique." },
-      { "icon": "fa-percent", "title": "TVA récupérable", "description": "La TVA est étalée sur les mensualités, ce qui améliore votre cash-flow par rapport à un achat où vous décaissez la TVA en une fois." },
-      { "icon": "fa-arrows-rotate", "title": "Renouvellement facile", "description": "À l'issue du contrat, vous pouvez restituer le matériel, l'acheter à sa valeur résiduelle ou le renouveler — vous gardez toujours du matériel récent." },
-      { "icon": "fa-chart-line", "title": "Pas d'impact sur l'endettement", "description": "En crédit-bail, le matériel n'apparaît pas au bilan : vous préservez votre capacité d'emprunt pour d'autres projets stratégiques." },
-      { "icon": "fa-screwdriver-wrench", "title": "Maintenance incluse", "description": "De nombreux contrats incluent la maintenance, l'assurance et l'assistance, ce qui simplifie votre gestion et lisse vos coûts." }
+      {
+        "icon": "fa-piggy-bank",
+        "title": "Préservez votre trésorerie",
+        "description": "Aucun apport initial requis. Votre trésorerie reste disponible pour développer votre activité, recruter ou investir ailleurs."
+      },
+      {
+        "icon": "fa-receipt",
+        "title": "Avantages fiscaux",
+        "description": "Les mensualités sont 100% déductibles du résultat imposable, contrairement à l'amortissement d'un achat classique."
+      },
+      {
+        "icon": "fa-percent",
+        "title": "TVA récupérable",
+        "description": "La TVA est étalée sur les mensualités, ce qui améliore votre cash-flow par rapport à un achat où vous décaissez la TVA en une fois."
+      },
+      {
+        "icon": "fa-arrows-rotate",
+        "title": "Renouvellement facile",
+        "description": "À l'issue du contrat, vous pouvez restituer le matériel, l'acheter à sa valeur résiduelle ou le renouveler — vous gardez toujours du matériel récent."
+      },
+      {
+        "icon": "fa-chart-line",
+        "title": "Pas d'impact sur l'endettement",
+        "description": "En crédit-bail, le matériel n'apparaît pas au bilan : vous préservez votre capacité d'emprunt pour d'autres projets stratégiques."
+      },
+      {
+        "icon": "fa-screwdriver-wrench",
+        "title": "Maintenance incluse",
+        "description": "De nombreux contrats incluent la maintenance, l'assurance et l'assistance, ce qui simplifie votre gestion et lisse vos coûts."
+      }
     ],
     "comparisonTitle": "Leasing vs Achat : le comparatif",
-    "comparisonHeaders": ["Critère", "Achat comptant", "Crédit bancaire", "Leasing pro"],
+    "comparisonHeaders": [
+      "Critère",
+      "Achat comptant",
+      "Crédit bancaire",
+      "Leasing pro"
+    ],
     "comparison": [
-      ["Apport initial", "100%", "10-30%", "0%"],
-      ["Impact trésorerie", "Fort", "Modéré", "Faible"],
-      ["Déductibilité fiscale", "Amortissement", "Intérêts seulement", "100% mensualités"],
-      ["TVA", "Décaissée immédiatement", "Décaissée immédiatement", "Étalée"],
-      ["Bilan", "Inscrit à l'actif", "Inscrit + dette", "Hors bilan*"],
-      ["Renouvellement matériel", "À votre charge", "À votre charge", "Inclus possible"]
+      [
+        "Apport initial",
+        "100%",
+        "10-30%",
+        "0%"
+      ],
+      [
+        "Impact trésorerie",
+        "Fort",
+        "Modéré",
+        "Faible"
+      ],
+      [
+        "Déductibilité fiscale",
+        "Amortissement",
+        "Intérêts seulement",
+        "100% mensualités"
+      ],
+      [
+        "TVA",
+        "Décaissée immédiatement",
+        "Décaissée immédiatement",
+        "Étalée"
+      ],
+      [
+        "Bilan",
+        "Inscrit à l'actif",
+        "Inscrit + dette",
+        "Hors bilan*"
+      ],
+      [
+        "Renouvellement matériel",
+        "À votre charge",
+        "À votre charge",
+        "Inclus possible"
+      ]
     ],
     "comparisonNote": "* Sous conditions, selon les normes comptables applicables (IFRS 16 peut requérir une comptabilisation au bilan).",
     "useCasesTitle": "Le leasing est idéal pour…",
     "useCases": [
-      { "icon": "fa-truck", "title": "Véhicules utilitaires & flotte", "description": "Renouvelez votre flotte tous les 3-4 ans sans plomber votre bilan." },
-      { "icon": "fa-laptop", "title": "Matériel informatique", "description": "Évitez l'obsolescence rapide grâce à des contrats courts et évolutifs." },
-      { "icon": "fa-industry", "title": "Machines & équipements industriels", "description": "Financez des outils de production coûteux tout en préservant votre BFR." },
-      { "icon": "fa-stethoscope", "title": "Équipements médicaux", "description": "Solutions adaptées aux professions libérales et établissements de santé." }
+      {
+        "icon": "fa-truck",
+        "title": "Véhicules utilitaires & flotte",
+        "description": "Renouvelez votre flotte tous les 3-4 ans sans plomber votre bilan."
+      },
+      {
+        "icon": "fa-laptop",
+        "title": "Matériel informatique",
+        "description": "Évitez l'obsolescence rapide grâce à des contrats courts et évolutifs."
+      },
+      {
+        "icon": "fa-industry",
+        "title": "Machines & équipements industriels",
+        "description": "Financez des outils de production coûteux tout en préservant votre BFR."
+      },
+      {
+        "icon": "fa-stethoscope",
+        "title": "Équipements médicaux",
+        "description": "Solutions adaptées aux professions libérales et établissements de santé."
+      }
     ],
     "ctaTitle": "Découvrez nos solutions de leasing",
     "ctaDescription": "Crédit-bail, LOA, LLD, leasing opérationnel : nous trouvons la formule la plus adaptée à vos besoins.",
@@ -633,7 +776,7 @@
     "actions": {
       "newRequest": "Nouvelle demande",
       "simulate": "Simuler",
-      "contactAdvisor": "Mon conseiller"
+      "referral": "Parrainage"
     },
     "noFiles": "Aucun dossier dans cette catégorie",
     "phoneNumber": "Téléphone",
@@ -726,11 +869,6 @@
       "pending": "En attente",
       "signedUp": "Inscrit",
       "converted": "Converti"
-    },
-    "actions": {
-      "newRequest": "Nouvelle demande",
-      "simulate": "Simuler",
-      "referral": "Parrainage"
     },
     "wizard": {
       "title": "Nouvelle demande de financement",
@@ -838,7 +976,25 @@
     "send": "Envoyer",
     "noMessages": "Aucun message. Posez votre question à votre conseiller.",
     "you": "Vous",
-    "advisor": "Conseiller"
+    "advisor": "Conseiller",
+    "offers": "Offres",
+    "offerAccept": "Accepter cette offre",
+    "offerAccepting": "Envoi en cours…",
+    "offerAcceptError": "L'acceptation n'a pas pu être enregistrée. Réessayez dans un instant.",
+    "offerAlreadyAccepted": "Vous avez accepté cette offre.",
+    "offerAlreadyRefused": "Cette offre a été refusée.",
+    "offerDuration": "Durée",
+    "offerExpiresOn": "À accepter avant le",
+    "offerExpired": "Offre expirée",
+    "offerConfirmAccept": "Vous vous apprêtez à accepter une offre de {amount} sur {duration} mois. Cette acceptation vous engage. Confirmez-vous ?",
+    "offerStatus": {
+      "SENT": "Reçue",
+      "VIEWED": "Consultée",
+      "ACCEPTED": "Acceptée",
+      "REFUSED": "Refusée",
+      "EXPIRED": "Expirée",
+      "SIGNED": "Signée"
+    }
   },
   "status": {
     "en_attente": "En attente",

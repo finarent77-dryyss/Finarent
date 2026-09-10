@@ -4,6 +4,7 @@ import {
   STATUTS_OFFRE_SIGNABLE,
   identifiantUtilisable,
   memeRattachement,
+  offreVisibleParLeClient,
   estAdmin,
   estProprietaireDossier,
   estPartenaireDuDossier,
@@ -295,5 +296,38 @@ describe('offreExpiree', () => {
   it('considère une échéance atteinte à la seconde près comme expirée', () => {
     const maintenant = new Date('2026-09-09T12:00:00.000Z');
     expect(offreExpiree({ expiresAt: maintenant }, maintenant)).toBe(true);
+  });
+});
+
+describe("offreVisibleParLeClient — ce que le client a le droit de voir", () => {
+  // Le client ne voyait AUCUNE offre : l'écran ne les affichait pas et la page
+  // ne les chargeait même pas. En les affichant, la question devient : jusqu'où ?
+  // La réponse tient en une règle, et ces cas la verrouillent.
+
+  it("cache un brouillon : une offre jamais transmise n'existe pas pour le client", () => {
+    expect(offreVisibleParLeClient({ status: 'DRAFT' })).toBe(false);
+  });
+
+  it('montre une offre transmise, consultée ou acceptée', () => {
+    for (const status of ['SENT', 'VIEWED', 'ACCEPTED', 'SIGNED']) {
+      expect(offreVisibleParLeClient({ status })).toBe(true);
+    }
+  });
+
+  it("montre une offre refusée ou expirée : masquer l'historique le rendrait incompréhensible", () => {
+    expect(offreVisibleParLeClient({ status: 'REFUSED' })).toBe(true);
+    expect(offreVisibleParLeClient({ status: 'EXPIRED' })).toBe(true);
+  });
+
+  it('refuse une offre absente ou sans statut', () => {
+    expect(offreVisibleParLeClient(null)).toBe(false);
+    expect(offreVisibleParLeClient(undefined)).toBe(false);
+    expect(offreVisibleParLeClient({})).toBe(false);
+  });
+
+  it("visible ne veut pas dire acceptable : une offre expirée se voit mais ne s'accepte plus", () => {
+    const perimee = { status: 'SENT', expiresAt: new Date('2020-01-01T00:00:00.000Z') };
+    expect(offreVisibleParLeClient(perimee)).toBe(true);
+    expect(offreAcceptable(perimee)).toBe(false);
   });
 });

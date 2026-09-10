@@ -1,4 +1,5 @@
 import { getSession } from '@auth0/nextjs-auth0';
+import { offreVisibleParLeClient } from '@/lib/acces-dossier';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { syncUser } from '@/lib/users';
@@ -33,6 +34,12 @@ export default async function DossierDetailPage({ params }) {
     include: {
       documents: { where: { deletedAt: null } },
       statusHistory: { orderBy: { createdAt: 'asc' } },
+      // Les offres n'étaient pas chargées : le client ne voyait donc jamais ce
+      // qui lui était proposé, alors que c'est l'objet même de la plateforme.
+      offers: {
+        orderBy: { createdAt: 'desc' },
+        include: { partner: { select: { name: true } } },
+      },
     },
   });
 
@@ -51,6 +58,24 @@ export default async function DossierDetailPage({ params }) {
       path: d.fileUrl,
       originalName: d.fileName,
     })),
+    // Ne remonte au navigateur que ce que l'écran affiche, et seulement les
+    // offres réellement transmises : un brouillon n'existe pas pour le client.
+    offers: (application.offers || [])
+      .filter(offreVisibleParLeClient)
+      .map((o) => ({
+        id: o.id,
+        amount: o.amount,
+        durationMonths: o.durationMonths,
+        monthlyPayment: o.monthlyPayment,
+        rate: o.rate,
+        totalCost: o.totalCost,
+        status: o.status,
+        partnerName: o.partner?.name || null,
+        expiresAt: o.expiresAt ? o.expiresAt.toISOString() : null,
+        sentAt: o.sentAt ? o.sentAt.toISOString() : null,
+        acceptedAt: o.acceptedAt ? o.acceptedAt.toISOString() : null,
+        signedAt: o.signedAt ? o.signedAt.toISOString() : null,
+      })),
     statusHistory: (application.statusHistory || []).map(h => ({
       ...h,
       fromStatus: STATUS_TO_LEGACY[h.fromStatus] || h.fromStatus,

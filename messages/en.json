@@ -159,7 +159,7 @@
     "submit": "Submit my application",
     "sending": "Sending...",
     "submitSuccess": "Application sent",
-        "submitError": "Sending failed",
+    "submitError": "Sending failed",
     "successPrefix": "Your application has been sent!",
     "successMessage": "We will get back to you within 48 hours.",
     "errorMessage": "An error occurred. Please try again or contact us directly.",
@@ -250,26 +250,66 @@
       "rcPro": {
         "title": "Professional Liability",
         "description": "Protect yourself against damage caused to third parties in the course of your professional activity.",
-        "advantages": ["Bodily and material damage coverage", "Legal protection included", "Adjustable deductible", "Worldwide coverage"],
-        "idealFor": ["Consultants", "Tradespeople", "Liberal professions", "SMEs"]
+        "advantages": [
+          "Bodily and material damage coverage",
+          "Legal protection included",
+          "Adjustable deductible",
+          "Worldwide coverage"
+        ],
+        "idealFor": [
+          "Consultants",
+          "Tradespeople",
+          "Liberal professions",
+          "SMEs"
+        ]
       },
       "do": {
         "title": "Builder's Insurance",
         "description": "Guarantee the financing of repairs in case of damage to your constructions.",
-        "advantages": ["Pre-financing of repairs", "Ten-year coverage", "Building owner protection", "Simplified claims management"],
-        "idealFor": ["Developers", "Builders", "Building owners", "Property companies"]
+        "advantages": [
+          "Pre-financing of repairs",
+          "Ten-year coverage",
+          "Building owner protection",
+          "Simplified claims management"
+        ],
+        "idealFor": [
+          "Developers",
+          "Builders",
+          "Building owners",
+          "Property companies"
+        ]
       },
       "flotte": {
         "title": "Fleet Insurance",
         "description": "Comprehensive coverage for all your professional vehicles.",
-        "advantages": ["Discounted rates by fleet size", "Centralised management", "24/7 assistance", "Replacement vehicle"],
-        "idealFor": ["Carriers", "Sales teams", "Tradespeople", "Multi-site companies"]
+        "advantages": [
+          "Discounted rates by fleet size",
+          "Centralised management",
+          "24/7 assistance",
+          "Replacement vehicle"
+        ],
+        "idealFor": [
+          "Carriers",
+          "Sales teams",
+          "Tradespeople",
+          "Multi-site companies"
+        ]
       },
       "multirisque": {
         "title": "Multi-risk Business",
         "description": "Protect your premises, equipment and business with comprehensive coverage.",
-        "advantages": ["Fire and water damage coverage", "Theft and vandalism", "Business interruption", "Equipment breakdown"],
-        "idealFor": ["Shops", "Offices", "Workshops", "Warehouses"]
+        "advantages": [
+          "Fire and water damage coverage",
+          "Theft and vandalism",
+          "Business interruption",
+          "Equipment breakdown"
+        ],
+        "idealFor": [
+          "Shops",
+          "Offices",
+          "Workshops",
+          "Warehouses"
+        ]
       }
     },
     "solutions": {
@@ -437,24 +477,76 @@
     "stepsTitle": "How does it work?",
     "stepsSubtitle": "Four simple steps, no commitment, no application fees.",
     "steps": [
-      { "label": "Step 1", "title": "Simulate in 2 minutes", "description": "Enter the amount, duration and equipment type. Our calculator instantly returns your estimated monthly payment and total cost.", "duration": "2 min", "icon": "fa-calculator" },
-      { "label": "Step 2", "title": "Submit your file", "description": "Fill in our 5-step form (company, project, documents). Your files are encrypted and stored securely.", "duration": "10 min", "icon": "fa-file-signature" },
-      { "label": "Step 3", "title": "Receive your offers", "description": "Our advisors review your file and submit it to our network of 30+ banking partners. You receive the best offers tailored to your profile.", "duration": "24 to 48h", "icon": "fa-handshake" },
-      { "label": "Step 4", "title": "Sign and receive funds", "description": "Legal electronic signature (eIDAS), funds release or equipment delivery. Your advisor stays by your side for follow-up.", "duration": "48h", "icon": "fa-money-bill-trend-up" }
+      {
+        "label": "Step 1",
+        "title": "Simulate in 2 minutes",
+        "description": "Enter the amount, duration and equipment type. Our calculator instantly returns your estimated monthly payment and total cost.",
+        "duration": "2 min",
+        "icon": "fa-calculator"
+      },
+      {
+        "label": "Step 2",
+        "title": "Submit your file",
+        "description": "Fill in our 5-step form (company, project, documents). Your files are encrypted and stored securely.",
+        "duration": "10 min",
+        "icon": "fa-file-signature"
+      },
+      {
+        "label": "Step 3",
+        "title": "Receive your offers",
+        "description": "Our advisors review your file and submit it to our network of 30+ banking partners. You receive the best offers tailored to your profile.",
+        "duration": "24 to 48h",
+        "icon": "fa-handshake"
+      },
+      {
+        "label": "Step 4",
+        "title": "Sign and receive funds",
+        "description": "Legal electronic signature (eIDAS), funds release or equipment delivery. Your advisor stays by your side for follow-up.",
+        "duration": "48h",
+        "icon": "fa-money-bill-trend-up"
+      }
     ],
     "guaranteesTitle": "Our commitments",
     "guarantees": [
-      { "icon": "fa-bolt", "title": "Reply within 48h", "description": "Contractual commitment from our team on response time." },
-      { "icon": "fa-circle-check", "title": "No commitment", "description": "You remain free to accept or refuse the proposed offer." },
-      { "icon": "fa-shield-halved", "title": "100% secure", "description": "AES-256 encrypted data, GDPR compliant, hosted in Europe." },
-      { "icon": "fa-user-tie", "title": "Dedicated advisor", "description": "A single point of contact throughout your file." }
+      {
+        "icon": "fa-bolt",
+        "title": "Reply within 48h",
+        "description": "Contractual commitment from our team on response time."
+      },
+      {
+        "icon": "fa-circle-check",
+        "title": "No commitment",
+        "description": "You remain free to accept or refuse the proposed offer."
+      },
+      {
+        "icon": "fa-shield-halved",
+        "title": "100% secure",
+        "description": "AES-256 encrypted data, GDPR compliant, hosted in Europe."
+      },
+      {
+        "icon": "fa-user-tie",
+        "title": "Dedicated advisor",
+        "description": "A single point of contact throughout your file."
+      }
     ],
     "faqTitle": "Frequently asked questions",
     "faq": [
-      { "q": "What is the average processing time?", "a": "48h for an initial reply, 5 to 7 business days on average for funds release after signature." },
-      { "q": "What documents are required?", "a": "A Kbis (less than 3 months old), a professional bank account info (RIB) and the manager's ID. Annual accounts are not systematically required — with long-term rental (LLD), financing is available from the day your company is created. Our advisor will indicate the precise documents needed." },
-      { "q": "Are there application fees?", "a": "No, the review of your file and the introduction to our partners are completely free." },
-      { "q": "Can I cancel during the process?", "a": "Yes, you can cancel your application at any time before electronic signature, with no fees." }
+      {
+        "q": "What is the average processing time?",
+        "a": "48h for an initial reply, 5 to 7 business days on average for funds release after signature."
+      },
+      {
+        "q": "What documents are required?",
+        "a": "A Kbis (less than 3 months old), a professional bank account info (RIB) and the manager's ID. Annual accounts are not systematically required — with long-term rental (LLD), financing is available from the day your company is created. Our advisor will indicate the precise documents needed."
+      },
+      {
+        "q": "Are there application fees?",
+        "a": "No, the review of your file and the introduction to our partners are completely free."
+      },
+      {
+        "q": "Can I cancel during the process?",
+        "a": "Yes, you can cancel your application at any time before electronic signature, with no fees."
+      }
     ],
     "ctaTitle": "Ready to start your project?",
     "ctaDescription": "Simulate your financing in 2 minutes, no commitment.",
@@ -468,30 +560,105 @@
     "advantagesTitle": "6 key benefits of leasing",
     "advantagesSubtitle": "A flexible solution, tax-efficient and with no impact on your borrowing capacity.",
     "advantages": [
-      { "icon": "fa-piggy-bank", "title": "Preserve your cash flow", "description": "No initial down payment required. Your cash stays available to develop your business, hire or invest elsewhere." },
-      { "icon": "fa-receipt", "title": "Tax benefits", "description": "Monthly payments are 100% deductible from your taxable income, unlike depreciation on a classic purchase." },
-      { "icon": "fa-percent", "title": "Recoverable VAT", "description": "VAT is spread over the monthly payments, improving your cash flow compared to a purchase where VAT is paid up front." },
-      { "icon": "fa-arrows-rotate", "title": "Easy renewal", "description": "At the end of the contract, you can return the equipment, buy it at residual value or renew — you always keep recent equipment." },
-      { "icon": "fa-chart-line", "title": "No impact on debt", "description": "With financial lease, the equipment doesn't appear on the balance sheet: you preserve your borrowing capacity for other strategic projects." },
-      { "icon": "fa-screwdriver-wrench", "title": "Maintenance included", "description": "Many contracts include maintenance, insurance and assistance, simplifying your management and smoothing your costs." }
+      {
+        "icon": "fa-piggy-bank",
+        "title": "Preserve your cash flow",
+        "description": "No initial down payment required. Your cash stays available to develop your business, hire or invest elsewhere."
+      },
+      {
+        "icon": "fa-receipt",
+        "title": "Tax benefits",
+        "description": "Monthly payments are 100% deductible from your taxable income, unlike depreciation on a classic purchase."
+      },
+      {
+        "icon": "fa-percent",
+        "title": "Recoverable VAT",
+        "description": "VAT is spread over the monthly payments, improving your cash flow compared to a purchase where VAT is paid up front."
+      },
+      {
+        "icon": "fa-arrows-rotate",
+        "title": "Easy renewal",
+        "description": "At the end of the contract, you can return the equipment, buy it at residual value or renew — you always keep recent equipment."
+      },
+      {
+        "icon": "fa-chart-line",
+        "title": "No impact on debt",
+        "description": "With financial lease, the equipment doesn't appear on the balance sheet: you preserve your borrowing capacity for other strategic projects."
+      },
+      {
+        "icon": "fa-screwdriver-wrench",
+        "title": "Maintenance included",
+        "description": "Many contracts include maintenance, insurance and assistance, simplifying your management and smoothing your costs."
+      }
     ],
     "comparisonTitle": "Leasing vs Buying: the comparison",
-    "comparisonHeaders": ["Criterion", "Cash purchase", "Bank loan", "Pro leasing"],
+    "comparisonHeaders": [
+      "Criterion",
+      "Cash purchase",
+      "Bank loan",
+      "Pro leasing"
+    ],
     "comparison": [
-      ["Initial deposit", "100%", "10-30%", "0%"],
-      ["Cash impact", "High", "Moderate", "Low"],
-      ["Tax deductibility", "Depreciation", "Interest only", "100% monthly"],
-      ["VAT", "Paid up front", "Paid up front", "Spread"],
-      ["Balance sheet", "Asset", "Asset + debt", "Off balance*"],
-      ["Equipment renewal", "Your responsibility", "Your responsibility", "Can be included"]
+      [
+        "Initial deposit",
+        "100%",
+        "10-30%",
+        "0%"
+      ],
+      [
+        "Cash impact",
+        "High",
+        "Moderate",
+        "Low"
+      ],
+      [
+        "Tax deductibility",
+        "Depreciation",
+        "Interest only",
+        "100% monthly"
+      ],
+      [
+        "VAT",
+        "Paid up front",
+        "Paid up front",
+        "Spread"
+      ],
+      [
+        "Balance sheet",
+        "Asset",
+        "Asset + debt",
+        "Off balance*"
+      ],
+      [
+        "Equipment renewal",
+        "Your responsibility",
+        "Your responsibility",
+        "Can be included"
+      ]
     ],
     "comparisonNote": "* Subject to applicable accounting standards (IFRS 16 may require balance sheet recognition).",
     "useCasesTitle": "Leasing is ideal for…",
     "useCases": [
-      { "icon": "fa-truck", "title": "Commercial vehicles & fleet", "description": "Renew your fleet every 3-4 years without burdening your balance sheet." },
-      { "icon": "fa-laptop", "title": "IT equipment", "description": "Avoid rapid obsolescence with short, scalable contracts." },
-      { "icon": "fa-industry", "title": "Industrial machinery", "description": "Finance expensive production tools while preserving working capital." },
-      { "icon": "fa-stethoscope", "title": "Medical equipment", "description": "Solutions tailored to healthcare professionals and institutions." }
+      {
+        "icon": "fa-truck",
+        "title": "Commercial vehicles & fleet",
+        "description": "Renew your fleet every 3-4 years without burdening your balance sheet."
+      },
+      {
+        "icon": "fa-laptop",
+        "title": "IT equipment",
+        "description": "Avoid rapid obsolescence with short, scalable contracts."
+      },
+      {
+        "icon": "fa-industry",
+        "title": "Industrial machinery",
+        "description": "Finance expensive production tools while preserving working capital."
+      },
+      {
+        "icon": "fa-stethoscope",
+        "title": "Medical equipment",
+        "description": "Solutions tailored to healthcare professionals and institutions."
+      }
     ],
     "ctaTitle": "Discover our leasing solutions",
     "ctaDescription": "Financial lease, operational lease, long-term lease: we'll find the right formula for you.",
@@ -607,9 +774,9 @@
       "completed": "Completed"
     },
     "actions": {
-      "newRequest": "New request",
+      "newRequest": "New application",
       "simulate": "Simulate",
-      "contactAdvisor": "My advisor"
+      "referral": "Referral"
     },
     "noFiles": "No files in this category",
     "phoneNumber": "Phone",
@@ -702,11 +869,6 @@
       "pending": "Pending",
       "signedUp": "Signed up",
       "converted": "Converted"
-    },
-    "actions": {
-      "newRequest": "New application",
-      "simulate": "Simulate",
-      "referral": "Referral"
     },
     "wizard": {
       "title": "New financing application",
@@ -814,7 +976,25 @@
     "send": "Send",
     "noMessages": "No messages. Ask your advisor a question.",
     "you": "You",
-    "advisor": "Advisor"
+    "advisor": "Advisor",
+    "offers": "Offers",
+    "offerAccept": "Accept this offer",
+    "offerAccepting": "Sending…",
+    "offerAcceptError": "Your acceptance could not be recorded. Please try again shortly.",
+    "offerAlreadyAccepted": "You have accepted this offer.",
+    "offerAlreadyRefused": "This offer was declined.",
+    "offerDuration": "Term",
+    "offerExpiresOn": "Accept before",
+    "offerExpired": "Offer expired",
+    "offerConfirmAccept": "You are about to accept an offer of {amount} over {duration} months. This acceptance is binding. Do you confirm?",
+    "offerStatus": {
+      "SENT": "Received",
+      "VIEWED": "Viewed",
+      "ACCEPTED": "Accepted",
+      "REFUSED": "Declined",
+      "EXPIRED": "Expired",
+      "SIGNED": "Signed"
+    }
   },
   "status": {
     "en_attente": "Pending",

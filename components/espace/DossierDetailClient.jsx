@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { offreAcceptable, offreExpiree } from '@/lib/acces-dossier';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n';
@@ -55,6 +56,9 @@ export default function DossierDetailClient({ dossier, user }) {
   const [signatureAccepted, setSignatureAccepted] = useState(false);
   const [signing, setSigning] = useState(false);
   const [dossierStatus, setDossierStatus] = useState(dossier.status);
+  const [offers, setOffers] = useState(dossier.offers || []);
+  const [acceptingOfferId, setAcceptingOfferId] = useState(null);
+  const [offerError, setOfferError] = useState('');
   const { t, locale } = useTranslation();
   const messagesEndRef = useRef(null);
 
@@ -148,6 +152,52 @@ export default function DossierDetailClient({ dossier, user }) {
     }
   };
 
+  const formaterMontant = (valeur) =>
+    typeof valeur === 'number'
+      ? valeur.toLocaleString(dateLocale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+      : '—';
+
+  /**
+   * Acceptation d'une offre par le client.
+   *
+   * Une acceptation engage : d'où la confirmation explicite, qui rappelle le
+   * montant et la durée. L'écran ne décide de rien — il masque le bouton quand
+   * l'offre n'est plus acceptable, mais c'est le serveur qui tranche, et ses
+   * refus sont affichés tels quels : « offre expirée » et « offre déjà
+   * acceptée » ne veulent pas dire la même chose pour celui qui les lit.
+   */
+  const handleAcceptOffer = async (offre) => {
+    if (acceptingOfferId) return;
+
+    const question = t('dossierDetail.offerConfirmAccept')
+      .replace('{amount}', formaterMontant(offre.amount))
+      .replace('{duration}', String(offre.durationMonths));
+    if (!window.confirm(question)) return;
+
+    setOfferError('');
+    setAcceptingOfferId(offre.id);
+    try {
+      const res = await fetch(`/api/offers/${offre.id}/accept`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setOfferError(data.error || t('dossierDetail.offerAcceptError'));
+        return;
+      }
+      setOffers((liste) =>
+        liste.map((o) =>
+          o.id === offre.id
+            ? { ...o, status: data.status || 'ACCEPTED', acceptedAt: data.acceptedAt || new Date().toISOString() }
+            : o
+        )
+      );
+      setDossierStatus('devis_accepte');
+    } catch {
+      setOfferError(t('dossierDetail.offerAcceptError'));
+    } finally {
+      setAcceptingOfferId(null);
+    }
+  };
+
   // Determine progress
   const currentStepIndex = STATUS_ORDER.indexOf(dossierStatus);
   const isRejected = dossierStatus === 'refusee';
@@ -229,6 +279,7 @@ export default function DossierDetailClient({ dossier, user }) {
               { key: 'info', label: 'Informations', icon: 'fa-circle-info' },
               { key: 'documents', label: `Documents (${documents.length})`, icon: 'fa-file-lines' },
               ...(amortization ? [{ key: 'amortization', label: t('dossierDetail.amortization'), icon: 'fa-table' }] : []),
+              ...(offers.length ? [{ key: 'offers', label: `${t('dossierDetail.offers')} (${offers.length})`, icon: 'fa-file-signature' }] : []),
               { key: 'messages', label: `${t('dossierDetail.messaging')} (${messages.length})`, icon: 'fa-comments' },
             ].map(tab => (
               <button
@@ -426,6 +477,87 @@ export default function DossierDetailClient({ dossier, user }) {
             )}
 
             {/* Messages Tab */}
+            {/* Offers Tab */}
+            {activeTab === 'offers' && (
+              <motion.div key="offers" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8">
+                {offerError && (
+                  <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+                    <i className="fa-solid fa-circle-exclamation mr-2"></i>{offerError}
+                  </div>
+                )}
+
+                <div className="space-y-5">
+                  {offers.map((offre) => {
+                    const acceptable = offreAcceptable(offre);
+                    const expiree = offreExpiree(offre);
+                    const enCours = acceptingOfferId === offre.id;
+                    return (
+                      <div key={offre.id} className="rounded-2xl border border-gray-100 p-5 sm:p-6">
+                        <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
+                          <div>
+                            <p className="text-2xl font-black text-secondary">{formaterMontant(offre.amount)}</p>
+                            {offre.partnerName && (
+                              <p className="text-sm text-gray-500 mt-0.5">{offre.partnerName}</p>
+                            )}
+                          </div>
+                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
+                            {t(`dossierDetail.offerStatus.${offre.status}`) || offre.status}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+                          <div>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('dossierDetail.monthlyPayment')}</p>
+                            <p className="font-bold text-primary mt-1">{formaterMontant(offre.monthlyPayment)}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('dossierDetail.offerDuration')}</p>
+                            <p className="font-bold text-primary mt-1">{offre.durationMonths} {t('dossierDetail.month')}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('dossierDetail.rate')}</p>
+                            <p className="font-bold text-primary mt-1">{offre.rate} %</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('dossierDetail.totalCreditCost')}</p>
+                            <p className="font-bold text-primary mt-1">{formaterMontant(offre.totalCost)}</p>
+                          </div>
+                        </div>
+
+                        {offre.expiresAt && (
+                          <p className={`text-sm mb-4 ${expiree ? 'text-rose-600 font-semibold' : 'text-gray-500'}`}>
+                            <i className="fa-solid fa-clock mr-2"></i>
+                            {expiree
+                              ? t('dossierDetail.offerExpired')
+                              : `${t('dossierDetail.offerExpiresOn')} ${new Date(offre.expiresAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}`}
+                          </p>
+                        )}
+
+                        {acceptable ? (
+                          <button
+                            onClick={() => handleAcceptOffer(offre)}
+                            disabled={enCours}
+                            className="px-6 py-3 bg-secondary text-white rounded-xl font-bold text-sm hover:bg-secondary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {enCours ? (
+                              <><i className="fa-solid fa-spinner fa-spin mr-2"></i>{t('dossierDetail.offerAccepting')}</>
+                            ) : (
+                              <><i className="fa-solid fa-check mr-2"></i>{t('dossierDetail.offerAccept')}</>
+                            )}
+                          </button>
+                        ) : offre.status === 'ACCEPTED' || offre.status === 'SIGNED' ? (
+                          <p className="text-sm font-semibold text-accent">
+                            <i className="fa-solid fa-circle-check mr-2"></i>
+                            {t('dossierDetail.offerAlreadyAccepted')}
+                          </p>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+
             {activeTab === 'messages' && (
               <motion.div key="messages" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Messages list */}
