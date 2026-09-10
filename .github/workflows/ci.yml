@@ -134,3 +134,88 @@ jobs:
           CRON_SECRET: 'ci-factice'
           UNSUBSCRIBE_SECRET: 'ci-factice'
         run: npm run build
+
+  # ── Rejeu du schéma sur une base neuve ──────────────────────────────
+  #
+  # Ce que ce job verrouille : jusqu'au 10 septembre 2026, 23 des 38 modèles du
+  # schéma n'étaient créés par aucune migration — ils n'existaient qu'en
+  # production, fabriqués hors historique par les `prisma db push` du script de
+  # build. `prisma migrate deploy` échouait donc dès la première migration
+  # modifiant une table jamais créée, ce qui déclenchait le repli
+  # `db push --accept-data-loss` et effaçait des colonnes.
+  #
+  # La chaîne se rejoue de nouveau depuis zéro. Sans ce job, rien n'empêcherait
+  # qu'elle se rompe à nouveau à la migration suivante : le défaut ne se voit
+  # pas en développement (la base locale existe déjà), il n'apparaît qu'au
+  # moment où l'on tente de reconstruire — c'est-à-dire trop tard, en
+  # restauration de sauvegarde ou sur un environnement de recette neuf.
+  #
+  # Job séparé et non étapes du job principal : l'échec doit se lire tout de
+  # suite comme « le schéma ne se reconstruit pas », pas comme « typage, lint,
+  # tests, audit et build » a échoué quelque part.
+  schema:
+    name: Rejeu des migrations sur une base neuve
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        # Version alignée sur la production (POSTGRESQL_ADDON_VERSION=15) et sur
+        # docker-compose.yml : ce qui se rejoue ici doit se rejouer là-bas.
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        # Sans ce contrôle, les étapes démarrent avant que PostgreSQL n'accepte
+        # les connexions et échouent sur un P1001 trompeur.
+        options: >-
+          --health-cmd "pg_isready -U ci -d ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      # Hôte `localhost` et non `postgres` : le service est publié sur le
+      # runner. C'est aussi ce que reconnaît le garde-fou anti-production de
+      # scripts/_guard.js, qui refuserait un hôte distant.
+      DATABASE_URL: 'postgresql://ci:ci@localhost:5432/ci?schema=public'
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4.2.2
+
+      - name: Installer Node.js 20
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: '20.x'
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Appliquer toutes les migrations sur une base vide
+        # La preuve principale : l'historique complet doit s'appliquer sur une
+        # base qui ne contient rien.
+        run: npx prisma migrate deploy
+
+      - name: Vérifier que la base obtenue correspond au schéma
+        # `migrate deploy` peut réussir tout en produisant une base qui diverge
+        # du schéma — une migration oubliée après un `db push` local, par
+        # exemple. `--exit-code` renvoie 2 s'il reste la moindre différence,
+        # ce qui fait échouer l'étape.
+        run: >-
+          npx prisma migrate diff
+          --from-schema-datasource prisma/schema.prisma
+          --to-schema-datamodel prisma/schema.prisma
+          --exit-code
+
+      - name: Peupler la base de démonstration
+        # Dernière preuve : le schéma reconstruit est réellement utilisable.
+        # Le seed écrit dans toutes les tables principales ; une contrainte ou
+        # une clé étrangère mal rattrapée échouerait ici.
+        env:
+          ENCRYPTION_KEY: 'dGVzdC1rZXktMzItb2N0ZXRzLXBvdXItdml0ZXN0ISE='
+        run: node scripts/seed-demo.js
