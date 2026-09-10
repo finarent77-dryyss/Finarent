@@ -61,3 +61,8 @@ test-e2e-report.json
 
 # Aperçus de mailing générés localement (scripts/preview-emails.mjs)
 .email-preview/
+
+# Cache incremental de TypeScript : artefact de build, regenere a chaque
+# `tsc`. Suivi par git jusqu'ici, il salissait chaque commit sans rien
+# apporter — deux developpeurs ne produisent jamais le meme.
+tsconfig.tsbuildinfo
