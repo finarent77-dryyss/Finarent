@@ -2,11 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendInvite } from '@/lib/affiliate-invite';
 import { checkRateLimit } from '@/lib/rateLimit';
-
-function getClientIp(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip') || 'inconnue';
-}
+import { ipClient } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * POST /api/affiliate/[code]/invite
@@ -27,7 +24,7 @@ export async function POST(request, { params }) {
     // n'empeche pas de boucler sur des milliers d'adresses differentes :
     // sans quota par IP, le site sert de relais de spam et la reputation
     // du domaine d'envoi en pâtit.
-    if (!(await checkRateLimit(getClientIp(request), { bucket: 'invite', max: 10 })).allowed) {
+    if (!(await checkRateLimit(ipClient(request), { bucket: 'invite', max: 10 })).allowed) {
       return NextResponse.json(
         { error: "Trop d'invitations envoyées. Réessayez plus tard." },
         { status: 429 },
@@ -35,7 +32,8 @@ export async function POST(request, { params }) {
     }
 
     const { code } = await params;
-    const body = await request.json();
+    const body = await lireCorpsJson(request);
+    if (!body) return reponseCorpsInvalide('Corps de requête JSON absent ou invalide.');
 
     const affiliate = await prisma.affiliate.findUnique({
       where: { code: String(code).toUpperCase() },
@@ -67,7 +65,9 @@ export async function POST(request, { params }) {
         : 'Invitation envoyée avec succès.',
     });
   } catch (err) {
-    console.error('POST /api/affiliate/[code]/invite error:', err);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/affiliate/[code]/invite',
+      introuvable: 'Affilié indisponible',
+    });
   }
 }

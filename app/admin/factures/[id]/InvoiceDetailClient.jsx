@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { LoadingIcon, ValidationStamp } from '@/components/animations/FinarentAnimation';
+import { libelleNumeroDocument } from '@/components/admin/numeros-documents';
 
 const STATUS_LABELS = {
   DRAFT:     { label: 'Brouillon',  cls: 'bg-slate-100 text-slate-700' },
@@ -23,6 +24,8 @@ export default function InvoiceDetailClient({ id }) {
   const [payForm, setPayForm] = useState({ amount: '', paymentMethod: 'virement', reference: '', notes: '' });
   const [stripeLoading, setStripeLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [envoiEnCours, setEnvoiEnCours] = useState(false);
+  const [envoiFeedback, setEnvoiFeedback] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -41,6 +44,54 @@ export default function InvoiceDetailClient({ id }) {
       body: JSON.stringify({ status, sentAt: status === 'ISSUED' ? new Date().toISOString() : undefined }),
     });
     if (res.ok) load();
+  };
+
+  /**
+   * Transmission de la facture au client.
+   *
+   * Le GET de `/api/admin/invoices/[id]/pdf` ne fait que rendre le document —
+   * c'est le lien « Voir PDF » ci-dessous, et il ne produit aucun effet de
+   * bord depuis la correction d'ADM2-08. L'archivage et l'expédition sont
+   * portés par le POST de la même route, qui répond de façon synchrone :
+   *   200 { envoye: true, documentId }
+   *   200 { envoye: false, dejaTransmis: true, raison, documentId }
+   *   400 / 404 / 409 { error }   502 { envoye: false, error, documentId }
+   * Aucun écran n'appelait ce POST : plus aucune facture ne partait au client.
+   */
+  const envoyerAuClient = async () => {
+    setEnvoiEnCours(true);
+    setEnvoiFeedback(null);
+    try {
+      const res = await fetch(`/api/admin/invoices/${id}/pdf`, { method: 'POST' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Le serveur dit précisément ce qui bloque (brouillon, RIB manquant,
+        // email absent, échec SMTP…). On l'affiche tel quel : un « Erreur »
+        // générique obligerait à aller lire EmailLog pour comprendre.
+        setEnvoiFeedback({ type: 'error', text: data.error || `Envoi impossible (HTTP ${res.status})` });
+        return;
+      }
+
+      if (data.envoye) {
+        setEnvoiFeedback({ type: 'success', text: `Facture envoyée à ${invoice.clientEmail}.` });
+      } else if (data.dejaTransmis) {
+        // Archivage idempotent par empreinte : le même contenu est déjà parti,
+        // ce n'est pas un échec.
+        setEnvoiFeedback({
+          type: 'info',
+          text: `Document identique déjà transmis à ${invoice.clientEmail} — aucun second envoi`
+            + `${data.raison ? ` (${data.raison})` : ''}.`,
+        });
+      } else {
+        setEnvoiFeedback({ type: 'error', text: data.error || 'Envoi impossible : réponse inattendue du serveur.' });
+      }
+      load();
+    } catch {
+      setEnvoiFeedback({ type: 'error', text: 'Erreur réseau : le serveur n\'a pas répondu, rien n\'a été envoyé.' });
+    } finally {
+      setEnvoiEnCours(false);
+    }
   };
 
   const generateStripeLink = async () => {
@@ -93,6 +144,11 @@ export default function InvoiceDetailClient({ id }) {
   const status = STATUS_LABELS[invoice.status] || STATUS_LABELS.DRAFT;
   const remaining = invoice.totalTTC - invoice.paidAmount;
   const pctPaid = invoice.totalTTC > 0 ? (invoice.paidAmount / invoice.totalTTC) * 100 : 0;
+  const numero = libelleNumeroDocument(invoice.invoiceNumber);
+  // Un brouillon n'a pas d'existence comptable : le POST le refuse (400). On
+  // n'offre donc pas une action dont on sait qu'elle échouera — « Émettre »
+  // est la bonne porte, et le bouton d'envoi apparaît ensuite.
+  const envoiPossible = invoice.status !== 'DRAFT';
 
   return (
     <div className="max-w-6xl mx-auto relative">
@@ -108,15 +164,35 @@ export default function InvoiceDetailClient({ id }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl sm:text-3xl font-black text-primary font-mono">{invoice.invoiceNumber}</h1>
+            <h1 className={`text-2xl sm:text-3xl font-black text-primary ${numero.provisoire ? '' : 'font-mono'}`}>{numero.libelle}</h1>
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase ${status.cls}`}>{status.label}</span>
           </div>
-          <div className="text-sm text-gray-500">Émise le {frDate(invoice.issueDate)} · Échéance {frDate(invoice.dueDate)}</div>
+          {numero.provisoire && (
+            <div className="text-xs text-gray-400 mb-1">
+              Référence de travail <span className="font-mono">{numero.reference}</span> — le numéro comptable sera attribué à l'émission.
+            </div>
+          )}
+          <div className="text-sm text-gray-500">
+            Émise le {frDate(invoice.issueDate)} · Échéance {frDate(invoice.dueDate)}
+            {invoice.sentAt && ` · Transmise le ${frDateTime(invoice.sentAt)}${invoice.sentTo ? ` à ${invoice.sentTo}` : ''}`}
+          </div>
         </div>
         <div className="flex gap-2">
           <a href={`/api/admin/invoices/${id}/pdf`} target="_blank" className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 text-primary font-bold rounded-xl hover:border-secondary text-sm">
             <i className="fa-solid fa-file-pdf"></i> Voir PDF
           </a>
+          {envoiPossible && (
+            <button
+              onClick={envoyerAuClient}
+              disabled={envoiEnCours}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 disabled:opacity-50 text-sm"
+            >
+              {envoiEnCours
+                ? <><i className="fa-solid fa-spinner fa-spin"></i> Envoi en cours…</>
+                : <><i className="fa-solid fa-envelope"></i> {invoice.sentAt ? 'Renvoyer au client' : 'Envoyer au client'}</>
+              }
+            </button>
+          )}
           {invoice.status === 'DRAFT' && (
             <button onClick={() => updateStatus('ISSUED')} className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 text-sm">
               <i className="fa-solid fa-paper-plane"></i> Émettre
@@ -129,6 +205,20 @@ export default function InvoiceDetailClient({ id }) {
           )}
         </div>
       </div>
+
+      {envoiFeedback && (
+        <div
+          className={`mb-6 text-sm p-3 rounded-xl ${
+            envoiFeedback.type === 'success'
+              ? 'bg-emerald-50 text-emerald-700'
+              : envoiFeedback.type === 'info'
+              ? 'bg-amber-50 text-amber-700'
+              : 'bg-red-50 text-red-700'
+          }`}
+        >
+          {envoiFeedback.text}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid sm:grid-cols-3 gap-4 mb-6">

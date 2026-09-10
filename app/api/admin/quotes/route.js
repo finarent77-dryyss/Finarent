@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { avecNumeroUnique, nextQuoteNumber } from '@/lib/invoicing/numbering';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
 
 export async function GET(request) {
   const auth = await requireAdmin();
@@ -26,7 +27,11 @@ export async function GET(request) {
 export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
-  const body = await request.json();
+  // `await request.json()` hors `try` : un corps vide faisait remonter un
+  // SyntaxError au runtime Next, soit un 500 sans corps là où la route sait
+  // répondre 400 (constat ADM1-07).
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
 
   const {
     userId, applicationId,

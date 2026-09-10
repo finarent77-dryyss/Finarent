@@ -4,6 +4,8 @@ import { MANDATE_VERSION, MANDATE_TEXT } from '@/lib/affiliate-mandate.js';
 import { isValidIban, isValidSiret, logAffiliateAction } from '@/lib/affiliate-fiscal.js';
 import { encryptString, decryptString, maskIban } from '@/lib/crypto.js';
 import { safeEqual } from '@/lib/cron-auth';
+import { ipClientOuNull } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
 
 /**
  * Résout un affilié à partir de son code ET d'un jeton d'onboarding secret.
@@ -49,9 +51,12 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   const { code } = await params;
-  const body = await request.json();
+  // `await request.json()` n'était protégé par aucun `try` : un corps vide ou
+  // malformé laissait l'exception remonter au runtime Next, qui répondait 500.
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide('Corps de requête JSON absent ou invalide.');
 
-  const affiliate = await resolveByToken(code, body?.token);
+  const affiliate = await resolveByToken(code, body.token);
   if (!affiliate) {
     return NextResponse.json({ error: "Lien d'onboarding invalide ou expiré" }, { status: 403 });
   }
@@ -64,26 +69,31 @@ export async function POST(request, { params }) {
     );
   }
 
-  const {
-    fiscalStatus,
-    legalName,
-    siret,
-    tvaNumber,
-    tvaApplicable,
-    fiscalAddress,
-    fiscalPostalCode,
-    fiscalCity,
-    fiscalCountry,
-    iban,
-    bic,
-    payoutHolder,
-    acceptMandate,
-  } = body;
+  // Chaque champ est ramené à une chaîne nettoyée ou à `null`. Le chaînage
+  // optionnel employé plus bas (`legalName?.trim()`, `siret?.replace(…)`)
+  // protège du `null` mais pas d'un type inattendu : un `legalName` numérique
+  // levait `trim is not a function` et repartait en 500 sur une saisie que la
+  // route devait refuser en 400.
+  const texte = (valeur) => (typeof valeur === 'string' && valeur.trim() ? valeur.trim() : null);
+
+  const fiscalStatus = texte(body.fiscalStatus);
+  const legalName = texte(body.legalName);
+  const siret = texte(body.siret);
+  const tvaNumber = texte(body.tvaNumber);
+  const tvaApplicable = Boolean(body.tvaApplicable);
+  const fiscalAddress = texte(body.fiscalAddress);
+  const fiscalPostalCode = texte(body.fiscalPostalCode);
+  const fiscalCity = texte(body.fiscalCity);
+  const fiscalCountry = texte(body.fiscalCountry);
+  const iban = texte(body.iban);
+  const bic = texte(body.bic);
+  const payoutHolder = texte(body.payoutHolder);
+  const acceptMandate = body.acceptMandate;
 
   if (!acceptMandate) {
     return NextResponse.json({ error: 'Vous devez accepter le mandat de facturation' }, { status: 400 });
   }
-  if (!fiscalStatus || !legalName?.trim()) {
+  if (!fiscalStatus || !legalName) {
     return NextResponse.json({ error: 'Statut fiscal et nom légal requis' }, { status: 400 });
   }
   if (!iban || !isValidIban(iban)) {
@@ -93,26 +103,27 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: 'SIRET invalide' }, { status: 400 });
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || null;
+  // Preuve de signature du mandat de facturation : l'adresse doit être celle
+  // que notre mandataire a réellement observée, jamais celle que le signataire
+  // s'est attribuée dans un en-tête. Voir `lib/ip-client.js`.
+  const ip = ipClientOuNull(request);
 
   await prisma.affiliate.update({
     where: { id: affiliate.id },
     data: {
       fiscalStatus,
-      legalName: legalName.trim(),
-      siret: siret?.replace(/\s/g, '') || null,
-      tvaNumber: tvaNumber?.trim() || null,
-      tvaApplicable: Boolean(tvaApplicable),
-      fiscalAddress: fiscalAddress?.trim() || null,
-      fiscalPostalCode: fiscalPostalCode?.trim() || null,
-      fiscalCity: fiscalCity?.trim() || null,
-      fiscalCountry: fiscalCountry?.trim() || 'France',
+      legalName,
+      siret: siret ? siret.replace(/\s/g, '') : null,
+      tvaNumber,
+      tvaApplicable,
+      fiscalAddress,
+      fiscalPostalCode,
+      fiscalCity,
+      fiscalCountry: fiscalCountry || 'France',
       // Coordonnées bancaires chiffrées (AES-256-GCM) avant stockage
       iban: encryptString(iban.replace(/\s/g, '').toUpperCase()),
-      bic: bic?.trim() ? encryptString(bic.trim().toUpperCase()) : null,
-      payoutHolder: payoutHolder?.trim() || legalName.trim(),
+      bic: bic ? encryptString(bic.toUpperCase()) : null,
+      payoutHolder: payoutHolder || legalName,
       mandateSignedAt: new Date(),
       mandateSignedIp: ip,
       mandateVersion: MANDATE_VERSION,
@@ -128,7 +139,7 @@ export async function POST(request, { params }) {
     entityType: 'AFFILIATE',
     entityId: affiliate.id,
     action: 'ONBOARDING_COMPLETED',
-    after: { fiscalStatus, legalName: legalName.trim() },
+    after: { fiscalStatus, legalName },
   });
 
   return NextResponse.json({ ok: true });

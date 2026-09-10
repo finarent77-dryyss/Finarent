@@ -6,17 +6,89 @@ Ce document dit *quoi faire*, *dans quel ordre*, et *comment prouver que c'est f
 
 ---
 
-## Avancement — lot 1 exécuté le 8 septembre 2026
+## Avancement — vérifié le 10 septembre 2026
 
-| Action | État | Reste à faire |
+État constaté sur le dépôt, pas déclaré : chaque ligne ci-dessous a été rouverte et contrôlée.
+
+**Santé générale** — `npx tsc --noEmit` : 0 erreur. `npm run lint` : 0 erreur sur **536 fichiers**. `npm test` : **520 tests, 23 fichiers, tous au vert**. La CI (`A1`) tourne sur chaque poussée.
+
+> Le périmètre du lint a dû être rétabli : la bascule de `next lint` vers `eslint .` (action `3.3`) laissait **273 fichiers `.jsx` — toute l'interface — hors de portée du linter et de `tsc`**. Le contrôle passait au vert en regardant un tiers du code. Voir `docs/VERIFICATION_2026-09.md` §4.6.
+
+### Lot 1 — retirer le risque immédiat
+
+| Action | État | Détail |
 |---|---|---|
-| **1.1** Base de développement locale | ⏳ **partiel** | `docker-compose.yml` créé et `.env` basculé sur `localhost:5432`. Le démon Docker n'était pas démarré : reste `docker compose up -d db`, `npx prisma migrate deploy`, `node scripts/seed-demo.js`. Ancien `.env` conservé en `.env.sauvegarde-avant-p0-1`. |
-| **1.2** Garde-fou anti-production | ✅ **fait** | — `scripts/_guard.js` créé, appelé par les six scripts. Vérifié : contre la base Clever Cloud, `seed-demo.js` sort en code 1 sans rien toucher. |
-| **1.3** `CRON_SECRET` | ⏳ **déclaré, inactif** | Secret généré, inscrit dans `.env`, documenté dans `.env.example`, et **déclaré sur l'application Clever Cloud le 9 septembre** — en même temps que les trois variables Cellar (voir `P0-4`). Il ne prendra effet qu'au prochain déploiement, l'application étant en état `stopped`. |
-| **1.4** Crons bruyants | ✅ **fait** | — `-f --fail-with-body` sur les trois tâches ; `vercel.json` retiré du suivi git, `.vercel/` supprimé. |
-| **1.5** Vulnérabilités | ✅ **fait** | — 13 → 3. Voir la correction en 1.5 : le reliquat est lié à Next 16, pas à nodemailer. |
+| **1.1** Base de développement locale | ✅ **fait** | Conteneur `finarent-db-dev` en service sur le port hôte 5433 (un PostgreSQL natif occupe déjà 5432). Base `finarent_dev` peuplée : 41 tables, 18 migrations enregistrées, jeu de démonstration en place. Preuve : `npx prisma migrate status` → « Database schema is up to date ». |
+| **1.2** Garde-fou anti-production | ✅ **fait, et étendu** | `scripts/_guard.js` sur les six scripts. La protection a été poussée plus loin que le plan : `db:migrate`, `db:deploy`, `db:push` et `db:studio` passent désormais par `scripts/prisma-securise.mjs`. Le risque ne tenait pas qu'aux scripts maison. |
+| **1.3** `CRON_SECRET` | ⏳ **déclaré, inactif** | Déclaré sur l'application le 9 septembre avec les trois variables Cellar. Sans effet tant que l'application n'est pas redéployée. |
+| **1.4** Crons bruyants | ✅ **fait** | `-f --fail-with-body` sur les trois tâches ; `vercel.json` et `.vercel/` supprimés. |
+| **1.5** Vulnérabilités | ✅ **fait** | 13 → 3. Le reliquat est imputable à Next 15 et se résoudra avec la migration Next 16 (3.3). |
 
-Après ces changements, `npx tsc --noEmit` et `npm run lint` restent à zéro erreur.
+### Lot 2 — rendre la plateforme opérante et observable
+
+| Action | État | Détail |
+|---|---|---|
+| **2.1** SMTP | ⏳ **bloqué** | Identifiants présents en local, absents de la production. Attend le redéploiement. |
+| **2.2** Sentry | ⏳ **bloqué** | DSN toujours absent en production. |
+| **2.3** reCAPTCHA serveur | ⏳ **bloqué** | `RECAPTCHA_SECRET_KEY` absente en production. **C'est ce qui rend le formulaire de contact inopérant en ligne** : le code déployé refuse toute demande faute de clé. |
+| **2.4** Locataire Auth0 des scripts | ✅ **fait** | Lu dans l'environnement, plus codé en dur. |
+| **2.5** `.env.example` | ✅ **fait** | Supabase retiré, variables manquantes ajoutées. |
+| **2.6** Changement de rôle | ✅ **fait** | L'option recommandée a été retenue : la route admin appelle `definirRoleUtilisateur()` et écrit le rôle dans Auth0. Une promotion tient désormais après reconnexion. |
+| **2.7** README | ✅ **fait** | Réécrit sur la pile réelle. Les mentions restantes de Vercel et de `dist/` sont des démentis explicites, pas des vestiges. |
+| **2.8** Tests unitaires | ✅ **fait** | Vitest installé, **480 tests** sur la logique pure. |
+| **A1** Intégration continue | ✅ **fait** | `.github/workflows/ci.yml` — typage, lint, tests, audit, build. Chaque contrôle bloque la fusion. |
+
+### Lot 3 — dette et couverture
+
+| Action | État | Détail |
+|---|---|---|
+| **3.1** Auth0 v4, Prisma 7 | ⛔ **non entamé** | Les deux plus gros chantiers restants. |
+| **3.3** Préparation Next 16 | ⏳ **amorcé** | `npm run lint` est déjà passé à `eslint .` : la commande ne cassera pas à la migration. La montée elle-même reste à faire. |
+| **3.4** Playwright | ⛔ **non entamé** | Dépend d'un environnement de recette (`A5`). |
+| `P2-1` sonde de santé | ✅ | Ne renvoie plus que `status` et `time`, et ne journalise plus. |
+| `P2-2` page `/simulator` | ✅ | Supprimée. |
+| `P2-3` limitation de débit | ✅ | Passée en table `RateLimitCounter` partagée. PostgreSQL retenu plutôt que Redis — pas d'addon supplémentaire à facturer. |
+| `P2-4` claim historique | ⏳ **instrumenté** | Non retiré, mais `signalerClaimHistorique()` journalise `[P2-4]` à chaque usage réel. À retirer quand ces lignes auront cessé — mesurer avant de couper, comme prévu. |
+| `P2-5` crons concurrents | ✅ | Traité en 1.4. |
+| `P2-6` JSON-LD | ✅ | `serialiserJsonLd()` échappe `<`, `>` et `&` en séquences Unicode sur les cinq points d'injection. |
+| `P2-7` assistant de demande | ✅ | **1 089 → 244 lignes.** Ferme aussi `A4`. |
+| `P2-8` extrait Kbis | ✅ | Sorti du dépôt. |
+| `P2-9` critères de scoring | ⛔ **arbitrage métier** | Inchangé : trois champs absents du schéma, à trancher avec le métier. |
+| `P2-10` notes de déploiement | ✅ | À jour. Les mentions de Supabase et de `finarent.fr` sont volontaires : un démenti et une liste de domaines secondaires redirigés. |
+
+### Ce qui reste, et pourquoi
+
+Tout ce qui pouvait être fait depuis le poste de développement l'est. Les trois blocages restants ne sont pas techniques :
+
+1. **La facture impayée** (`P0-3`) gèle la production. Elle commande 2.1, 2.2, 2.3, `P0-4` et `P0-5` — dont la remise en service du formulaire de contact.
+2. **Un arbitrage métier** pour `P2-9`.
+
+Restent deux chantiers volontairement non entamés, qui demandent une fenêtre dédiée : la montée Auth0 v4 / Prisma 7, et Playwright.
+
+---
+
+## Constats découverts pendant les travaux — 9 et 10 septembre 2026
+
+Aucun de ces dix points ne figure dans les 21 constats de l'audit. Ils sont sortis de la relecture intégrale des 100 routes, de deux campagnes d'exécution réelle et de la réparation de l'historique de base. Le détail et les preuves sont dans `docs/VERIFICATION_2026-09.md`.
+
+| ID | Constat | Gravité | État |
+|---|---|---|---|
+| `D-1` | **Six accès horizontaux** : une comparaison entre deux identifiants nuls tenue pour une preuve d'appartenance. Un compte partenaire non rattaché lisait les messages et les pièces de tous les dossiers déposés en direct. | critique | ✅ corrigé — `lib/acces-dossier.js`, 35 tests |
+| `D-2` | **Acceptation des CGU contournable** : un brouillon rouvert à l'étape récapitulatif permettait d'envoyer une demande sans acceptation, et le serveur ne vérifiait rien. | critique (juridique) | ✅ corrigé — verrou client + refus serveur + trace horodatée |
+| `D-3` | **Historique de migrations irrejouable** : 23 tables sur 41 absentes, chaîne cassée à la 5ᵉ étape. Ni recette, ni restauration de sauvegarde possibles. | majeur | ✅ corrigé — 3 migrations de rattrapage, rejeu à neuf vérifié à écart nul |
+| `D-4` | **9 index de clés étrangères inexistants** dans toutes les bases, dont celui qui retrouve les dossiers d'un client. L'historique affirmait le contraire. | majeur | ✅ corrigé — migration `20260910001000` |
+| `D-5` | **Sentry n'était pas branché du tout** : ni `instrumentation.js` ni `withSentryConfig`. Poser le DSN n'aurait rien remonté. Le diagnostic « il manque la clé » était incomplet. | majeur | ✅ corrigé — reste la clé (2.2) |
+| `D-6` | **Le déploiement avalait les échecs de migration** et livrait un schéma désynchronisé sans qu'aucune étape n'apparaisse en échec. | majeur | ✅ corrigé — échec fatal, contournement d'urgence documenté |
+| `D-7` | **L'environnement de développement agit sur le réel** : emails réellement expédiés (dont vers l'adresse d'administration) et écritures dans la vraie base de contacts Brevo. Même faute que `P0-1`, sur d'autres canaux. | majeur | ✅ corrigé — garde `lib/email/garde-envoi.js` |
+| `D-8` | **Adresse IP forgeable** : la première entrée de `X-Forwarded-For` était retenue. Conséquences — quotas contournables à volonté, registre RGPD faussé, et **adresse consignée comme preuve de signature électronique choisie par le signataire**. | majeur | ✅ corrigé — `lib/ip-client.js`, 25 tests |
+| `D-9` | **60 pages, dont l'accueil, ne renvoient aucun HTML au serveur** (`BAILOUT_TO_CLIENT_SIDE_RENDERING`) : un moteur de recherche reçoit des pages vides. Et `notFound()` répond 200 sur les routes dynamiques. Dommage commercial, pas de panne visible. | majeur (référencement) | ✅ corrigé — accueil de 67 à 11 901 caractères servis ; 59 pages vérifiées une à une |
+| `D-10` | **Le contrôle de style ne voyait qu'un tiers du code** : la bascule `next lint` → `eslint .` (action `3.3`) laissait les 273 fichiers `.jsx` hors de portée du linter **et** de `tsc`. Régression introduite par le plan lui-même. | mineur | ✅ corrigé — 536 fichiers analysés, 0 erreur |
+
+**Deux constats fonctionnels** relevés à la rédaction de la procédure de test, **tranchés par le client le 10 septembre 2026** :
+
+- `D-11` — **le client ne pouvait pas accepter son offre**. Plus large que l'absence d'un bouton : l'espace client n'affichait **aucune** offre, la page ne les chargeant même pas. La route `POST /api/offers/[id]/accept` existait, durcie, et n'était appelée par rien. **Décision : ajouter l'affichage et le bouton d'acceptation.** ✅ fait.
+- `D-12` — **la signature YouSign n'était branchée nulle part**. La signature en service est interne (tracé, horodatage, adresse IP, empreinte du document), à valeur probante simple au sens de l'article 1367 du Code civil — pas une signature qualifiée eIDAS. **Décision : rester sur la signature interne.** ✅ fait — `lib/yousign.js` supprimé, variables retirées du modèle de configuration.
+- `D-13` — corollaire découvert en appliquant `D-12` : **la politique de confidentialité déclarait des sous-traitants fictifs** — Vercel, Neon, Supabase et YouSign — alors que les traitants réels sont Clever Cloud, Auth0 et Brevo. Google reCAPTCHA, activé le 9 septembre, n'y figurait pas du tout alors qu'il analyse l'adresse IP et le comportement de navigation des visiteurs. Un registre de sous-traitants faux est un manquement RGPD en soi. ✅ corrigé — **à faire relire par votre conseil juridique**.
 
 ## Constats de production — 9 septembre 2026
 
@@ -42,7 +114,7 @@ Les trois variables ont été déclarées sur l'application. **Elles ne prendron
 
 ### P0-5 — La production tourne du code du 4 juillet
 
-Dernier déploiement de code : `75c272e1`, le 4 juillet 2026. Les trois entrées suivantes sont des maintenances d'image sur ce même commit. `main` a **14 commits d'avance**, dont la signature électronique, la restauration des champs de contact et les corrections d'échecs muets.
+Dernier déploiement de code : `75c272e1`, le 4 juillet 2026. Les trois entrées suivantes sont des maintenances d'image sur ce même commit. `main` a **24 commits d'avance** (au 10 septembre), dont la signature électronique, la restauration des champs de contact et les corrections d'échecs muets.
 
 > Conséquence pour le plan : le premier redéploiement ne sera pas un simple redémarrage. Il livrera deux mois de travail d'un coup. À traiter comme une mise en production à part entière — d'autant que les migrations Prisma accumulées s'appliqueront dans la foulée.
 
@@ -392,7 +464,9 @@ Trois parcours, pas plus, pour commencer :
 
 ### 3.6 — Intégrations commerciales · `P1-6`
 
-`STRIPE_SECRET_KEY`, `YOUSIGN_API_KEY`, `RINGOVER_API_KEY`, `BREVO_MARKETING_LIST_ID` et `BREVO_WEBHOOK_TOKEN` sont vides. À configurer selon le calendrier commercial, pas techniquement urgent — sauf YouSign si la signature électronique est annoncée aux clients.
+`STRIPE_SECRET_KEY`, `RINGOVER_API_KEY`, `BREVO_MARKETING_LIST_ID` et `BREVO_WEBHOOK_TOKEN` sont vides. À configurer selon le calendrier commercial, pas techniquement urgent.
+
+> **YouSign est sorti du périmètre** (décision du 10 septembre 2026, `D-12`). La signature en service est interne et à valeur probante simple ; le module inutilisé a été supprimé. Si la signature **qualifiée** devait être annoncée commercialement, ce serait un chantier à rouvrir, d'environ une journée.
 
 Pour chacune : clé de test d'abord, webhook déclaré, signature vérifiée, puis bascule en clé de production.
 

@@ -285,6 +285,7 @@ export default function Header() {
                 </div>
               </Link>
             ) : (
+              // eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement.
               <a href="/api/auth/login" className={`hidden sm:flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 ${
                 isOverDarkHero
                   ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
@@ -353,6 +354,7 @@ export default function Header() {
                   </div>
                 </Link>
               ) : (
+                // eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement.
                 <a href="/api/auth/login" className="flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors">
                   <i className="fa-solid fa-user text-sm"></i>
                   <span>{t('nav.accessSpace')}</span>

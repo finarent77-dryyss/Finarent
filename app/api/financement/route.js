@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { genererReferenceDossier } from '@/lib/reference';
 import { verifyRecaptcha } from '@/lib/recaptcha';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { ipClient } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 import { validateEmail, validatePhone, validateSIREN } from '@/utils/validation';
 import { getSession } from '@auth0/nextjs-auth0';
 import { syncUser } from '@/lib/users';
@@ -35,48 +37,79 @@ function parseAmountFromLabel(label) {
   return isNaN(num) ? null : num;
 }
 
-function getClientIp(request) {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  );
+/** Champs obligatoires attendus sous forme de chaîne non vide. */
+const CHAMPS_TEXTE_REQUIS = [
+  'requestType',
+  'companyName',
+  'siren',
+  'sector',
+  'amount',
+  'firstName',
+  'lastName',
+  'email',
+  'phone',
+];
+
+/** Champs facultatifs recopiés en base : ils doivent aussi être du texte. */
+const CHAMPS_TEXTE_FACULTATIFS = ['message', 'equipmentType'];
+
+/**
+ * Rend la valeur si c'est une chaîne non vide, `null` sinon.
+ * Ni `String(valeur)` ni le chaînage optionnel ne conviennent ici : le premier
+ * transformerait `{}` en `"[object Object]"` et l'écrirait en base, le second
+ * laisse passer un nombre jusqu'au `.trim()` qui lève.
+ */
+function texteOuNull(valeur) {
+  return typeof valeur === 'string' && valeur.trim() ? valeur.trim() : null;
 }
 
+/**
+ * Valide présence ET type.
+ *
+ * Le contrôle de type est le point corrigé (RUN-01/RUN-02) : l'ancienne
+ * version ne testait que la présence, si bien qu'un `companyName` numérique
+ * traversait la validation puis levait sur `.trim()` au moment de l'écriture
+ * — 500 sur une entrée que la route aurait dû refuser en 400.
+ */
 function validateBody(body) {
   const errors = {};
-  const required = [
-    'requestType',
-    'companyName',
-    'siren',
-    'sector',
-    'amount',
-    'firstName',
-    'lastName',
-    'email',
-    'phone',
-    'consent',
-  ];
 
-  for (const field of required) {
-    if (!body[field] || (typeof body[field] === 'string' && !body[field].trim())) {
-      if (field === 'recaptchaToken') continue;
-      if (field === 'consent') {
-        if (!body.consent) errors.consent = 'Vous devez accepter la politique de confidentialité';
-      } else {
-        errors[field] = 'Ce champ est requis';
-      }
+  for (const field of CHAMPS_TEXTE_REQUIS) {
+    const valeur = body[field];
+    if (typeof valeur === 'string') {
+      if (!valeur.trim()) errors[field] = 'Ce champ est requis';
+    } else if (valeur === undefined || valeur === null) {
+      errors[field] = 'Ce champ est requis';
+    } else {
+      errors[field] = 'Ce champ doit être du texte';
     }
   }
 
-  if (body.email && !validateEmail(body.email)) errors.email = 'Email invalide';
-  if (body.phone && !validatePhone(body.phone)) errors.phone = 'Numéro de téléphone invalide';
-  if (body.siren && !validateSIREN(body.siren)) errors.siren = 'SIREN invalide (9 chiffres requis)';
-  if (body.requestType && !['financement', 'assurance'].includes(body.requestType)) {
+  for (const field of CHAMPS_TEXTE_FACULTATIFS) {
+    const valeur = body[field];
+    if (valeur !== undefined && valeur !== null && typeof valeur !== 'string') {
+      errors[field] = 'Ce champ doit être du texte';
+    }
+  }
+
+  if (!body.consent) errors.consent = 'Vous devez accepter la politique de confidentialité';
+
+  if (typeof body.email === 'string' && !validateEmail(body.email)) errors.email = 'Email invalide';
+  if (typeof body.phone === 'string' && !validatePhone(body.phone)) {
+    errors.phone = 'Numéro de téléphone invalide';
+  }
+  if (typeof body.siren === 'string' && !validateSIREN(body.siren)) {
+    errors.siren = 'SIREN invalide (9 chiffres requis)';
+  }
+  if (typeof body.requestType === 'string' && !['financement', 'assurance'].includes(body.requestType)) {
     errors.requestType = 'Type invalide';
   }
-  if (body.amount && !AMOUNTS.includes(body.amount)) errors.amount = 'Montant invalide';
-  if (body.sector && !SECTORS.includes(body.sector)) errors.sector = 'Secteur invalide';
+  if (typeof body.amount === 'string' && !AMOUNTS.includes(body.amount)) {
+    errors.amount = 'Montant invalide';
+  }
+  if (typeof body.sector === 'string' && !SECTORS.includes(body.sector)) {
+    errors.sector = 'Secteur invalide';
+  }
 
   if (body.website) errors._spam = 'Requête rejetée';
 
@@ -85,7 +118,7 @@ function validateBody(body) {
 
 export async function POST(request) {
   try {
-    const ip = getClientIp(request);
+    const ip = ipClient(request);
     const rateLimit = await checkRateLimit(ip, { bucket: 'financement' });
     if (!rateLimit.allowed) {
       return NextResponse.json(
@@ -94,7 +127,17 @@ export async function POST(request) {
       );
     }
 
-    const body = await request.json();
+    // `await request.json()` levait sur un corps vide, un JSON tronqué ou le
+    // littéral `null` ; l'exception remontait au catch générique qui répondait
+    // 500. `lireCorpsJson` rend `null` dans ces trois cas, et aussi sur un
+    // tableau — que `validateBody` aurait déréférencé sans broncher.
+    const body = await lireCorpsJson(request);
+    if (!body) {
+      return reponseCorpsInvalide(
+        'Corps de requête JSON absent ou invalide : un objet est attendu.',
+      );
+    }
+
     const session = await getSession();
     let userId = null;
 
@@ -111,7 +154,7 @@ export async function POST(request) {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    const recaptchaResult = await verifyRecaptcha(body.recaptchaToken || '');
+    const recaptchaResult = await verifyRecaptcha(texteOuNull(body.recaptchaToken) || '');
     if (!recaptchaResult.skipped && !recaptchaResult.success) {
       return NextResponse.json(
         { error: 'Vérification de sécurité échouée. Réessayez.' },
@@ -126,36 +169,48 @@ export async function POST(request) {
     const productType = body.requestType === 'assurance' ? 'RC_PRO' : 'PRET_PRO';
     const amountNum = body.requestType === 'financement' ? parseAmountFromLabel(body.amount) : null;
 
-    await prisma.application.create({
-      data: {
-        reference,
-        userId,
-        productType,
-        siren: body.siren.replace(/\s/g, ''),
-        companyName: body.companyName.trim(),
-        sector: body.sector,
-        description: body.message?.trim() || null,
-        email: body.email.trim(),
-        phone: body.phone.trim(),
-        firstName: body.firstName?.trim() || null,
-        lastName: body.lastName?.trim() || null,
-        amount: amountNum,
-        equipmentType: body.equipmentType || null,
-      },
-    });
+    // `validateBody` a garanti le type de tous les champs requis : les appels
+    // à `.trim()` / `.replace()` ci-dessous ne peuvent plus lever.
+    const email = body.email.trim();
+    const companyName = body.companyName.trim();
+
+    try {
+      await prisma.application.create({
+        data: {
+          reference,
+          userId,
+          productType,
+          siren: body.siren.replace(/\s/g, ''),
+          companyName,
+          sector: body.sector,
+          description: texteOuNull(body.message),
+          email,
+          phone: body.phone.trim(),
+          firstName: texteOuNull(body.firstName),
+          lastName: texteOuNull(body.lastName),
+          amount: amountNum,
+          equipmentType: texteOuNull(body.equipmentType),
+        },
+      });
+    } catch (err) {
+      return reponseErreurPrisma(err, {
+        contexte: 'POST /api/financement',
+        conflit: 'Une demande identique a déjà été enregistrée.',
+      });
+    }
 
     // Emails (non bloquant si SMTP non configuré)
     sendConfirmationDemande({
-      to: body.email.trim(),
+      to: email,
       reference,
-      companyName: body.companyName.trim(),
+      companyName,
     }).catch((e) => console.error('Email confirmation:', e));
     sendAlerteAdmin({
       reference,
-      companyName: body.companyName.trim(),
+      companyName,
       productType,
       amount: body.amount,
-      email: body.email.trim(),
+      email,
     }).catch((e) => console.error('Email alerte admin:', e));
 
     return NextResponse.json({

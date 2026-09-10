@@ -3,11 +3,16 @@ import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { ipClient, ipClientOuNull } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
-function getClientIp(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || 'unknown';
+const RE_EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+/** Rend la chaîne nettoyée, ou `null` si la valeur n'est pas du texte. */
+function texteOuNull(valeur, taille = 200) {
+  return typeof valeur === 'string' && valeur.trim()
+    ? valeur.trim().slice(0, taille)
+    : null;
 }
 
 /**
@@ -23,44 +28,60 @@ function getClientIp(request) {
  */
 export async function POST(request) {
   try {
-    const ip = getClientIp(request);
+    const ip = ipClient(request);
     if (!(await checkRateLimit(ip, { bucket: 'devis' })).allowed) {
       return NextResponse.json({ error: 'Trop de demandes. Réessayez plus tard.' }, { status: 429 });
     }
 
-    const data = await request.json();
-
-    if (!data || typeof data !== 'object') {
-      return NextResponse.json({ error: 'Payload invalide' }, { status: 400 });
+    // `await request.json()` levait sur un corps vide ou un JSON tronqué,
+    // et le catch générique répondait 500. Le garde-fou qui suivait
+    // (`typeof data !== 'object'`) ne rattrapait rien : `typeof null` et
+    // `typeof []` valent tous deux `'object'`. `lireCorpsJson` écarte les
+    // quatre cas d'un coup.
+    const data = await lireCorpsJson(request);
+    if (!data) {
+      return reponseCorpsInvalide(
+        'Corps de requête JSON absent ou invalide : un objet est attendu.',
+      );
     }
+
     // Honeypot anti-bot : champ invisible rempli = bot → succès silencieux
     if (data.website) {
       return NextResponse.json({ ok: true, message: 'Votre demande a bien été enregistrée.' }, { status: 200 });
     }
-    if (!data.email || !/^[^@]+@[^@]+\.[^@]+$/.test(data.email)) {
+    // Contrôle de type explicite : `RE_EMAIL.test(12345)` convertirait le
+    // nombre en chaîne et pourrait le valider, puis l'écrire en base.
+    if (typeof data.email !== 'string' || !RE_EMAIL.test(data.email.trim())) {
       return NextResponse.json({ error: 'Email manquant ou invalide' }, { status: 400 });
     }
-    if (!data.product) {
-      return NextResponse.json({ error: 'Produit manquant' }, { status: 400 });
+    // `product` est concaténé plus bas dans `devis-${data.product}` : un objet
+    // y écrirait la chaîne « [object Object] » en base.
+    if (typeof data.product !== 'string' || !data.product.trim()) {
+      return NextResponse.json({ error: 'Produit manquant ou invalide' }, { status: 400 });
     }
     // reCAPTCHA : vérifié SANS CONDITION. La garde "if (data.recaptchaToken)"
     // qui figurait ici rendait la protection contournable en omettant simplement
     // le champ — et le restait une fois la clé posée en production. C'est
     // lib/recaptcha.js qui décide de laisser passer ou non, selon que la clé est
     // configurée ; l'appelant se contente d'appliquer le verdict.
-    const rc = await verifyRecaptcha(data.recaptchaToken || '');
+    const rc = await verifyRecaptcha(texteOuNull(data.recaptchaToken, 4000) || '');
     if (!rc.skipped && !rc.success) {
       return NextResponse.json({ error: 'Vérification de sécurité échouée.' }, { status: 400 });
     }
 
-    const email = String(data.email).trim().toLowerCase();
-    const name = [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || null;
-    const phone = data.phone ? String(data.phone).trim() : null;
-    const company = data.companyName ? String(data.companyName).trim() : null;
+    const email = data.email.trim().toLowerCase();
+    const produit = data.product.trim().slice(0, 60);
+    const name = [texteOuNull(data.firstName, 100), texteOuNull(data.lastName, 100)]
+      .filter(Boolean)
+      .join(' ')
+      .trim() || null;
+    const phone = texteOuNull(data.phone, 30);
+    const company = texteOuNull(data.companyName, 150);
 
-    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-      || request.headers.get('x-real-ip')
-      || null;
+    // Extraction centralisée : voir `lib/ip-client.js`. Variante `…OuNull`
+    // parce que la valeur alimente une colonne de traçabilité — y écrire la
+    // sentinelle « inconnue » ferait passer une absence pour une information.
+    const ipAddress = ipClientOuNull(request);
     const userAgent = request.headers.get('user-agent') || null;
     const source = request.headers.get('referer') || null;
 
@@ -95,7 +116,7 @@ export async function POST(request) {
     await prisma.prospectEvent.create({
       data: {
         prospectId: prospect.id,
-        simulatorSlug: `devis-${data.product}`,
+        simulatorSlug: `devis-${produit}`,
         category: 'assurance-devis',
         params: data,
         url: source,
@@ -108,7 +129,12 @@ export async function POST(request) {
       message: 'Votre demande a bien été enregistrée. Un conseiller vous contactera sous 48h.',
     }, { status: 200 });
   } catch (err) {
-    console.error('[quote-request] error', err);
-    return NextResponse.json({ error: 'Erreur serveur — réessayez plus tard.' }, { status: 500 });
+    // Les entrées malformées sont désormais écartées plus haut en 400 : ce
+    // filet ne couvre plus que les incidents réels (base injoignable, contrainte
+    // violée), et distingue au passage les codes Prisma qui méritent un 404/409.
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/quote-requests',
+      conflit: 'Une demande identique est déjà enregistrée.',
+    });
   }
 }

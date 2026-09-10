@@ -20,6 +20,8 @@ export default function AdminQuotesClient() {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
+  const [envoiId, setEnvoiId] = useState(null);
+  const [envoiFeedback, setEnvoiFeedback] = useState(null);
 
   const load = useCallback(async (f) => {
     setLoading(true);
@@ -39,6 +41,58 @@ export default function AdminQuotesClient() {
       body: JSON.stringify({ status }),
     });
     load(filter);
+  };
+
+  /**
+   * Transmission du devis au contact.
+   *
+   * Le GET de `/api/admin/quotes/[id]/pdf` ne fait plus que rendre le PDF ;
+   * l'archivage et l'expédition sont portés par le POST, synchrone, qui répond :
+   *   200 { envoye: true, documentId }
+   *   200 { envoye: false, dejaTransmis: true, raison, documentId }
+   *   400 / 404 { error }          502 { envoye: false, error, documentId }
+   * Aucun écran n'appelait ce POST : plus aucun devis ne partait au contact.
+   */
+  const envoyerAuClient = async (devis) => {
+    setEnvoiId(devis.id);
+    setEnvoiFeedback(null);
+    try {
+      const res = await fetch(`/api/admin/quotes/${devis.id}/pdf`, { method: 'POST' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Message du serveur affiché tel quel : il nomme la cause exacte
+        // (devis en brouillon, email absent, échec d'expédition…).
+        setEnvoiFeedback({
+          type: 'error',
+          text: `${devis.quoteNumber} — ${data.error || `envoi impossible (HTTP ${res.status})`}`,
+        });
+        return;
+      }
+
+      if (data.envoye) {
+        setEnvoiFeedback({ type: 'success', text: `${devis.quoteNumber} envoyé à ${devis.contactEmail}.` });
+      } else if (data.dejaTransmis) {
+        setEnvoiFeedback({
+          type: 'info',
+          text: `${devis.quoteNumber} : document identique déjà transmis à ${devis.contactEmail} — aucun second envoi`
+            + `${data.raison ? ` (${data.raison})` : ''}.`,
+        });
+      } else {
+        setEnvoiFeedback({
+          type: 'error',
+          text: `${devis.quoteNumber} — ${data.error || 'réponse inattendue du serveur.'}`,
+        });
+      }
+      load(filter);
+    } catch {
+      setEnvoiFeedback({
+        type: 'error',
+        text: `${devis.quoteNumber} — erreur réseau : le serveur n'a pas répondu, rien n'a été envoyé.`,
+      });
+    } finally {
+      setEnvoiId(null);
+    }
   };
 
   const filtered = quotes.filter((q) => {
@@ -91,6 +145,20 @@ export default function AdminQuotesClient() {
         </div>
       </div>
 
+      {envoiFeedback && (
+        <div
+          className={`mb-6 text-sm p-3 rounded-xl ${
+            envoiFeedback.type === 'success'
+              ? 'bg-emerald-50 text-emerald-700'
+              : envoiFeedback.type === 'info'
+              ? 'bg-amber-50 text-amber-700'
+              : 'bg-red-50 text-red-700'
+          }`}
+        >
+          {envoiFeedback.text}
+        </div>
+      )}
+
       {loading && <div className="py-16 text-center"><i className="fa-solid fa-spinner fa-spin text-3xl text-secondary"></i></div>}
       {!loading && filtered.length === 0 && (
         <div className="py-16 text-center bg-white rounded-2xl border border-gray-100">
@@ -136,9 +204,26 @@ export default function AdminQuotesClient() {
                       <a href={`/api/admin/quotes/${q.id}/pdf`} target="_blank" className="text-xs text-secondary hover:underline mr-2">
                         <i className="fa-solid fa-file-pdf"></i> PDF
                       </a>
+                      {/* Ce bouton ne fait que basculer le statut : il ne transmet
+                          rien. Il s'appelait « Envoyer », ce qui laissait croire
+                          que le devis partait au contact — d'où le renommage,
+                          le vrai envoi étant le bouton ci-dessous. */}
                       {q.status === 'DRAFT' && (
                         <button onClick={() => updateStatus(q.id, 'SENT')} className="text-xs text-blue-600 hover:underline mr-2">
-                          Envoyer
+                          Passer en envoyé
+                        </button>
+                      )}
+                      {q.status !== 'DRAFT' && (
+                        <button
+                          onClick={() => envoyerAuClient(q)}
+                          disabled={envoiId === q.id}
+                          className="text-xs text-blue-600 hover:underline mr-2 disabled:opacity-50 disabled:no-underline"
+                          title={q.sentAt ? 'Renvoyer le PDF au contact' : 'Archiver le PDF et l\'envoyer au contact'}
+                        >
+                          {envoiId === q.id
+                            ? <><i className="fa-solid fa-spinner fa-spin"></i> Envoi…</>
+                            : <><i className="fa-solid fa-envelope"></i> {q.sentAt ? 'Renvoyer au client' : 'Envoyer au client'}</>
+                          }
                         </button>
                       )}
                       {q.status === 'SENT' && (

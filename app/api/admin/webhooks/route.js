@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 // GET - List partners with webhook configs
 export async function GET() {
@@ -32,7 +33,13 @@ export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
-  const { partnerId, webhookUrl, events } = await request.json();
+  // Aucun écran du dépôt n'appelle cette route : ni `app/admin/**` ni
+  // `components/admin/**` ne la référencent, elle n'est citée que par la
+  // documentation (CAHIER_DES_CHARGES.md, PROJECT_HANDOFF.md). Les champs lus
+  // ici sont donc ceux que la route déclare, faute d'appelant à relever.
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
+  const { partnerId, webhookUrl, events } = body;
 
   if (!partnerId) {
     return NextResponse.json({ error: 'Identifiant du partenaire requis' }, { status: 400 });
@@ -55,10 +62,17 @@ export async function POST(request) {
     createdAt: new Date().toISOString(),
   } : null;
 
-  await prisma.partner.update({
-    where: { id: partnerId },
-    data: { notes: JSON.stringify(existingNotes) },
-  });
+  try {
+    await prisma.partner.update({
+      where: { id: partnerId },
+      data: { notes: JSON.stringify(existingNotes) },
+    });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/admin/webhooks',
+      introuvable: 'Partenaire introuvable',
+    });
+  }
 
   return NextResponse.json({ success: true });
 }

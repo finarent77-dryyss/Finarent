@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { libelleNumeroDocument } from '@/components/admin/numeros-documents';
 
 const STATUS_LABELS = {
   DRAFT:     { label: 'Brouillon',  cls: 'bg-slate-100 text-slate-700', dot: 'bg-slate-500' },
@@ -38,10 +39,13 @@ export default function AdminInvoicesClient() {
 
   useEffect(() => { load(filter); }, [filter, load]);
 
+  // La recherche porte sur la valeur STOCKÉE, pas sur le libellé affiché : un
+  // brouillon reste ainsi trouvable en tapant « brouillon » ou son suffixe de
+  // travail, et le tri (rendu par le serveur sur createdAt) n'est pas concerné.
   const filtered = invoices.filter((i) => {
     if (!search) return true;
     const s = search.toLowerCase();
-    return i.invoiceNumber.toLowerCase().includes(s) ||
+    return (i.invoiceNumber || '').toLowerCase().includes(s) ||
            (i.clientName || '').toLowerCase().includes(s) ||
            (i.clientEmail || '').toLowerCase().includes(s);
   });
@@ -144,9 +148,21 @@ export default function AdminInvoicesClient() {
                 {filtered.map((inv) => {
                   const status = STATUS_LABELS[inv.status] || STATUS_LABELS.DRAFT;
                   const isOverdue = inv.dueDate && new Date(inv.dueDate) < new Date() && inv.status !== 'PAID' && inv.status !== 'CANCELLED';
+                  const numero = libelleNumeroDocument(inv.invoiceNumber);
                   return (
                     <tr key={inv.id} className="border-t border-gray-50 hover:bg-gray-50/50">
-                      <td className="px-5 py-3 font-mono text-xs font-bold text-secondary">{inv.invoiceNumber}</td>
+                      <td className="px-5 py-3">
+                        {numero.provisoire ? (
+                          <>
+                            <div className="text-xs font-bold text-slate-500">{numero.libelle}</div>
+                            <div className="font-mono text-[10px] text-gray-400" title="Référence de travail — le numéro comptable sera attribué à l'émission">
+                              {numero.reference}
+                            </div>
+                          </>
+                        ) : (
+                          <span className="font-mono text-xs font-bold text-secondary">{numero.libelle}</span>
+                        )}
+                      </td>
                       <td className="px-5 py-3">
                         <div className="font-semibold text-primary">{inv.clientName}</div>
                         {inv.clientEmail && <div className="text-xs text-gray-400">{inv.clientEmail}</div>}

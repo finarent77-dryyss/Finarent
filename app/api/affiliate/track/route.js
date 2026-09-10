@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { COOKIE_NAME, COOKIE_MAX_AGE } from '@/lib/affiliate';
 import { extractRequestContext } from '@/lib/audit';
 import { trouverParrainParCode, COOKIE_PARRAINAGE, DUREE_COOKIE_PARRAINAGE } from '@/lib/referral';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 /**
  * POST /api/affiliate/track
@@ -13,10 +14,13 @@ import { trouverParrainParCode, COOKIE_PARRAINAGE, DUREE_COOKIE_PARRAINAGE } fro
  */
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const code = (body?.code || '').trim().slice(0, 64);
+    const body = await lireCorpsJson(request);
+    if (!body) return reponseCorpsInvalide('Corps de requête JSON absent ou invalide.');
+
+    // Type contrôlé avant `.trim()` : un `code` numérique levait sinon.
+    const code = typeof body.code === 'string' ? body.code.trim().slice(0, 64) : '';
     if (!code) {
-      return NextResponse.json({ ok: false, error: 'Code manquant' }, { status: 400 });
+      return NextResponse.json({ ok: false, error: 'Code manquant ou invalide' }, { status: 400 });
     }
 
     const affiliate = await prisma.affiliate.findUnique({
@@ -51,8 +55,8 @@ export async function POST(request) {
     await prisma.affiliateClick.create({
       data: {
         affiliateId: affiliate.id,
-        landingPath: body?.landingPath?.slice(0, 200) || null,
-        referer: body?.referer?.slice(0, 500) || null,
+        landingPath: typeof body.landingPath === 'string' ? body.landingPath.slice(0, 200) : null,
+        referer: typeof body.referer === 'string' ? body.referer.slice(0, 500) : null,
         ip,
         userAgent: userAgent?.slice(0, 500) || null,
       },
@@ -68,7 +72,6 @@ export async function POST(request) {
     });
     return res;
   } catch (err) {
-    console.error('POST /api/affiliate/track error:', err);
-    return NextResponse.json({ ok: false }, { status: 500 });
+    return reponseErreurPrisma(err, { contexte: 'POST /api/affiliate/track' });
   }
 }

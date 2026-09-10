@@ -46,6 +46,7 @@ export default function InsurerSidebar({ email }) {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
           <a href="/api/auth/logout?returnTo=/" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all">
             <i className="fa-solid fa-power-off w-5 text-center"></i>
             Déconnexion
@@ -68,6 +69,7 @@ export default function InsurerSidebar({ email }) {
             </Link>
           );
         })}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
         <a href="/api/auth/logout?returnTo=/" className="flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium text-red-400">
           <i className="fa-solid fa-power-off"></i>
           Quitter

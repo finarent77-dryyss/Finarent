@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
 
 function deriveInitials(name) {
   const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
@@ -38,7 +39,8 @@ export async function POST(request) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
 
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
   if (!body.authorName || !body.text) {
     return NextResponse.json({ error: 'Nom et texte requis' }, { status: 400 });
   }

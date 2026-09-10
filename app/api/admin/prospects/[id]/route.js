@@ -40,14 +40,22 @@ export async function PATCH(request, { params }) {
   // Normalise les chaînes vides en null pour les FK (désassignation)
   if (data.callCenterId === '') data.callCenterId = null;
   if (data.assignedAgentId === '') data.assignedAgentId = null;
-  const prospect = await prisma.prospect.update({
-    where: { id },
-    data,
-    include: {
-      callCenter: { select: { id: true, name: true, code: true } },
-      assignedAgent: { select: { id: true, name: true, email: true } },
-    },
-  });
+  let prospect;
+  try {
+    prospect = await prisma.prospect.update({
+      where: { id },
+      data,
+      include: {
+        callCenter: { select: { id: true, name: true, code: true } },
+        assignedAgent: { select: { id: true, name: true, email: true } },
+      },
+    });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'PATCH /api/admin/prospects/[id]',
+      introuvable: 'Prospect introuvable',
+    });
+  }
 
   // Journalise les (ré)assignations centre / agent
   if (data.callCenterId !== undefined || data.assignedAgentId !== undefined) {
@@ -71,7 +79,14 @@ export async function DELETE(request, { params }) {
   if (isAuthError(auth)) return auth;
   const { id } = await params;
   const existing = await prisma.prospect.findUnique({ where: { id }, select: { name: true, email: true } });
-  await prisma.prospect.delete({ where: { id } });
+  try {
+    await prisma.prospect.delete({ where: { id } });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'DELETE /api/admin/prospects/[id]',
+      introuvable: 'Prospect introuvable',
+    });
+  }
   await logAdminActivity({
     actorId: auth.dbUser?.id,
     module: 'crm',

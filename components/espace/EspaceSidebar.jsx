@@ -47,6 +47,7 @@ export default function EspaceSidebar() {
           })}
         </ul>
         <div className="border-t border-gray-100 mt-3 pt-3">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
           <a
             href="/api/auth/logout?returnTo=/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"

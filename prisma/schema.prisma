@@ -174,6 +174,9 @@ model Application {
   @@index([status, updatedAt])
   @@index([callCenterId])
   @@index([affiliateId])
+  @@index([userId])
+  @@index([status])
+  @@index([partnerId])
 }
 
 model Offer {
@@ -201,6 +204,9 @@ model Offer {
 
   @@index([status, expiresAt])
   @@index([status, sentAt])
+  @@index([applicationId])
+  @@index([partnerId])
+  @@index([status])
 }
 
 model Document {
@@ -220,6 +226,8 @@ model Document {
   createdAt     DateTime     @default(now())
 
   @@index([deletedAt])
+  @@index([applicationId])
+  @@index([uploadedById])
 }
 
 // Audit trail RGPD : qui a consulté/téléchargé quel document, quand, d'où
@@ -273,6 +281,8 @@ model Message {
   isAdminOnly   Boolean     @default(false)
   readAt        DateTime?
   createdAt     DateTime    @default(now())
+  @@index([applicationId])
+  @@index([senderId])
 }
 
 model StatusHistory {

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { validateForm, validateEmail, validatePhone, validateSIREN } from '@/utils/validation';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
@@ -36,9 +35,12 @@ const getAmountOption = (amount) => {
   return 'Plus de 500 000€';
 };
 
-export default function ContactClient() {
-  const searchParams = useSearchParams();
-  const prefill = useMemo(() => buildPrefillFromParams(searchParams), [searchParams]);
+export default function ContactClient({ initialParams }) {
+  // Les paramètres d'URL arrivent en props depuis app/contact/page.jsx, au lieu
+  // d'être lus par `useSearchParams()` : ce hook aurait fait basculer toute la
+  // page en rendu navigateur (constat PAGE-01) — /contact était servie sans
+  // aucun contenu dans le HTML, alors que c'est une page d'acquisition.
+  const prefill = useMemo(() => buildPrefillFromParams(initialParams), [initialParams]);
   const { t } = useTranslation();
 
   const [formData, setFormData] = useState({

@@ -26,6 +26,7 @@ export default function EspaceLoginClient() {
             </p>
 
             <div className="space-y-4">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
               <a
                 href="/api/auth/login?returnTo=/espace"
                 className="group relative flex items-center justify-center gap-3 w-full px-8 py-5 bg-primary text-white font-black rounded-2xl hover:shadow-[0_20px_40px_rgba(10,25,47,0.3)] transition-all duration-500 overflow-hidden"

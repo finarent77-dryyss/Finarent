@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { ipClient } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 import { sendMail } from '@/lib/email/send.js';
 import { templateBienvenueNewsletter } from '@/lib/email/templates.js';
 import { subscribeToMarketingList } from '@/lib/brevo/contacts.js';
@@ -28,32 +30,32 @@ function accueillir(email) {
   );
 }
 
-function getClientIp(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || 'unknown';
-}
-
 export async function POST(request) {
   try {
-    const ip = getClientIp(request);
+    const ip = ipClient(request);
     if (!(await checkRateLimit(ip)).allowed) {
       return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 });
     }
 
-    let body;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ error: 'Corps de requête invalide' }, { status: 400 });
+    const body = await lireCorpsJson(request);
+    if (!body) {
+      return reponseCorpsInvalide('Corps de requête JSON absent ou invalide.');
     }
 
     // Honeypot : champ invisible rempli = bot → succès silencieux
-    if (body?.website) {
+    if (body.website) {
       return NextResponse.json({ success: true, message: 'Inscription réussie' });
     }
 
-    const email = body?.email?.trim()?.toLowerCase();
+    // Contrôle de TYPE avant tout traitement. `body?.email?.trim()` protégeait
+    // du `null` et de l'`undefined` mais pas d'un type inattendu :
+    // `{"email":12345}` levait `body?.email?.trim is not a function` et
+    // repartait en 500 (RUN-02), sans jamais atteindre les contrôles suivants.
+    if (typeof body.email !== 'string') {
+      return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
+    }
+
+    const email = body.email.trim().toLowerCase();
 
     if (!email || email.length > 254) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
@@ -73,7 +75,13 @@ export async function POST(request) {
     accueillir(email);
     return NextResponse.json({ success: true, message: 'Inscription réussie' });
   } catch (err) {
-    console.error('Newsletter error:', err);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    // Deux inscriptions simultanées de la même adresse passent toutes deux le
+    // `findUnique` puis se heurtent à la contrainte d'unicité : P2002 est ici
+    // un doublon inoffensif, pas un incident. On répond comme pour un inscrit
+    // déjà connu plutôt que d'afficher une erreur au visiteur.
+    if (err?.code === 'P2002') {
+      return NextResponse.json({ success: true, message: 'Déjà inscrit' });
+    }
+    return reponseErreurPrisma(err, { contexte: 'POST /api/newsletter' });
   }
 }

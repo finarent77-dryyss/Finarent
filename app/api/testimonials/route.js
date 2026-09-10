@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { ipClient } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 const BAD_WORDS = ['putain', 'merde', 'connard', 'salope', 'fuck', 'shit', 'asshole'];
 
@@ -38,19 +40,20 @@ export async function GET() {
   }
 }
 
-function getClientIp(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip') || 'inconnue';
-}
-
 export async function POST(request) {
   // Dépôt public : rare par nature, quota serré pour éviter le flood.
-  if (!(await checkRateLimit(getClientIp(request), { bucket: 'temoignages', max: 5 })).allowed) {
+  if (!(await checkRateLimit(ipClient(request), { bucket: 'temoignages', max: 5 })).allowed) {
     return NextResponse.json({ error: 'Trop de dépôts. Réessayez plus tard.' }, { status: 429 });
   }
 
+  // Corps vide ou JSON malformé : 400, pas le 500 que produisait le catch
+  // générique quand `request.json()` levait.
+  const body = await lireCorpsJson(request);
+  if (!body) {
+    return reponseCorpsInvalide('Corps de requête JSON absent ou invalide.');
+  }
+
   try {
-    const body = await request.json();
     const authorName = sanitize(body.authorName);
     const text = sanitize(body.text);
 
@@ -83,6 +86,6 @@ export async function POST(request) {
 
     return NextResponse.json({ id: t.id, success: true, message: 'Témoignage envoyé pour modération' });
   } catch (e) {
-    return NextResponse.json({ error: 'Erreur lors de l\'enregistrement' }, { status: 500 });
+    return reponseErreurPrisma(e, { contexte: 'POST /api/testimonials' });
   }
 }

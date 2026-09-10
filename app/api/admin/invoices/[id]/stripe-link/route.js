@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getStripe, isStripeConfigured } from '@/lib/stripe';
+import { reponseErreurPrisma } from '@/lib/reponses-api';
 import { desactiverLienPaiement } from '../../liens-paiement';
 
 /**
@@ -75,13 +76,23 @@ export async function POST(request, { params }) {
     }),
   });
 
-  await prisma.invoice.update({
-    where: { id },
-    data: {
-      stripePaymentLinkId: paymentLink.id,
-      stripePaymentLinkUrl: paymentLink.url,
-    },
-  });
+  try {
+    await prisma.invoice.update({
+      where: { id },
+      data: {
+        stripePaymentLinkId: paymentLink.id,
+        stripePaymentLinkUrl: paymentLink.url,
+      },
+    });
+  } catch (err) {
+    // Facture supprimée pendant l'aller-retour Stripe : le lien existe chez
+    // Stripe mais n'est rattaché à rien. Un 404 le dit ; un 500 laissait croire
+    // à un incident serveur sans indiquer que le lien créé est orphelin.
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/admin/invoices/[id]/stripe-link',
+      introuvable: `Facture introuvable : le lien de paiement ${paymentLink.id} vient d'être créé chez Stripe et doit y être désactivé manuellement.`,
+    });
+  }
 
   return NextResponse.json({ url: paymentLink.url, id: paymentLink.id, montant: remaining });
 }

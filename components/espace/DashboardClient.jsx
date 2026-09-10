@@ -199,6 +199,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               <Link href="/espace/notifications" className="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-50 text-slate-500 rounded-xl hover:bg-secondary/10 hover:text-secondary transition-all shadow-sm border border-slate-100">
                 <i className="fa-solid fa-bell"></i>
               </Link>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
               <a href="/api/auth/logout?returnTo=/" className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100">
                 <i className="fa-solid fa-power-off"></i>
               </a>

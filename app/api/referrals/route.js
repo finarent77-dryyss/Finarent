@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAuth, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { ipClient } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
 import { assurerCodeParrainage, genererCodeParrainage } from '@/lib/referral';
 import { sendMail } from '@/lib/email/send.js';
 import { templateInvitationParrainage } from '@/lib/email/templates.js';
@@ -16,12 +18,6 @@ import { templateInvitationParrainage } from '@/lib/email/templates.js';
  */
 
 const RE_EMAIL = /^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
-
-function ipClient(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || 'unknown';
-}
 
 export async function GET() {
   const auth = await requireAuth();
@@ -59,16 +55,22 @@ export async function POST(request) {
     );
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Requête invalide' }, { status: 400 });
-  }
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide('Corps de requête JSON absent ou invalide.');
 
-  const refereeEmail = String(body?.refereeEmail || '').trim().toLowerCase();
-  const refereeName = body?.refereeName ? String(body.refereeName).trim().slice(0, 100) : null;
-  const message = body?.message ? String(body.message).trim().slice(0, 500) : null;
+  // Contrôle de type avant normalisation : `String({})` produirait
+  // « [object Object] », que la regex rejette — mais autant refuser tôt et
+  // pour la bonne raison.
+  if (typeof body.refereeEmail !== 'string') {
+    return NextResponse.json({ error: 'Adresse email invalide' }, { status: 400 });
+  }
+  const refereeEmail = body.refereeEmail.trim().toLowerCase();
+  const refereeName = typeof body.refereeName === 'string' && body.refereeName.trim()
+    ? body.refereeName.trim().slice(0, 100)
+    : null;
+  const message = typeof body.message === 'string' && body.message.trim()
+    ? body.message.trim().slice(0, 500)
+    : null;
 
   if (!refereeEmail || refereeEmail.length > 254 || !RE_EMAIL.test(refereeEmail)) {
     return NextResponse.json({ error: 'Adresse email invalide' }, { status: 400 });

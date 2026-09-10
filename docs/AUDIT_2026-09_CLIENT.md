@@ -7,6 +7,20 @@
 
 ---
 
+> ### ⚠️ Mise à jour du 10 septembre 2026 — à lire avant ce document
+>
+> Cet audit décrit la plateforme **telle qu'elle était le 8 septembre 2026**. Il est conservé en l'état, comme constat daté. Une campagne de correction et de vérification a eu lieu depuis : son résultat figure dans le **Rapport de vérification** (document 7 de cette livraison), qui fait foi sur l'état actuel.
+>
+> **Trois affirmations de ce document sont devenues fausses, dont une dans le sens rassurant :**
+>
+> 1. **« Chaque utilisateur ne voit que ce qui le concerne, et cette règle ne peut pas être contournée »** (§1, ci-dessous). C'était inexact. La revue ligne à ligne des 100 points d'entrée a mis au jour **six situations** où un compte pouvait atteindre les données d'un autre — notamment un compte partenaire sans rattachement, qui accédait aux messages et aux pièces de tous les dossiers déposés en direct. Ces six situations sont corrigées et couvertes par 35 tests. Le détail est en section 3.4 du rapport de vérification.
+> 2. **« Aucun test automatisé »** (constat M-2). La plateforme en compte aujourd'hui **480**, exécutés à chaque modification par une intégration continue.
+> 3. **« Onze failles connues dans les bibliothèques »** (constat M-3). Il en reste **quatre**, toutes issues d'une même brique et corrigibles seulement par sa montée de version — ce n'est donc plus « une commande standard sans risque », mais un chantier planifié.
+>
+> Par ailleurs, **cinq constats absents de cet audit** ont été découverts pendant les travaux, dont la remontée d'erreurs qui n'était pas branchée du tout, et l'impossibilité de reconstruire la base de données à partir de son historique. Ils sont en section 4 du rapport de vérification.
+
+---
+
 ## 1. En une page
 
 La plateforme est **solide et très complète sur le fond**. Les fonctionnalités sont là, elles sont bien construites, et la protection des données de vos clients est sérieusement traitée : chaque utilisateur ne voit que ce qui le concerne, et cette règle est appliquée par le serveur — elle ne peut donc pas être contournée depuis un navigateur.

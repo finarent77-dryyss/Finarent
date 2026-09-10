@@ -15,6 +15,7 @@ export default function AdminHeader({ email }) {
         <span className="text-gray-500">|</span>
         <span className="text-gray-600">{email}</span>
       </div>
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
       <a
         href="/api/auth/logout?returnTo=/"
         className="text-sm text-gray-600 hover:text-secondary"

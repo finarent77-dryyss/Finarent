@@ -4,37 +4,33 @@ import { prisma } from '@/lib/prisma';
 import { currentAffiliateId } from '@/lib/affiliate';
 import { computeEngagementScore } from '@/lib/prospects/scoring';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { ipClient, ipClientOuNull } from '@/lib/ip-client';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 const COOKIE_NAME = 'finarent_anon';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 an
 
 // POST — Tracking évènement simulateur (anonyme, depuis le navigateur).
 // Crée/upserte un Prospect lié à un cookie + ajoute un ProspectEvent.
-function getClientIp(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip') || 'inconnue';
-}
-
 export async function POST(request) {
   // Quota large : un visiteur genere legitimement plusieurs evenements
   // en enchainant les simulateurs.
-  if (!(await checkRateLimit(getClientIp(request), { bucket: 'prospects', max: 120 })).allowed) {
+  if (!(await checkRateLimit(ipClient(request), { bucket: 'prospects', max: 120 })).allowed) {
     return NextResponse.json({ error: 'Trop de requêtes.' }, { status: 429 });
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Corps de requête invalide' }, { status: 400 });
-  }
+  // `lireCorpsJson` couvre en plus les cas que le `try/catch` laissait passer :
+  // le littéral `null` et un tableau, qui traversaient jusqu'à `body.url`
+  // quelques lignes plus bas et y levaient.
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide('Corps de requête JSON absent ou invalide.');
 
   const {
     simulatorSlug, category, params, result,
     email, phone, name, company, source,
     utmSource, utmMedium, utmCampaign, utmTerm, utmContent,
     referrer, landingPage,
-  } = body || {};
+  } = body;
 
   if (!simulatorSlug || typeof simulatorSlug !== 'string') {
     return NextResponse.json({ error: 'Identifiant du simulateur requis' }, { status: 400 });
@@ -49,12 +45,15 @@ export async function POST(request) {
     setCookie = true;
   }
 
-  const ipAddress =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    null;
+  // Colonne de traçabilité : `null` plutôt que la sentinelle « inconnue »,
+  // pour ne pas faire passer une absence d'information pour une information.
+  const ipAddress = ipClientOuNull(request);
   const userAgent = request.headers.get('user-agent') || null;
-  const url = body.url || request.headers.get('referer') || null;
+  // Colonne `String?` : une valeur non textuelle serait refusée par Prisma et
+  // finirait en 500 sur une entrée que la route doit simplement ignorer.
+  const url = (typeof body.url === 'string' && body.url.trim() ? body.url.slice(0, 500) : null)
+    || request.headers.get('referer')
+    || null;
 
   // Upsert prospect — données identitaires écrasables, attribution first-touch.
   const data = { anonId, lastSeenAt: new Date(), ipAddress, userAgent };
@@ -77,42 +76,46 @@ export async function POST(request) {
   const affiliateId = await currentAffiliateId();
   if (affiliateId) data.affiliateId = affiliateId;
 
-  let prospect = await prisma.prospect.upsert({
-    where: { anonId },
-    create: { ...data, ...attribCreate },
-    update: {
-      lastSeenAt: data.lastSeenAt,
-      ...(data.email ? { email: data.email } : {}),
-      ...(data.phone ? { phone: data.phone } : {}),
-      ...(data.name ? { name: data.name } : {}),
-      ...(data.company ? { company: data.company } : {}),
-      ...(data.source ? { source: data.source } : {}),
-      // attribution + affiliateId : not updated (first-touch wins)
-    },
-  });
+  try {
+    const prospect = await prisma.prospect.upsert({
+      where: { anonId },
+      create: { ...data, ...attribCreate },
+      update: {
+        lastSeenAt: data.lastSeenAt,
+        ...(data.email ? { email: data.email } : {}),
+        ...(data.phone ? { phone: data.phone } : {}),
+        ...(data.name ? { name: data.name } : {}),
+        ...(data.company ? { company: data.company } : {}),
+        ...(data.source ? { source: data.source } : {}),
+        // attribution + affiliateId : not updated (first-touch wins)
+      },
+    });
 
-  await prisma.prospectEvent.create({
-    data: {
-      prospectId: prospect.id,
-      simulatorSlug: String(simulatorSlug).slice(0, 80),
-      category: category ? String(category).slice(0, 80) : null,
-      params: params ?? {},
-      result: result ?? null,
-      url,
-    },
-  });
+    await prisma.prospectEvent.create({
+      data: {
+        prospectId: prospect.id,
+        simulatorSlug: String(simulatorSlug).slice(0, 80),
+        category: category ? String(category).slice(0, 80) : null,
+        params: params ?? {},
+        result: result ?? null,
+        url,
+      },
+    });
 
-  // Recompute engagement score (lit tous les events du prospect)
-  const events = await prisma.prospectEvent.findMany({
-    where: { prospectId: prospect.id },
-    select: { simulatorSlug: true, params: true },
-    take: 50,
-  });
-  const engagementScore = computeEngagementScore({ prospect, events });
-  await prisma.prospect.update({
-    where: { id: prospect.id },
-    data: { engagementScore },
-  });
+    // Recompute engagement score (lit tous les events du prospect)
+    const events = await prisma.prospectEvent.findMany({
+      where: { prospectId: prospect.id },
+      select: { simulatorSlug: true, params: true },
+      take: 50,
+    });
+    const engagementScore = computeEngagementScore({ prospect, events });
+    await prisma.prospect.update({
+      where: { id: prospect.id },
+      data: { engagementScore },
+    });
+  } catch (err) {
+    return reponseErreurPrisma(err, { contexte: 'POST /api/prospects' });
+  }
 
   const res = NextResponse.json({ ok: true, anonId });
   if (setCookie) {

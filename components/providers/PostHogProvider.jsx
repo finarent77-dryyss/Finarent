@@ -5,7 +5,11 @@ import posthog from 'posthog-js';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useConsent } from '@/lib/consent';
 
-export default function PostHogProvider({ children }) {
+// Monté seul dans le gabarit racine, à l'intérieur d'une frontière Suspense
+// étroite : `useSearchParams()` fait basculer en rendu navigateur tout ce que
+// cette frontière englobe. Le composant n'enveloppe donc plus l'arbre de page ;
+// `children` reste accepté mais vaut `null` par défaut.
+export default function PostHogProvider({ children = null }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const consent = useConsent();

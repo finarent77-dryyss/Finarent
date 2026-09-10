@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { verifierTransitionDevis } from '@/lib/invoicing/statuses';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 
 export async function GET(request, { params }) {
   const auth = await requireAdmin();
@@ -24,7 +25,8 @@ export async function PATCH(request, { params }) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
 
   const devis = await prisma.quote.findUnique({ where: { id } });
   if (!devis) return NextResponse.json({ error: 'Devis introuvable' }, { status: 404 });
@@ -49,8 +51,19 @@ export async function PATCH(request, { params }) {
   if (data.acceptedAt && typeof data.acceptedAt === 'string') data.acceptedAt = new Date(data.acceptedAt);
   if (data.refusedAt && typeof data.refusedAt === 'string') data.refusedAt = new Date(data.refusedAt);
 
-  const quote = await prisma.quote.update({
-    where: { id }, data, include: { items: true },
-  });
-  return NextResponse.json(quote);
+  // Le `findUnique` ci-dessus ne met pas à l'abri d'une suppression concurrente :
+  // entre la lecture et l'écriture, le devis peut avoir disparu. Sans ce catch,
+  // le P2025 remontait en 500 et l'écran ne pouvait pas distinguer la
+  // disparition de la ressource d'un incident serveur (constat ADM1-08).
+  try {
+    const quote = await prisma.quote.update({
+      where: { id }, data, include: { items: true },
+    });
+    return NextResponse.json(quote);
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'PATCH /api/admin/quotes/[id]',
+      introuvable: 'Devis introuvable',
+    });
+  }
 }

@@ -3,9 +3,24 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { syncUser } from '@/lib/users';
 import { prisma } from '@/lib/prisma';
 
+/**
+ * Feed de la cloche de notifications (`components/espace/NotificationsBell.jsx`).
+ *
+ * RUN-04 : la route répondait `200 {"unread":0,"items":[]}` à un appelant
+ * anonyme. Aucune donnée ne fuyait — le court-circuit précédait toute requête
+ * Prisma — mais c'était le seul des 145 couples route + méthode testés à ne
+ * pas refuser franchement l'anonyme, et un client ne pouvait pas distinguer
+ * « pas connecté » de « rien à lire ». Le contrôle est désormais explicite,
+ * aligné sur les 116 autres routes métier.
+ *
+ * La cloche ne teste que `res.ok` avant de lire le corps : un 401 la laisse
+ * simplement sans données, ce qui est le comportement voulu hors session.
+ */
 export async function GET(request) {
   const session = await getSession();
-  if (!session?.user) return NextResponse.json({ unread: 0, items: [] });
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  }
 
   const dbUser = await syncUser(session.user);
 

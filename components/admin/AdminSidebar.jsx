@@ -123,6 +123,7 @@ export default function AdminSidebar({
             <i className="fa-solid fa-file-csv w-5 text-center shrink-0"></i>
             {!collapsed && <span>Exporter CSV</span>}
           </a>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
           <a
             href="/api/auth/logout?returnTo=/"
             title={collapsed ? 'Déconnexion' : undefined}

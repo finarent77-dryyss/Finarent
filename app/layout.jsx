@@ -77,25 +77,35 @@ export default function RootLayout({ children }) {
       <body>
         <UserProvider>
           <LanguageProvider>
+            {/* Frontière Suspense réduite aux seuls composants qui lisent les
+                paramètres d'URL (`useSearchParams`) : le suivi d'audience PostHog
+                et le suivi d'apporteur d'affaires.
+
+                Elle englobait auparavant Header, <main>{children}</main> et Footer.
+                Or `useSearchParams()` fait basculer la frontière Suspense la plus
+                proche sur son `fallback` au prérendu : toute page ainsi englobée
+                était servie vide (marqueur BAILOUT_TO_CLIENT_SIDE_RENDERING), et
+                comme la coquille partait déjà en HTTP 200, `notFound()` et
+                `redirect()` des pages ne pouvaient plus fixer le code de réponse.
+                Ne jamais réélargir cette frontière au contenu de page. */}
             <Suspense fallback={null}>
-              <PostHogProvider>
-                <PublicBgEffect />
-                <AffiliateTracker />
-                <AttributionCapture />
-                <ClarityTracker />
-                <div className="min-h-screen flex flex-col">
-                  <div id="site-header">
-                    <Header />
-                  </div>
-                  <main className="flex-grow">{children}</main>
-                  <footer id="site-footer">
-                    <Footer />
-                  </footer>
-                </div>
-                <CookieBanner />
-                <FloatingContactCTA />
-              </PostHogProvider>
+              <PostHogProvider />
+              <AffiliateTracker />
             </Suspense>
+            <PublicBgEffect />
+            <AttributionCapture />
+            <ClarityTracker />
+            <div className="min-h-screen flex flex-col">
+              <div id="site-header">
+                <Header />
+              </div>
+              <main className="flex-grow">{children}</main>
+              <footer id="site-footer">
+                <Footer />
+              </footer>
+            </div>
+            <CookieBanner />
+            <FloatingContactCTA />
           </LanguageProvider>
         </UserProvider>
       </body>

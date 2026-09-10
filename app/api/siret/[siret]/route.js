@@ -1,16 +1,12 @@
 import { NextResponse } from 'next/server';
 import { lookupSiret } from '@/lib/siren';
 import { checkRateLimit } from '@/lib/rateLimit';
-
-function getClientIp(request) {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip') || 'inconnue';
-}
+import { ipClient } from '@/lib/ip-client';
 
 export async function GET(request, { params }) {
   // Cette route relaie un service externe : sans quota, un tiers peut
   // l'utiliser comme proxy gratuit jusqu'a epuisement de notre quota SIRENE.
-  if (!(await checkRateLimit(getClientIp(request), { bucket: 'siret', max: 40 })).allowed) {
+  if (!(await checkRateLimit(ipClient(request), { bucket: 'siret', max: 40 })).allowed) {
     return NextResponse.json({ error: 'Trop de recherches. Réessayez plus tard.' }, { status: 429 });
   }
 

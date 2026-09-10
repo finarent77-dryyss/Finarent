@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
+import { reponseErreurPrisma } from '@/lib/reponses-api';
 
 const TTL_DAYS = 14;
 
@@ -31,10 +32,17 @@ export async function POST(_request, { params }) {
   const token = crypto.randomBytes(32).toString('base64url');
   const expiresAt = new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000);
 
-  await prisma.affiliate.update({
-    where: { id },
-    data: { onboardingToken: token, onboardingTokenExpiresAt: expiresAt },
-  });
+  try {
+    await prisma.affiliate.update({
+      where: { id },
+      data: { onboardingToken: token, onboardingTokenExpiresAt: expiresAt },
+    });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'POST /api/admin/affiliates/[id]/onboarding-link',
+      introuvable: 'Affilié introuvable',
+    });
+  }
 
   const base = process.env.APP_BASE_URL || 'https://finarent.com';
   const url = `${base}/affiliate/${affiliate.code}/onboarding?token=${token}`;

@@ -23,6 +23,7 @@ export default function CallCenterLayoutClient({ children, isManager, userName }
           <p className="text-sm font-medium text-gray-600 hidden md:block">
             {isManager ? 'Vue responsable' : 'Vue agent'} — {userName || 'Utilisateur'}
           </p>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
           <a
             href="/api/auth/logout"
             className="text-xs font-semibold text-rose-600 hover:text-rose-800 ml-auto"

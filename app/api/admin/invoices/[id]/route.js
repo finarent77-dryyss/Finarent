@@ -12,7 +12,7 @@ import {
   statutVautEmission,
   verifierTransitionFacture,
 } from '@/lib/invoicing/statuses';
-import { lireCorpsJson, reponseCorpsInvalide } from '@/lib/reponses-api';
+import { lireCorpsJson, reponseCorpsInvalide, reponseErreurPrisma } from '@/lib/reponses-api';
 import { desactiverLienPaiement } from '../liens-paiement';
 
 export async function GET(request, { params }) {
@@ -46,7 +46,8 @@ export async function PATCH(request, { params }) {
   const auth = await requireAdmin();
   if (isAuthError(auth)) return auth;
   const { id } = await params;
-  const body = await request.json();
+  const body = await lireCorpsJson(request);
+  if (!body) return reponseCorpsInvalide();
 
   const facture = await prisma.invoice.findUnique({ where: { id } });
   if (!facture) return NextResponse.json({ error: 'Facture introuvable' }, { status: 404 });
@@ -87,15 +88,27 @@ export async function PATCH(request, { params }) {
   // La date d'émission est celle de l'émission réelle, pas celle du brouillon.
   if (doitNumeroter) data.issueDate = new Date();
 
-  const invoice = await avecNumeroUnique({
-    champ: 'invoiceNumber',
-    generer: () => (doitNumeroter ? nextInvoiceNumber() : null),
-    ecrire: (numero) => prisma.invoice.update({
-      where: { id },
-      data: numero ? { ...data, invoiceNumber: numero } : data,
-      include: { lines: true, payments: true },
-    }),
-  });
+  let invoice;
+  try {
+    invoice = await avecNumeroUnique({
+      champ: 'invoiceNumber',
+      generer: () => (doitNumeroter ? nextInvoiceNumber() : null),
+      ecrire: (numero) => prisma.invoice.update({
+        where: { id },
+        data: numero ? { ...data, invoiceNumber: numero } : data,
+        include: { lines: true, payments: true },
+      }),
+    });
+  } catch (err) {
+    // La facture lue plus haut peut avoir été supprimée entre-temps : P2025 doit
+    // donner 404, pas 500. `avecNumeroUnique` ne rattrape que le P2002 sur le
+    // numéro, tout le reste ressort ici.
+    return reponseErreurPrisma(err, {
+      contexte: 'PATCH /api/admin/invoices/[id]',
+      introuvable: 'Facture introuvable',
+      conflit: 'Numéro de facture déjà attribué',
+    });
+  }
 
   return NextResponse.json({
     ...invoice,
@@ -115,6 +128,13 @@ export async function DELETE(request, { params }) {
   }
   // Un brouillon ne porte qu'un numéro de travail (« BROUILLON-… ») : sa
   // suppression ne creuse aucun trou dans la séquence FAC-AAAA-NNNN.
-  await prisma.invoice.delete({ where: { id } });
+  try {
+    await prisma.invoice.delete({ where: { id } });
+  } catch (err) {
+    return reponseErreurPrisma(err, {
+      contexte: 'DELETE /api/admin/invoices/[id]',
+      introuvable: 'Facture introuvable',
+    });
+  }
   return NextResponse.json({ ok: true });
 }

@@ -65,9 +65,22 @@ const SECTIONS = [
         <ul className="list-disc pl-6 mt-3 space-y-1">
           <li>Équipes Finarent autorisées (courtiers, gestionnaires, conformité)</li>
           <li>Partenaires bancaires et assurantiels pour lesquels vous nous donnez mandat (consentement explicite avant chaque transmission)</li>
-          <li>Sous-traitants techniques : hébergeur (Vercel / Neon), stockage documents (Supabase), authentification (Auth0), emailing (SMTP), signature électronique (YouSign) — tous liés par contrat conforme RGPD</li>
+          <li>
+            Sous-traitants techniques, tous liés par contrat conforme RGPD :
+            <ul className="list-disc pl-6 mt-1 space-y-1">
+              <li><strong>Clever Cloud</strong> (France) — hébergement de la plateforme, base de données et stockage des pièces justificatives</li>
+              <li><strong>Auth0</strong> — gestion des comptes et de l'authentification</li>
+              <li><strong>Brevo</strong> (France) — envoi des emails de suivi de dossier et, si vous y avez consenti, des communications commerciales</li>
+              <li><strong>Google reCAPTCHA</strong> — protection des formulaires publics contre les envois automatisés ; ce service analyse votre adresse IP et votre comportement de navigation sur les pages concernées</li>
+            </ul>
+          </li>
           <li>Autorités publiques sur réquisition (ACPR, TRACFIN, justice)</li>
         </ul>
+        <p className="mt-3">
+          La signature électronique est réalisée par Finarent, sans prestataire externe :
+          les éléments de preuve (tracé, horodatage, adresse IP, empreinte du document) sont
+          recueillis et conservés par nos soins.
+        </p>
         <p className="mt-3">Aucune donnée n'est vendue, louée ou échangée à des fins commerciales.</p>
       </>
     ),
