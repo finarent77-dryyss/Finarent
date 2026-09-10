@@ -74,10 +74,10 @@ La page `/privacy` mentionne `dpo@finarent.fr` en placeholder.
 ## 6. Domaine & hébergement
 
 - [ ] **Domaine final** : `finarent.fr` acheté/à acheter ? Qui détient les DNS ?
-- [ ] **Slug Vercel** : `finarrent` (double-r) — confirmé ?
-- [ ] **Compte Vercel** : quel email propriétaire ?
-- [ ] **Compte Neon (DB)** : email propriétaire + plan (free / pro) ?
-- [ ] **Compte Supabase** : email propriétaire + bucket `docs-kyc` créé ?
+- [ ] **Compte Clever Cloud** : email propriétaire + organisation
+- [ ] **Facture d'hébergement** : la production est sous le coup d'une suspension pour impayé — à régler en priorité, elle conditionne tout le reste
+- [ ] **Plan de l'addon PostgreSQL** : actuellement `DEV` (palier gratuit) pour une base qui stocke des dossiers clients — à revoir
+- [ ] **Bucket Cellar** `finarent-docs-kyc` : créé et identifiants déclarés sur l'application ?
 - [ ] **Sous-domaines** prévus (admin.finarent.fr ? api.finarent.fr ?)
 - [ ] **Email pro** sur le domaine (Google Workspace ? OVH ?) → adresses prévues
 
@@ -101,9 +101,12 @@ Le site envoie : confirmation demande, alerte admin, document reçu, relance doc
 - [ ] **SPF / DKIM / DMARC** configurés sur le domaine (anti-spam)
 - [ ] **Templates** : design email finalisé (couleurs, logo, signature) ?
 
-## 9. Stockage documents (Supabase)
+## 9. Stockage documents (Cellar)
 
-- [ ] **Bucket Supabase** `docs-kyc` créé + politique RLS activée
+> Corrigé le 10 septembre 2026 : le stockage n'est pas Supabase mais **Cellar**, l'addon S3 de Clever Cloud.
+
+- [ ] **Bucket Cellar** `finarent-docs-kyc` créé et les trois identifiants déclarés sur l'application
+      (sans eux, `lib/storage.js` bascule **silencieusement** sur le disque de l'instance : les pièces justificatives seraient perdues à chaque redéploiement)
 - [ ] **Région** : EU (RGPD) ✅ à confirmer
 - [ ] **Tailles max** : 10 Mo / fichier actuel — OK pour bilans PDF ?
 - [ ] **Antivirus** : scanner avant insertion en bucket ? (recommandé pour KBIS, bilans, RIB)
@@ -169,8 +172,8 @@ La page `/partenaires` liste 103 acteurs en cartographie *indicative*.
 
 ## 15. Conformité & sécurité production
 
-- [ ] **Clé de chiffrement `ENCRYPTION_KEY`** prod : générée et stockée dans Vercel envs (pas dans le repo)
-- [ ] **Backup base de données** : fréquence + rétention (Neon offre des PITR)
+- [ ] **Clé de chiffrement `ENCRYPTION_KEY`** prod : générée et déclarée dans les variables de l'application Clever Cloud (jamais dans le dépôt)
+- [ ] **Sauvegarde de la base** : fréquence et rétention de l'addon Clever Cloud — et surtout **une restauration réellement testée** : une sauvegarde jamais restaurée n'est pas une sauvegarde
 - [ ] **Audit pentest** : prévu avant lancement ?
 - [ ] **Plan de continuité** (PCA) en cas d'incident
 - [ ] **CGU site** : besoin ou couvert par les CGV ?
@@ -206,13 +209,13 @@ PDF *"11 Finarent Integration Site Existant.pdf"* mentionne un site déjà en pl
 ## 19. Mise en ligne
 
 - [ ] **Date de lancement souhaitée**
-- [ ] **Phase staging** : URL `staging.finarent.fr` ou preview Vercel uniquement ?
+- [ ] **Environnement de recette** : une seconde application Clever Cloud avec son propre addon PostgreSQL ? Devenu possible depuis la réparation de l'historique de migrations (10 septembre 2026)
 - [ ] **Bêta-testeurs** : qui ?
 - [ ] **Plan de communication** lancement (LinkedIn, presse, partenaires) ?
 
 ## 20. Variables d'environnement à fournir
 
-Récapitulatif des secrets / configs prod à remplir dans Vercel :
+Récapitulatif des secrets et réglages de production à déclarer sur l'application **Clever Cloud** :
 
 ```env
 # Auth0
@@ -232,10 +235,12 @@ DATABASE_URL=
 # Chiffrement RGPD — généré avec : node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ENCRYPTION_KEY=
 
-# Supabase Storage
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
-SUPABASE_BUCKET=docs-kyc
+# Stockage Cellar (addon Clever Cloud — les trois premiers sont injectés par l'addon)
+CELLAR_ADDON_HOST=
+CELLAR_ADDON_KEY_ID=
+CELLAR_ADDON_KEY_SECRET=
+CELLAR_BUCKET=finarent-docs-kyc
+CELLAR_REGION=us-east-1
 
 # Email SMTP
 SMTP_HOST=

@@ -28,13 +28,13 @@ Les quatre revues de code ont porté sur les **100 routes** de la plateforme, lu
 
 | Contrôle | Avant | Après |
 |---|---|---|
-| Tests automatisés | **0** | **520**, répartis sur 23 fichiers, tous au vert |
+| Tests automatisés | **0** | **531**, répartis sur 23 fichiers, tous au vert |
 | Contrôle des types | passait | passe, verrouillé par l'intégration continue |
 | Contrôle de style | passait, sur 263 fichiers | passe, sur **536** — les 273 fichiers d'interface en étaient absents (voir 4.6) |
 | Failles connues dans les bibliothèques | 13 | **4**, toutes issues d'une même brique et corrigibles seulement par sa montée de version |
 | Intégration continue | inexistante | en place, sur chaque modification |
 
-L'audit annonçait « aucun test automatisé ». C'était juste au moment de sa rédaction. La plateforme en compte aujourd'hui 520, qui couvrent en priorité ce qui coûte cher quand c'est faux : les calculs financiers, la numérotation comptable, les fichiers de virement bancaire, le chiffrement, et les règles d'accès aux dossiers.
+L'audit annonçait « aucun test automatisé ». C'était juste au moment de sa rédaction. La plateforme en compte aujourd'hui 531, qui couvrent en priorité ce qui coûte cher quand c'est faux : les calculs financiers, la numérotation comptable, les fichiers de virement bancaire, le chiffrement, et les règles d'accès aux dossiers.
 
 L'intérêt de ces tests n'est pas leur nombre. C'est qu'ils **échoueront si le défaut revient**. Chaque correction décrite plus bas est accompagnée du test qui la garde.
 
@@ -128,6 +128,25 @@ Les cinq exports sont désormais neutralisés, avec deux arbitrages qui mériten
 - **Parcours de dépôt** — le composant de 1 089 lignes qui porte le chiffre d'affaires est découpé en 15 fichiers lisibles, **à comportement strictement identique** : les données envoyées ont été comparées champ par champ, avant et après.
 - **Documentation** — le fichier d'accueil décrivait un hébergement, un service d'emails et une organisation de fichiers qui n'existent plus. Il a été réécrit à partir du code.
 - **Quotas de formulaires** — le compteur, jusqu'ici gardé en mémoire (donc perdu à chaque redémarrage et sans effet sur plusieurs serveurs), est désormais conservé en base.
+
+---
+
+### 3.10 Le client peut enfin voir et accepter ses offres
+
+Relevé à la rédaction du guide de test, et tranché par vous le 10 septembre.
+
+Le constat de départ était qu'aucun bouton ne permettait d'accepter une offre. La réalité était plus large : **l'espace client n'affichait aucune offre**, et la page ne les chargeait même pas. Le client ne voyait donc jamais ce qui lui était proposé — sur une plateforme dont c'est précisément l'objet. La route serveur d'acceptation, elle, existait depuis longtemps et n'était appelée par rien.
+
+Ce qui a été construit :
+
+- un onglet **Offres** qui présente montant, mensualité, taux, coût total, partenaire et date limite d'acceptation ;
+- un **bouton d'acceptation** qui demande une confirmation rappelant le montant et la durée — accepter engage, ce n'est pas un clic anodin ;
+- l'affichage **du motif exact renvoyé par le serveur** en cas de refus : « offre expirée » et « offre déjà acceptée » ne veulent pas dire la même chose pour celui qui les lit ;
+- une offre encore **en préparation reste invisible** du client : elle n'a jamais été transmise, elle n'existe pas pour lui.
+
+> **Preuve** — 5 tests sur la règle de visibilité. L'un d'eux a d'ailleurs révélé un défaut de la règle que nous venions d'écrire : une offre au statut inconnu était **montrée** au lieu d'être masquée. Corrigé dans le sens qui ferme par défaut.
+
+**Ce qui n'est pas prouvé** : le parcours complet — un vrai client acceptant une vraie offre — n'a pas été exercé, faute de session de connexion automatisable. C'est l'un des tests du guide manuel qui accompagne ce document.
 
 ---
 
@@ -255,7 +274,7 @@ La plateforme était moins prête que l'audit ne le laissait penser, et elle l'e
 
 Moins prête, parce que quatre mécanismes que l'on croyait en place ne l'étaient pas du tout : la remontée d'erreurs, la protection anti-robot des formulaires, la capacité à reconstruire la base, et le référencement de soixante pages qui ne renvoyaient rien aux moteurs de recherche. Parce que six chemins permettaient à un compte d'atteindre les données d'un autre. Et parce que le contrôle de qualité automatique ne regardait qu'un tiers du code — il passait au vert d'autant plus facilement.
 
-Plus prête, parce que ces points sont corrigés, et surtout parce que la plateforme dispose maintenant de ce qui lui manquait le plus : **520 tests qui échoueront si ces défauts reviennent**, une intégration continue qui les exécute à chaque modification, et des échecs qui se voient au lieu de passer inaperçus.
+Plus prête, parce que ces points sont corrigés, et surtout parce que la plateforme dispose maintenant de ce qui lui manquait le plus : **531 tests qui échoueront si ces défauts reviennent**, une intégration continue qui les exécute à chaque modification, et des échecs qui se voient au lieu de passer inaperçus.
 
 Ce qui reste tient en deux catégories : ce qui attend l'ouverture de vos comptes de service, et deux montées de version à conduire posément. Rien de tout cela n'est bloquant pour l'exploitation, à l'exception de la facture d'hébergement.
 

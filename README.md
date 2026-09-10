@@ -226,10 +226,11 @@ retiré du dépôt. Détail de la procédure : `clevercloud/README.md`.
 
 | Document | Contenu |
 |---|---|
+| `docs/PROTOCOLE_TEST_CLIENT.md` | **Protocole de test client de référence** : 99 tests pas à pas couvrant les sept espaces, les emails attendus, les fonctions non testables et les défauts connus |
 | `docs/PLAN_TEST.md` | Plan de test |
 | `docs/TESTS_LISTE_COMPLETE.md` | Les 263 cas de recette |
 | `docs/DOSSIER_TESTS_EQUIPE.md` | Prise en main et tests pour l'équipe |
-| `docs/TESTS_CLIENT.md` · `docs/TESTS_DEBUTANT.md` | Recette côté client, dont une version pour débutants |
+| `docs/TESTS_CLIENT.md` · `docs/TESTS_DEBUTANT.md` | Anciens guides de recette côté client, remplacés par le protocole ci-dessus |
 | `docs/TUTORIEL_UTILISATION.md` | Utilisation de la plateforme |
 | `DEMANDES_FINANCEMENT.md` | Le parcours de demande, pas à pas |
 | `docs/QUESTIONS_CLIENT.md` | Points en attente d'arbitrage client |

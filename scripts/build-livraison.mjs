@@ -320,7 +320,7 @@ function page({ titre, surtitre, meta, corps, sommaire, pied }) {
   const toc =
     sommaire && sommaire.length
       ? `<nav class="sommaire"><h2>Sommaire</h2><ol>${sommaire
-          .map((t) => `<li><a href="#${t.ancre}">${esc(t.texte)}</a></li>`)
+          .map((t) => `<li><a href="#${t.ancre}">${esc(t.texte.replace(/\*+/g, ''))}</a></li>`)
           .join('')}</ol></nav>`
       : '';
 
@@ -417,12 +417,12 @@ const DOCUMENTS = [
       "Ce qui a été corrigé, ce qui a été vérifié en conditions réelles, et ce qui reste ouvert. Chaque affirmation est adossée à une preuve reproductible.",
   },
   {
-    source: 'TESTS_DEBUTANT.md',
-    fichier: '08-Guide-de-test-manuel.html',
-    titre: 'Guide de test manuel',
+    source: 'PROTOCOLE_TEST_CLIENT.md',
+    fichier: '08-Protocole-de-test.html',
+    titre: 'Protocole de test',
     surtitre: 'Document 8 sur 8 · À faire soi-même',
     resume:
-      "La marche à suivre pour vérifier la plateforme par vous-même, écran par écran. Aucune compétence technique requise.",
+      "99 tests pas à pas pour vérifier vous-même toute la plateforme, profil par profil, avec les emails attendus et les défauts déjà connus. Aucune compétence technique requise.",
   },
 ];
 
