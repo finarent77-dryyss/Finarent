@@ -8,8 +8,14 @@ import { withSentryConfig } from '@sentry/nextjs';
  * « Next.js build worker exited with code: null and signal: SIGKILL » : pas un
  * plantage de Next, mais le noyau qui tue le processus faute de mémoire.
  * L'instance de build dispose d'environ 2 Go (Clever Cloud y impose
- * `--max-old-space-size=1262`), et la génération statique des ~165 pages —
- * dont les 41 simulateurs — dépasse désormais ce plafond.
+ * `--max-old-space-size=1262`).
+ *
+ * La coupure est survenue pendant « Creating an optimized production build »,
+ * donc dans la phase webpack — avant toute génération de page. C'est
+ * `webpackMemoryOptimizations` qui vise ce point précis. `cpus` est conservé
+ * par prudence : la génération statique des ~165 pages, dont les 41
+ * simulateurs, n'a jamais été atteinte lors de cet échec, on ne sait donc pas
+ * si elle tenait dans l'enveloppe.
  *
  * Augmenter `--max-old-space-size` ne servirait à rien : c'est le conteneur qui
  * plafonne, V8 se ferait tuer plus tard mais tout autant.
@@ -27,10 +33,18 @@ const nextConfig = {
   ...(buildContraintEnMemoire
     ? {
         experimental: {
-          // Génération statique séquentielle. C'est le poste de dépense
-          // principal : chaque worker charge sa propre copie du runtime React
-          // et du graphe de modules. Un seul worker rend le build plus long,
-          // mais il tient dans l'enveloppe mémoire.
+          // Génération statique séquentielle : chaque worker charge sa propre
+          // copie du runtime React et du graphe de modules.
+          //
+          // Mesuré en local (10/09/2026) : compilation de 25 s à 76 s avec ce
+          // bridage. Le surcoût réel sur Clever Cloud sera nettement moindre —
+          // l'écart mesuré ici vient du grand nombre de cœurs du poste de
+          // développement, alors que l'instance de build en compte deux ou
+          // trois : y brider à un seul worker ne divise pas le parallélisme
+          // dans les mêmes proportions.
+          //
+          // Si le temps de build devient gênant, passer à 2 avant de renoncer
+          // au bridage : c'est le premier palier à tester.
           cpus: 1,
           // Libère les structures intermédiaires de webpack au fil de la
           // compilation au lieu de les conserver jusqu'à la fin.
