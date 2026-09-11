@@ -72,23 +72,37 @@ L'app lit le rôle dans le custom claim `https://finarent/role` (cf. `middleware
 
 `syncUser()` recopie ce claim dans la colonne `User.role` **à chaque requête authentifiée**, avec `CLIENT` par défaut. La base est un miroir, pas une source : un rôle écrit en base seule retombe à la première navigation. C'est le constat **P1-8** de l'audit de septembre 2026 — le back-office annonçait une promotion qui ne tenait pas.
 
-Le back-office (`PATCH /api/admin/users/[id]`) et `scripts/promote-admin.js` écrivent donc d'abord `app_metadata.role` dans Auth0 via la Management API, puis en base seulement si Auth0 a accepté. **Sans les variables `AUTH0_M2M_*` ci-dessous, le changement de rôle est refusé en 503** : un échec franc plutôt qu'un succès mensonger.
+Le back-office (`PATCH /api/admin/users/[id]`) et `scripts/promote-admin.js` écrivent donc d'abord dans Auth0 via la Management API, puis en base seulement si Auth0 a accepté. **Sans les variables `AUTH0_M2M_*` ci-dessous, le changement de rôle est refusé en 503** : un échec franc plutôt qu'un succès mensonger.
 
-Les trois étapes ci-dessous sont indissociables — l'Action seule ne suffit pas, l'application M2M seule non plus.
+> ### ⚠️ Corrigé le 12 septembre 2026 — lire avant d'appliquer ce document
+>
+> Ce document décrivait une seule façon d'attribuer le rôle : écrire `app_metadata.role`, et déployer une Action qui le relit. **Ce n'est pas ce qui tourne sur le locataire de production.** L'Action réellement déployée, « Add role to token », lit les **rôles RBAC Auth0** (`admin`, `client`, `insurer`, `partner`) et **ignore `app_metadata`**.
+>
+> Conséquence pendant deux jours : la plateforme écrivait la bonne valeur au mauvais endroit. L'écriture aboutissait, l'écran annonçait un succès, et le rôle retombait à l'ancien à la reconnexion suivante.
+>
+> `lib/auth0-management.js` écrit désormais **les deux** : d'abord le rôle RBAC — celui qui produit l'effet avec l'Action en place — puis `app_metadata.role`, pour la variante décrite à l'étape 2. Il retire aussi les rôles précédents : les rôles Auth0 s'additionnent, et une personne rétrogradée les porterait tous les deux.
+>
+> **Vous n'avez donc qu'un choix à faire** : garder l'Action RBAC en place (rien à faire, tout fonctionne), ou déployer celle de l'étape 2. Les deux marchent ; n'en gardez qu'une.
+
+Les étapes ci-dessous sont indissociables — l'Action seule ne suffit pas, l'application M2M seule non plus.
 
 ### Étape 1 — Application « Machine to Machine »
 
 1. Dashboard Auth0 → **Applications → Applications → Create Application**.
 2. Nom : `Finarent Management` · Type : **Machine to Machine Applications** → *Create*.
 3. API à autoriser : **Auth0 Management API** (audience `https://<AUTH0_DOMAIN>/api/v2/`).
-4. Scopes à cocher, et rien de plus : **`read:users`** et **`update:users`** → *Authorize*.
+4. Scopes à cocher, et rien de plus : **`read:users`**, **`update:users`**, **`read:roles`**, **`create:role_members`** et **`delete:role_members`** → *Authorize*.
+
+   > Les trois derniers ont été ajoutés le 12 septembre 2026 : sans eux, l'attribution du **rôle RBAC** — celle qui produit réellement l'effet — est refusée par Auth0, et le back-office répond une erreur explicite le disant.
 5. Onglet **Settings** de l'application créée : relever le **Client ID** et le **Client Secret**.
 
 > Le secret n'est affiché qu'ici. Il ne va ni dans le dépôt, ni dans `AUTH0_SETUP.md` : uniquement dans les variables d'environnement.
 
-### Étape 2 — Action « Post Login » qui recopie `app_metadata.role` dans le claim
+### Étape 2 *(facultative)* — Action « Post Login » qui recopie `app_metadata.role` dans le claim
 
-Auth0 ne remonte pas `app_metadata` dans le jeton tout seul. Sans cette Action, l'écriture de l'étape 1 est invisible côté application.
+> **À ne faire que si vous remplacez l'Action RBAC existante.** Sur le locataire de production, une Action « Add role to token » lit déjà les rôles RBAC et fonctionne : dans ce cas, passez directement à l'étape 3.
+
+Auth0 ne remonte pas `app_metadata` dans le jeton tout seul. Sans cette Action, l'écriture de `app_metadata.role` est invisible côté application — l'attribution du rôle RBAC, elle, reste effective.
 
 Auth0 → **Actions → Library → Build Custom** → nom `Add Role Claim`, trigger **Login / Post Login**, runtime Node 18+ :
 
