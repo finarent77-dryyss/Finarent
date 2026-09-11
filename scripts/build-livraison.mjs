@@ -133,8 +133,11 @@ function rendre(md, titres = null, ancres = new Set()) {
         ancre = `${ancre}-${n}`;
       }
       ancres.add(ancre);
-      if (titres && niveau === 2) titres.push({ ancre, texte });
-      if (niveau > 1) out.push(`<h${niveau} id="${ancre}">${inline(texte)}</h${niveau}>`);
+      if (titres && niveau <= 2) titres.push({ ancre, texte, niveau });
+      // Un titre de niveau 1 dans le corps est un separateur de partie (le titre du
+      // document, lui, a deja ete retire par `separer`).
+      if (niveau === 1) out.push(`<h1 class="partie" id="${ancre}">${inline(texte)}</h1>`);
+      else out.push(`<h${niveau} id="${ancre}">${inline(texte)}</h${niveau}>`);
       i++;
       continue;
     }
@@ -295,6 +298,76 @@ blockquote p:last-child{margin-bottom:0}
 .pied{margin-top:56px;padding-top:20px;border-top:1px solid ${MARQUE.bordure};
   font-size:12px;color:${MARQUE.gris};display:flex;justify-content:space-between;gap:20px}
 
+/* --- Separateurs de partie (titres de niveau 1 dans le corps) --- */
+h1.partie{margin:64px 0 18px;padding:26px 0 0;border-top:3px solid ${MARQUE.vert};font-size:26px;
+  line-height:1.25;color:${MARQUE.marine};font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+h1.partie .partie-num{display:block;font-size:12px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:${MARQUE.vertFonce};margin-bottom:8px}
+h1.partie + p{font-size:16px;color:${MARQUE.gris}}
+
+/* --- Sommaire groupe par partie --- */
+.sommaire-groupe ol{columns:1}
+.sommaire-groupe > ol > li{margin:0 0 10px}
+.sommaire-groupe a.sommaire-partie{font-weight:700;color:${MARQUE.marine}}
+.sommaire-groupe .sommaire-plage{margin-left:10px;font-size:12px;color:${MARQUE.gris}}
+.sommaire-groupe ul{margin:4px 0 0;padding-left:18px;columns:2;column-gap:30px}
+.sommaire-groupe ul li{margin:0 0 4px}
+
+/* --- Barre de navigation fixe --- */
+.nav-parties{position:sticky;top:0;z-index:20;max-width:900px;margin:0 auto;
+  background:${MARQUE.marine};color:#fff;padding:10px 18px;display:flex;flex-wrap:wrap;
+  align-items:center;gap:4px 14px;font-size:13px;box-shadow:0 4px 14px rgba(19,37,59,.18)}
+.nav-parties a{color:rgba(255,255,255,.82);text-decoration:none;padding:3px 0;
+  border-bottom:2px solid transparent;white-space:nowrap}
+.nav-parties a:hover,.nav-parties a:focus-visible{color:#fff;border-bottom-color:${MARQUE.vert};outline:0}
+.nav-parties .compteur{margin-left:auto;background:rgba(255,255,255,.12);border-radius:999px;
+  padding:4px 12px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* --- Cartes de test --- */
+.test{background:#fff;border:1px solid ${MARQUE.bordure};border-radius:12px;padding:22px 26px 18px;
+  margin:0 0 22px;box-shadow:0 1px 2px rgba(19,37,59,.05)}
+.test-tete{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.test-num{flex:none;min-width:44px;height:44px;padding:0 8px;border-radius:9px;background:${MARQUE.marine};
+  color:#fff;display:flex;align-items:center;justify-content:center;gap:3px;font-weight:700;font-size:17px;
+  font-variant-numeric:tabular-nums}
+.test-num small{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.85}
+.test-tete h2{flex:1 1 300px;margin:0;padding:0;border:0;font-size:19px;line-height:1.3;text-wrap:balance}
+.test-prio{flex:none;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:#8a5a00;background:#fff1cc;border:1px solid #f2d27a;border-radius:999px;padding:4px 10px}
+.rub{display:grid;grid-template-columns:150px minmax(0,1fr);gap:6px 20px;padding:12px 0;
+  border-top:1px solid ${MARQUE.bordure}}
+.rub-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:${MARQUE.gris};padding-top:4px}
+.rub-corps p{margin:0 0 8px}
+.rub-corps > :last-child{margin-bottom:0}
+.rub-corps ol,.rub-corps ul{margin:0;padding-left:22px}
+.rub-corps li{margin:0 0 6px}
+.rub-voir .rub-label{color:${MARQUE.vertFonce}}
+.rub-probleme{background:#fdf2f2;border-top:0;border-left:4px solid #d64545;border-radius:0 8px 8px 0;
+  padding:12px 16px;margin-top:10px}
+.rub-probleme .rub-label{color:#b23a3a}
+.rub-probleme strong{color:#8f2b2b}
+.resultat{display:grid;grid-template-columns:150px minmax(0,1fr);gap:6px 20px;align-items:center;
+  padding:14px 0 4px;border-top:1px solid ${MARQUE.bordure};margin-top:10px}
+.resultat .cases{display:flex;flex-wrap:wrap;gap:10px}
+.resultat label{display:inline-flex;align-items:center;gap:8px;border:1px solid ${MARQUE.bordure};
+  border-radius:8px;padding:7px 14px;font-weight:600;font-size:14px;cursor:pointer;
+  background:#fff;user-select:none}
+.resultat input{width:18px;height:18px;margin:0;accent-color:${MARQUE.marine};cursor:pointer}
+.resultat label:has(input:checked){border-color:${MARQUE.marine};background:#eef2f6}
+.resultat label[data-kind="ok"]:has(input:checked){border-color:${MARQUE.vert};background:${MARQUE.vertPale}}
+.resultat label[data-kind="ko"]:has(input:checked){border-color:#d64545;background:#fdf2f2}
+.resultat label:focus-within{outline:2px solid ${MARQUE.vert};outline-offset:2px}
+.test blockquote{margin:12px 0 4px}
+blockquote.defaut{background:#fff7e6;border-left-color:#e0a020}
+blockquote.attention{background:#fdf2f2;border-left-color:#d64545}
+
+@media (max-width:640px){
+  .rub,.resultat{grid-template-columns:1fr;gap:4px}
+  .test{padding:18px 16px 14px}
+  .sommaire-groupe ul{columns:1}
+}
+
 /* --- Impression --- */
 @page{size:A4;margin:16mm 14mm}
 @media print{
@@ -311,18 +384,59 @@ blockquote p:last-child{margin-bottom:0}
   pre{background:#f2f5f8;color:#16283d;border:1px solid ${MARQUE.bordure};font-size:8.6pt}
   .sommaire{page-break-inside:avoid}
   .sommaire ol{columns:2}
+  .sommaire-groupe ol{columns:1}
   a{color:${MARQUE.marineClair};text-decoration:none}
   .pied{page-break-inside:avoid}
+  .nav-parties{display:none}
+  h1.partie{page-break-before:always;font-size:19pt;margin-top:0}
+  .test{page-break-inside:avoid;box-shadow:none;border-color:#c9d2dc}
+  .resultat label{border-color:#9aa7b4}
 }
 `;
 
-function page({ titre, surtitre, meta, corps, sommaire, pied }) {
-  const toc =
-    sommaire && sommaire.length
-      ? `<nav class="sommaire"><h2>Sommaire</h2><ol>${sommaire
-          .map((t) => `<li><a href="#${t.ancre}">${esc(t.texte.replace(/\*+/g, ''))}</a></li>`)
-          .join('')}</ol></nav>`
-      : '';
+/**
+ * Sommaire genere : liste plate des sections, ou groupee par partie quand le
+ * document comporte des titres de niveau 1 dans son corps. Dans un groupe, les
+ * sections « Test N » sont resumees par leur plage plutot que listees une a une.
+ */
+function renduSommaire(sommaire) {
+  if (!sommaire || !sommaire.length) return '';
+  const nettoyer = (t) => esc(t.replace(/\*+/g, ''));
+  const lien = (t) => `<li><a href="#${t.ancre}">${nettoyer(t.texte)}</a></li>`;
+
+  if (!sommaire.some((t) => t.niveau === 1)) {
+    return `<nav class="sommaire"><h2>Sommaire</h2><ol>${sommaire.map(lien).join('')}</ol></nav>`;
+  }
+
+  const groupes = [];
+  let courant = { entete: null, sections: [] };
+  for (const t of sommaire) {
+    if (t.niveau === 1) {
+      groupes.push(courant);
+      courant = { entete: t, sections: [] };
+    } else courant.sections.push(t);
+  }
+  groupes.push(courant);
+
+  const estTest = (s) => /^Test \d+/.test(s.texte);
+  const numero = (s) => s.texte.match(/\d+/)[0];
+  const lignes = groupes
+    .map((g) => {
+      const tests = g.sections.filter(estTest);
+      const autres = g.sections.filter((s) => !estTest(s));
+      if (!g.entete) return autres.map(lien).join('');
+      const plage = tests.length
+        ? `<span class="sommaire-plage">Tests ${numero(tests[0])} à ${numero(tests[tests.length - 1])}</span>`
+        : '';
+      const sous = autres.length ? `<ul>${autres.map(lien).join('')}</ul>` : '';
+      return `<li><a class="sommaire-partie" href="#${g.entete.ancre}">${nettoyer(g.entete.texte)}</a>${plage}${sous}</li>`;
+    })
+    .join('');
+  return `<nav class="sommaire sommaire-groupe"><h2>Sommaire</h2><ol>${lignes}</ol></nav>`;
+}
+
+function page({ titre, surtitre, meta, corps, sommaire, pied, avant = '', apres = '' }) {
+  const toc = renduSommaire(sommaire);
 
   return `<!doctype html>
 <html lang="fr">
@@ -338,6 +452,7 @@ function page({ titre, surtitre, meta, corps, sommaire, pied }) {
   « Enregistrer au format PDF » comme imprimante. Ce bandeau n'apparaîtra pas dans le document.</span>
   <button type="button" onclick="window.print()">Enregistrer en PDF</button>
 </div>
+${avant}
 <main class="feuille">
   <header class="garde">
     ${LOGO ? `<img src="${LOGO}" alt="Finarent">` : ''}
@@ -349,6 +464,7 @@ function page({ titre, surtitre, meta, corps, sommaire, pied }) {
   ${corps}
   <footer class="pied"><span>${esc(pied)}</span><span>Finarent — document confidentiel</span></footer>
 </main>
+${apres}
 </body>
 </html>`;
 }
@@ -423,6 +539,22 @@ const DOCUMENTS = [
     surtitre: 'Document 8 sur 8 · À faire soi-même',
     resume:
       "99 tests pas à pas pour vérifier vous-même toute la plateforme, profil par profil, avec les emails attendus et les défauts déjà connus. Aucune compétence technique requise.",
+    protocole: true,
+    navigation: [
+      { titre: 'Avant de commencer', label: 'Préparation' },
+      { titre: 'Les douze tests prioritaires', label: 'Prioritaires' },
+      { titre: 'Partie 1 — Le site public, sans être connecté', label: '1 · Site public' },
+      { titre: "Partie 2 — L'espace client", label: '2 · Espace client' },
+      { titre: 'Partie 3 — Le back-office administrateur', label: '3 · Back-office' },
+      { titre: "Partie 4 — L'apporteur d'affaires", label: '4 · Apporteur' },
+      { titre: "Partie 5 — Le centre d'appel", label: "5 · Centre d'appel" },
+      { titre: "Partie 6 — L'espace partenaire", label: '6 · Partenaire' },
+      { titre: "Partie 7 — L'espace assureur", label: '7 · Assureur' },
+      { titre: 'Les emails que la plateforme envoie', label: 'Emails' },
+      { titre: 'Ce qui ne peut pas encore être testé, et pourquoi', label: 'Non testable' },
+      { titre: 'Les défauts déjà connus à la date de ce protocole', label: 'Défauts connus' },
+      { titre: 'Fiche de relevé', label: 'Relevé' },
+    ],
   },
 ];
 
@@ -468,6 +600,149 @@ function retirerDocumentsLies(md) {
   return [...lignes.slice(0, coupe), ...lignes.slice(fin)].join('\n');
 }
 
+/* ------------------------------------------------------------------ */
+/* Protocole de test : cartes, rubriques etiquetees, cases a cocher    */
+/* ------------------------------------------------------------------ */
+
+/** Les quatre rubriques d'un test, dans l'ordre du document. */
+const RUBRIQUES = [
+  { motif: 'Objectif', classe: 'rub-objectif', label: 'Objectif' },
+  { motif: 'Ce que vous faites', classe: 'rub-faites', label: 'Ce que vous faites' },
+  { motif: 'Ce que vous devez voir', classe: 'rub-voir', label: 'Ce que vous devez voir' },
+  { motif: "C['’]est un problème si", classe: 'rub-probleme', label: "C'est un problème si" },
+];
+
+const slugCase = (s) =>
+  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/** « Résultat : ☐ OK ☐ KO ☐ Non testé » → cases a cocher, memorisees dans le navigateur. */
+function casesResultat(num, brut) {
+  const options = brut.split('☐').map((o) => o.replace(/—/g, '').trim()).filter(Boolean);
+  const cases = options
+    .map((o) => {
+      const kind = o === 'OK' ? 'ok' : o === 'KO' ? 'ko' : /^Non test/i.test(o) ? 'nt' : 'autre';
+      const exclusif = kind === 'autre' ? '0' : '1';
+      return `<label data-kind="${kind}"><input type="checkbox" name="t${slugCase(num)}-${slugCase(o)}" data-test="${slugCase(num)}" data-kind="${kind}" data-exclusif="${exclusif}"> ${esc(o)}</label>`;
+    })
+    .join('');
+  return `<div class="resultat"><span class="rub-label">Résultat</span><div class="cases">${cases}</div></div>`;
+}
+
+/** Transforme le HTML rendu du protocole : parties, encadres, puis une carte par test. */
+function postTraiterProtocole(html) {
+  // Filet redondant juste avant un separateur de partie.
+  html = html.replace(/<hr>\s*(?=<h1 class="partie")/g, '');
+  // « Partie N — Titre » : le numero devient un surtitre.
+  html = html.replace(
+    /<h1 class="partie" id="([^"]+)">Partie (\d+) — ([\s\S]*?)<\/h1>/g,
+    '<h1 class="partie" id="$1"><span class="partie-num">Partie $2</span>$3</h1>'
+  );
+  // Encadres : defauts connus en ambre, mises en garde en rouge, le reste en vert.
+  html = html.replace(/<blockquote>(?=<p><em>Défauts? connus?)/g, '<blockquote class="defaut">');
+  html = html.replace(
+    /<blockquote>(?=<p><strong>(?:Attention|Prérequis important|À ne faire|Un refus franc))/g,
+    '<blockquote class="attention">'
+  );
+
+  // Une carte par test : du titre « Test N — … » jusqu'au titre suivant ou au filet.
+  return html.replace(
+    /<h2 id="(test-[^"]+)">Test (\d+(?: bis)?) — ([\s\S]*?)<\/h2>([\s\S]*?)(?=<h2 |<h1 |<hr>|$)/g,
+    (_, ancre, num, titre, corps) => {
+      const prioritaire = / ★ <em>priorité<\/em>\s*$/.test(titre);
+      const titrePropre = titre.replace(/ ★ <em>priorité<\/em>\s*$/, '');
+      let c = corps;
+      for (const r of RUBRIQUES) {
+        const liste = '(\\s*<(?:ol|ul)>[\\s\\S]*?<\\/(?:ol|ul)>)?';
+        // « **Label** — texte », suivi ou non d'une liste.
+        c = c.replace(
+          new RegExp(`<p><strong>${r.motif}<\\/strong> — ([\\s\\S]*?)<\\/p>${liste}`),
+          (m, texte, l = '') =>
+            `<div class="rub ${r.classe}"><span class="rub-label">${r.label}</span><div class="rub-corps"><p>${texte}</p>${l}</div></div>`
+        );
+        // « **Label** » seul, suivi d'une liste.
+        c = c.replace(
+          new RegExp(`<p><strong>${r.motif}<\\/strong><\\/p>${liste}`),
+          (m, l = '') =>
+            `<div class="rub ${r.classe}"><span class="rub-label">${r.label}</span><div class="rub-corps">${l}</div></div>`
+        );
+      }
+      c = c.replace(/<p><strong>Résultat<\/strong> : ([^<]*)<\/p>/, (m, brut) => casesResultat(num, brut));
+      const prio = prioritaire ? '<span class="test-prio">★ Prioritaire</span>' : '';
+      const numero = num.replace(' bis', '<small>bis</small>');
+      return `<section class="test" id="${ancre}"><header class="test-tete"><span class="test-num">${numero}</span><h2>${titrePropre}</h2>${prio}</header>${c}</section>\n`;
+    }
+  );
+}
+
+/**
+ * Accès des comptes de recette, produits par `scripts/comptes-recette.mjs` dans
+ * `docs/client/comptes-test.json` (hors git). Absents, le tableau reste vide.
+ */
+function lireComptesRecette() {
+  const chemin = join(DOCS, 'client', 'comptes-test.json');
+  if (!existsSync(chemin)) return [];
+  try {
+    return JSON.parse(readFileSync(chemin, 'utf8')).comptes || [];
+  } catch {
+    return [];
+  }
+}
+
+/** Remplit les colonnes Email / Mot de passe du tableau des comptes, profil par profil. */
+function injecterComptes(html, comptes) {
+  if (!comptes.length) return html;
+  const sansBalises = (s) => s.replace(/<[^>]+>/g, '');
+  return html.replace(
+    /<tr><td>([^<]*(?:<[^>]+>[^<]*)*)<\/td>(<td>[\s\S]*?<\/td>)<td><\/td><td><\/td><\/tr>/g,
+    (ligne, profil, usage) => {
+      const libelle = sansBalises(profil).trim();
+      const compte = comptes.find((c) => libelle.startsWith(c.profil));
+      if (!compte) return ligne;
+      return `<tr><td>${profil}</td>${usage}<td><code>${esc(compte.email)}</code></td><td><code>${esc(compte.motDePasse)}</code></td></tr>`;
+    }
+  );
+}
+
+/** Barre de navigation fixe vers les grandes parties du protocole. */
+function navProtocole(entrees) {
+  const liens = entrees.map((e) => `<a href="#${slugify(e.titre)}">${esc(e.label)}</a>`).join('');
+  return `<nav class="nav-parties" aria-label="Parties du protocole">${liens}<span class="compteur" id="compteur-resultats">OK 0 · KO 0 · Non testé 0</span></nav>`;
+}
+
+/** Cases a cocher memorisees dans le navigateur, et compteur OK / KO / Non teste. */
+const SCRIPT_PROTOCOLE = `<script>
+(function () {
+  var CLE = 'finarent.protocole.resultats.v1';
+  var etat = {};
+  try { etat = JSON.parse(localStorage.getItem(CLE) || '{}') || {}; } catch (e) { etat = {}; }
+  var cases = Array.prototype.slice.call(document.querySelectorAll('.resultat input[type="checkbox"]'));
+  function sauver() { try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) {} }
+  function compter() {
+    var n = { ok: 0, ko: 0, nt: 0 };
+    cases.forEach(function (c) { if (c.checked && n[c.dataset.kind] !== undefined) n[c.dataset.kind]++; });
+    var el = document.getElementById('compteur-resultats');
+    if (el) el.textContent = 'OK ' + n.ok + ' · KO ' + n.ko + ' · Non testé ' + n.nt;
+  }
+  cases.forEach(function (c) {
+    if (etat[c.name]) c.checked = true;
+    c.addEventListener('change', function () {
+      if (c.checked && c.dataset.exclusif === '1') {
+        cases.forEach(function (o) {
+          if (o !== c && o.dataset.test === c.dataset.test && o.dataset.exclusif === '1') {
+            o.checked = false;
+            delete etat[o.name];
+          }
+        });
+      }
+      if (c.checked) etat[c.name] = 1; else delete etat[c.name];
+      sauver();
+      compter();
+    });
+  });
+  compter();
+})();
+</script>`;
+
 /** Renvoi vers les autres documents de la livraison. */
 function documentsLies(courant, ancres) {
   const autres = DOCUMENTS.filter((d) => d.fichier !== courant.fichier);
@@ -510,9 +785,15 @@ for (const doc of DOCUMENTS) {
   const titres = [];
   const ancres = new Set();
   let html = rendre(propre, titres, ancres);
+  if (doc.protocole) {
+    html = postTraiterProtocole(html);
+    const comptes = lireComptesRecette();
+    html = injecterComptes(html, comptes);
+    console.log(comptes.length ? `      accès de ${comptes.length} comptes de recette injectés` : '      aucun compte de recette (docs/client/comptes-test.json absent)');
+  }
   const lies = documentsLies(doc, ancres);
   html += `\n${lies.html}`;
-  titres.push({ ancre: lies.ancre, texte: 'Documents liés' });
+  titres.push({ ancre: lies.ancre, texte: 'Documents liés', niveau: 2 });
   // La mention de livraison n'est ajoutee que si l'en-tete d'origine ne date pas deja le document.
   const dateDeja = /\*\*Date\*\*/.test(meta);
   const metaHtml = (
@@ -529,6 +810,8 @@ for (const doc of DOCUMENTS) {
       corps: html,
       sommaire: titres,
       pied: `${doc.titre} — plateforme Finarent — ${DATE_LIVRAISON}`,
+      avant: doc.protocole ? navProtocole(doc.navigation) : '',
+      apres: doc.protocole ? SCRIPT_PROTOCOLE : '',
     }),
     'utf8'
   );

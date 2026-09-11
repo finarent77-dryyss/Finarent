@@ -42,7 +42,13 @@ Vous n'êtes pas obligé de tout faire d'un coup. Commencez par les **douze test
 
 **Une boîte email que vous consultez**, pour vérifier les messages que la plateforme envoie. Elle servira d'adresse de test à plusieurs endroits.
 
-**Des comptes de démonstration.** Il en faut un par profil. Ils ne peuvent pas être créés depuis le site : **demandez-les à l'équipe technique**, et notez-les ici.
+**Des comptes de recette.** Il en faut un par profil. Ils ne peuvent pas être créés depuis le site : ils ont été préparés par l'équipe technique et figurent dans le tableau ci-dessous, **dans la version qui vous a été remise** (les identifiants ne sont pas conservés dans le fichier source du document).
+
+Trois choses à savoir sur ces comptes :
+
+- Les adresses en **@finarent.com** sont sur votre domaine : **faites-les créer, ou rediriger vers une boîte que vous consultez, avant de commencer.** C'est à ces adresses que la plateforme envoie ses emails (confirmation de demande, devis, factures…), et plusieurs tests les vérifient.
+- Les comptes **partenaire** et **assureur** sont les comptes de démonstration historiques : ils sont déjà rattachés à une société partenaire et à des dossiers de démonstration, ce qui rend leur espace utilisable.
+- Le compte **administrateur** donne accès à des données réelles. **Changez son mot de passe à la fin de la recette**, ou demandez à l'équipe technique de le désactiver.
 
 | Profil | À quoi sert ce compte | Email du compte | Mot de passe |
 |---|---|---|---|
@@ -1449,6 +1455,10 @@ Connectez-vous avec le **compte administrateur**. Vous arrivez sur `finarent.com
 
 **C'est un problème si** — le rôle redevient CLIENT après reconnexion, ou si l'écran annonce un succès sans effet.
 
+> *Défaut connu n° 26* — au 11 septembre 2026, **c'est exactement ce qui se produit en production** : le back-office écrit bien le nouveau rôle chez le service de connexion, mais la règle de connexion en place lit une autre information (les rôles attribués directement dans la console du service). Le rôle affiché retombe donc à l'ancien après reconnexion.
+>
+> **Corrigé dans le code le 12 septembre 2026**, sans rien avoir à changer chez le prestataire : la plateforme attribue maintenant le rôle sous la forme que la règle en place lit réellement, et retire l'ancien au passage. **Mais la production tourne encore le code antérieur** : tant qu'elle n'a pas été redéployée, le défaut reste visible tel que décrit. Si vous testez avant le déploiement, notez KO avec la mention « défaut connu n° 26 » ; après déploiement, ce test doit passer — et c'est lui qui vaudra preuve, pas notre parole.
+
 > **Un refus franc n'est pas un défaut.** Si un message commençant par **« Changement de rôle indisponible : … »** apparaît, le service de gestion des comptes n'est pas configuré sur cet environnement. Recopiez le message et transmettez-le à l'équipe technique.
 
 **Résultat** : ☐ OK ☐ KO ☐ Non testé
@@ -1610,7 +1620,7 @@ Connectez-vous avec le **compte administrateur**. Vous arrivez sur `finarent.com
 
 **Ce que vous faites**
 1. Menu **« Centres d'appel »**, bouton **« Nouveau centre »**. Créez un centre de type **Interne**, avec une commission en pourcentage.
-2. Ouvrez sa fiche, onglet **« Membres »**, **« Ajouter un membre »** : ajoutez le compte « centre d'appel (responsable) » avec le rôle **Manager**, puis le compte « agent » avec le rôle **Agent**.
+2. Ouvrez sa fiche, onglet **« Membres »**, **« Ajouter un membre »** : ajoutez le compte « centre d'appel (responsable) » avec le rôle **Manager**, puis le compte « agent » avec le rôle **Agent**. **Ces deux comptes doivent s'être connectés au moins une fois au site auparavant**, sinon la recherche ne les trouve pas : faites-le dans un autre navigateur si ce n'est pas encore fait.
 3. Ajoutez un troisième utilisateur avec le rôle **Manager**.
 4. Onglet **« Vue d'ensemble »**, encart **« Sync contacts Ringover »**, cliquez **« Synchroniser les prospects »**.
 
@@ -2083,6 +2093,7 @@ Ils ont été relevés en relisant le code le 10 septembre 2026. **Inutile de le
 | 23 | « Envoyer l'offre » n'envoie aucun email au client ; seul le passage du dossier en « Devis envoyé » le prévient. | Test 68 | ☐ |
 | 24 | Fiche affilié, onglet Dossiers : le lien « Voir → » mène à une page d'erreur. | Test 75 | ☐ |
 | 25 | L'export de toutes les demandes peut afficher des accents abîmés sous Excel. | Test 74 | ☐ |
+| 26 | Le changement de rôle depuis le back-office est sans effet en production : la règle de connexion Auth0 en place lit les rôles attribués dans la console Auth0, pas la métadonnée écrite par le back-office. **Corrigé dans le code le 12 septembre 2026** — la plateforme attribue désormais le rôle que cette règle lit réellement. **Pas encore constaté en ligne** : la production tourne du code antérieur, la correction ne prendra effet qu'au prochain déploiement. Jusque-là, le défaut reste visible. | Test 70 | ☐ |
 
 ---
 

@@ -1,6 +1,6 @@
 # Rapport de vérification — Finarent
 
-**Date** 10 septembre 2026 · **Périmètre** les 21 constats de `docs/AUDIT_2026-09.md`, plus ce que la vérification a révélé au-delà · **Documents liés** `docs/PLAN_CORRECTION_2026-09.md` (la feuille de route), `docs/TESTS_DEBUTANT.md` (la procédure que vous pouvez suivre vous-même)
+**Date** 10 septembre 2026, **révisé le 12** (voir la rectification en 3.3) · **Périmètre** les 21 constats de `docs/AUDIT_2026-09.md`, plus ce que la vérification a révélé au-delà · **Documents liés** `docs/PLAN_CORRECTION_2026-09.md` (la feuille de route), `docs/TESTS_DEBUTANT.md` (la procédure que vous pouvez suivre vous-même)
 
 Ce document répond à une seule question : **qu'est-ce qui a été corrigé, et comment le savons-nous ?**
 
@@ -28,13 +28,13 @@ Les quatre revues de code ont porté sur les **100 routes** de la plateforme, lu
 
 | Contrôle | Avant | Après |
 |---|---|---|
-| Tests automatisés | **0** | **531**, répartis sur 23 fichiers, tous au vert |
+| Tests automatisés | **0** | **538**, répartis sur 24 fichiers, tous au vert |
 | Contrôle des types | passait | passe, verrouillé par l'intégration continue |
 | Contrôle de style | passait, sur 263 fichiers | passe, sur **536** — les 273 fichiers d'interface en étaient absents (voir 4.6) |
 | Failles connues dans les bibliothèques | 13 | **4**, toutes issues d'une même brique et corrigibles seulement par sa montée de version |
 | Intégration continue | inexistante | en place, sur chaque modification |
 
-L'audit annonçait « aucun test automatisé ». C'était juste au moment de sa rédaction. La plateforme en compte aujourd'hui 531, qui couvrent en priorité ce qui coûte cher quand c'est faux : les calculs financiers, la numérotation comptable, les fichiers de virement bancaire, le chiffrement, et les règles d'accès aux dossiers.
+L'audit annonçait « aucun test automatisé ». C'était juste au moment de sa rédaction. La plateforme en compte aujourd'hui 538, qui couvrent en priorité ce qui coûte cher quand c'est faux : les calculs financiers, la numérotation comptable, les fichiers de virement bancaire, le chiffrement, et les règles d'accès aux dossiers.
 
 L'intérêt de ces tests n'est pas leur nombre. C'est qu'ils **échoueront si le défaut revient**. Chaque correction décrite plus bas est accompagnée du test qui la garde.
 
@@ -66,7 +66,15 @@ Le back-office écrivait le rôle en base ; le service de connexion le réécriv
 
 Le back-office écrit désormais **d'abord dans le service de connexion**, et en base seulement si celui-ci a accepté. Si la configuration nécessaire manque, l'écran **refuse franchement** au lieu d'afficher un faux succès.
 
-> **Preuve** — les identifiants que vous avez fournis ont été testés en conditions réelles : la connexion au service de gestion aboutit, avec les autorisations de lecture et de modification des comptes. Le mécanisme est donc opérationnel, et non seulement écrit.
+> **Rectification du 12 septembre 2026 — à lire.** La version du 10 septembre de ce rapport présentait ce point comme réglé et « opérationnel ». **C'était faux, et l'erreur est de notre fait.**
+>
+> Ce que nous avions vérifié : que la plateforme parvient bien à écrire chez le service de connexion. Ce que nous en avions conclu : que le changement de rôle fonctionne. La seconde affirmation ne découle pas de la première. La plateforme écrivait la bonne information **au mauvais endroit** : la règle de connexion réellement en service chez le prestataire lit une autre donnée que celle que nous écrivions. Le rôle était donc bien transmis, accepté, enregistré — et ignoré. Il retombait à l'ancien à la reconnexion suivante, c'est-à-dire exactement le défaut que la correction devait supprimer, déplacé d'un cran.
+>
+> Le défaut a été trouvé en préparant les comptes de recette, pas par nos vérifications. C'est instructif : aucun test ne couvrait ce module, et une vérification qui s'arrête au premier maillon ne prouve rien sur le second.
+>
+> **Corrigé depuis** : la plateforme écrit désormais les deux formes, en commençant par celle que la règle en service lit réellement, et retire l'ancien rôle au passage — sans quoi les rôles s'additionnent et c'est le hasard qui tranche. **7 tests** couvrent maintenant ce module, dont un qui vérifie qu'en cas d'échec, aucun succès de façade n'est produit.
+>
+> **Ce qui reste à prouver** : un administrateur promu depuis le back-office, qui se déconnecte, se reconnecte, et conserve ses droits. Cette vérification demande un compte réel sur le service de connexion — elle figure au protocole de test qui accompagne ce document, et nous ne la déclarerons faite qu'une fois constatée.
 
 ### 3.4 Les accès entre comptes
 
@@ -274,7 +282,7 @@ La plateforme était moins prête que l'audit ne le laissait penser, et elle l'e
 
 Moins prête, parce que quatre mécanismes que l'on croyait en place ne l'étaient pas du tout : la remontée d'erreurs, la protection anti-robot des formulaires, la capacité à reconstruire la base, et le référencement de soixante pages qui ne renvoyaient rien aux moteurs de recherche. Parce que six chemins permettaient à un compte d'atteindre les données d'un autre. Et parce que le contrôle de qualité automatique ne regardait qu'un tiers du code — il passait au vert d'autant plus facilement.
 
-Plus prête, parce que ces points sont corrigés, et surtout parce que la plateforme dispose maintenant de ce qui lui manquait le plus : **531 tests qui échoueront si ces défauts reviennent**, une intégration continue qui les exécute à chaque modification, et des échecs qui se voient au lieu de passer inaperçus.
+Plus prête, parce que ces points sont corrigés, et surtout parce que la plateforme dispose maintenant de ce qui lui manquait le plus : **538 tests qui échoueront si ces défauts reviennent**, une intégration continue qui les exécute à chaque modification, et des échecs qui se voient au lieu de passer inaperçus.
 
 Ce qui reste tient en deux catégories : ce qui attend l'ouverture de vos comptes de service, et deux montées de version à conduire posément. Rien de tout cela n'est bloquant pour l'exploitation, à l'exception de la facture d'hébergement.
 

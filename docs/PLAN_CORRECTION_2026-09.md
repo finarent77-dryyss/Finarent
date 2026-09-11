@@ -10,7 +10,7 @@ Ce document dit *quoi faire*, *dans quel ordre*, et *comment prouver que c'est f
 
 État constaté sur le dépôt, pas déclaré : chaque ligne ci-dessous a été rouverte et contrôlée.
 
-**Santé générale** — `npx tsc --noEmit` : 0 erreur. `npm run lint` : 0 erreur sur **536 fichiers**. `npm test` : **520 tests, 23 fichiers, tous au vert**. La CI (`A1`) tourne sur chaque poussée.
+**Santé générale** — `npx tsc --noEmit` : 0 erreur. `npm run lint` : 0 erreur sur **536 fichiers**. `npm test` : **538 tests, 24 fichiers, tous au vert**. La CI (`A1`) tourne sur chaque poussée.
 
 > Le périmètre du lint a dû être rétabli : la bascule de `next lint` vers `eslint .` (action `3.3`) laissait **273 fichiers `.jsx` — toute l'interface — hors de portée du linter et de `tsc`**. Le contrôle passait au vert en regardant un tiers du code. Voir `docs/VERIFICATION_2026-09.md` §4.6.
 
@@ -33,7 +33,7 @@ Ce document dit *quoi faire*, *dans quel ordre*, et *comment prouver que c'est f
 | **2.3** reCAPTCHA serveur | ⏳ **bloqué** | `RECAPTCHA_SECRET_KEY` absente en production. **C'est ce qui rend le formulaire de contact inopérant en ligne** : le code déployé refuse toute demande faute de clé. |
 | **2.4** Locataire Auth0 des scripts | ✅ **fait** | Lu dans l'environnement, plus codé en dur. |
 | **2.5** `.env.example` | ✅ **fait** | Supabase retiré, variables manquantes ajoutées. |
-| **2.6** Changement de rôle | ✅ **fait** | L'option recommandée a été retenue : la route admin appelle `definirRoleUtilisateur()` et écrit le rôle dans Auth0. Une promotion tient désormais après reconnexion. |
+| **2.6** Changement de rôle | ⏳ **corrigé mais inopérant** | Correction faite sur le fond : la route écrit d'abord dans Auth0 via `definirRoleUtilisateur()`, et ne touche la base qu'ensuite. Le mensonge d'origine — une promotion qui retombait en silence — a disparu : sans configuration, la route renvoie un 503 nommant les variables manquantes ; si Auth0 refuse, un 502 sans rien écrire. **Mais la fonction reste indisponible**, deux choses manquant encore : (1) `AUTH0_M2M_CLIENT_ID` et `AUTH0_M2M_CLIENT_SECRET`, absents en local comme en production ; (2) l'Action « Post Login » déployée lit les rôles RBAC et **ignore `app_metadata`**, que ce code écrit — l'Action documentée dans `lib/auth0-management.js` doit donc être déployée. Vérifié le 12 septembre. |
 | **2.7** README | ✅ **fait** | Réécrit sur la pile réelle. Les mentions restantes de Vercel et de `dist/` sont des démentis explicites, pas des vestiges. |
 | **2.8** Tests unitaires | ✅ **fait** | Vitest installé, **480 tests** sur la logique pure. |
 | **A1** Intégration continue | ✅ **fait** | `.github/workflows/ci.yml` — typage, lint, tests, audit, build. Chaque contrôle bloque la fusion. |
@@ -83,6 +83,8 @@ Aucun de ces dix points ne figure dans les 21 constats de l'audit. Ils sont sort
 | `D-8` | **Adresse IP forgeable** : la première entrée de `X-Forwarded-For` était retenue. Conséquences — quotas contournables à volonté, registre RGPD faussé, et **adresse consignée comme preuve de signature électronique choisie par le signataire**. | majeur | ✅ corrigé — `lib/ip-client.js`, 25 tests |
 | `D-9` | **60 pages, dont l'accueil, ne renvoient aucun HTML au serveur** (`BAILOUT_TO_CLIENT_SIDE_RENDERING`) : un moteur de recherche reçoit des pages vides. Et `notFound()` répond 200 sur les routes dynamiques. Dommage commercial, pas de panne visible. | majeur (référencement) | ✅ corrigé — accueil de 67 à 11 901 caractères servis ; 59 pages vérifiées une à une |
 | `D-10` | **Le contrôle de style ne voyait qu'un tiers du code** : la bascule `next lint` → `eslint .` (action `3.3`) laissait les 273 fichiers `.jsx` hors de portée du linter **et** de `tsc`. Régression introduite par le plan lui-même. | mineur | ✅ corrigé — 536 fichiers analysés, 0 erreur |
+
+- `D-14` — **le changement de rôle ne prenait pas effet en production**, malgré la correction de `P1-8`. La plateforme écrivait `app_metadata.role` ; l'Action « Post Login » réellement déployée lit les **rôles RBAC Auth0** et ignore cette métadonnée. L'écriture aboutissait, le rôle retombait à la reconnexion. Notre rapport du 10 septembre le donnait pour « opérationnel » : nous avions prouvé le premier maillon et conclu sur le second. ✅ corrigé le 12 septembre — `definirRoleUtilisateur()` attribue le rôle RBAC **puis** la métadonnée, retire l'ancien rôle (les rôles Auth0 s'additionnent), et 7 tests couvrent le module qui n'en avait aucun. **Reste à constater** : un administrateur promu qui conserve ses droits après reconnexion (protocole de test, défaut n° 26).
 
 **Deux constats fonctionnels** relevés à la rédaction de la procédure de test, **tranchés par le client le 10 septembre 2026** :
 
