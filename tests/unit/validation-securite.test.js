@@ -4,6 +4,7 @@ import {
   validatePhone,
   validateSIREN,
   validateRequired,
+  validateForm,
 } from '@/utils/validation.js';
 import { checkRateLimitMemoire } from '@/lib/rateLimit.js';
 import { safeEqual, isCronAuthorized } from '@/lib/cron-auth.js';
@@ -67,6 +68,66 @@ describe('validateRequired', () => {
     expect(validateRequired('')).toBeFalsy();
     expect(validateRequired('   ')).toBeFalsy();
     expect(validateRequired('x')).toBeTruthy();
+  });
+
+  /**
+   * La fonction faisait `value.trim()` sans vérifier le type. Sur la case de
+   * consentement du formulaire de contact — un booléen — l'appel levait un
+   * TypeError, qui tuait le gestionnaire de soumission en silence : le
+   * formulaire d'acquisition ne partait jamais pour qui le remplissait
+   * correctement. Ces cas verrouillent la correction.
+   */
+  it('accepte une case cochée et refuse une case décochée, sans lever', () => {
+    expect(() => validateRequired(true)).not.toThrow();
+    expect(validateRequired(true)).toBe(true);
+    expect(validateRequired(false)).toBe(false);
+  });
+
+  it('traite les nombres, y compris zéro et les valeurs non finies', () => {
+    expect(validateRequired(0)).toBe(true);
+    expect(validateRequired(42)).toBe(true);
+    expect(validateRequired(Number.NaN)).toBe(false);
+    expect(validateRequired(Number.POSITIVE_INFINITY)).toBe(false);
+  });
+
+  it('refuse l absence de valeur sans lever', () => {
+    expect(() => validateRequired(null)).not.toThrow();
+    expect(() => validateRequired(undefined)).not.toThrow();
+    expect(validateRequired(null)).toBe(false);
+    expect(validateRequired(undefined)).toBe(false);
+  });
+});
+
+/**
+ * Le formulaire de contact est la principale porte d'entrée commerciale : une
+ * soumission valide doit passer, et une case de consentement décochée doit
+ * produire un message, jamais une exception.
+ */
+describe('validateForm — formulaire de contact', () => {
+  const CHAMPS = ['companyName', 'siren', 'sector', 'amount', 'firstName', 'lastName', 'email', 'phone', 'consent'];
+  const demande = (consent) => ({
+    companyName: 'Finarent',
+    siren: '123456789',
+    sector: 'btp',
+    amount: '30 000€ - 50 000€',
+    firstName: 'Camille',
+    lastName: 'Durand',
+    email: 'camille.durand@example.fr',
+    phone: '0641598688',
+    consent,
+  });
+
+  it('accepte une demande complète avec consentement coché', () => {
+    const resultat = validateForm(demande(true), CHAMPS);
+    expect(resultat.isValid).toBe(true);
+    expect(resultat.errors).toEqual({});
+  });
+
+  it('refuse un consentement décoché avec un message, sans lever', () => {
+    expect(() => validateForm(demande(false), CHAMPS)).not.toThrow();
+    const resultat = validateForm(demande(false), CHAMPS);
+    expect(resultat.isValid).toBe(false);
+    expect(resultat.errors.consent).toMatch(/politique de confidentialité/i);
   });
 });
 

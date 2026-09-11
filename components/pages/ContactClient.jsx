@@ -124,7 +124,14 @@ export default function ContactClient({ initialParams }) {
     e.preventDefault();
     if (formData.fx_ref_code) { setSubmitStatus('success'); setReference(null); return; }
     const validation = validateForm(formData, ['companyName', 'siren', 'sector', 'amount', 'firstName', 'lastName', 'email', 'phone', 'consent']);
-    if (!validation.isValid) { setErrors(validation.errors); return; }
+    if (!validation.isValid) {
+      // Un refus cote navigateur doit se voir autant qu'un refus du serveur.
+      // Sans cela le bouton restait neutre, et les erreurs de champ pouvaient
+      // se trouver hors ecran : le clic semblait sans effet.
+      setErrors(validation.errors);
+      setSubmitStatus('error');
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitStatus(null);
