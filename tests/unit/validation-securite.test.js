@@ -8,6 +8,7 @@ import {
 } from '@/utils/validation.js';
 import { checkRateLimitMemoire } from '@/lib/rateLimit.js';
 import { safeEqual, isCronAuthorized } from '@/lib/cron-auth.js';
+import { verifyRecaptcha, recaptchaEstActif, cleDeDemonstration } from '@/lib/recaptcha.js';
 import { sniffMatchesMime } from '@/lib/file-signature.js';
 import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES } from '@/lib/statusMap.js';
 
@@ -128,6 +129,53 @@ describe('validateForm — formulaire de contact', () => {
     const resultat = validateForm(demande(false), CHAMPS);
     expect(resultat.isValid).toBe(false);
     expect(resultat.errors.consent).toMatch(/politique de confidentialité/i);
+  });
+});
+
+/**
+ * La paire d'essai publiée par Google traîne dans beaucoup de projets. Associée
+ * à un vrai secret, elle produit un jeton que Google rejette : le formulaire
+ * public se ferme sans que la cause soit lisible. Ces cas verrouillent le
+ * traitement retenu — considérer une clé de démonstration comme une absence de
+ * configuration, et laisser passer.
+ */
+describe('verifyRecaptcha — clé de démonstration', () => {
+  const CLE_SITE_DEMO = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+  const CLE_SECRETE_DEMO = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  it('laisse passer quand la clé de site est celle de démonstration, même avec un vrai secret', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', CLE_SITE_DEMO);
+    vi.stubEnv('RECAPTCHA_SECRET_KEY', '6LdLErItAAAAAvraiSecretDeProduction12345');
+    const resultat = await verifyRecaptcha('');
+    expect(resultat).toMatchObject({ success: true, skipped: true, reason: 'cle_de_demonstration' });
+    expect(recaptchaEstActif()).toBe(false);
+  });
+
+  it('reconnaît aussi le secret de démonstration', () => {
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', 'une-vraie-cle-de-site');
+    vi.stubEnv('RECAPTCHA_SECRET_KEY', CLE_SECRETE_DEMO);
+    expect(cleDeDemonstration()).toBe(true);
+    expect(recaptchaEstActif()).toBe(false);
+  });
+
+  it('considère la protection armée avec une paire réelle', () => {
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', '6LdLErItAAAAAcleDeSiteReelle12345678901');
+    vi.stubEnv('RECAPTCHA_SECRET_KEY', '6LdLErItAAAAAsecretReel1234567890123456');
+    expect(cleDeDemonstration()).toBe(false);
+    expect(recaptchaEstActif()).toBe(true);
+  });
+
+  it('sans secret ni clé de démonstration, la vérification est ignorée', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', '');
+    vi.stubEnv('RECAPTCHA_SECRET_KEY', '');
+    const resultat = await verifyRecaptcha('');
+    expect(resultat).toMatchObject({ success: true, skipped: true, reason: 'no_secret' });
   });
 });
 
