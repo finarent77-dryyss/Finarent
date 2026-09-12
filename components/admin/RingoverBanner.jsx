@@ -47,7 +47,7 @@ export default function RingoverBanner({ className = '' }) {
         ) : (
           <p>
             Ajoutez <code className="bg-gray-100 px-1 rounded">RINGOVER_WEBHOOK_KEY</code> dans les variables
-            d&apos;environnement (Vercel), puis configurez l&apos;URL dans Ringover → Developer → Webhooks.
+            d&apos;environnement (Clever Cloud), puis configurez l&apos;URL dans Ringover → Developer → Webhooks.
           </p>
         )}
         <ul className="text-xs text-gray-500 list-disc list-inside space-y-0.5">

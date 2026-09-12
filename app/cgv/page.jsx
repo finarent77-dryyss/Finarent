@@ -115,7 +115,7 @@ export default function CgvPage() {
                 <tr><td className="p-3">Code APE/NAF</td><td className="p-3">6622Z — Activités des agents et courtiers d&apos;assurances</td></tr>
                 <tr><td className="p-3">Représentant légal</td><td className="p-3">M. Ntela BARDAI, Président</td></tr>
                 <tr><td className="p-3">Directeur de la publication</td><td className="p-3">M. Ntela BARDAI</td></tr>
-                <tr><td className="p-3">Hébergeur</td><td className="p-3">Vercel Inc. — 340 S Lemon Ave #4133, Walnut, CA 91789, USA — <a href="https://vercel.com" className="text-emerald-700 underline">vercel.com</a></td></tr>
+                <tr><td className="p-3">Hébergeur</td><td className="p-3">Clever Cloud SAS — 3 rue de l&apos;Allier, 44000 Nantes, France — <a href="https://www.clever-cloud.com" className="text-emerald-700 underline">clever-cloud.com</a> (données hébergées en France, région de Paris)</td></tr>
               </tbody>
             </table>
           </div>
@@ -125,11 +125,11 @@ export default function CgvPage() {
           <div className="overflow-x-auto my-4 rounded-xl border border-gray-200">
             <table className="w-full text-sm">
               <thead className="bg-primary text-white">
-                <tr><th className="text-left p-3">Catégorie</th><th className="text-left p-3">N° ORIAS</th><th className="text-left p-3">Date</th></tr>
+                <tr><th className="text-left p-3">Catégorie</th><th className="text-left p-3">N° ORIAS</th></tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                <tr><td className="p-3">Intermédiaire en Opérations de Banque et en Services de Paiement (IOBSP)</td><td className="p-3 font-semibold">24005698</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
-                <tr><td className="p-3">Courtier d&apos;Assurance (COA)</td><td className="p-3 font-semibold">24005698</td><td className="p-3 text-gray-400 italic">[À compléter]</td></tr>
+                <tr><td className="p-3">Intermédiaire en Opérations de Banque et en Services de Paiement (IOBSP)</td><td className="p-3 font-semibold">24005698</td></tr>
+                <tr><td className="p-3">Courtier d&apos;Assurance (COA)</td><td className="p-3 font-semibold">24005698</td></tr>
               </tbody>
             </table>
           </div>
@@ -323,7 +323,7 @@ export default function CgvPage() {
           </ul>
           <p>Pour exercer ces droits : courrier postal à Finarent (39 av. de la République, 77340 Pontault-Combault) ou email, avec justificatif d&apos;identité. Réponse dans un délai d&apos;un mois maximum, prorogeable en cas de demandes complexes.</p>
           <Sub>11.7 — Sécurité des données</Sub>
-          <p>Finarent met en œuvre les mesures techniques et organisationnelles appropriées. Les flux entre le Site et les serveurs sont chiffrés (HTTPS/TLS). Les données sont hébergées au sein de l&apos;Union européenne et chez Vercel Inc. (États-Unis) qui adhère au Data Privacy Framework UE-États-Unis.</p>
+          <p>Finarent met en œuvre les mesures techniques et organisationnelles appropriées. Les flux entre le Site et les serveurs sont chiffrés (HTTPS/TLS). Les données sont hébergées en France, chez Clever Cloud (région de Paris) : application, base de données et pièces justificatives.</p>
         </Section>
 
         {/* Article 12 */}

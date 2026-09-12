@@ -38,8 +38,7 @@ export default function LegalClient() {
                     <i className="fa-solid fa-server text-secondary"></i>{t('legal.hosting')}
                   </h2>
                   <div className="text-gray-600 leading-relaxed space-y-2">
-                    <p>{t('legal.hostingDesc')}</p>
-                    <p><strong>Vercel Inc.</strong></p>
+                    <p><strong>{t('legal.hostingDesc')}</strong></p>
                     <p>{t('legal.hostingAddress')}</p>
                   </div>
                 </section>

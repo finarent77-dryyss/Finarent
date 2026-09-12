@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import PageTransition from '@/components/animations/PageTransition';
 import ScrollReveal from '@/components/animations/ScrollReveal';
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF } from '@/lib/contact';
 
-const LAST_UPDATED = '18 mai 2026';
+const LAST_UPDATED = '12 septembre 2026';
 
 const SECTIONS = [
   {
@@ -18,7 +19,7 @@ const SECTIONS = [
         </p>
         <ul className="list-disc pl-6 mt-3 space-y-1">
           <li>Adresse postale : 39 Avenue de la République, 77340 Pontault-Combault — SAS immatriculée au RCS de Melun sous le n° 931 295 836</li>
-          <li>Email : <a className="text-secondary underline" href="mailto:dpo@finarent.com">dpo@finarent.com</a></li>
+          <li>Email : <a className="text-secondary underline" href={CONTACT_EMAIL_HREF}>{CONTACT_EMAIL}</a></li>
           <li>Téléphone : disponible sur la page <Link href="/contact" className="text-secondary underline">contact</Link></li>
           <li>Inscription ORIAS (IOBSP + IAS) : n° 24005698</li>
         </ul>
@@ -111,7 +112,7 @@ const SECTIONS = [
           <li><strong>HTTPS / TLS</strong> sur l'ensemble du site et des API</li>
           <li><strong>Authentification</strong> Auth0 avec mots de passe hashés, MFA disponible</li>
           <li><strong>Contrôle d'accès</strong> par rôle (client / admin / partenaire / assureur) avec audit trail de chaque consultation de document</li>
-          <li><strong>Hébergement</strong> en Union Européenne (Vercel EU / Neon EU / Supabase EU)</li>
+          <li><strong>Hébergement</strong> en France, chez Clever Cloud (région de Paris) : application, base de données et pièces justificatives</li>
           <li><strong>Sauvegardes</strong> chiffrées et redondées</li>
         </ul>
       </>
@@ -132,7 +133,7 @@ const SECTIONS = [
           <li><strong>Droit de retirer votre consentement</strong> à tout moment pour les traitements basés sur celui-ci (cookies, newsletter)</li>
         </ul>
         <p className="mt-3">
-          Pour exercer ces droits, écrivez à <a className="text-secondary underline" href="mailto:dpo@finarent.com">dpo@finarent.com</a> ou utilisez les outils de votre <Link href="/espace/profile" className="text-secondary underline">espace client</Link>. Réponse sous 1 mois maximum (article 12 RGPD).
+          Pour exercer ces droits, écrivez à <a className="text-secondary underline" href={CONTACT_EMAIL_HREF}>{CONTACT_EMAIL}</a> ou utilisez les outils de votre <Link href="/espace/profile" className="text-secondary underline">espace client</Link>. Réponse sous 1 mois maximum (article 12 RGPD).
         </p>
         <p className="mt-3">
           En cas de litige, vous pouvez introduire une réclamation auprès de la <a className="text-secondary underline" href="https://www.cnil.fr" target="_blank" rel="noopener">CNIL</a>.
@@ -207,7 +208,7 @@ export default function PrivacyClient() {
               </div>
 
               <p className="text-center text-xs text-gray-400 mt-8">
-                Contact DPO : <a className="underline" href="mailto:dpo@finarent.com">dpo@finarent.com</a> · Plainte CNIL : <a className="underline" href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a>
+                Données personnelles : <a className="underline" href={CONTACT_EMAIL_HREF}>{CONTACT_EMAIL}</a> · Plainte CNIL : <a className="underline" href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a>
               </p>
             </ScrollReveal>
           </div>

@@ -160,8 +160,8 @@ export async function POST(request) {
   } catch (error) {
     console.error('Upload error:', error);
     // Erreurs typiques :
-    // - Supabase non configuré + filesystem read-only (Vercel) → EROFS / EACCES
-    // - Supabase mal configuré → "Invalid API key"
+    // - Cellar non configuré + système de fichiers en lecture seule → EROFS / EACCES
+    // - Cellar mal configuré → identifiants refusés
     const msg = error?.message || '';
     if (msg.includes('EROFS') || msg.includes('EACCES') || msg.includes('read-only')) {
       return NextResponse.json(
@@ -171,7 +171,7 @@ export async function POST(request) {
     }
     if (msg.includes('Invalid API key') || msg.includes('bucket') || msg.includes('storage')) {
       return NextResponse.json(
-        { error: 'Erreur de stockage Supabase : ' + msg.slice(0, 100) },
+        { error: 'Erreur de stockage des documents : ' + msg.slice(0, 100) },
         { status: 500 },
       );
     }
