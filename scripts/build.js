@@ -155,6 +155,35 @@ function copyStandaloneAssets() {
   }
 }
 
+/**
+ * Environnement du `next build`, avec un plafond mémoire par processus.
+ *
+ * Clever Cloud injecte `NODE_OPTIONS=--max-old-space-size=1262` sur une instance
+ * de build d'environ 2 Go. `execSync` transmet cet environnement tel quel, donc
+ * le plafond vaut pour CHAQUE processus : le parent et le worker de génération
+ * statique. Deux fois 1262 Mo dépassent le conteneur, et le noyau tue le
+ * second — d'où « Next.js build worker exited with code: null and signal:
+ * SIGKILL », observé au déploiement du 11 septembre 2026.
+ *
+ * Le plafond est donc abaissé pour que parent et worker tiennent ensemble.
+ * V8 déclenche ses collectes plus tôt : le build est un peu plus lent, mais il
+ * aboutit. `next.config.js` limite déjà la génération à un seul worker.
+ *
+ * Réglage local ou en intégration continue : inchangé. La variable n'est
+ * ajustée que si la plateforme a imposé la sienne.
+ */
+const PLAFOND_MEMOIRE_PAR_PROCESSUS_MO = 768;
+
+function environnementBuild() {
+  const env = { ...process.env };
+  if (!/--max-old-space-size/.test(env.NODE_OPTIONS || '')) return env;
+
+  const sansPlafond = env.NODE_OPTIONS.replace(/--max-old-space-size=\d+/g, '').trim();
+  env.NODE_OPTIONS = `${sansPlafond} --max-old-space-size=${PLAFOND_MEMOIRE_PAR_PROCESSUS_MO}`.trim();
+  console.log(`🧠 NODE_OPTIONS du build : ${env.NODE_OPTIONS}`);
+  return env;
+}
+
 try {
   console.log('📦 prisma generate...');
   execSync('npx prisma generate', { stdio: 'inherit' });
@@ -165,7 +194,7 @@ try {
   sleep(3000);
 
   console.log('⚡ next build...');
-  execSync('npm run build:next', { stdio: 'inherit' });
+  execSync('npm run build:next', { stdio: 'inherit', env: environnementBuild() });
 
   console.log('📂 Copie assets standalone...');
   copyStandaloneAssets();
