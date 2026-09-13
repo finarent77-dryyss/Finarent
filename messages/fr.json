@@ -2,7 +2,7 @@
   "common": {
     "requestQuote": "Demander un devis",
     "phone": "01 60 28 59 41",
-    "email": "contact@finarent.com",
+    "email": "contact@finarent.fr",
     "select": "Sélectionner",
     "other": "Autre"
   },
@@ -453,7 +453,7 @@
     "section3Title": "Conservation des données",
     "section3": "Vos données personnelles sont conservées pendant la durée de la relation commerciale et 5 ans après la fin du contrat, conformément aux obligations légales. Les données de prospects sont supprimées après 3 ans sans interaction.",
     "section4Title": "Vos droits",
-    "section4": "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, de portabilité et d'opposition sur vos données personnelles. Pour exercer ces droits, contactez-nous à : contact@finarent.com",
+    "section4": "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, de portabilité et d'opposition sur vos données personnelles. Pour exercer ces droits, contactez-nous à : contact@finarent.fr",
     "section5Title": "Cookies",
     "section5": "Notre site utilise des cookies essentiels au fonctionnement du service et des cookies analytiques pour améliorer votre expérience. Vous pouvez gérer vos préférences de cookies à tout moment via les paramètres de votre navigateur."
   },

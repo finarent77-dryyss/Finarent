@@ -510,7 +510,7 @@ Pour cette partie, vous n'avez besoin d'aucun compte.
 **Ce que vous faites** — descendez en bas de la page d'accueil et lisez le bas de page.
 
 **Ce que vous devez voir**
-- Le téléphone **01 60 28 59 41**, l'email **contact@finarent.com**.
+- Le téléphone **01 60 28 59 41**, l'email **contact@finarent.fr**.
 - Quatre colonnes de liens : **Solutions**, **Secteurs**, **Finarent**, **Aide**, dont Mentions légales, CGV, CGU et Confidentialité.
 - Le bandeau : **« SAS au capital de 2 010 € · SIREN : 931 295 836 RCS Melun · ORIAS n° 24005698 · Courtier en Opérations de Banque (COBSP) »**.
 

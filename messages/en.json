@@ -2,7 +2,7 @@
   "common": {
     "requestQuote": "Request a quote",
     "phone": "01 60 28 59 41",
-    "email": "contact@finarent.com",
+    "email": "contact@finarent.fr",
     "select": "Select",
     "other": "Other"
   },
@@ -453,7 +453,7 @@
     "section3Title": "Data retention",
     "section3": "Your personal data is retained for the duration of the business relationship and 5 years after the end of the contract, in accordance with legal obligations. Prospect data is deleted after 3 years without interaction.",
     "section4Title": "Your rights",
-    "section4": "Under the GDPR, you have the right to access, rectify, delete, port and object to your personal data. To exercise these rights, contact us at: contact@finarent.com",
+    "section4": "Under the GDPR, you have the right to access, rectify, delete, port and object to your personal data. To exercise these rights, contact us at: contact@finarent.fr",
     "section5Title": "Cookies",
     "section5": "Our site uses essential cookies for service operation and analytical cookies to improve your experience. You can manage your cookie preferences at any time via your browser settings."
   },
