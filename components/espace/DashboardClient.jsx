@@ -191,7 +191,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <Link href="/contact" className="px-5 sm:px-7 py-2.5 sm:py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm flex items-center gap-2">
                 <i className="fa-solid fa-plus text-xs"></i>
                 {t('espace.newRequest')}
@@ -235,9 +235,9 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
             ))}
           </motion.div>
 
-          <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
+          <div className="grid xl:grid-cols-12 gap-6 lg:gap-8">
             {/* ── Main Content ── */}
-            <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+            <div className="xl:col-span-8 space-y-6 sm:space-y-8">
 
               {/* Quick Start Banner (only if no demandes) */}
               {demandes.length === 0 && (
@@ -290,7 +290,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`flex-1 min-w-0 px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
+                      className={`flex-1 min-w-max xl:min-w-0 px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
                         activeTab === tab
                           ? 'bg-white text-primary shadow-sm'
                           : 'text-gray-400 hover:text-gray-600'
@@ -323,7 +323,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                         className="group border border-gray-100 rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-all hover:border-gray-200 bg-white"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4 mb-3">
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-48">
                             <div className="flex flex-wrap items-center gap-2 mb-2">
                               <span className="text-[10px] font-bold text-secondary uppercase tracking-wider bg-secondary/5 px-2 py-0.5 rounded">{d.reference}</span>
                               <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-1.5 ${STATUS_COLORS[d.status]?.color}`}>
@@ -341,7 +341,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <Link href={`/espace/${d.id}`} className="px-4 py-2 bg-gray-50 text-primary text-xs font-bold rounded-lg hover:bg-secondary hover:text-white transition-all flex items-center gap-1.5">
                               {t('espace.viewDetail')} <i className="fa-solid fa-arrow-right text-[10px]"></i>
                             </Link>
@@ -367,7 +367,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
                           const allDone = got === REQUIRED.length;
                           return (
                             <div className="pt-3 mt-3 border-t border-gray-50">
-                              <div className="flex items-center justify-between text-[11px] font-semibold mb-1.5">
+                              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 text-[11px] font-semibold mb-1.5">
                                 <span className={allDone ? 'text-emerald-600' : 'text-slate-500'}>
                                   <i className={`fa-solid ${allDone ? 'fa-circle-check' : 'fa-folder-open'} mr-1.5`}></i>
                                   Documents requis : {got}/{REQUIRED.length}
@@ -415,7 +415,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
             </div>
 
             {/* ── Sidebar ── */}
-            <div className="lg:col-span-4 space-y-6">
+            <div className="xl:col-span-4 space-y-6">
 
               {/* Profile Completion */}
               <motion.div variants={itemVariants} className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100">
@@ -592,7 +592,7 @@ export default function DashboardClient({ user, dbUser, initialDemandes }) {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl"
+              className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-black text-primary">{t('espace.editInfo')}</h3>

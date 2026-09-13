@@ -38,11 +38,11 @@ export default function AdminCallCentersClient() {
   );
 
   return (
-    <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+    <div className="py-4 sm:p-8 max-w-7xl mx-auto">
       <RingoverBanner />
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div>
-          <h1 className="text-3xl font-black text-primary tracking-tight mb-1">
+          <h1 className="text-2xl sm:text-3xl font-black text-primary tracking-tight mb-1">
             <i className="fa-solid fa-headset mr-3 text-secondary"></i>
             Centres d'appel
           </h1>
@@ -80,7 +80,7 @@ export default function AdminCallCentersClient() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-8">
         <Kpi icon="fa-people-group" label="Membres" value={totals.members} color="sky" />
         <Kpi icon="fa-folder-open" label="Dossiers attribués" value={totals.applications} color="violet" />
         <Kpi icon="fa-phone" label="Interactions" value={totals.interactions} color="emerald" />
@@ -255,7 +255,7 @@ function CreateModal({ onClose, onCreated }) {
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Code (auto si vide)">
                 <input
                   type="text"
@@ -277,7 +277,7 @@ function CreateModal({ onClose, onCreated }) {
             <Field label="Adresse">
               <input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="input" />
             </Field>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Téléphone">
                 <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="input" />
               </Field>
@@ -292,7 +292,7 @@ function CreateModal({ onClose, onCreated }) {
               </Field>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Type commission">
                 <select value={form.commissionType} onChange={(e) => setForm({ ...form, commissionType: e.target.value })} className="input">
                   <option value="PERCENT">Pourcentage (%)</option>

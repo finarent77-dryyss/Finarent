@@ -182,7 +182,7 @@ export default function AdminTestimonialsClient() {
           <AnimatePresence>
             {items.map((item) => (
               <motion.div key={item.id} variants={itemVariants} layout className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="flex items-start gap-4 flex-1 min-w-0">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary/20 to-accent/20 text-primary font-black flex items-center justify-center text-sm flex-shrink-0">
                       {item.initials}
@@ -196,7 +196,7 @@ export default function AdminTestimonialsClient() {
                         <span className="text-amber-500 text-xs">{'★'.repeat(item.rating)}</span>
                       </div>
                       <p className="text-slate-600 text-sm leading-relaxed line-clamp-2">{item.text}</p>
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
                         {item.isApproved && item.isPublished && (
                           <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Publié</span>
                         )}

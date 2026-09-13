@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 export default function EnteteAssistant({ prefill, showDraftHint, onRetour, onEffacerBrouillon, t }) {
   return (
-    <div className="bg-white border-b border-slate-200">
+    <div className="bg-white border-b border-slate-200 pt-16 sm:pt-18">
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6">
         <button
           onClick={onRetour}

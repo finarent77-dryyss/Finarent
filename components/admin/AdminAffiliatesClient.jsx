@@ -34,10 +34,10 @@ export default function AdminAffiliatesClient() {
   );
 
   return (
-    <div className="p-4 sm:p-8 max-w-7xl mx-auto">
-        <div className="flex items-start justify-between gap-4 mb-8">
+    <div className="py-4 sm:p-8 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-black text-primary tracking-tight mb-1">
+          <h1 className="text-2xl sm:text-3xl font-black text-primary tracking-tight mb-1">
             <i className="fa-solid fa-share-nodes mr-3 text-secondary"></i>
             Affiliation
           </h1>
@@ -45,7 +45,7 @@ export default function AdminAffiliatesClient() {
             Commerciaux & apporteurs d'affaires Finarent. Liens trackés avec cookie 90 jours, commissions calculées sur signature.
           </p>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex flex-wrap gap-2 shrink-0">
           <Link
             href="/admin/affiliates/payouts"
             className="px-5 py-2.5 bg-white border border-gray-200 text-primary font-bold rounded-xl hover:border-secondary text-sm"
@@ -65,7 +65,7 @@ export default function AdminAffiliatesClient() {
       </div>
 
       {/* KPIs globaux */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-8">
         <KpiCard icon="fa-mouse-pointer" label="Clics" value={totals.clicks} color="sky" />
         <KpiCard icon="fa-user-plus" label="Leads" value={totals.prospects} color="violet" />
         <KpiCard icon="fa-folder-open" label="Dossiers" value={totals.applications} color="emerald" />
@@ -279,7 +279,7 @@ function CreateModal({ onClose, onCreated }) {
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Type de commission">
                 <select
                   value={form.commissionType}

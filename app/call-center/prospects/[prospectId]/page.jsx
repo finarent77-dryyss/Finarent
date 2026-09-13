@@ -44,21 +44,21 @@ export default async function CallCenterProspectDetailPage({ params }) {
             <p className="text-gray-400 text-xs uppercase font-bold">Téléphone</p>
             <p className="font-semibold">{prospect.phone || '—'}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-gray-400 text-xs uppercase font-bold">E-mail</p>
-            <p className="font-semibold">{prospect.email || '—'}</p>
+            <p className="font-semibold break-words">{prospect.email || '—'}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-gray-400 text-xs uppercase font-bold">Entreprise</p>
-            <p className="font-semibold">{prospect.company || '—'}</p>
+            <p className="font-semibold break-words">{prospect.company || '—'}</p>
           </div>
           <div>
             <p className="text-gray-400 text-xs uppercase font-bold">Centre</p>
             <p className="font-semibold">{prospect.callCenter?.name || '—'}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-gray-400 text-xs uppercase font-bold">Agent assigné</p>
-            <p className="font-semibold">
+            <p className="font-semibold break-words">
               {prospect.assignedAgent?.name || prospect.assignedAgent?.email || '—'}
             </p>
           </div>
@@ -68,7 +68,7 @@ export default async function CallCenterProspectDetailPage({ params }) {
           </div>
         </div>
         {prospect.notes && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-xl text-sm text-gray-600">
+          <div className="mt-4 p-3 bg-gray-50 rounded-xl text-sm text-gray-600 break-words">
             {prospect.notes}
           </div>
         )}

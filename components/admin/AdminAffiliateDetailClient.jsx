@@ -84,7 +84,7 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
   const trackingLink = `${baseUrl}/?ref=${data.code}`;
 
   return (
-    <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+    <div className="py-4 sm:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
         <Link href="/admin/affiliates" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary mb-3">
@@ -93,7 +93,7 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
         </Link>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-black text-primary tracking-tight">{data.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-primary tracking-tight">{data.name}</h1>
             <div className="text-sm text-gray-500 mt-1">
               {data.email} {data.phone && <span>· {data.phone}</span>}
             </div>
@@ -148,7 +148,7 @@ export default function AdminAffiliateDetailClient({ affiliateId }) {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-6">
         <Kpi icon="fa-mouse-pointer" label="Clics" value={data.stats.clicks} color="sky" />
         <Kpi icon="fa-user-plus" label="Leads" value={data.stats.prospects} color="violet" />
         <Kpi icon="fa-folder-open" label="Dossiers" value={data.stats.applications} color="emerald" />
@@ -446,7 +446,7 @@ function InvitesTab({ affiliateId, affiliateName, invites, onChange }) {
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-mono focus:border-secondary focus:outline-none"
               />
               <div className="mt-2">
-                <input type="file" accept=".csv,.txt" onChange={handleFileUpload} className="text-xs" />
+                <input type="file" accept=".csv,.txt" onChange={handleFileUpload} className="text-xs max-w-full" />
               </div>
             </div>
             <Textarea
@@ -592,7 +592,7 @@ function FunnelRow({ label, from, to }) {
   const pct = from > 0 ? (to / from) * 100 : 0;
   return (
     <div className="mb-3 last:mb-0">
-      <div className="flex justify-between text-sm mb-1">
+      <div className="flex justify-between gap-3 text-sm mb-1">
         <span className="text-gray-600">{label}</span>
         <span className="font-bold text-primary tabular-nums">
           {to} / {from} ({pct.toFixed(1)}%)

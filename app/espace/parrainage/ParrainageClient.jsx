@@ -134,8 +134,8 @@ export default function ParrainageClient({ dbUser }) {
             <i className="fa-solid fa-link text-secondary"></i> Votre lien de parrainage
           </h3>
           <div className="flex items-center gap-2">
-            <input readOnly value={referralLink} className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 font-mono truncate" />
-            <button onClick={handleCopy} className={`px-5 py-3 font-bold rounded-xl text-sm transition-all flex items-center gap-2 ${copied ? 'bg-accent text-white' : 'bg-secondary text-white hover:bg-secondary/90'}`}>
+            <input readOnly value={referralLink} className="flex-1 min-w-0 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 font-mono truncate" />
+            <button onClick={handleCopy} className={`shrink-0 px-5 py-3 font-bold rounded-xl text-sm transition-all flex items-center gap-2 ${copied ? 'bg-accent text-white' : 'bg-secondary text-white hover:bg-secondary/90'}`}>
               <i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>
               {copied ? 'Copié !' : 'Copier'}
             </button>
@@ -172,13 +172,13 @@ export default function ParrainageClient({ dbUser }) {
         </motion.div>
 
         {/* Stats */}
-        <motion.div variants={itemVariants} className="grid grid-cols-3 gap-4 mb-6">
+        <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
           {[
             { label: 'Invitations', value: stats.total, color: 'text-primary' },
             { label: 'Inscrits', value: stats.signedUp, color: 'text-secondary' },
             { label: 'Convertis', value: stats.converted, color: 'text-accent' },
           ].map((s, i) => (
-            <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center">
+            <div key={i} className="bg-white rounded-xl px-2 py-4 sm:p-4 border border-slate-100 shadow-sm text-center">
               <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{s.label}</div>
             </div>
@@ -200,12 +200,12 @@ export default function ParrainageClient({ dbUser }) {
               {referrals.map(r => {
                 const badge = STATUS_BADGES[r.status] || STATUS_BADGES.PENDING;
                 return (
-                  <div key={r.id} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                    <div>
-                      <div className="text-sm font-bold text-primary">{r.refereeName || r.refereeEmail}</div>
-                      {r.refereeName && <div className="text-xs text-slate-400">{r.refereeEmail}</div>}
+                  <div key={r.id} className="flex items-center justify-between gap-3 p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-primary break-words">{r.refereeName || r.refereeEmail}</div>
+                      {r.refereeName && <div className="text-xs text-slate-400 break-words">{r.refereeEmail}</div>}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 shrink-0">
                       <span className="text-[10px] text-slate-400">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</span>
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${badge.bg}`}>{badge.label}</span>
                     </div>

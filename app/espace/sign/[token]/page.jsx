@@ -9,7 +9,7 @@ export default async function SignPage({ params }) {
   const { token } = await params;
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10">
+    <main className="min-h-screen bg-gray-50 pt-24 sm:pt-32 pb-10">
       <div className="container mx-auto px-4 sm:px-6 max-w-3xl">
         <header className="mb-6">
           <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-accent mb-2">

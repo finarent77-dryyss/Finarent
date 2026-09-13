@@ -161,9 +161,9 @@ export default function InvoiceDetailClient({ id }) {
         <i className="fa-solid fa-arrow-left text-xs"></i> Toutes les factures
       </Link>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div>
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex flex-wrap items-center gap-3 mb-2">
             <h1 className={`text-2xl sm:text-3xl font-black text-primary ${numero.provisoire ? '' : 'font-mono'}`}>{numero.libelle}</h1>
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase ${status.cls}`}>{status.label}</span>
           </div>
@@ -172,12 +172,12 @@ export default function InvoiceDetailClient({ id }) {
               Référence de travail <span className="font-mono">{numero.reference}</span> — le numéro comptable sera attribué à l'émission.
             </div>
           )}
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 break-words">
             Émise le {frDate(invoice.issueDate)} · Échéance {frDate(invoice.dueDate)}
             {invoice.sentAt && ` · Transmise le ${frDateTime(invoice.sentAt)}${invoice.sentTo ? ` à ${invoice.sentTo}` : ''}`}
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <a href={`/api/admin/invoices/${id}/pdf`} target="_blank" className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 text-primary font-bold rounded-xl hover:border-secondary text-sm">
             <i className="fa-solid fa-file-pdf"></i> Voir PDF
           </a>
@@ -224,17 +224,17 @@ export default function InvoiceDetailClient({ id }) {
       <div className="grid sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
           <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Total TTC</div>
-          <div className="text-2xl font-black text-primary">{eur(invoice.totalTTC)}</div>
+          <div className="text-2xl sm:text-xl xl:text-2xl font-black text-primary break-words">{eur(invoice.totalTTC)}</div>
           <div className="text-xs text-gray-400 mt-1">HT {eur(invoice.totalHT)} + TVA {eur(invoice.totalTVA)}</div>
         </div>
         <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
           <div className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Encaissé</div>
-          <div className="text-2xl font-black text-emerald-700">{eur(invoice.paidAmount)}</div>
+          <div className="text-2xl sm:text-xl xl:text-2xl font-black text-emerald-700 break-words">{eur(invoice.paidAmount)}</div>
           <div className="text-xs text-emerald-600 mt-1">{pctPaid.toFixed(0)}% du total</div>
         </div>
         <div className="bg-amber-50 rounded-2xl p-5 border border-amber-100">
           <div className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-2">Reste à payer</div>
-          <div className="text-2xl font-black text-amber-700">{eur(remaining)}</div>
+          <div className="text-2xl sm:text-xl xl:text-2xl font-black text-amber-700 break-words">{eur(remaining)}</div>
         </div>
       </div>
 
@@ -249,14 +249,14 @@ export default function InvoiceDetailClient({ id }) {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
+      <div className="grid xl:grid-cols-[2fr_1fr] gap-6">
         {/* Détails */}
         <div className="space-y-6">
           {/* Client */}
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Client</h2>
-            <div className="font-bold text-primary text-lg">{invoice.clientName}</div>
-            {invoice.clientEmail && <div className="text-sm text-gray-500">{invoice.clientEmail}</div>}
+            <div className="font-bold text-primary text-lg break-words">{invoice.clientName}</div>
+            {invoice.clientEmail && <div className="text-sm text-gray-500 break-words">{invoice.clientEmail}</div>}
             {(invoice.clientAddress || invoice.clientCity) && (
               <div className="text-sm text-gray-500 mt-1">
                 {invoice.clientAddress}<br />
@@ -269,6 +269,7 @@ export default function InvoiceDetailClient({ id }) {
           {/* Lignes */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest p-5 border-b border-gray-50">Lignes de facturation</h2>
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
@@ -291,6 +292,7 @@ export default function InvoiceDetailClient({ id }) {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* Paiements */}
@@ -304,6 +306,7 @@ export default function InvoiceDetailClient({ id }) {
                 Aucun versement enregistré
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
@@ -324,6 +327,7 @@ export default function InvoiceDetailClient({ id }) {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </div>

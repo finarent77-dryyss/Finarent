@@ -61,14 +61,14 @@ export default function InsurerApplicationsClient() {
         {applications.map((a) => (
           <div key={a.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${STATUS_COLORS[a.status] || 'bg-gray-100'}`}>
                     {STATUS_TO_LEGACY[a.status] || a.status}
                   </span>
                 </div>
-                <h3 className="font-bold text-primary text-lg">{a.companyName || a.equipmentType || '-'}</h3>
-                <div className="text-sm text-gray-500 mt-1">
+                <h3 className="font-bold text-primary text-lg break-words">{a.companyName || a.equipmentType || '-'}</h3>
+                <div className="text-sm text-gray-500 mt-1 break-words">
                   {a.user?.name && <span>{a.user.name} • </span>}
                   {a.user?.email}
                   {a.user?.company && <span> • {a.user.company}</span>}

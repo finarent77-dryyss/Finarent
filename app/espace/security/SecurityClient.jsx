@@ -230,7 +230,7 @@ export default function SecurityClient({ user, dbUser, bank: initialBank, provid
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                     {t('espace.security.emailAssociated')}
                   </div>
-                  <div className="text-sm font-bold text-primary mt-0.5 flex items-center gap-2">
+                  <div className="text-sm font-bold text-primary mt-0.5 flex flex-wrap items-center gap-2 break-all">
                     {user.email}
                     {user.email_verified && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -337,7 +337,7 @@ export default function SecurityClient({ user, dbUser, bank: initialBank, provid
                       <i className="fa-solid fa-paper-plane"></i>
                       {t('espace.security.passwordSentTitle')}
                     </p>
-                    <p className="text-xs text-emerald-700/80 mt-1">
+                    <p className="text-xs text-emerald-700/80 mt-1 break-words">
                       {t('espace.security.passwordSentDesc')} <strong>{resetSentTo}</strong>.
                     </p>
                   </div>
@@ -376,7 +376,7 @@ export default function SecurityClient({ user, dbUser, bank: initialBank, provid
             className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8 mb-6"
           >
             <h2 className="text-base font-black text-primary mb-2 flex items-center gap-2">
-              <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center text-accent">
+              <div className="w-8 h-8 shrink-0 bg-accent/10 rounded-lg flex items-center justify-center text-accent">
                 <i className="fa-solid fa-building-columns text-sm"></i>
               </div>
               {t('espace.security.bankTitle')}
@@ -516,7 +516,7 @@ export default function SecurityClient({ user, dbUser, bank: initialBank, provid
                       <i className="fa-solid fa-triangle-exclamation"></i>
                       {t('espace.security.bankConfirmDelete')}
                     </p>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                       <button
                         type="button"
                         onClick={handleBankDelete}

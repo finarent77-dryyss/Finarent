@@ -100,7 +100,7 @@ export default function AdminUserDetailClient({ userId }) {
         <span>/</span>
         <Link href="/admin/users" className="hover:text-primary transition">Utilisateurs</Link>
         <span>/</span>
-        <span className="text-primary font-semibold normal-case">{user.name || user.email}</span>
+        <span className="text-primary font-semibold normal-case min-w-0 truncate">{user.name || user.email}</span>
       </nav>
 
       {/* Header card */}
@@ -118,7 +118,7 @@ export default function AdminUserDetailClient({ userId }) {
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-gray-600">
-              <span className="flex items-center gap-1.5"><i className="fa-solid fa-envelope text-gray-400 text-xs"></i> {user.email}</span>
+              <span className="flex items-center gap-1.5 min-w-0 break-all"><i className="fa-solid fa-envelope text-gray-400 text-xs"></i> {user.email}</span>
               {user.phone && <span className="flex items-center gap-1.5"><i className="fa-solid fa-phone text-gray-400 text-xs"></i> {user.phone}</span>}
               {user.company && <span className="flex items-center gap-1.5"><i className="fa-solid fa-building text-gray-400 text-xs"></i> {user.company}{user.legalForm && ` (${user.legalForm})`}</span>}
             </div>
@@ -148,7 +148,7 @@ export default function AdminUserDetailClient({ userId }) {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 mb-6">
         <StatCard icon="fa-file-lines" label="Dossiers" value={user._count?.applications || 0} color="indigo" />
         <StatCard icon="fa-file-invoice" label="Factures" value={user._count?.invoices || 0} color="emerald" />
         <StatCard icon="fa-file-signature" label="Devis" value={user._count?.quotes || 0} color="violet" />
@@ -200,13 +200,13 @@ function StatCard({ icon, label, value, color }) {
     amber: 'bg-amber-50 text-amber-600',
   };
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 sm:p-4">
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${colors[color]}`}>
           <i className={`fa-solid ${icon}`}></i>
         </div>
-        <div>
-          <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-gray-400">{label}</div>
+        <div className="min-w-0">
+          <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-gray-400 truncate">{label}</div>
           <div className="text-2xl font-black text-primary tabular-nums">{value}</div>
         </div>
       </div>
@@ -279,7 +279,8 @@ function Row({ label, value, mono, small }) {
 function ApplicationsTab({ user }) {
   if (!user.applications?.length) return <Empty icon="fa-file-lines" label="Aucun dossier" />;
   return (
-    <table className="w-full text-sm">
+    <div className="overflow-x-auto">
+    <table className="w-full min-w-[640px] text-sm">
       <thead>
         <tr className="border-b border-gray-100 text-left text-[10px] uppercase tracking-widest text-gray-400">
           <th className="py-3">Produit</th><th>Société</th><th>Montant</th><th>Durée</th><th>Statut</th><th>Créé le</th><th></th>
@@ -301,13 +302,15 @@ function ApplicationsTab({ user }) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
 function InvoicesTab({ user }) {
   if (!user.invoices?.length) return <Empty icon="fa-file-invoice" label="Aucune facture" />;
   return (
-    <table className="w-full text-sm">
+    <div className="overflow-x-auto">
+    <table className="w-full min-w-[480px] text-sm">
       <thead>
         <tr className="border-b border-gray-100 text-left text-[10px] uppercase tracking-widest text-gray-400">
           <th className="py-3">Numéro</th><th>Total TTC</th><th>Statut</th><th>Émise le</th><th></th>
@@ -327,13 +330,15 @@ function InvoicesTab({ user }) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
 function QuotesTab({ user }) {
   if (!user.quotes?.length) return <Empty icon="fa-file-signature" label="Aucun devis" />;
   return (
-    <table className="w-full text-sm">
+    <div className="overflow-x-auto">
+    <table className="w-full min-w-[400px] text-sm">
       <thead>
         <tr className="border-b border-gray-100 text-left text-[10px] uppercase tracking-widest text-gray-400">
           <th className="py-3">Numéro</th><th>Total TTC</th><th>Statut</th><th>Émis le</th>
@@ -350,6 +355,7 @@ function QuotesTab({ user }) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
@@ -365,7 +371,7 @@ function MessagesTab({ user }) {
             </span>
             <span className="text-xs text-gray-400">{fmtDate(m.createdAt)}</span>
           </div>
-          <p className="text-sm text-primary whitespace-pre-wrap">{m.content}</p>
+          <p className="text-sm text-primary whitespace-pre-wrap break-words">{m.content}</p>
         </li>
       ))}
     </ul>

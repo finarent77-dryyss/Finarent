@@ -445,7 +445,7 @@ function ImportModal({ onClose, onDone }) {
 
             <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-2xl p-6 cursor-pointer hover:border-secondary/50 hover:bg-gray-50/50 transition">
               <i className="fa-solid fa-cloud-arrow-up text-2xl text-gray-300"></i>
-              <span className="text-sm font-bold text-primary">{fileName || 'Choisir un fichier .csv'}</span>
+              <span className="text-sm font-bold text-primary break-all text-center">{fileName || 'Choisir un fichier .csv'}</span>
               <span className="text-[11px] text-gray-400">ou glissez le contenu ci-dessous</span>
               <input type="file" accept=".csv,.txt,text/csv" onChange={onFile} className="hidden" />
             </label>
@@ -572,14 +572,14 @@ function ProspectDrawer({ prospect, onClose, onUpdate, onDelete, onChangeStatus 
         onClick={(e) => e.stopPropagation()}
         className="w-full sm:max-w-2xl bg-white h-full overflow-y-auto shadow-2xl"
       >
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
-          <div>
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between gap-3 z-10">
+          <div className="min-w-0">
             <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-gray-400">Prospect</div>
             <h2 className="text-xl font-black text-primary">
               {prospect.name || prospect.company || 'Anonyme'}
             </h2>
           </div>
-          <button onClick={onClose} aria-label="Fermer" className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500">
+          <button onClick={onClose} aria-label="Fermer" className="w-9 h-9 shrink-0 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500">
             <i className="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -741,7 +741,7 @@ function ProspectDrawer({ prospect, onClose, onUpdate, onDelete, onChangeStatus 
 
 function Field({ label, value, icon, mono, small }) {
   return (
-    <div>
+    <div className="min-w-0">
       <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-gray-400 mb-1">
         {icon && <i className={`fa-solid ${icon} mr-1.5`}></i>}
         {label}

@@ -91,9 +91,9 @@ export default function EtapeRecapitulatif({ form, goToStep, t }) {
             </div>
             <div className="px-6 py-4 space-y-3">
               {section.items.map((item, i) => (
-                <div key={i} className="flex justify-between items-start">
+                <div key={i} className="flex justify-between items-start gap-4">
                   <span className="text-sm text-slate-500">{item.label}</span>
-                  <span className="text-sm font-medium text-primary text-right max-w-[60%]">
+                  <span className="text-sm font-medium text-primary text-right max-w-[60%] break-words">
                     {item.value || '—'}
                   </span>
                 </div>

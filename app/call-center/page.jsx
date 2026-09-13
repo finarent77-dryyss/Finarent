@@ -37,7 +37,7 @@ export default async function CallCenterDashboardPage() {
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {[
           { label: 'Prospects', value: totalProspects, icon: 'fa-users', href: '/call-center/prospects' },
           { label: 'Contactés', value: contacted, icon: 'fa-phone' },

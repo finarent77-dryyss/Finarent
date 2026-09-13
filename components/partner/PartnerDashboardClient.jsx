@@ -91,7 +91,7 @@ export default function PartnerDashboardClient() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid xl:grid-cols-3 gap-6 mb-8">
         {/* Commissions & Performance */}
         <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#10253C] rounded-2xl p-6 text-white relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-2xl"></div>
@@ -274,7 +274,7 @@ export default function PartnerDashboardClient() {
 
       {/* Commission Tracking Card */}
       <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-8">
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
           <h3 className="text-base font-bold text-primary">Suivi des commissions</h3>
           <a href="#" className="text-xs font-bold text-secondary hover:underline">
             Voir les détails <i className="fa-solid fa-arrow-right text-[10px] ml-1"></i>
@@ -313,13 +313,13 @@ export default function PartnerDashboardClient() {
             const FR_MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
             return (
               <>
-                <div className="flex items-end gap-3 h-44">
+                <div className="flex items-end gap-1.5 sm:gap-3 h-44">
                   {data.map((m, i) => {
                     const totalH = ((m.paid + m.pending) / max) * 100;
                     const paidH = (m.paid + m.pending) > 0 ? (m.paid / (m.paid + m.pending)) * 100 : 0;
                     return (
-                      <div key={i} className="flex-1 flex flex-col items-center justify-end h-full gap-2">
-                        <span className="text-[11px] font-bold text-primary">{Math.round(m.paid + m.pending).toLocaleString('fr-FR')}€</span>
+                      <div key={i} className="flex-1 min-w-0 flex flex-col items-center justify-end h-full gap-2">
+                        <span className="text-[9px] sm:text-[11px] font-bold text-primary whitespace-nowrap">{Math.round(m.paid + m.pending).toLocaleString('fr-FR')}€</span>
                         <div className="w-full flex flex-col-reverse rounded-t-lg overflow-hidden" style={{ height: `${Math.max(totalH, 4)}%` }}>
                           <motion.div
                             initial={{ height: 0 }}

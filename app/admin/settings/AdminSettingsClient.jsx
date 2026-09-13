@@ -112,7 +112,7 @@ export default function AdminSettingsClient() {
           ].map((item) => (
             <div
               key={item.key}
-              className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100/70 transition-colors"
+              className="flex items-center justify-between gap-3 p-4 bg-slate-50 rounded-xl hover:bg-slate-100/70 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <i className={`fa-solid ${item.icon} w-5 text-center text-secondary text-sm`}></i>
@@ -123,7 +123,7 @@ export default function AdminSettingsClient() {
               </div>
               <button
                 onClick={() => toggleNotification(item.key)}
-                className={`relative w-12 h-7 rounded-full transition-colors ${
+                className={`relative w-12 h-7 shrink-0 rounded-full transition-colors ${
                   notifications[item.key] ? 'bg-emerald-500' : 'bg-slate-300'
                 }`}
               >
@@ -170,7 +170,7 @@ export default function AdminSettingsClient() {
       </motion.div>
 
       {/* Save button */}
-      <motion.div variants={itemVariants} className="flex items-center gap-4">
+      <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-4">
         <button
           onClick={handleSave}
           className="px-6 py-3 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20"

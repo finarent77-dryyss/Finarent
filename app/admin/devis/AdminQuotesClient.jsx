@@ -169,6 +169,7 @@ export default function AdminQuotesClient() {
 
       {!loading && filtered.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr className="text-xs uppercase tracking-widest text-gray-400 font-bold">
@@ -242,6 +243,7 @@ export default function AdminQuotesClient() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -331,7 +333,7 @@ function CreateQuoteModal({ onClose, onCreated }) {
           <button type="button" onClick={onClose}><i className="fa-solid fa-xmark text-xl text-white/70"></i></button>
         </div>
 
-        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {applications.length > 0 && (
             <div>
               <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Lier à une demande (optionnel)</div>
@@ -373,10 +375,10 @@ function CreateQuoteModal({ onClose, onCreated }) {
             <div className="space-y-2">
               {form.items.map((it, i) => (
                 <div key={i} className="grid grid-cols-12 gap-2 items-center">
-                  <input placeholder="Description" value={it.description} onChange={(e) => updateItem(i, { description: e.target.value })} className="col-span-6 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-secondary focus:outline-none" />
-                  <input type="number" placeholder="Qté" value={it.quantity} onChange={(e) => updateItem(i, { quantity: e.target.value })} className="col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
-                  <input type="number" placeholder="PU HT" value={it.unitPriceHT} step="0.01" onChange={(e) => updateItem(i, { unitPriceHT: e.target.value })} className="col-span-3 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
-                  <button type="button" onClick={() => removeItem(i)} className="col-span-1 text-rose-500"><i className="fa-solid fa-trash text-sm"></i></button>
+                  <input placeholder="Description" value={it.description} onChange={(e) => updateItem(i, { description: e.target.value })} className="col-span-12 sm:col-span-6 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-secondary focus:outline-none" />
+                  <input type="number" placeholder="Qté" value={it.quantity} onChange={(e) => updateItem(i, { quantity: e.target.value })} className="col-span-5 sm:col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
+                  <input type="number" placeholder="PU HT" value={it.unitPriceHT} step="0.01" onChange={(e) => updateItem(i, { unitPriceHT: e.target.value })} className="col-span-5 sm:col-span-3 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
+                  <button type="button" onClick={() => removeItem(i)} className="col-span-2 sm:col-span-1 text-rose-500"><i className="fa-solid fa-trash text-sm"></i></button>
                 </div>
               ))}
             </div>

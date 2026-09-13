@@ -182,7 +182,7 @@ export default function AdminPartnersClient() {
                 />
               </div>
             </div>
-            <div className="flex gap-3 mt-4">
+            <div className="flex flex-wrap gap-3 mt-4">
               <button
                 type="submit" disabled={saving}
                 className="px-6 py-2.5 bg-secondary text-white font-bold rounded-xl text-sm hover:bg-secondary/90 disabled:opacity-50 transition-all flex items-center gap-2"
@@ -213,7 +213,7 @@ export default function AdminPartnersClient() {
       </motion.div>
 
       {/* Partners Grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <AnimatePresence>
           {filtered.map((p) => {
             const tc = TYPE_COLORS[p.type] || TYPE_COLORS.BANK;

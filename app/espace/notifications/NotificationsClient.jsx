@@ -52,7 +52,7 @@ export default function NotificationsClient({ notifications, unreadMessages }) {
           </motion.div>
 
           {/* Title + unread badge */}
-          <motion.div variants={itemVariants} className="flex items-center gap-4 mb-8">
+          <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-4 mb-8">
             <h1 className="text-2xl sm:text-3xl font-black text-primary">
               {t('espace.notifications.title')}
             </h1>
@@ -106,7 +106,7 @@ export default function NotificationsClient({ notifications, unreadMessages }) {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100 mb-3 hover:shadow-md transition-shadow">
+                      <div className="flex-1 min-w-0 bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100 mb-3 hover:shadow-md transition-shadow">
                         <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
                           <Link
                             href={`/espace/${notif.applicationId}`}
@@ -145,7 +145,7 @@ export default function NotificationsClient({ notifications, unreadMessages }) {
                         </div>
 
                         {notif.comment && (
-                          <p className="mt-2 text-xs text-slate-500 italic border-l-2 border-slate-200 pl-3">
+                          <p className="mt-2 text-xs text-slate-500 italic border-l-2 border-slate-200 pl-3 break-words">
                             {notif.comment}
                           </p>
                         )}

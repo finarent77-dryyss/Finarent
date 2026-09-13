@@ -194,7 +194,7 @@ export default function AdminDashboardClient() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid xl:grid-cols-3 gap-6 mb-8">
         {/* Revenue & Performance */}
         <motion.div variants={itemVariants} className="bg-gradient-to-br from-primary to-[#10253C] rounded-2xl p-6 text-white relative overflow-hidden">
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-2xl"></div>
@@ -286,7 +286,7 @@ export default function AdminDashboardClient() {
       </div>
 
       {/* Key Metrics Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
         <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Montant moyen</div>
           <div className="text-xl font-black text-secondary">
@@ -336,7 +336,7 @@ export default function AdminDashboardClient() {
 
       {/* Conversion Funnel */}
       <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-8">
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
           <div>
             <h3 className="text-base font-bold text-primary">Funnel de conversion</h3>
             <p className="text-xs text-slate-400 mt-0.5">Cumul des dossiers passés par chaque étape</p>
@@ -358,8 +358,8 @@ export default function AdminDashboardClient() {
               const colors = ['bg-secondary', 'bg-secondary/85', 'bg-secondary/70', 'bg-accent/80', 'bg-accent', 'bg-emerald-600'];
               return (
                 <div key={step.status} className="relative">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex flex-wrap items-center gap-2 min-w-0">
                       <span className="text-sm font-semibold text-primary">{step.label}</span>
                       {conversionFromPrev !== null && (
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${conversionFromPrev >= 70 ? 'bg-emerald-100 text-emerald-700' : conversionFromPrev >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>

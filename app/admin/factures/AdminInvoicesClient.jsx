@@ -75,15 +75,15 @@ export default function AdminInvoicesClient() {
       <div className="grid sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
           <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Total facturé</div>
-          <div className="text-2xl font-black text-primary">{eur(totalAmount)}</div>
+          <div className="text-2xl sm:text-xl xl:text-2xl font-black text-primary break-words">{eur(totalAmount)}</div>
         </div>
         <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
           <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2">Encaissé</div>
-          <div className="text-2xl font-black text-emerald-700">{eur(totalPaid)}</div>
+          <div className="text-2xl sm:text-xl xl:text-2xl font-black text-emerald-700 break-words">{eur(totalPaid)}</div>
         </div>
         <div className="bg-amber-50 rounded-2xl p-5 border border-amber-100">
           <div className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2">En attente</div>
-          <div className="text-2xl font-black text-amber-700">{eur(totalOutstanding)}</div>
+          <div className="text-2xl sm:text-xl xl:text-2xl font-black text-amber-700 break-words">{eur(totalOutstanding)}</div>
         </div>
       </div>
 
@@ -308,7 +308,7 @@ function CreateInvoiceModal({ onClose, onCreated }) {
           </button>
         </div>
 
-        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Lier à une demande existante */}
           {applications.length > 0 && (
             <div>
@@ -353,11 +353,11 @@ function CreateInvoiceModal({ onClose, onCreated }) {
             <div className="space-y-2">
               {form.lines.map((l, i) => (
                 <div key={i} className="grid grid-cols-12 gap-2 items-center">
-                  <input placeholder="Description" value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} className="col-span-5 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-secondary focus:outline-none" />
-                  <input type="number" placeholder="Qté" value={l.quantity} step="1" onChange={(e) => updateLine(i, { quantity: e.target.value })} className="col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
-                  <input type="number" placeholder="PU HT" value={l.unitPrice} step="0.01" onChange={(e) => updateLine(i, { unitPrice: e.target.value })} className="col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
-                  <input type="number" placeholder="TVA %" value={l.vatRate} step="0.5" onChange={(e) => updateLine(i, { vatRate: e.target.value })} className="col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
-                  <button type="button" onClick={() => removeLine(i)} className="col-span-1 text-rose-500 hover:text-rose-600">
+                  <input placeholder="Description" value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} className="col-span-12 sm:col-span-5 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-secondary focus:outline-none" />
+                  <input type="number" placeholder="Qté" value={l.quantity} step="1" onChange={(e) => updateLine(i, { quantity: e.target.value })} className="col-span-3 sm:col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
+                  <input type="number" placeholder="PU HT" value={l.unitPrice} step="0.01" onChange={(e) => updateLine(i, { unitPrice: e.target.value })} className="col-span-4 sm:col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
+                  <input type="number" placeholder="TVA %" value={l.vatRate} step="0.5" onChange={(e) => updateLine(i, { vatRate: e.target.value })} className="col-span-3 sm:col-span-2 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm text-right focus:border-secondary focus:outline-none" />
+                  <button type="button" onClick={() => removeLine(i)} className="col-span-2 sm:col-span-1 text-rose-500 hover:text-rose-600">
                     <i className="fa-solid fa-trash text-sm"></i>
                   </button>
                 </div>

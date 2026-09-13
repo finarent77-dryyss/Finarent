@@ -274,7 +274,7 @@ export default function DossierDetailClient({ dossier, user }) {
           </motion.div>
 
           {/* Tabs */}
-          <div className="flex items-center gap-1 bg-white rounded-xl p-1 border border-gray-100 shadow-sm mb-6">
+          <div className="flex items-center gap-1 bg-white rounded-xl p-1 border border-gray-100 shadow-sm mb-6 overflow-x-auto">
             {[
               { key: 'info', label: 'Informations', icon: 'fa-circle-info' },
               { key: 'documents', label: `Documents (${documents.length})`, icon: 'fa-file-lines' },
@@ -285,7 +285,7 @@ export default function DossierDetailClient({ dossier, user }) {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap xl:whitespace-normal ${
                   activeTab === tab.key ? 'bg-primary text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
@@ -313,7 +313,7 @@ export default function DossierDetailClient({ dossier, user }) {
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('dossierDetail.contactInfo')}</h3>
                     <p className="font-bold text-primary">{dossier.firstName} {dossier.lastName}</p>
                     <div className="space-y-1 mt-2">
-                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <p className="text-sm text-gray-500 flex items-center gap-2 wrap-anywhere">
                         <i className="fa-solid fa-envelope text-gray-300 w-4"></i>{dossier.email}
                       </p>
                       <p className="text-sm text-gray-500 flex items-center gap-2">
@@ -330,7 +330,7 @@ export default function DossierDetailClient({ dossier, user }) {
                   {dossier.description && (
                     <div className="sm:col-span-2">
                       <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('dossierDetail.messageLabel')}</h3>
-                      <p className="text-gray-600 p-4 bg-gray-50 rounded-xl italic">&ldquo;{dossier.description}&rdquo;</p>
+                      <p className="text-gray-600 p-4 bg-gray-50 rounded-xl italic wrap-anywhere">&ldquo;{dossier.description}&rdquo;</p>
                     </div>
                   )}
                 </div>
@@ -373,7 +373,7 @@ export default function DossierDetailClient({ dossier, user }) {
                     <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp" onChange={e => handleFileUpload(e.target.files[0], 'AUTRE')} />
                   </label>
                 </div>
-                <p className="text-xs text-gray-400 mb-6 flex items-center gap-1.5">
+                <p className="text-xs text-gray-400 mb-6 flex flex-wrap items-center gap-1.5">
                   <i className="fa-solid fa-circle-info text-gray-300"></i>
                   Formats acceptés : <strong className="text-gray-500">PDF, JPG, PNG</strong> · Taille max : <strong className="text-gray-500">10 Mo</strong>
                 </p>
@@ -422,15 +422,15 @@ export default function DossierDetailClient({ dossier, user }) {
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 text-center">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('dossierDetail.monthlyPayment')}</p>
-                    <p className="text-2xl font-black text-secondary">{Number(amortization.monthly).toLocaleString(dateLocale, { minimumFractionDigits: 2 })}&euro;</p>
+                    <p className="text-xl md:text-2xl font-black text-secondary">{Number(amortization.monthly).toLocaleString(dateLocale, { minimumFractionDigits: 2 })}&euro;</p>
                   </div>
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 text-center">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('dossierDetail.totalCreditCost')}</p>
-                    <p className="text-2xl font-black text-accent">{Number(amortization.totalInterest).toLocaleString(dateLocale, { minimumFractionDigits: 2 })}&euro;</p>
+                    <p className="text-xl md:text-2xl font-black text-accent">{Number(amortization.totalInterest).toLocaleString(dateLocale, { minimumFractionDigits: 2 })}&euro;</p>
                   </div>
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 text-center">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t('dossierDetail.rate')}</p>
-                    <p className="text-2xl font-black text-primary">4,5%</p>
+                    <p className="text-xl md:text-2xl font-black text-primary">4,5%</p>
                   </div>
                 </div>
 
@@ -575,7 +575,7 @@ export default function DossierDetailClient({ dossier, user }) {
                           <div className="text-[10px] font-bold uppercase tracking-wider mb-1 text-slate-400">
                             {isMe ? t('dossierDetail.you') : (msg.sender?.name || t('dossierDetail.advisor'))}
                           </div>
-                          <p className="text-sm leading-relaxed">{msg.content}</p>
+                          <p className="text-sm leading-relaxed wrap-break-word">{msg.content}</p>
                           <div className="text-[10px] mt-1 text-slate-400">
                             {new Date(msg.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })} {new Date(msg.createdAt).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                           </div>
@@ -595,7 +595,7 @@ export default function DossierDetailClient({ dossier, user }) {
                       onChange={e => setNewMessage(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
                       placeholder={t('dossierDetail.typeMessage')}
-                      className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                      className="flex-1 min-w-0 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
                     />
                     <button
                       onClick={sendMessage}

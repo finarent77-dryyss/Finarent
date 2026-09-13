@@ -38,7 +38,8 @@ export default async function CallCenterTeamPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-120 text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>
               <th className="p-3">Membre</th>
@@ -65,6 +66,7 @@ export default async function CallCenterTeamPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <p className="text-xs text-gray-400">

@@ -57,12 +57,12 @@ export default async function CallCenterProspectsPage({ searchParams }) {
           <h1 className="text-2xl font-black text-primary">Prospects</h1>
           <p className="text-sm text-gray-500">{prospects.length} fiche(s)</p>
         </div>
-        <form className="flex gap-2">
+        <form className="flex gap-2 w-full sm:w-auto">
           <input
             name="q"
             defaultValue={q}
             placeholder="Rechercher…"
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm"
+            className="flex-1 min-w-0 sm:flex-none border border-gray-200 rounded-xl px-3 py-2 text-sm"
           />
           <button type="submit" className="px-4 py-2 bg-secondary text-white rounded-xl text-sm font-bold">
             Filtrer
@@ -71,7 +71,8 @@ export default async function CallCenterProspectsPage({ searchParams }) {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-160 text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
             <tr>
               <th className="p-3">Contact</th>
@@ -122,6 +123,7 @@ export default async function CallCenterProspectsPage({ searchParams }) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -53,7 +53,8 @@ export default function ActiveFileTimeline({ dossier, dateLocale = 'fr-FR' }) {
           <p className="text-xs text-slate-400 mt-1">
             <span className="font-mono font-bold text-secondary">{dossier.reference}</span>
             {dossier.equipmentType && <> · {dossier.equipmentType}</>}
-            {dossier.amount && <> · <span className="font-semibold">{dossier.amount.toLocaleString('fr-FR')}€</span></>}
+            {/* `amount` arrive déjà formaté avec le symbole (app/espace/page.jsx) : ne pas rajouter « € ». */}
+            {dossier.amount && <> · <span className="font-semibold">{dossier.amount}</span></>}
           </p>
         </div>
         <Link

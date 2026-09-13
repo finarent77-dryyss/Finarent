@@ -115,7 +115,7 @@ export default function AdminCentreAppelClient() {
             File unifiée prospects + demandes · {stats.total} contact{stats.total > 1 ? 's' : ''} à traiter
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs">
             <span className="font-bold text-emerald-700">{callsLoggedToday}</span>
             <span className="text-emerald-600 ml-1">appel{callsLoggedToday > 1 ? 's' : ''} loggué{callsLoggedToday > 1 ? 's' : ''}</span>
@@ -209,7 +209,7 @@ export default function AdminCentreAppelClient() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <a
                     href={`tel:${(it.phone || '').replace(/\s/g, '')}`}
                     className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-sm"
@@ -295,18 +295,18 @@ function CallLogModal({ item, onClose, onLogged }) {
       <motion.div
         initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+        className="w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto"
       >
         <form onSubmit={submit}>
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <div className="text-[10px] font-mono uppercase tracking-widest text-gray-400">Logger un appel</div>
               <h2 className="font-black text-primary text-lg leading-tight">
                 {item.name || item.company || 'Anonyme'}
               </h2>
               <div className="text-xs text-gray-500 tabular-nums">{fmtPhone(item.phone)}</div>
             </div>
-            <div className="text-right">
+            <div className="text-right shrink-0">
               <div className="text-[10px] font-mono uppercase tracking-widest text-gray-400">Durée</div>
               <div className="font-mono font-bold text-secondary tabular-nums">
                 {Math.floor(duration / 60).toString().padStart(2, '0')}:{(duration % 60).toString().padStart(2, '0')}

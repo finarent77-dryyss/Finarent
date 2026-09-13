@@ -60,15 +60,15 @@ export default function PartnerApplicationsClient() {
         {filtered.map((a) => (
           <div key={a.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-all">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${STATUS_COLORS[a.status]}`}>
                     {STATUS_TO_LEGACY[a.status] || a.status}
                   </span>
                   <span className="text-xs text-gray-400">{a.productType}</span>
                 </div>
-                <h3 className="font-bold text-primary text-lg">{a.companyName || a.equipmentType || '-'}</h3>
-                <div className="text-sm text-gray-500 mt-1">
+                <h3 className="font-bold text-primary text-lg break-words">{a.companyName || a.equipmentType || '-'}</h3>
+                <div className="text-sm text-gray-500 mt-1 break-words">
                   {a.user?.name && <span>{a.user.name} • </span>}
                   {a.user?.email}
                 </div>

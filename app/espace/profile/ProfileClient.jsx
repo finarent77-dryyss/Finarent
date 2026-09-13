@@ -256,7 +256,7 @@ export default function ProfileClient({ user, dbUser }) {
             className="mt-8 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200"
           >
             <h3 className="text-base font-black text-primary mb-2 flex items-center gap-2">
-              <div className="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
+              <div className="w-8 h-8 shrink-0 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
                 <i className="fa-solid fa-shield-halved text-sm"></i>
               </div>
               Confidentialité et données personnelles
@@ -325,7 +325,7 @@ export default function ProfileClient({ user, dbUser }) {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl"
+              className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-red-600 mb-4">

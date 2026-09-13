@@ -91,26 +91,26 @@ export default function InsurerDashboardClient() {
 
       {/* Métriques clés */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm min-w-0">
           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Primes validées</div>
-          <div className="text-xl font-black text-secondary">{(stats?.totalAmount || 0).toLocaleString('fr-FR')}€</div>
+          <div className="text-lg sm:text-xl font-black break-words text-secondary">{(stats?.totalAmount || 0).toLocaleString('fr-FR')}€</div>
           <div className="text-xs text-slate-400 mt-1">Volume cumulé</div>
         </motion.div>
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm min-w-0">
           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Prime moyenne</div>
-          <div className="text-xl font-black text-accent">
+          <div className="text-lg sm:text-xl font-black break-words text-accent">
             {(stats?.avgPremium || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
           </div>
           <div className="text-xs text-slate-400 mt-1">Sur dossiers souscrits</div>
         </motion.div>
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm min-w-0">
           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Taux de conversion</div>
-          <div className="text-xl font-black text-primary">{stats?.conversionRate ?? 0}%</div>
+          <div className="text-lg sm:text-xl font-black break-words text-primary">{stats?.conversionRate ?? 0}%</div>
           <div className="text-xs text-slate-400 mt-1">Souscrites / Total</div>
         </motion.div>
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm min-w-0">
           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Délai traitement</div>
-          <div className="text-xl font-black text-primary">{stats?.avgProcessingHours > 0 ? `${stats.avgProcessingHours}h` : '—'}</div>
+          <div className="text-lg sm:text-xl font-black break-words text-primary">{stats?.avgProcessingHours > 0 ? `${stats.avgProcessingHours}h` : '—'}</div>
           <div className="text-xs text-slate-400 mt-1">Moy. dépôt → souscription</div>
         </motion.div>
       </div>

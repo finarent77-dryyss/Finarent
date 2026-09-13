@@ -55,7 +55,7 @@ export default function BulkProspectEmailPanel({ prospects }) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b flex items-center justify-between">
+      <div className="px-5 py-4 border-b flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-bold text-primary">Envoi groupé (max 25)</h2>
         <button type="button" onClick={selectAll} className="text-sm text-secondary font-bold hover:underline">
           Tout sélectionner
@@ -67,7 +67,7 @@ export default function BulkProspectEmailPanel({ prospects }) {
             <label key={p.id} className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer">
               <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} />
               <span className="font-medium">{p.name || 'Sans nom'}</span>
-              <span className="text-gray-400">{p.email}</span>
+              <span className="text-gray-400 min-w-0 truncate">{p.email}</span>
             </label>
           ))}
           {!withEmail.length && (

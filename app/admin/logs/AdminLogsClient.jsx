@@ -100,7 +100,7 @@ export default function AdminLogsClient() {
       {/* Période + recherche */}
       <motion.div variants={itemVariants} className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1">
             {PERIODS.map((p) => (
               <button
                 key={p.key}
@@ -178,7 +178,8 @@ export default function AdminLogsClient() {
                           <td className="px-5 py-3.5 align-top">
                             <span className="font-bold text-primary text-xs">{r.actionLabel}</span>
                           </td>
-                          <td className="px-5 py-3.5 text-slate-600 text-xs align-top max-w-[360px]">
+                          <td className="px-5 py-3.5 text-slate-600 text-xs align-top">
+                            <div className="max-w-[360px]">
                             <div className={isOpen ? '' : 'truncate'}>{r.summary}</div>
                             {r.ipAddress && <div className="text-[10px] text-slate-300 mt-0.5">IP {r.ipAddress}</div>}
                             {isOpen && hasDetails && (
@@ -186,6 +187,7 @@ export default function AdminLogsClient() {
                                 {JSON.stringify(r.details, null, 2)}
                               </pre>
                             )}
+                            </div>
                           </td>
                           <td className="px-5 py-3.5 align-top">
                             <div className="flex flex-col">

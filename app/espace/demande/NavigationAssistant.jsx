@@ -8,12 +8,12 @@ import { LoadingIcon } from '@/components/animations/FinarentAnimation';
 
 export default function NavigationAssistant({ step, submitting, goPrev, goNext, onSubmit, t }) {
   return (
-    <div className="flex justify-between mt-8">
+    <div className="flex justify-between gap-3 mt-8">
       <button
         onClick={goPrev}
         disabled={step === 0}
         className={`
-          flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all
+          flex items-center gap-2 px-4 sm:px-6 py-3 text-sm sm:text-base rounded-xl font-medium transition-all
           ${step === 0
             ? 'opacity-0 pointer-events-none'
             : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300'
@@ -27,7 +27,7 @@ export default function NavigationAssistant({ step, submitting, goPrev, goNext, 
       {step < STEPS.length - 1 ? (
         <button
           onClick={goNext}
-          className="flex items-center gap-2 px-8 py-3 rounded-xl font-medium bg-secondary text-white hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/25"
+          className="flex items-center gap-2 px-5 sm:px-8 py-3 text-sm sm:text-base rounded-xl font-medium bg-secondary text-white hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/25"
         >
           {t('espace.wizard.next')}
           <i className="fa-solid fa-arrow-right text-sm" />
@@ -36,7 +36,7 @@ export default function NavigationAssistant({ step, submitting, goPrev, goNext, 
         <button
           onClick={onSubmit}
           disabled={submitting}
-          className="flex items-center gap-2 px-8 py-3 rounded-xl font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-5 sm:px-8 py-3 text-sm sm:text-base rounded-xl font-medium bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {submitting ? (
             <>

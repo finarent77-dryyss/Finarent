@@ -24,19 +24,29 @@ export default function CallCenterSidebar({ isManager, isOpen, onClose }) {
       {isOpen && (
         <button
           type="button"
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
           onClick={onClose}
           aria-label="Fermer le menu"
         />
       )}
-      <aside className={`fixed top-0 left-0 z-50 h-full w-64 bg-primary text-white flex flex-col transition-transform md:translate-x-0 ${
+      <aside className={`fixed top-0 left-0 z-50 h-full w-64 bg-primary text-white flex flex-col transition-transform lg:translate-x-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="p-5 border-b border-white/10">
-          <p className="text-xs font-bold uppercase tracking-widest text-white/60">Finarent</p>
-          <p className="text-lg font-black">Centre d&apos;appels</p>
+        <div className="p-5 border-b border-white/10 flex items-start justify-between gap-2">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-white/60">Finarent</p>
+            <p className="text-lg font-black">Centre d&apos;appels</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10"
+            aria-label="Fermer le menu"
+          >
+            <i className="fa-solid fa-xmark text-lg" />
+          </button>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
           {items.map((item) => {
             const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (

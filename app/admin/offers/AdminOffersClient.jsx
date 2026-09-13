@@ -293,7 +293,7 @@ export default function AdminOffersClient() {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex flex-wrap gap-3 mt-4">
               <button
                 type="submit" disabled={saving}
                 className="px-6 py-2.5 bg-secondary text-white font-bold rounded-xl text-sm hover:bg-secondary/90 disabled:opacity-50 transition-all flex items-center gap-2"
@@ -383,16 +383,16 @@ export default function AdminOffersClient() {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-primary text-lg">{app?.companyName || 'Demande #' + o.applicationId.slice(0, 8)}</h3>
+                    <h3 className="font-bold text-primary text-lg break-words">{app?.companyName || 'Demande #' + o.applicationId.slice(0, 8)}</h3>
                     {app?.user && (
-                      <div className="text-xs text-slate-500 mt-0.5">
+                      <div className="text-xs text-slate-500 mt-0.5 break-words">
                         <i className="fa-solid fa-user text-[10px] text-slate-300 mr-1"></i>
                         {app.user.name || app.user.email}
                       </div>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1 min-w-[260px]">
+                  <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 flex-1 min-w-[260px]">
                     <div>
                       <div className="text-[10px] font-bold text-slate-400 uppercase mb-0.5">Montant</div>
                       <div className="text-sm font-black text-primary">{fmtEur(o.amount)}</div>

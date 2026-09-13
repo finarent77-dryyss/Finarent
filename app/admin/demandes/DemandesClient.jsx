@@ -271,10 +271,10 @@ export default function DemandesClient() {
                           </span>
                         )}
                       </div>
-                      <h3 className="font-bold text-primary text-lg">{d.companyName}</h3>
+                      <h3 className="font-bold text-primary text-lg break-words">{d.companyName}</h3>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
                         <span><i className="fa-solid fa-user text-[10px] text-gray-300 mr-1.5"></i>{d.firstName} {d.lastName}</span>
-                        <span><i className="fa-solid fa-envelope text-[10px] text-gray-300 mr-1.5"></i>{d.email}</span>
+                        <span className="min-w-0 break-all"><i className="fa-solid fa-envelope text-[10px] text-gray-300 mr-1.5"></i>{d.email}</span>
                       </div>
                     </div>
                     <div className="text-right flex flex-col items-end gap-2">
@@ -389,7 +389,7 @@ export default function DemandesClient() {
                         {d.message && (
                           <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-4">
                             <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Message du prospect</div>
-                            <p className="text-sm text-gray-600 italic">&ldquo;{d.message}&rdquo;</p>
+                            <p className="text-sm text-gray-600 italic break-words">&ldquo;{d.message}&rdquo;</p>
                           </div>
                         )}
 
@@ -453,7 +453,7 @@ export default function DemandesClient() {
                             </div>
                           ) : (
                             <div className="flex items-start justify-between gap-3">
-                              <p className="text-sm text-gray-600">{d.adminNotes || <span className="italic text-gray-400">{t('admin.none')}</span>}</p>
+                              <p className="text-sm text-gray-600 min-w-0 break-words">{d.adminNotes || <span className="italic text-gray-400">{t('admin.none')}</span>}</p>
                               <button
                                 onClick={() => { setEditingId(d.id); setEditNotes(d.adminNotes || ''); }}
                                 className="text-xs font-bold text-secondary hover:underline shrink-0"

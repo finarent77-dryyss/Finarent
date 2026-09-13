@@ -294,7 +294,7 @@ export default function KanbanClient() {
         </div>
 
         {/* Tabs toggle */}
-        <div className="inline-flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+        <div className="inline-flex items-center gap-1 bg-slate-100 rounded-xl p-1 self-start sm:self-auto">
           <Link
             href="/admin/demandes"
             className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-primary transition-all"

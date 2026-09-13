@@ -14,12 +14,12 @@ export default function EspaceLoading() {
             <div key={i} className="h-32 bg-slate-200 rounded-2xl animate-pulse" style={{ animationDelay: `${i * 100}ms` }}></div>
           ))}
         </div>
-        <div className="grid lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-8 space-y-4">
+        <div className="grid xl:grid-cols-12 gap-8">
+          <div className="xl:col-span-8 space-y-4">
             <div className="h-16 bg-slate-200 rounded-2xl animate-pulse"></div>
             <div className="h-64 bg-slate-100 rounded-2xl animate-pulse"></div>
           </div>
-          <div className="lg:col-span-4 space-y-4">
+          <div className="xl:col-span-4 space-y-4">
             <div className="h-48 bg-slate-100 rounded-2xl animate-pulse"></div>
             <div className="h-48 bg-slate-200 rounded-2xl animate-pulse"></div>
           </div>

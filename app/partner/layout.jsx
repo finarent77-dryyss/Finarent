@@ -35,7 +35,9 @@ export default async function PartnerLayout({ children }) {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <PartnerSidebar email={session.user.email} partnerName={partnerName} />
-      <main className="lg:ml-64 pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+      {/* pb-28 sous lg : la navigation mobile est fixée en bas d'écran (zone sûre iPhone
+          comprise) et masquait la fin du contenu. */}
+      <main className="lg:ml-64 pt-20 pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8">
         {children}
       </main>
     </div>

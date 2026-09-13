@@ -38,7 +38,7 @@ export default function AdminCallCenterDetailClient({ centerId }) {
   if (error || !data) return <div className="p-10 text-center text-red-600">{error}</div>;
 
   return (
-    <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+    <div className="py-4 sm:p-8 max-w-7xl mx-auto">
       <div className="mb-6">
         <Link href="/admin/call-centers" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary mb-3">
           <i className="fa-solid fa-arrow-left"></i>
@@ -46,7 +46,7 @@ export default function AdminCallCenterDetailClient({ centerId }) {
         </Link>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-black text-primary tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-primary tracking-tight">
               {data.name}
               <span className="ml-3 text-xs font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-600 align-middle">
                 {data.type === 'INTERNAL' ? 'Interne' : 'Externe'}
@@ -71,7 +71,7 @@ export default function AdminCallCenterDetailClient({ centerId }) {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 mb-6">
         <Kpi icon="fa-people-group" label="Membres" value={data.stats.members} color="sky" />
         <Kpi icon="fa-folder-open" label="Dossiers" value={data.stats.applications} color="violet" />
         <Kpi icon="fa-phone" label="Interactions" value={data.stats.interactions} color="emerald" />
@@ -136,12 +136,12 @@ export default function AdminCallCenterDetailClient({ centerId }) {
                 {data.members.slice(0, 5).map((m) => {
                   const r = ROLE_LABELS[m.role];
                   return (
-                    <li key={m.id} className="flex items-center justify-between text-sm">
-                      <span>
+                    <li key={m.id} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="min-w-0 truncate">
                         <i className={`fa-solid ${r.icon} text-gray-400 mr-2`}></i>
                         {m.user?.name || m.user?.email || m.userId}
                       </span>
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${r.cls}`}>{r.label}</span>
+                      <span className={`shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${r.cls}`}>{r.label}</span>
                     </li>
                   );
                 })}
@@ -261,53 +261,55 @@ function MembersTab({ centerId, members, onChange }) {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
-              <tr>
-                <th className="text-left px-5 py-3">Nom</th>
-                <th className="text-left px-5 py-3">Email</th>
-                <th className="text-center px-5 py-3">Rôle dans le centre</th>
-                <th className="text-left px-5 py-3">Rôle global</th>
-                <th className="px-5 py-3"><span className="sr-only">Actions</span></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {members.map((m) => {
-                const r = ROLE_LABELS[m.role];
-                return (
-                  <tr key={m.id} className="hover:bg-gray-50/50">
-                    <td className="px-5 py-3 font-medium text-primary">{m.user?.name || '—'}</td>
-                    <td className="px-5 py-3 text-gray-600">{m.user?.email}</td>
-                    <td className="px-5 py-3 text-center">
-                      <select
-                        value={m.role}
-                        onChange={(e) => changeRole(m.user.id, e.target.value)}
-                        className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border-0 cursor-pointer ${r.cls}`}
-                      >
-                        <option value="AGENT">Agent</option>
-                        <option value="MANAGER">Manager</option>
-                      </select>
-                    </td>
-                    <td className="px-5 py-3 text-xs text-gray-500">{m.user?.role}</td>
-                    <td className="px-5 py-3 text-right">
-                      <button
-                        onClick={() => removeMember(m.user.id)}
-                        className="text-xs text-red-500 hover:text-red-700 font-bold"
-                      >
-                        Retirer
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                <tr>
+                  <th className="text-left px-5 py-3">Nom</th>
+                  <th className="text-left px-5 py-3">Email</th>
+                  <th className="text-center px-5 py-3">Rôle dans le centre</th>
+                  <th className="text-left px-5 py-3">Rôle global</th>
+                  <th className="px-5 py-3"><span className="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {members.map((m) => {
+                  const r = ROLE_LABELS[m.role];
+                  return (
+                    <tr key={m.id} className="hover:bg-gray-50/50">
+                      <td className="px-5 py-3 font-medium text-primary">{m.user?.name || '—'}</td>
+                      <td className="px-5 py-3 text-gray-600">{m.user?.email}</td>
+                      <td className="px-5 py-3 text-center">
+                        <select
+                          value={m.role}
+                          onChange={(e) => changeRole(m.user.id, e.target.value)}
+                          className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border-0 cursor-pointer ${r.cls}`}
+                        >
+                          <option value="AGENT">Agent</option>
+                          <option value="MANAGER">Manager</option>
+                        </select>
+                      </td>
+                      <td className="px-5 py-3 text-xs text-gray-500">{m.user?.role}</td>
+                      <td className="px-5 py-3 text-right">
+                        <button
+                          onClick={() => removeMember(m.user.id)}
+                          className="text-xs text-red-500 hover:text-red-700 font-bold"
+                        >
+                          Retirer
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {showAdd && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-xl font-black text-primary">Ajouter un membre</h2>
               <button onClick={() => setShowAdd(false)} aria-label="Fermer" className="text-gray-400 hover:text-gray-700">
@@ -421,7 +423,7 @@ function CommissionsTab({ centerId, commissions, onChange }) {
         </a>
       </div>
 
-      <div className="flex gap-4 text-xs text-gray-500">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
         <span>À verser : <strong className="text-amber-600">{totals.pending.toFixed(2)} €</strong></span>
         <span>Versé : <strong className="text-emerald-600">{totals.paid.toFixed(2)} €</strong></span>
       </div>
@@ -495,9 +497,9 @@ function Kpi({ icon, label, value, color }) {
 
 function Row({ label, value }) {
   return (
-    <div className="flex justify-between py-1">
+    <div className="flex justify-between gap-4 py-1">
       <dt className="text-gray-500">{label}</dt>
-      <dd className="font-semibold text-primary">{value}</dd>
+      <dd className="font-semibold text-primary text-right">{value}</dd>
     </div>
   );
 }

@@ -56,14 +56,14 @@ export default function PartnerSidebar({ email, partnerName }) {
       </aside>
 
       {/* Mobile bottom nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex pb-[env(safe-area-inset-bottom)]">
         {NAV_ITEMS.map((item) => {
           const isActive = item.href === '/partner' ? pathname === '/partner' : pathname.startsWith(item.href);
           return (
             <Link
               key={item.key}
               href={item.href}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-all ${isActive ? 'text-secondary' : 'text-gray-400'}`}
+              className={`flex-1 min-w-0 flex flex-col items-center gap-1 px-1 py-3 text-xs leading-tight text-center font-medium transition-all ${isActive ? 'text-secondary' : 'text-gray-400'}`}
             >
               <i className={`fa-solid ${item.icon}`}></i>
               {item.label}
@@ -71,7 +71,7 @@ export default function PartnerSidebar({ email, partnerName }) {
           );
         })}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Auth0 : /api/auth/* exige une navigation complète. Un <Link> ferait une navigation côté client et la connexion échouerait silencieusement. */}
-        <a href="/api/auth/logout?returnTo=/" className="flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium text-red-400">
+        <a href="/api/auth/logout?returnTo=/" className="flex-1 min-w-0 flex flex-col items-center gap-1 px-1 py-3 text-xs leading-tight text-center font-medium text-red-400">
           <i className="fa-solid fa-power-off"></i>
           Quitter
         </a>
