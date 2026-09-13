@@ -352,3 +352,30 @@ describe('sendMail — le transport est réellement neutralisé', () => {
     expect(console.warn.mock.calls[0][0]).toContain('camille.durand@example.com');
   });
 });
+
+/**
+ * Un relais SMTP authentifié (Hostinger, OVH, boîte de messagerie) n'accepte
+ * d'envoyer qu'au nom de la boîte connectée. Le canal SMTP reprenait pourtant
+ * l'expéditeur Brevo : le repli, censé rattraper un échec Brevo, échouait à son
+ * tour. Ces cas verrouillent l'identité propre du canal SMTP.
+ */
+describe('expediteurSmtp — identité du relais SMTP', () => {
+  const EXPEDITEUR_BREVO = { name: 'Finarent', email: 'ne-pas-repondre@finarent.com' };
+
+  it('remplace l\'adresse Brevo par SMTP_FROM, en gardant le nom affiché', async () => {
+    const { expediteurSmtp } = await import('@/lib/email/send.js');
+    const env = { SMTP_FROM: 'contact@finarent.fr', SMTP_USER: 'contact@finarent.fr' };
+    expect(expediteurSmtp(EXPEDITEUR_BREVO, env)).toEqual({ name: 'Finarent', email: 'contact@finarent.fr' });
+  });
+
+  it('retombe sur SMTP_USER quand SMTP_FROM est absent ou vide', async () => {
+    const { expediteurSmtp } = await import('@/lib/email/send.js');
+    expect(expediteurSmtp(EXPEDITEUR_BREVO, { SMTP_USER: 'contact@finarent.fr' }).email).toBe('contact@finarent.fr');
+    expect(expediteurSmtp(EXPEDITEUR_BREVO, { SMTP_FROM: '   ', SMTP_USER: 'contact@finarent.fr' }).email).toBe('contact@finarent.fr');
+  });
+
+  it('conserve l\'expéditeur fourni si aucune identité SMTP n\'est configurée', async () => {
+    const { expediteurSmtp } = await import('@/lib/email/send.js');
+    expect(expediteurSmtp(EXPEDITEUR_BREVO, {})).toEqual(EXPEDITEUR_BREVO);
+  });
+});
