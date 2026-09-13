@@ -49,7 +49,27 @@ const nextConfig = {
           // Libère les structures intermédiaires de webpack au fil de la
           // compilation au lieu de les conserver jusqu'à la fin.
           webpackMemoryOptimizations: true,
+          // Compiler dans le processus `next build` lui-même.
+          //
+          // Les déploiements des 11 et 12 septembre 2026 ont été tués sur
+          // « Next.js build worker exited with code: null and signal: SIGKILL »,
+          // 24 s après le début de la compilation — pendant la phase webpack.
+          // Sans configuration `webpack` personnalisée, Next 15 lance cette
+          // compilation dans un processus fils distinct (next/dist/build/index.js,
+          // `useBuildWorker`) : le parent et le worker occupent chacun leur
+          // propre tas, en plus de `npm` et de `scripts/build.js`. Abaisser le
+          // plafond de chaque processus à 768 Mo (12/09) n'a rien changé.
+          // Supprimer le second processus est le levier direct.
+          webpackBuildWorker: false,
+          // Ces deux parallélisations reposent sur des processus supplémentaires.
+          parallelServerCompiles: false,
+          parallelServerBuildTraces: false,
         },
+        // Le lint et le typage tournent dans des workers après la compilation.
+        // L'intégration continue les exécute déjà et bloque la fusion : les
+        // rejouer ici n'ajoute aucune garantie, seulement un pic mémoire.
+        eslint: { ignoreDuringBuilds: true },
+        typescript: { ignoreBuildErrors: true },
       }
     : {}),
 

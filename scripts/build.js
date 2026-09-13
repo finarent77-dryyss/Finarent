@@ -156,31 +156,23 @@ function copyStandaloneAssets() {
 }
 
 /**
- * Environnement du `next build`, avec un plafond mémoire par processus.
+ * Environnement du `next build`.
  *
- * Clever Cloud injecte `NODE_OPTIONS=--max-old-space-size=1262` sur une instance
- * de build d'environ 2 Go. `execSync` transmet cet environnement tel quel, donc
- * le plafond vaut pour CHAQUE processus : le parent et le worker de génération
- * statique. Deux fois 1262 Mo dépassent le conteneur, et le noyau tue le
- * second — d'où « Next.js build worker exited with code: null and signal:
- * SIGKILL », observé au déploiement du 11 septembre 2026.
+ * Le 11 septembre 2026, le plafond mémoire injecté par Clever Cloud
+ * (`--max-old-space-size=1262`) avait été abaissé à 768 Mo par processus, sur
+ * l'hypothèse qu'un parent et un worker se partageaient le conteneur. Le
+ * déploiement du 12 septembre a été tué exactement de la même façon, 24 s après
+ * le début de la compilation : l'hypothèse ne tenait pas.
  *
- * Le plafond est donc abaissé pour que parent et worker tiennent ensemble.
- * V8 déclenche ses collectes plus tôt : le build est un peu plus lent, mais il
- * aboutit. `next.config.js` limite déjà la génération à un seul worker.
- *
- * Réglage local ou en intégration continue : inchangé. La variable n'est
- * ajustée que si la plateforme a imposé la sienne.
+ * La compilation webpack tourne désormais dans le processus `next build`
+ * lui-même (`webpackBuildWorker: false`, voir next.config.js). Il lui faut son
+ * tas complet : 768 Mo exposeraient au « JavaScript heap out of memory ». Le
+ * plafond de la plateforme est donc laissé tel quel, et seulement journalisé
+ * pour que le prochain échec éventuel se lise dans les logs de déploiement.
  */
-const PLAFOND_MEMOIRE_PAR_PROCESSUS_MO = 768;
-
 function environnementBuild() {
   const env = { ...process.env };
-  if (!/--max-old-space-size/.test(env.NODE_OPTIONS || '')) return env;
-
-  const sansPlafond = env.NODE_OPTIONS.replace(/--max-old-space-size=\d+/g, '').trim();
-  env.NODE_OPTIONS = `${sansPlafond} --max-old-space-size=${PLAFOND_MEMOIRE_PAR_PROCESSUS_MO}`.trim();
-  console.log(`🧠 NODE_OPTIONS du build : ${env.NODE_OPTIONS}`);
+  console.log(`🧠 NODE_OPTIONS du build : ${env.NODE_OPTIONS || '(aucun)'}`);
   return env;
 }
 
