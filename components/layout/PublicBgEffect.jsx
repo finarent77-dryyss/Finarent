@@ -2,9 +2,7 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-
-// Routes privées qui gardent un fond blanc sobre (sidebars + dashboards)
-const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
+import { estEspaceConnecte } from '@/lib/routes-privees';
 
 /**
  * Active le wash iridescent vibrant sur <body> pour toutes les pages publiques.
@@ -12,9 +10,7 @@ const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
  */
 export default function PublicBgEffect() {
   const pathname = usePathname();
-  const isPrivate = PRIVATE_PREFIXES.some(
-    (p) => pathname === p || pathname?.startsWith(p + '/'),
-  );
+  const isPrivate = estEspaceConnecte(pathname);
 
   useEffect(() => {
     if (isPrivate) {

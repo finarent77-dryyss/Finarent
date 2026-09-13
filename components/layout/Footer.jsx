@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, CONTACT_PHONE_HREF } from '@/lib/contact';
-
-const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, CONTACT_PHONE_HREF, SOCIAL_LINKS } from '@/lib/contact';
+import { estEspaceConnecte } from '@/lib/routes-privees';
 
 function FooterNewsletter() {
   const [email, setEmail] = useState('');
@@ -69,20 +68,13 @@ function FooterNewsletter() {
   );
 }
 
-const SOCIALS = [
-  { icon: 'linkedin-in', url: '#', label: 'LinkedIn' },
-  { icon: 'facebook-f', url: '#', label: 'Facebook' },
-  { icon: 'twitter', url: '#', label: 'Twitter' },
-  { icon: 'instagram', url: '#', label: 'Instagram' },
-];
-
 export default function Footer() {
   const { t } = useTranslation();
   const pathname = usePathname();
   const linkClass = 'text-white/55 hover:text-white transition-colors duration-200';
 
   // Les espaces privés ont leur propre chrome (sidebar/topbar) — pas de footer global.
-  if (PRIVATE_PREFIXES.some((p) => pathname === p || pathname?.startsWith(p + '/'))) {
+  if (estEspaceConnecte(pathname)) {
     return null;
   }
 
@@ -140,12 +132,14 @@ export default function Footer() {
               </a>
             </div>
             <div className="flex gap-2">
-              {SOCIALS.map((s) => (
+              {SOCIAL_LINKS.map((s) => (
                 <a
                   key={s.icon}
                   href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-9 h-9 rounded-xl bg-white/5 hover:bg-accent flex items-center justify-center text-white/40 hover:text-white transition-all duration-300"
-                  aria-label={s.label}
+                  aria-label={`Finarent sur ${s.label}`}
                 >
                   <i className={`fa-brands fa-${s.icon} text-sm`}></i>
                 </a>

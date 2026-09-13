@@ -1,6 +1,6 @@
 import { serialiserJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/seo';
-import { CONTACT_EMAIL, CONTACT_PHONE_E164 } from '@/lib/contact';
+import { CONTACT_EMAIL, CONTACT_PHONE_E164, SOCIAL_LINKS } from '@/lib/contact';
 
 const OFFER_CATALOG = {
   '@type': 'OfferCatalog',
@@ -45,6 +45,7 @@ export function OrganizationJsonLd() {
       addressCountry: 'FR',
     },
     areaServed: 'France',
+    sameAs: SOCIAL_LINKS.map((s) => s.url),
     hasOfferCatalog: OFFER_CATALOG,
     priceRange: '€€',
     currenciesAccepted: 'EUR',

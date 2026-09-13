@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '../lib/seo.js';
+import { ESPACES_CONNECTES } from '../lib/routes-privees.js';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,11 +9,8 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: [
-          '/admin',
+          ...ESPACES_CONNECTES,
           '/api',
-          '/espace',
-          '/partner',
-          '/insurer',
           '/affiliate',
           '/paiement-confirme',
         ],

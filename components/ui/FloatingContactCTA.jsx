@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { CONTACT_HOURS, CONTACT_PHONE_HREF } from '@/lib/contact';
-
-const PRIVATE_PREFIXES = ['/admin', '/espace', '/partner', '/insurer'];
+import { estEspaceConnecte } from '@/lib/routes-privees';
 
 export default function FloatingContactCTA() {
   const [open, setOpen] = useState(false);
@@ -19,8 +18,8 @@ export default function FloatingContactCTA() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Pas de CTA flottant dans les espaces privés (admin, espace client, partner, insurer)
-  if (PRIVATE_PREFIXES.some((p) => pathname === p || pathname?.startsWith(p + '/'))) {
+  // Pas de CTA flottant dans les espaces connectés
+  if (estEspaceConnecte(pathname)) {
     return null;
   }
 

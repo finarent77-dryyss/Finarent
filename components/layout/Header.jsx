@@ -7,6 +7,7 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 import { useTranslation } from '@/lib/i18n';
 import NotificationsBell from '@/components/espace/NotificationsBell';
 import { CATEGORIES, SIMULATORS } from '@/lib/simulators/registry';
+import { aSaPropreBarre } from '@/lib/routes-privees';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -68,8 +69,10 @@ export default function Header() {
   // (Variable conservée pour compatibilité NotificationsBell.)
   const isOverDarkHero = false;
 
-  // Les espaces admin/partenaire/assureur ont leur propre chrome (sidebar + topbar)
-  if (pathname?.startsWith('/admin')) return null;
+  // Les espaces admin et centre d'appels ont leur propre chrome (sidebar + barre du haut).
+  // Sur /call-center, ce header fixe recouvrait la barre sticky de l'espace et son
+  // bouton de menu : impossible d'ouvrir la navigation sur mobile.
+  if (aSaPropreBarre(pathname)) return null;
 
   const navLinkClass = (href) => {
     const isActive = pathname === href || pathname.startsWith(href + '/');
