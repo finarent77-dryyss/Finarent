@@ -120,9 +120,13 @@ Dernier déploiement de code : `75c272e1`, le 4 juillet 2026. Les trois entrées
 
 > Conséquence pour le plan : le premier redéploiement ne sera pas un simple redémarrage. Il livrera deux mois de travail d'un coup. À traiter comme une mise en production à part entière — d'autant que les migrations Prisma accumulées s'appliqueront dans la foulée.
 
-### P0-6 — Le `.env` local écrivait sur une base hors inventaire
+### P0-6 — Le `.env` local écrivait sur la base de production
 
-Le `.env` ne pointait pas sur la base de production. Les deux hôtes résolvent, mais ce sont **deux addons distincts** : la production lit `bwzdk9…`, le `.env` écrivait sur `byjpfe…`, qui n'apparaît pas dans `clever addon`. Une base vivante, hors de l'inventaire de l'organisation. À identifier : si elle est orpheline, elle est facturée et détient peut-être des données réelles.
+> **Rectifié le 13 septembre 2026 — la conclusion d'origine était fausse.** `byjpfe…` n'est pas une base orpheline : **c'est la base de production.** Le journal de déploiement du 13 septembre de l'application qui sert `finarent.com` (`app_fe0a7909`) montre `DATABASE_URL` sur `byjpfecdckni2j5rcadm`, et « aucune migration en attente ». L'inventaire qui la disait « hors organisation » avait été dressé avec `clever addon` depuis le compte `slformation7@gmail.com`, qui ne possède pas l'application de production : sa base y était forcément invisible. `bwzdk9…` reste à identifier — vraisemblablement la base de l'application homonyme arrêtée de ce compte, ce qui n'est pas vérifié. La mention du plan `DEV` ci-dessous a été relevée sur cette même base erronée : elle reste à confirmer sur `byjpfe…`.
+>
+> Conséquence directe : **le `.env` local écrivait sur la production**, ce qui aggrave `P0-1` au lieu de le nuancer, et la migration partie par erreur le 9 septembre a touché la production (`docs/VERIFICATION_2026-09.md` §5). Aucune donnée perdue — mais la garde de `scripts/prisma-securise.mjs` n'était pas une précaution de confort : elle manquait.
+
+Texte d'origine, conservé pour mémoire : ~~Le `.env` ne pointait pas sur la base de production. Les deux hôtes résolvent, mais ce sont deux addons distincts : la production lit `bwzdk9…`, le `.env` écrivait sur `byjpfe…`, qui n'apparaît pas dans `clever addon`.~~
 
 À noter également : la base de production est sur le plan **`DEV PostgreSQL`**, le palier gratuit, pour une plateforme qui stocke des dossiers clients. À revoir avec `A2` (sauvegardes).
 

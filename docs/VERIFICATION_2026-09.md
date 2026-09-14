@@ -238,7 +238,11 @@ Nous le rapportons parce qu'il illustre précisément le risque que le plan de c
 
 **Ce qui s'est passé.** Le fichier de configuration locale contient plusieurs lignes désignant la base de données : une locale, et une distante normalement neutralisée. En ajoutant des clés dans ce fichier, la ligne distante a été réactivée. Le mécanisme de lecture de ce fichier retient la **dernière** occurrence d'une clé, pas la première : la base distante l'a donc emporté silencieusement. Une commande de mise à jour de la base lancée pour l'environnement local est partie sur la base distante.
 
-**Impact réel, mesuré.** Deux tables vides ajoutées, un type, trois index, une ligne d'historique. Opération purement additive : **aucune donnée existante lue, modifiée ou supprimée**. La base concernée n'est pas celle de production, mais un addon hors inventaire déjà signalé par l'audit.
+**Impact réel, mesuré.** Deux tables vides ajoutées, un type, trois index, une ligne d'historique. Opération purement additive : **aucune donnée existante lue, modifiée ou supprimée**.
+
+> **Rectification du 13 septembre 2026.** La version précédente de ce paragraphe affirmait que la base concernée « n'est pas celle de production, mais un addon hors inventaire ». **C'était faux.** Le journal de déploiement du 13 septembre de l'application qui sert `finarent.com` montre qu'elle lit précisément cette base. L'erreur venait d'un inventaire dressé depuis le mauvais compte Clever Cloud : l'application de production appartient à un autre compte, où sa base était forcément invisible depuis le nôtre — d'où l'étiquette « hors inventaire ».
+>
+> **La migration du 9 septembre a donc été appliquée à la base de production.** L'impact mesuré ne change pas — deux tables vides, aucune donnée touchée — et ces deux tables sont précisément celles dont le code déployé a besoin : le déploiement du 13 septembre constate « aucune migration en attente ». Mais la gravité de l'incident change : une migration comportant une suppression de colonne aurait détruit des données clients réelles, et non celles d'une base annexe.
 
 **Ce que nous en avons tiré.** La garde anti-production existante n'aurait pas pu l'empêcher : elle ne protégeait que les scripts maison, pas les commandes de base de données ordinaires — précisément celles que le plan désignait comme dangereuses. Elle a été étendue, et affiche désormais la base réellement visée avant toute opération.
 
