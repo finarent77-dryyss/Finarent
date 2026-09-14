@@ -48,7 +48,7 @@ jobs:
         with:
           # package.json impose "node": ">=20". La CI valide sur la version
           # minimale supportée : ce qui passe ici passe partout au-dessus.
-          node-version: '20.x'
+          node-version: '22.x' # = engines.node de package.json : production, CI et postes compilent sur la meme version
           # Cache du dossier ~/.npm, indexé sur package-lock.json.
           cache: npm
 
@@ -190,7 +190,7 @@ jobs:
       - name: Installer Node.js 20
         uses: actions/setup-node@v4.1.0
         with:
-          node-version: '20.x'
+          node-version: '22.x' # = engines.node de package.json : production, CI et postes compilent sur la meme version
           cache: npm
 
       - name: Installer les dépendances
