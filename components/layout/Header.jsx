@@ -105,7 +105,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
             <img
-              src="/finarent-logo.svg"
+              src="/finarent-logo.png"
               alt="Finarent"
               className="h-10 sm:h-11 w-auto object-contain"
             />

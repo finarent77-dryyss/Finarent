@@ -111,7 +111,7 @@ export default function Footer() {
           <div className="lg:col-span-7">
             <div className="flex items-center gap-3 mb-4">
               <div className="inline-flex bg-white rounded-xl px-4 py-2 shadow-sm">
-                <img src="/finarent-logo.svg" alt="Finarent" className="h-8 w-auto object-contain" />
+                <img src="/finarent-logo.png" alt="Finarent" className="h-8 w-auto object-contain" />
               </div>
             </div>
             <p className="text-white/50 text-sm leading-relaxed mb-5 max-w-lg">

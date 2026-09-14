@@ -34,7 +34,7 @@ export function OrganizationJsonLd() {
     name: 'Finarent',
     alternateName: 'Finarent — Courtier financement & assurance pro',
     url: SITE_URL,
-    logo: `${SITE_URL}/finarent-logo.jpg`,
+    logo: `${SITE_URL}/finarent-logo.png`,
     image: `${SITE_URL}/hero_business_team_premium_v2_1772271137874.png`,
     telephone: CONTACT_PHONE_E164,
     email: CONTACT_EMAIL,
