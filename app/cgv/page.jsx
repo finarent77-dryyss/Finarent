@@ -450,7 +450,7 @@ export default function CgvPage() {
           <p>
             RCS Melun 931 295 836 · ORIAS 24005698 · <a href="https://finarent.com" className="text-emerald-700 underline">finarent.com</a>
           </p>
-          <p className="italic">© Finarent — Tous droits réservés · Document généré le 13 mai 2026</p>
+          <p className="italic">© Finarent — Tous droits réservés</p>
         </footer>
       </div>
     </div>
