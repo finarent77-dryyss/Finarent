@@ -12,9 +12,12 @@ import AttributionCapture from '@/components/providers/AttributionCapture';
 import ClarityTracker from '@/components/providers/ClarityTracker';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
 import { SITE_URL } from '@/lib/seo';
+import { cleDeSitePublique } from '@/lib/recaptcha';
 import './globals.css';
 
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+// `null` pour la clé de démonstration de Google : son badge afficherait un
+// avertissement rouge sur toutes les pages (voir lib/recaptcha.js).
+const RECAPTCHA_SITE_KEY = cleDeSitePublique();
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),

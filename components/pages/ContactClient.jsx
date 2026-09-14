@@ -10,6 +10,7 @@ import FAQItem from '@/components/ui/FAQItem';
 import { useTranslation } from '@/lib/i18n';
 import { buildPrefillFromParams } from '@/lib/simulators/prefill';
 import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, CONTACT_HOURS, CONTACT_PHONE_HREF } from '@/lib/contact';
+import { cleDeSitePublique } from '@/lib/recaptcha';
 
 // Mapping secteur wizard → option du select de /contact (libellés différents)
 const CONTACT_SECTOR_MAP = {
@@ -142,7 +143,7 @@ export default function ContactClient({ initialParams }) {
       // le serveur retombe alors sur le pot de miel et la limite par IP, plutot
       // que de rejeter la demande. Ne jamais envoyer de jeton factice ici.
       let recaptchaToken = '';
-      const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+      const siteKey = cleDeSitePublique();
       if (siteKey && typeof window !== 'undefined' && window.grecaptcha) {
         const g = window.grecaptcha.enterprise || window.grecaptcha;
         try {

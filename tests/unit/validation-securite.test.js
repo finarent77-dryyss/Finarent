@@ -8,7 +8,7 @@ import {
 } from '@/utils/validation.js';
 import { checkRateLimitMemoire } from '@/lib/rateLimit.js';
 import { safeEqual, isCronAuthorized } from '@/lib/cron-auth.js';
-import { verifyRecaptcha, recaptchaEstActif, cleDeDemonstration } from '@/lib/recaptcha.js';
+import { verifyRecaptcha, recaptchaEstActif, cleDeDemonstration, cleDeSitePublique } from '@/lib/recaptcha.js';
 import { sniffMatchesMime } from '@/lib/file-signature.js';
 import { STATUS_TO_LEGACY, STATUS_TO_DB, VALID_LEGACY_STATUSES } from '@/lib/statusMap.js';
 
@@ -176,6 +176,42 @@ describe('verifyRecaptcha — clé de démonstration', () => {
     vi.stubEnv('RECAPTCHA_SECRET_KEY', '');
     const resultat = await verifyRecaptcha('');
     expect(resultat).toMatchObject({ success: true, skipped: true, reason: 'no_secret' });
+  });
+});
+
+/**
+ * Le badge de la clé de démonstration affiche un avertissement rouge sur toutes
+ * les pages. Le navigateur ne doit recevoir une clé que si elle est réelle.
+ */
+describe('cleDeSitePublique', () => {
+  const CLE_SITE_DEMO = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('écarte la clé de démonstration de Google', () => {
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', CLE_SITE_DEMO);
+    expect(cleDeSitePublique()).toBeNull();
+  });
+
+  it('renvoie une clé réelle telle quelle', () => {
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', '6LdLErItAAAAAcleDeSiteReelle12345678901');
+    expect(cleDeSitePublique()).toBe('6LdLErItAAAAAcleDeSiteReelle12345678901');
+  });
+
+  it('renvoie null sans clé configurée', () => {
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', '');
+    expect(cleDeSitePublique()).toBeNull();
+  });
+
+  it('un secret seul, sans clé de site, ne ferme pas les formulaires', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.stubEnv('NEXT_PUBLIC_RECAPTCHA_SITE_KEY', '');
+    vi.stubEnv('RECAPTCHA_SECRET_KEY', '6LdLErItAAAAAsecretReel1234567890123456');
+    const resultat = await verifyRecaptcha('');
+    expect(resultat).toMatchObject({ success: true, skipped: true, reason: 'no_site_key' });
+    expect(recaptchaEstActif()).toBe(false);
   });
 });
 
