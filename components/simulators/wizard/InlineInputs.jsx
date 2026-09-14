@@ -85,35 +85,44 @@ export function InlineChoice({ value, onChange, options }) {
 }
 
 // Boutons-cartes pour gros choix
+// Colonnes pilotées par la largeur du conteneur (container queries) et non du
+// viewport : le wizard est inséré entre un stepper et une colonne latérale, sa
+// zone utile reste étroite même sur grand écran.
 export function ChoiceCards({ value, onChange, options, columns = 2 }) {
-  const colClass = columns === 3 ? 'sm:grid-cols-3' : columns === 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-2';
+  const colClass = columns === 3
+    ? '@sm:grid-cols-2 @xl:grid-cols-3'
+    : columns === 4
+      ? '@sm:grid-cols-2 @2xl:grid-cols-4'
+      : '@sm:grid-cols-2';
   return (
-    <div className={`grid grid-cols-1 ${colClass} gap-3 mt-6`}>
-      {options.map((opt) => {
-        const active = value === opt.value;
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => onChange(opt.value)}
-            className={`text-left rounded-2xl border-2 p-4 transition ${
-              active
-                ? 'border-emerald-500 bg-emerald-50 shadow-[0_8px_24px_-12px_rgba(16,185,129,0.3)]'
-                : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
-            }`}
-          >
-            {opt.icon && (
-              <div className={`text-2xl mb-2 ${active ? 'text-emerald-600' : 'text-gray-400'}`}>
-                <i className={`fa-solid ${opt.icon}`}></i>
+    <div className="@container mt-6">
+      <div className={`grid grid-cols-1 ${colClass} gap-3`}>
+        {options.map((opt) => {
+          const active = value === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={`min-w-0 text-left rounded-2xl border-2 p-4 transition ${
+                active
+                  ? 'border-emerald-500 bg-emerald-50 shadow-[0_8px_24px_-12px_rgba(16,185,129,0.3)]'
+                  : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
+              }`}
+            >
+              {opt.icon && (
+                <div className={`text-2xl mb-2 ${active ? 'text-emerald-600' : 'text-gray-400'}`}>
+                  <i className={`fa-solid ${opt.icon}`}></i>
+                </div>
+              )}
+              <div className={`font-bold text-[15px] leading-snug wrap-break-word hyphens-auto ${active ? 'text-emerald-700' : 'text-primary'}`}>
+                {opt.label}
               </div>
-            )}
-            <div className={`font-bold text-[15px] ${active ? 'text-emerald-700' : 'text-primary'}`}>
-              {opt.label}
-            </div>
-            {opt.desc && <div className="text-xs text-gray-500 mt-1">{opt.desc}</div>}
-          </button>
-        );
-      })}
+              {opt.desc && <div className="text-xs text-gray-500 mt-1">{opt.desc}</div>}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
