@@ -3,7 +3,8 @@ import { requireAdmin, isAuthError } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateInvoicePDF } from '@/lib/invoicing/pdf';
 import { archiverEtEnvoyerDocument } from '@/lib/documents/deliver';
-import { coordonneesBancairesValides, MESSAGE_RIB_MANQUANT } from '@/lib/invoicing/company.js';
+import { ribValide, MESSAGE_RIB_MANQUANT } from '@/lib/invoicing/company.js';
+import { lireCoordonneesBancaires } from '@/lib/invoicing/banque.js';
 
 /**
  * Prévisualisation et envoi d'une facture, séparés.
@@ -36,7 +37,8 @@ export async function GET(request, { params }) {
   const invoice = await chargerFacture(id);
   if (!invoice) return NextResponse.json({ error: 'Facture introuvable' }, { status: 404 });
 
-  const pdfBuffer = generateInvoicePDF(invoice);
+  const banque = await lireCoordonneesBancaires();
+  const pdfBuffer = generateInvoicePDF(invoice, banque);
 
   return new Response(pdfBuffer, {
     headers: {
@@ -67,14 +69,15 @@ export async function POST(request, { params }) {
   }
   // Une facture porte le RIB de Finarent en pied de page : l'envoyer avec le
   // gabarit revient à réclamer un paiement sur un compte inexistant.
-  if (!coordonneesBancairesValides()) {
+  const banque = await lireCoordonneesBancaires();
+  if (!ribValide(banque.iban, banque.bic)) {
     return NextResponse.json({ error: MESSAGE_RIB_MANQUANT }, { status: 409 });
   }
   if (!invoice.clientEmail) {
     return NextResponse.json({ error: 'Aucune adresse email renseignée sur cette facture.' }, { status: 400 });
   }
 
-  const pdfBuffer = generateInvoicePDF(invoice);
+  const pdfBuffer = generateInvoicePDF(invoice, banque);
 
   const { document, envoye, raison } = await archiverEtEnvoyerDocument({
     buffer: Buffer.from(pdfBuffer),

@@ -368,6 +368,21 @@ model Testimonial {
   @@index([isPublished, isApproved])
 }
 
+// Coordonnées bancaires de Finarent — une seule ligne (id « finarent »).
+// Saisies dans Admin › Paramètres, imprimées en pied de facture et utilisées
+// comme compte débiteur des virements SEPA. Tant qu'elle n'existe pas, le
+// gabarit de lib/invoicing/company.js s'applique et bloque ces deux usages.
+model CompanyBankDetails {
+  id          String   @id @default("finarent")
+  bankName    String
+  holder      String?
+  iban        String
+  bic         String
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 // ─── FACTURATION ──────────────────────────────────────────
 // Inspiré du modèle slformations : Invoice + lignes + versements + avoirs.
 // Adapté à Finarent (frais de dossier client, honoraires courtage).

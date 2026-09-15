@@ -3,7 +3,8 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/users';
 import { generateSepaXml, nextBusinessDay } from '@/lib/sepa-xml.js';
-import { COMPANY_INFO, coordonneesBancairesValides, MESSAGE_RIB_MANQUANT } from '@/lib/invoicing/company.js';
+import { COMPANY_INFO, ribValide, MESSAGE_RIB_MANQUANT } from '@/lib/invoicing/company.js';
+import { lireCoordonneesBancaires } from '@/lib/invoicing/banque.js';
 import { logAffiliateAction, computeAffiliatePayoutTTC, affiliateDisplayName } from '@/lib/affiliate-fiscal.js';
 import { decryptString } from '@/lib/crypto.js';
 import { archiverDocument } from '@/lib/documents/archive.js';
@@ -71,7 +72,8 @@ export async function GET(request) {
 
   // Un lot de virement bâti sur un IBAN débiteur factice est rejeté en bloc
   // par la banque. Mieux vaut refuser ici, avec un motif lisible.
-  if (!coordonneesBancairesValides()) {
+  const banque = await lireCoordonneesBancaires();
+  if (!ribValide(banque.iban, banque.bic)) {
     return NextResponse.json({ error: MESSAGE_RIB_MANQUANT }, { status: 409 });
   }
 
@@ -109,8 +111,8 @@ export async function GET(request) {
 
   const xml = generateSepaXml({
     debtorName: COMPANY_INFO.name,
-    debtorIban: COMPANY_INFO.iban,
-    debtorBic: COMPANY_INFO.bic,
+    debtorIban: banque.iban,
+    debtorBic: banque.bic,
     requestedExecutionDate: execDate,
     creditors,
   });
